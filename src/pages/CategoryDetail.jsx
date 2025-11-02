@@ -73,8 +73,25 @@ function CategoryDetail() {
         <AboutPanel aboutContent={content} categoryName={category.name_display || category.name_en} />
       ) : (
         <>
-          <h1 style={{ color: 'var(--accent)', marginBottom: '24px', fontSize: '24px' }}>
+          <h1 style={{ 
+            color: '#1a1a1a', 
+            marginBottom: '32px', 
+            fontSize: '32px',
+            fontFamily: 'Georgia, Times New Roman, serif',
+            fontWeight: 700,
+            lineHeight: 1.2,
+            position: 'relative',
+            paddingBottom: '12px'
+          }}>
             {category.name_display || category.name_en}
+            <span style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              width: '60px',
+              height: '3px',
+              background: 'var(--accent)'
+            }}></span>
           </h1>
           {category.content_type === 'publications' && Array.isArray(content) && (
             <div className="grid grid-3">

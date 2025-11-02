@@ -41,6 +41,10 @@ function Footer() {
     }
   }
 
+  const handleAdmin = () => {
+    navigate('/admin')
+  }
+
   return (
     <>
       <footer
@@ -70,16 +74,29 @@ function Footer() {
           Back
         </button>
 
-        <button
-          onClick={handleThankYou}
-          className="btn"
-          style={{
-            fontSize: 'clamp(12px, 3vw, 14px)',
-            padding: '6px 12px'
-          }}
-        >
-          Thank You
-        </button>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+          <button
+            onClick={handleThankYou}
+            className="btn"
+            style={{
+              fontSize: 'clamp(12px, 3vw, 14px)',
+              padding: '6px 12px'
+            }}
+          >
+            Thank You
+          </button>
+          <span
+            onClick={handleAdmin}
+            style={{
+              fontSize: '8px',
+              color: '#999',
+              cursor: 'pointer',
+              textDecoration: 'underline'
+            }}
+          >
+            admin only
+          </span>
+        </div>
 
         <button
           onClick={handleShare}

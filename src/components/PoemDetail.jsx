@@ -44,13 +44,26 @@ function PoemDetail({ poem, allPoems }) {
   if (!poem) return null
 
   return (
-    <div>
-      <h1 style={{ color: 'var(--accent)', marginBottom: '12px', fontSize: '24px' }}>
+    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '0 16px' }}>
+      <h1 style={{ 
+        color: '#1a1a1a', 
+        marginBottom: '12px', 
+        fontSize: '32px',
+        fontFamily: 'Georgia, Times New Roman, serif',
+        fontWeight: 700,
+        lineHeight: 1.2
+      }}>
         {poem.heading || 'Untitled Poem'}
       </h1>
       
       {poem.description && (
-        <p style={{ marginBottom: '16px', fontStyle: 'italic', color: '#666' }}>
+        <p style={{ 
+          marginBottom: '32px', 
+          fontStyle: 'italic', 
+          color: '#666',
+          fontSize: '16px',
+          lineHeight: 1.6
+        }}>
           {poem.description}
         </p>
       )}
@@ -59,12 +72,13 @@ function PoemDetail({ poem, allPoems }) {
         className="markdown-content"
         style={{
           whiteSpace: 'pre-wrap',
-          lineHeight: '1.8',
-          marginBottom: '40px',
-          paddingBottom: '20px',
-          borderBottom: '1px solid #e0e0e0',
-          maxHeight: 'calc(100vh - 300px)',
-          overflowY: 'auto'
+          lineHeight: '2',
+          marginBottom: '48px',
+          paddingBottom: '32px',
+          borderBottom: '1px solid #e8e8e8',
+          color: '#2a2a2a',
+          fontSize: '17px',
+          fontFamily: 'var(--font-family-main)'
         }}
       >
         {poem.full_text}
@@ -73,8 +87,9 @@ function PoemDetail({ poem, allPoems }) {
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
-        paddingTop: '20px',
-        gap: '16px'
+        paddingTop: '24px',
+        gap: '16px',
+        flexWrap: 'wrap'
       }}>
         <button
           onClick={handlePrev}
@@ -82,10 +97,12 @@ function PoemDetail({ poem, allPoems }) {
           disabled={!prevId}
           style={{
             opacity: prevId ? 1 : 0.5,
-            cursor: prevId ? 'pointer' : 'not-allowed'
+            cursor: prevId ? 'pointer' : 'not-allowed',
+            flex: '1',
+            minWidth: '140px'
           }}
         >
-          Previous Poem (Button)
+          ← Previous
         </button>
         <button
           onClick={handleNext}
@@ -93,10 +110,12 @@ function PoemDetail({ poem, allPoems }) {
           disabled={!nextId}
           style={{
             opacity: nextId ? 1 : 0.5,
-            cursor: nextId ? 'pointer' : 'not-allowed'
+            cursor: nextId ? 'pointer' : 'not-allowed',
+            flex: '1',
+            minWidth: '140px'
           }}
         >
-          Next Poem (Button)
+          Next →
         </button>
       </div>
     </div>

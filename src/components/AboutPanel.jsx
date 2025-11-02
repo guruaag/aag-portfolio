@@ -8,16 +8,23 @@ function AboutPanel({ aboutContent, categoryName }) {
     : ''
 
   return (
-    <div>
-      <h1 style={{ color: 'var(--accent)', marginBottom: '24px', fontSize: '24px' }}>
+    <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+      <h1 style={{ 
+        color: '#1a1a1a', 
+        marginBottom: '24px', 
+        fontSize: '32px',
+        fontFamily: 'Georgia, Times New Roman, serif',
+        fontWeight: 700,
+        lineHeight: 1.2
+      }}>
         {categoryName || aboutContent.title || 'About Gurupratap Sharma'}
       </h1>
       <div 
         className="markdown-content"
         style={{
-          lineHeight: '1.8',
-          maxHeight: 'calc(100vh - 200px)',
-          overflowY: 'auto'
+          lineHeight: '2',
+          color: '#2a2a2a',
+          fontSize: '17px'
         }}
         dangerouslySetInnerHTML={{ __html: htmlContent }}
       />
