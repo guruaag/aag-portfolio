@@ -6,7 +6,7 @@
     },
     {
       "source": "/(.*)",
-      "destination": "/index.html"  <-- THIS IS THE CRITICAL LINE
+      "destination": "/index.html"
     }
   ],
   "headers": [
