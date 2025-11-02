@@ -1,0 +1,21 @@
+:root {
+  --accent: #964B00; /* default dark orange */
+  --header-height: 64px;
+  --footer-height: 56px;
+  --content-padding: 18px;
+  --font-family-main: "Noto Sans Devanagari", "Open Sans", -apple-system, sans-serif;
+  
+  /* Mobile adjustments */
+  --header-height-mobile: 48px;
+  --footer-height-mobile: 48px;
+  --content-padding-mobile: 12px;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --header-height: var(--header-height-mobile);
+    --footer-height: var(--footer-height-mobile);
+    --content-padding: var(--content-padding-mobile);
+  }
+}
+
