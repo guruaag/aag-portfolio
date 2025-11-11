@@ -1,0 +1,115 @@
+/* Phoenix About Panel - Two-Column Elegant Layout */
+
+.phoenix-about-panel {
+  width: 100%;
+}
+
+.phoenix-about-title {
+  font-family: var(--phoenix-font-serif);
+  font-size: var(--phoenix-text-3xl);
+  font-weight: 700;
+  color: var(--phoenix-charcoal);
+  text-align: center;
+  margin-bottom: var(--phoenix-space-3xl);
+  letter-spacing: -0.02em;
+}
+
+.phoenix-about-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 350px) 1fr;
+  gap: var(--phoenix-space-3xl);
+  align-items: flex-start;
+}
+
+@media (max-width: 768px) {
+  .phoenix-about-layout {
+    grid-template-columns: 1fr;
+    gap: var(--phoenix-space-2xl);
+  }
+}
+
+/* Photo Section */
+.phoenix-about-photo {
+  position: sticky;
+  top: calc(var(--phoenix-header-height) + var(--phoenix-space-xl));
+}
+
+@media (max-width: 768px) {
+  .phoenix-about-photo {
+    position: relative;
+    top: 0;
+  }
+}
+
+.phoenix-about-photo-wrapper {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--phoenix-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--phoenix-shadow-lg);
+  background: var(--phoenix-cream);
+}
+
+.phoenix-about-photo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.phoenix-about-photo-placeholder {
+  width: 100%;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--phoenix-cream) 0%, var(--phoenix-ivory) 100%);
+  border-radius: var(--phoenix-radius-lg);
+  color: var(--phoenix-text-muted);
+  font-family: var(--phoenix-font-sans);
+  font-size: var(--phoenix-text-sm);
+  box-shadow: var(--phoenix-shadow-md);
+}
+
+.phoenix-about-photo-initials {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--phoenix-text-light);
+  margin-bottom: var(--phoenix-space-sm);
+  font-family: var(--phoenix-font-serif);
+}
+
+/* Content Section */
+.phoenix-about-content {
+  min-width: 0;
+}
+
+.phoenix-about-text {
+  font-family: var(--phoenix-font-serif);
+  font-size: var(--phoenix-text-lg);
+  line-height: 1.9;
+  color: var(--phoenix-text-primary);
+}
+
+.phoenix-about-text p {
+  margin-bottom: var(--phoenix-space-lg);
+}
+
+.phoenix-about-text p:last-child {
+  margin-bottom: 0;
+}
+
+.phoenix-about-empty {
+  font-family: var(--phoenix-font-serif);
+  font-size: var(--phoenix-text-lg);
+  color: var(--phoenix-text-muted);
+  font-style: italic;
+  text-align: center;
+  padding: var(--phoenix-space-2xl);
+}
+
+.phoenix-about-quote {
+  margin-top: var(--phoenix-space-2xl);
+}
+

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { getSetting } from '../lib/supabaseClient'
 import ColorSwatches from './ColorSwatches'
 
@@ -13,19 +13,52 @@ const COLOR_SWATCHES = [
 ]
 
 function MenuOverlay({ onClose, onAccentChange, accentColor }) {
+  const [phone, setPhone] = useState('+917676885989')
+  const [phoneText, setPhoneText] = useState('Call me')
+  const [whatsapp, setWhatsapp] = useState('https://wa.me/917676885989')
+  const [whatsappText, setWhatsappText] = useState('Whatsapp me')
+  const [email, setEmail] = useState('')
+  const [emailText, setEmailText] = useState('Email me')
+
   useEffect(() => {
     document.body.style.overflow = 'hidden'
+    loadSettings()
     return () => {
       document.body.style.overflow = ''
     }
   }, [])
 
+  const loadSettings = async () => {
+    try {
+      const [phoneVal, phoneTextVal, whatsappVal, whatsappTextVal, emailVal, emailTextVal] = await Promise.all([
+        getSetting('phone'),
+        getSetting('phone_text'),
+        getSetting('whatsapp'),
+        getSetting('whatsapp_text'),
+        getSetting('email'),
+        getSetting('email_text')
+      ])
+      if (phoneVal) setPhone(phoneVal)
+      if (phoneTextVal) setPhoneText(phoneTextVal)
+      if (whatsappVal) setWhatsapp(whatsappVal)
+      if (whatsappTextVal) setWhatsappText(whatsappTextVal)
+      if (emailVal) setEmail(emailVal)
+      if (emailTextVal) setEmailText(emailTextVal)
+    } catch (err) {
+      console.error('Error loading settings:', err)
+    }
+  }
+
   const handleCallMe = () => {
-    window.location.href = 'tel:+917676885989'
+    window.location.href = `tel:${phone}`
   }
 
   const handleWhatsApp = () => {
-    window.open('https://wa.me/917676885989', '_blank')
+    window.open(whatsapp, '_blank')
+  }
+
+  const handleEmail = () => {
+    window.location.href = `mailto:${email}`
   }
 
   return (
@@ -52,16 +85,17 @@ function MenuOverlay({ onClose, onAccentChange, accentColor }) {
     >
       <div
         style={{
-          background: 'white',
-          border: '2px solid var(--accent)',
+          background: 'var(--bg-white)',
+          border: '1px solid var(--border-light)',
           padding: '40px',
           maxWidth: '400px',
           width: '100%',
-          borderRadius: '8px',
+          borderRadius: '12px',
           display: 'flex',
           flexDirection: 'column',
           gap: '24px',
-          position: 'relative'
+          position: 'relative',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)'
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -94,9 +128,9 @@ function MenuOverlay({ onClose, onAccentChange, accentColor }) {
             textAlign: 'center',
             padding: '12px'
           }}
-          aria-label="Call +917676885989"
+          aria-label={`Call ${phone}`}
         >
-          Call me (+917676885989)
+          {phoneText} ({phone})
         </button>
 
         <button
@@ -109,8 +143,23 @@ function MenuOverlay({ onClose, onAccentChange, accentColor }) {
           }}
           aria-label="WhatsApp me"
         >
-          Whatsapp me
+          {whatsappText}
         </button>
+
+        {email && (
+          <button
+            onClick={handleEmail}
+            className="btn"
+            style={{
+              width: '100%',
+              textAlign: 'center',
+              padding: '12px'
+            }}
+            aria-label={`Email ${email}`}
+          >
+            {emailText}
+          </button>
+        )}
 
         <div style={{ marginTop: '20px' }}>
           <h2 style={{ color: 'var(--accent)', marginBottom: '16px', textAlign: 'center' }}>

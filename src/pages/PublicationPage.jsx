@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { Helmet } from 'react-helmet-async'
 import { getPublication } from '../lib/supabaseClient'
-import { updateMetaTags } from '../lib/metaTags'
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+import { getImageUrl } from '../lib/imageUtils'
+import SocialShare from '../components/SocialShare'
+import './PublicationPage.css'
 
 function PublicationPage() {
   const { id } = useParams()
@@ -22,19 +24,6 @@ function PublicationPage() {
 
       const pubData = await getPublication(id)
       setPublication(pubData)
-
-      // Update meta tags for SEO
-      if (pubData) {
-        const imageUrl = pubData.image_path
-          ? `${supabaseUrl}/storage/v1/object/public/public-assets/${pubData.image_path}`
-          : null
-        updateMetaTags({
-          title: `${pubData.title || 'Publication'} - Gurupratap Sharma | AAG`,
-          description: pubData.description || pubData.subtitle || '',
-          image: imageUrl,
-          url: window.location.href
-        })
-      }
     } catch (err) {
       console.error('Error loading publication:', err)
       setError('Content not available')
@@ -43,78 +32,124 @@ function PublicationPage() {
     }
   }
 
-
   if (loading) {
-    return <div className="loading">Loading...</div>
-  }
-
-  if (error || !publication) {
     return (
-      <div className="error">
-        <p>{error || 'Publication not found'}</p>
-        <button className="btn" onClick={loadPublication}>Refresh</button>
-        <p style={{ marginTop: '16px' }}>
-          <a href="tel:+917676885989" className="link">Call me</a>
-        </p>
+      <div className="phoenix-loading">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+          className="phoenix-spinner"
+        />
+        <p>Loading...</p>
       </div>
     )
   }
 
-  const imageUrl = publication.image_path
-    ? `${supabaseUrl}/storage/v1/object/public/public-assets/${publication.image_path}`
-    : null
+  if (error || !publication) {
+    return (
+      <div className="phoenix-error">
+        <p>{error || 'Publication not found'}</p>
+        <button className="phoenix-btn phoenix-btn-outline" onClick={loadPublication}>
+          Refresh
+        </button>
+      </div>
+    )
+  }
+
+  const imageUrl = getImageUrl(publication.image_path)
+  const pageUrl = window.location.href
 
   return (
-    <div>
-      <h1 style={{ color: 'var(--accent)', marginBottom: '12px', fontSize: '24px' }}>
-        {publication.title}
-      </h1>
-      
-      {publication.subtitle && (
-        <h2 style={{ marginBottom: '16px', fontSize: '18px', color: '#666' }}>
-          {publication.subtitle}
-        </h2>
-      )}
+    <>
+      <Helmet>
+        <title>{publication.title} - Guru Pratap Sharma | AAG</title>
+        <meta name="description" content={publication.description || publication.subtitle || ''} />
+        <meta property="og:title" content={publication.title} />
+        <meta property="og:description" content={publication.description || publication.subtitle || ''} />
+        <meta property="og:image" content={imageUrl || ''} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={pageUrl} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={publication.title} />
+        <meta name="twitter:description" content={publication.description || publication.subtitle || ''} />
+        <meta name="twitter:image" content={imageUrl || ''} />
+      </Helmet>
 
-      {imageUrl && (
-        <div style={{
-          marginBottom: '24px',
-          border: '2px solid var(--accent)',
-          padding: '16px',
-          background: '#f5f5f5',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '400px'
-        }}>
-          <img
-            src={imageUrl}
-            alt={publication.image_alt || publication.title}
-            style={{
-              maxWidth: '100%',
-              maxHeight: '500px',
-              objectFit: 'contain'
-            }}
-            onError={(e) => {
-              e.target.style.display = 'none'
-              const placeholder = e.target.nextSibling
-              if (placeholder) placeholder.style.display = 'block'
-            }}
-          />
-          <div style={{ display: 'none', textAlign: 'center', color: '#999' }}>
-            Image not available
-          </div>
-        </div>
-      )}
+      <motion.article
+        className="phoenix-publication-page"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="phoenix-content phoenix-focus-mode">
+          {/* Header */}
+          <motion.header
+            className="phoenix-publication-header"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.5 }}
+          >
+            <h1 className="phoenix-publication-page-title">
+              {publication.title}
+            </h1>
+            {publication.subtitle && (
+              <p className="phoenix-publication-page-subtitle">
+                {publication.subtitle}
+              </p>
+            )}
+          </motion.header>
 
-      {publication.description && (
-        <div className="markdown-content" style={{ lineHeight: '1.8' }}>
-          {publication.description}
+          {/* Cover Image */}
+          {imageUrl && (
+            <motion.div
+              className="phoenix-publication-cover"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+            >
+              <img
+                src={imageUrl}
+                alt={publication.image_alt || publication.title}
+                className="phoenix-publication-cover-image"
+                onError={(e) => {
+                  e.target.style.display = 'none'
+                }}
+              />
+            </motion.div>
+          )}
+
+          {/* Description */}
+          {publication.description && (
+            <motion.div
+              className="phoenix-publication-description"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+            >
+              <div
+                className="phoenix-markdown-content"
+                dangerouslySetInnerHTML={{ __html: publication.description }}
+              />
+            </motion.div>
+          )}
+
+          {/* Social Share - Desktop */}
+          <motion.div
+            className="phoenix-publication-share"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+          >
+            <SocialShare
+              url={pageUrl}
+              title={publication.title}
+              description={publication.description || publication.subtitle}
+            />
+          </motion.div>
         </div>
-      )}
-    </div>
+      </motion.article>
+    </>
   )
 }
 
 export default PublicationPage
-

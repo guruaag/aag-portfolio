@@ -1,9 +1,44 @@
 :root {
-  --accent: #964B00; /* default dark orange */
+  /* Accent Colors - Gold/Ink theme */
+  --accent: #964B00; /* default dark orange/brown */
+  --accent-gold: #d4af37;
+  --accent-charcoal: #2c2c2c;
+  --accent-deep-blue: #1a365d;
+  
+  /* Layout */
   --header-height: 64px;
   --footer-height: 56px;
   --content-padding: 18px;
-  --font-family-main: "Noto Sans Devanagari", "Open Sans", -apple-system, sans-serif;
+  
+  /* Typography */
+  --font-family-serif: "Playfair Display", "Lora", Georgia, "Times New Roman", serif;
+  --font-family-sans: "Inter", "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-family-hindi: "Noto Serif Devanagari", "Mukta", "Noto Sans Devanagari", sans-serif;
+  --font-family-main: var(--font-family-sans);
+  
+  /* Light theme colors - Ivory/Ink palette */
+  --bg-primary: #F8F7F4; /* Ivory */
+  --bg-light: #FAFAF9;
+  --bg-white: #FFFFFF;
+  --border-light: #E8E8E8;
+  --border-medium: #D4D4D4;
+  
+  /* Text colors */
+  --text-primary: #1a1a1a; /* Ink */
+  --text-secondary: #4a4a4a;
+  --text-muted: #999;
+  --text-light: #666;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-glow: 0 0 20px rgba(212, 175, 55, 0.3);
+  
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.25s ease;
+  --transition-slow: 0.35s ease;
   
   /* Mobile adjustments */
   --header-height-mobile: 48px;

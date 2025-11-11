@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabaseClient'
-import { getCategories, getAboutContent, getPublications, getPoems } from '../../lib/supabaseClient'
+import { getCategories, getAboutContent, getPublications, getPoems, getSetting } from '../../lib/supabaseClient'
+import { uploadImage, getImageUrl } from '../../lib/imageUtils'
 
 function AdminDashboard() {
   const navigate = useNavigate()
@@ -11,7 +12,8 @@ function AdminDashboard() {
     categories: [],
     about: null,
     publications: [],
-    poems: []
+    poems: [],
+    settings: []
   })
 
   useEffect(() => {
@@ -22,19 +24,44 @@ function AdminDashboard() {
       return
     }
 
+    // Ensure Supabase auth session is valid for storage uploads
+    const checkSupabaseAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        // Try to restore session or show warning
+        console.warn('No Supabase auth session found. Image uploads may fail.')
+      }
+    }
+    checkSupabaseAuth()
+
     loadData()
   }, [])
 
   const loadData = async () => {
     try {
       setLoading(true)
-      const [cats, about, pubs, poems] = await Promise.all([
+      const [cats, about, pubs, poems, settingsResult] = await Promise.all([
         getCategories(),
         getAboutContent(),
         getPublications(),
-        getPoems()
+        getPoems(),
+        supabase.from('settings').select('*')
       ])
-      setData({ categories: cats, about, publications: pubs, poems })
+      
+      const settingsMap = {}
+      if (settingsResult.data) {
+        settingsResult.data.forEach(s => {
+          settingsMap[s.key] = s.value
+        })
+      }
+      
+      setData({ 
+        categories: cats, 
+        about, 
+        publications: pubs, 
+        poems,
+        settings: settingsMap
+      })
     } catch (err) {
       console.error('Error loading admin data:', err)
       alert('Failed to load data')
@@ -43,7 +70,10 @@ function AdminDashboard() {
     }
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Sign out from Supabase Auth
+    await supabase.auth.signOut()
+    // Clear local admin auth
     localStorage.removeItem('adminAuth')
     localStorage.removeItem('adminAuthTime')
     navigate('/admin')
@@ -85,6 +115,12 @@ function AdminDashboard() {
         >
           Poems
         </button>
+        <button
+          className={`btn ${activeTab === 'settings' ? 'active' : ''}`}
+          onClick={() => setActiveTab('settings')}
+        >
+          Settings
+        </button>
       </div>
 
       {activeTab === 'categories' && (
@@ -98,6 +134,9 @@ function AdminDashboard() {
       )}
       {activeTab === 'poems' && (
         <PoemsManager poems={data.poems} onUpdate={loadData} />
+      )}
+      {activeTab === 'settings' && (
+        <SettingsManager settings={data.settings} onUpdate={loadData} />
       )}
     </div>
   )
@@ -119,6 +158,7 @@ function CategoriesManager({ categories, onUpdate }) {
       onUpdate()
       setEditing(null)
       setFormData({ name_en: '', name_display: '', content_type: 'about', sort_order: 0 })
+      alert('Saved!')
     } catch (err) {
       alert('Error saving category')
     }
@@ -134,6 +174,7 @@ function CategoriesManager({ categories, onUpdate }) {
     try {
       await supabase.from('categories').delete().eq('id', id)
       onUpdate()
+      alert('Deleted!')
     } catch (err) {
       alert('Error deleting category')
     }
@@ -213,14 +254,43 @@ function AboutManager({ about, onUpdate }) {
   const [formData, setFormData] = useState({
     title: '',
     body_text: '',
-    truncated_preview: ''
+    truncated_preview: '',
+    photo_path: ''
   })
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
+  const [photoPreview, setPhotoPreview] = useState(null)
 
   useEffect(() => {
     if (about) {
       setFormData(about)
+      if (about.photo_path) {
+        setPhotoPreview(getImageUrl(about.photo_path))
+      }
     }
   }, [about])
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file')
+      return
+    }
+
+    try {
+      setUploadingPhoto(true)
+      const fileName = `about-photo-${Date.now()}.${file.name.split('.').pop()}`
+      const path = await uploadImage(file, 'authors', fileName)
+      setFormData({ ...formData, photo_path: path })
+      setPhotoPreview(URL.createObjectURL(file))
+      alert('Photo uploaded!')
+    } catch (err) {
+      alert('Error uploading photo: ' + err.message)
+    } finally {
+      setUploadingPhoto(false)
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -248,12 +318,46 @@ function AboutManager({ about, onUpdate }) {
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           />
         </div>
+        
+        <div className="form-group">
+          <label>Photo</label>
+          <div style={{ marginBottom: '12px' }}>
+            {photoPreview && (
+              <img 
+                src={photoPreview} 
+                alt="Preview" 
+                style={{ 
+                  width: '150px', 
+                  height: '150px', 
+                  objectFit: 'cover', 
+                  borderRadius: '8px',
+                  border: '1px solid var(--border-light)',
+                  marginBottom: '12px'
+                }} 
+              />
+            )}
+          </div>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handlePhotoUpload}
+            disabled={uploadingPhoto}
+          />
+          {uploadingPhoto && <div style={{ marginTop: '8px', color: '#666' }}>Uploading...</div>}
+          {formData.photo_path && (
+            <div style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
+              Current: {formData.photo_path}
+            </div>
+          )}
+        </div>
+
         <div className="form-group">
           <label>Body Text (Markdown) *</label>
           <textarea
             value={formData.body_text}
             onChange={(e) => setFormData({ ...formData, body_text: e.target.value })}
             required
+            style={{ minHeight: '300px' }}
           />
         </div>
         <div className="form-group">
@@ -280,6 +384,32 @@ function PublicationsManager({ publications, onUpdate }) {
     description: '',
     sort_order: 0
   })
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [imagePreview, setImagePreview] = useState(null)
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file')
+      return
+    }
+
+    try {
+      setUploadingImage(true)
+      const pubId = editing || `temp-${Date.now()}`
+      const fileName = `cover.${file.name.split('.').pop()}`
+      const path = await uploadImage(file, `publications/${pubId}`, fileName)
+      setFormData({ ...formData, image_path: path })
+      setImagePreview(URL.createObjectURL(file))
+      alert('Image uploaded!')
+    } catch (err) {
+      alert('Error uploading image: ' + err.message)
+    } finally {
+      setUploadingImage(false)
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -287,11 +417,41 @@ function PublicationsManager({ publications, onUpdate }) {
       if (editing) {
         await supabase.from('publications').update(formData).eq('id', editing)
       } else {
-        await supabase.from('publications').insert(formData)
+        const { data: newPub } = await supabase.from('publications').insert(formData).select().single()
+        // If image was uploaded to temp folder, move it to the actual publication folder
+        if (formData.image_path.includes('temp-') && newPub) {
+          const oldPath = formData.image_path
+          // Replace 'temp-{timestamp}' with actual publication ID
+          // Path format: publications/temp-{timestamp}/cover.jpg -> publications/{id}/cover.jpg
+          const newPath = oldPath.replace(/temp-\d+/, newPub.id)
+          
+          // Move the file in storage
+          try {
+            // Copy file to new location
+            const { data: copyData, error: copyError } = await supabase.storage
+              .from('public-assets')
+              .copy(oldPath, newPath)
+            
+            if (!copyError) {
+              // Update path in database
+              await supabase.from('publications').update({ image_path: newPath }).eq('id', newPub.id)
+              // Remove old temp file
+              await supabase.storage.from('public-assets').remove([oldPath])
+            } else {
+              // If copy fails, just update the path in database (file might already be in correct location)
+              await supabase.from('publications').update({ image_path: newPath }).eq('id', newPub.id)
+            }
+          } catch (moveError) {
+            // Still update the path in database even if file move fails
+            await supabase.from('publications').update({ image_path: newPath }).eq('id', newPub.id)
+          }
+        }
       }
       onUpdate()
       setEditing(null)
       setFormData({ title: '', subtitle: '', image_path: '', image_alt: '', description: '', sort_order: 0 })
+      setImagePreview(null)
+      alert('Saved!')
     } catch (err) {
       alert('Error saving publication')
     }
@@ -300,6 +460,9 @@ function PublicationsManager({ publications, onUpdate }) {
   const handleEdit = (pub) => {
     setEditing(pub.id)
     setFormData(pub)
+    if (pub.image_path) {
+      setImagePreview(getImageUrl(pub.image_path))
+    }
   }
 
   const handleDelete = async (id) => {
@@ -307,6 +470,7 @@ function PublicationsManager({ publications, onUpdate }) {
     try {
       await supabase.from('publications').delete().eq('id', id)
       onUpdate()
+      alert('Deleted!')
     } catch (err) {
       alert('Error deleting publication')
     }
@@ -332,13 +496,36 @@ function PublicationsManager({ publications, onUpdate }) {
           />
         </div>
         <div className="form-group">
-          <label>Image Path (e.g., publications/123/cover.jpg) *</label>
+          <label>Cover Image *</label>
+          <div style={{ marginBottom: '12px' }}>
+            {imagePreview && (
+              <img 
+                src={imagePreview} 
+                alt="Preview" 
+                style={{ 
+                  width: '150px', 
+                  height: '225px', 
+                  objectFit: 'contain', 
+                  border: '1px solid var(--border-light)',
+                  borderRadius: '4px',
+                  marginBottom: '12px',
+                  background: '#f8f8f8'
+                }} 
+              />
+            )}
+          </div>
           <input
-            value={formData.image_path}
-            onChange={(e) => setFormData({ ...formData, image_path: e.target.value })}
-            required
-            placeholder="publications/{id}/cover.jpg"
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            disabled={uploadingImage}
           />
+          {uploadingImage && <div style={{ marginTop: '8px', color: '#666' }}>Uploading...</div>}
+          {formData.image_path && (
+            <div style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
+              Current: {formData.image_path}
+            </div>
+          )}
         </div>
         <div className="form-group">
           <label>Image Alt Text</label>
@@ -369,6 +556,7 @@ function PublicationsManager({ publications, onUpdate }) {
           <button type="button" className="btn" onClick={() => {
             setEditing(null)
             setFormData({ title: '', subtitle: '', image_path: '', image_alt: '', description: '', sort_order: 0 })
+            setImagePreview(null)
           }}>
             Cancel
           </button>
@@ -414,6 +602,7 @@ function PoemsManager({ poems, onUpdate }) {
       onUpdate()
       setEditing(null)
       setFormData({ heading: '', description: '', full_text: '', language: 'mixed', sort_order: 0 })
+      alert('Saved!')
     } catch (err) {
       alert('Error saving poem')
     }
@@ -429,6 +618,7 @@ function PoemsManager({ poems, onUpdate }) {
     try {
       await supabase.from('poems').delete().eq('id', id)
       onUpdate()
+      alert('Deleted!')
     } catch (err) {
       alert('Error deleting poem')
     }
@@ -507,5 +697,136 @@ function PoemsManager({ poems, onUpdate }) {
   )
 }
 
-export default AdminDashboard
+// Settings Manager Component
+function SettingsManager({ settings, onUpdate }) {
+  const [formData, setFormData] = useState({
+    phone: '',
+    phone_text: '',
+    whatsapp: '',
+    whatsapp_text: '',
+    email: '',
+    email_text: '',
+    thank_you_message: '',
+    default_accent: '#964B00'
+  })
 
+  useEffect(() => {
+    setFormData({
+      phone: settings.phone || '+917676885989',
+      phone_text: settings.phone_text || 'Call me',
+      whatsapp: settings.whatsapp || 'https://wa.me/917676885989',
+      whatsapp_text: settings.whatsapp_text || 'Whatsapp me',
+      email: settings.email || '',
+      email_text: settings.email_text || 'Email me',
+      thank_you_message: settings.thank_you_message || 'Thank you!',
+      default_accent: settings.default_accent || '#964B00'
+    })
+  }, [settings])
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const updates = Object.entries(formData).map(([key, value]) => ({
+        key,
+        value: value || '',
+        display_label: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+      }))
+
+      for (const update of updates) {
+        await supabase.from('settings').upsert(update, { onConflict: 'key' })
+      }
+      
+      alert('Settings saved!')
+      onUpdate()
+    } catch (err) {
+      alert('Error saving settings')
+      console.error(err)
+    }
+  }
+
+  return (
+    <div>
+      <h2 style={{ color: 'var(--accent)', marginBottom: '16px' }}>Site Settings</h2>
+      <form onSubmit={handleSubmit} className="admin-form">
+        <div className="form-group">
+          <label>Phone Number</label>
+          <input
+            type="tel"
+            value={formData.phone}
+            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            placeholder="+917676885989"
+          />
+        </div>
+        <div className="form-group">
+          <label>Phone Link Text</label>
+          <input
+            value={formData.phone_text}
+            onChange={(e) => setFormData({ ...formData, phone_text: e.target.value })}
+            placeholder="Call me"
+          />
+        </div>
+        <div className="form-group">
+          <label>WhatsApp URL</label>
+          <input
+            value={formData.whatsapp}
+            onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
+            placeholder="https://wa.me/917676885989"
+          />
+        </div>
+        <div className="form-group">
+          <label>WhatsApp Link Text</label>
+          <input
+            value={formData.whatsapp_text}
+            onChange={(e) => setFormData({ ...formData, whatsapp_text: e.target.value })}
+            placeholder="Whatsapp me"
+          />
+        </div>
+        <div className="form-group">
+          <label>Email Address</label>
+          <input
+            type="email"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            placeholder="example@email.com"
+          />
+        </div>
+        <div className="form-group">
+          <label>Email Link Text</label>
+          <input
+            value={formData.email_text}
+            onChange={(e) => setFormData({ ...formData, email_text: e.target.value })}
+            placeholder="Email me"
+          />
+        </div>
+        <div className="form-group">
+          <label>Thank You Message</label>
+          <textarea
+            value={formData.thank_you_message}
+            onChange={(e) => setFormData({ ...formData, thank_you_message: e.target.value })}
+            placeholder="Thank you!"
+            rows="3"
+          />
+        </div>
+        <div className="form-group">
+          <label>Default Theme Color</label>
+          <input
+            type="color"
+            value={formData.default_accent}
+            onChange={(e) => setFormData({ ...formData, default_accent: e.target.value })}
+            style={{ width: '100px', height: '40px' }}
+          />
+          <input
+            type="text"
+            value={formData.default_accent}
+            onChange={(e) => setFormData({ ...formData, default_accent: e.target.value })}
+            placeholder="#964B00"
+            style={{ marginLeft: '12px', width: '200px' }}
+          />
+        </div>
+        <button type="submit" className="btn">Save Settings</button>
+      </form>
+    </div>
+  )
+}
+
+export default AdminDashboard

@@ -1,5 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
+import { HelmetProvider } from 'react-helmet-async'
+import { I18nextProvider } from 'react-i18next'
+import i18n from './i18n/config'
 import Layout from './components/Layout'
 import Home from './pages/Home'
 import CategoryDetail from './pages/CategoryDetail'
@@ -7,7 +10,9 @@ import PoemPage from './pages/PoemPage'
 import PublicationPage from './pages/PublicationPage'
 import AdminLogin from './pages/Admin/Login'
 import AdminDashboard from './pages/Admin/Dashboard'
+import './styles/phoenix-design-system.css'
 import './styles/app.css'
+import './styles/layout.css'
 
 function App() {
   const [accentColor, setAccentColor] = useState('#964B00')
@@ -47,18 +52,32 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
-      <Layout onAccentChange={handleAccentChange} accentColor={accentColor}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/category/:categoryId" element={<CategoryDetail />} />
-          <Route path="/poem/:id" element={<PoemPage />} />
-          <Route path="/publication/:id" element={<PublicationPage />} />
-          <Route path="/admin" element={<AdminLogin />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        </Routes>
-      </Layout>
-    </BrowserRouter>
+    <HelmetProvider>
+      <I18nextProvider i18n={i18n}>
+        <BrowserRouter>
+          <Layout onAccentChange={handleAccentChange} accentColor={accentColor}>
+            <Suspense fallback={<div style={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center', 
+              minHeight: '100vh',
+              fontFamily: 'var(--phoenix-font-serif)',
+              fontSize: 'var(--phoenix-text-lg)',
+              color: 'var(--phoenix-text-secondary)'
+            }}>Loading...</div>}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/category/:categoryId" element={<CategoryDetail />} />
+                <Route path="/poem/:id" element={<PoemPage />} />
+                <Route path="/publication/:id" element={<PublicationPage />} />
+                <Route path="/admin" element={<AdminLogin />} />
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              </Routes>
+            </Suspense>
+          </Layout>
+        </BrowserRouter>
+      </I18nextProvider>
+    </HelmetProvider>
   )
 }
 

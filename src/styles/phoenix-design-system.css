@@ -1,0 +1,402 @@
+/* ============================================
+   PHOENIX DESIGN SYSTEM
+   Complete UI/UX Overhaul - Modern, Elegant, Poetic
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Noto+Serif+Devanagari:wght@400;500;600;700&display=swap');
+
+:root {
+  /* ============================================
+     COLOR PALETTE - Sienna & Charcoal
+     ============================================ */
+  
+  /* Primary Colors */
+  --phoenix-sienna: #A0522D;        /* Burnt Sienna */
+  --phoenix-sienna-light: #C17A4F;
+  --phoenix-sienna-dark: #8B4513;
+  --phoenix-charcoal: #2C2C2C;      /* Deep Charcoal */
+  --phoenix-charcoal-light: #4A4A4A;
+  --phoenix-charcoal-dark: #1A1A1A;
+  
+  /* Neutral Palette */
+  --phoenix-ivory: #FAF9F6;         /* Light Ivory Background */
+  --phoenix-cream: #F5F3F0;
+  --phoenix-white: #FFFFFF;
+  --phoenix-off-white: #FEFEFE;
+  
+  /* Text Colors */
+  --phoenix-text-primary: #1A1A1A;
+  --phoenix-text-secondary: #4A4A4A;
+  --phoenix-text-muted: #8A8A8A;
+  --phoenix-text-light: #B0B0B0;
+  
+  /* Accent Colors */
+  --phoenix-gold: #D4AF37;
+  --phoenix-slate-blue: #5F7A8A;
+  
+  /* ============================================
+     TYPOGRAPHY - Lora Serif + Inter Sans
+     ============================================ */
+  
+  --phoenix-font-serif: 'Lora', Georgia, 'Times New Roman', serif;
+  --phoenix-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --phoenix-font-hindi: 'Noto Serif Devanagari', 'Mukta', sans-serif;
+  
+  /* Font Sizes - Fluid Typography */
+  --phoenix-text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+  --phoenix-text-sm: clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
+  --phoenix-text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --phoenix-text-lg: clamp(1.125rem, 1rem + 0.625vw, 1.5rem);
+  --phoenix-text-xl: clamp(1.5rem, 1.25rem + 1.25vw, 2rem);
+  --phoenix-text-2xl: clamp(2rem, 1.5rem + 2.5vw, 3.5rem);
+  --phoenix-text-3xl: clamp(2.5rem, 2rem + 2.5vw, 4.5rem);
+  
+  /* ============================================
+     SPACING - Generous Whitespace
+     ============================================ */
+  
+  --phoenix-space-xs: 0.5rem;    /* 8px */
+  --phoenix-space-sm: 1rem;      /* 16px */
+  --phoenix-space-md: 1.5rem;    /* 24px */
+  --phoenix-space-lg: 2rem;      /* 32px */
+  --phoenix-space-xl: 3rem;      /* 48px */
+  --phoenix-space-2xl: 4rem;     /* 64px */
+  --phoenix-space-3xl: 6rem;     /* 96px */
+  
+  /* Mobile Padding - Never touch edges */
+  --phoenix-padding-mobile: clamp(1.5rem, 4vw, 2rem);
+  --phoenix-padding-desktop: clamp(2rem, 5vw, 4rem);
+  
+  /* ============================================
+     LAYOUT
+     ============================================ */
+  
+  --phoenix-header-height: 80px;
+  --phoenix-header-height-scrolled: 60px;
+  --phoenix-footer-height: auto;
+  --phoenix-max-width: 1400px;
+  --phoenix-content-width: 1200px;
+  
+  /* ============================================
+     SHADOWS - Depth without Borders
+     ============================================ */
+  
+  --phoenix-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --phoenix-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --phoenix-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --phoenix-shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.15);
+  --phoenix-shadow-glow: 0 0 30px rgba(160, 82, 45, 0.2);
+  --phoenix-shadow-3d: 0 10px 40px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  /* ============================================
+     TRANSITIONS - Smooth & Elegant
+     ============================================ */
+  
+  --phoenix-transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --phoenix-transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --phoenix-transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  --phoenix-transition-bounce: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  /* ============================================
+     BORDER RADIUS
+     ============================================ */
+  
+  --phoenix-radius-sm: 4px;
+  --phoenix-radius-md: 8px;
+  --phoenix-radius-lg: 12px;
+  --phoenix-radius-xl: 16px;
+  --phoenix-radius-full: 9999px;
+  
+  /* ============================================
+     Z-INDEX LAYERS
+     ============================================ */
+  
+  --phoenix-z-base: 1;
+  --phoenix-z-header: 100;
+  --phoenix-z-menu: 200;
+  --phoenix-z-modal: 300;
+  --phoenix-z-tooltip: 400;
+}
+
+/* ============================================
+   GLOBAL RESET & BASE STYLES
+   ============================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--phoenix-font-sans);
+  font-size: var(--phoenix-text-base);
+  line-height: 1.7;
+  color: var(--phoenix-text-primary);
+  background-color: var(--phoenix-ivory);
+  overflow-x: hidden;
+}
+
+/* ============================================
+   TYPOGRAPHY SCALE
+   ============================================ */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--phoenix-font-serif);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--phoenix-text-primary);
+  margin-bottom: var(--phoenix-space-lg);
+}
+
+h1 {
+  font-size: var(--phoenix-text-3xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: var(--phoenix-text-2xl);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+h3 {
+  font-size: var(--phoenix-text-xl);
+  font-weight: 600;
+}
+
+p {
+  margin-bottom: var(--phoenix-space-md);
+  color: var(--phoenix-text-secondary);
+}
+
+/* ============================================
+   BUTTONS - Minimalist & Elegant
+   ============================================ */
+
+.phoenix-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.875rem 2rem;
+  min-height: 44px;
+  font-family: var(--phoenix-font-sans);
+  font-size: var(--phoenix-text-base);
+  font-weight: 500;
+  text-decoration: none;
+  border: none;
+  border-radius: var(--phoenix-radius-md);
+  cursor: pointer;
+  transition: all var(--phoenix-transition-base);
+  background: transparent;
+  color: var(--phoenix-text-primary);
+}
+
+.phoenix-btn-primary {
+  background: var(--phoenix-sienna);
+  color: var(--phoenix-white);
+  box-shadow: var(--phoenix-shadow-md);
+}
+
+.phoenix-btn-primary:hover {
+  background: var(--phoenix-sienna-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--phoenix-shadow-lg);
+}
+
+.phoenix-btn-outline {
+  border: 1.5px solid var(--phoenix-sienna);
+  color: var(--phoenix-sienna);
+  background: transparent;
+}
+
+.phoenix-btn-outline:hover {
+  background: var(--phoenix-sienna);
+  color: var(--phoenix-white);
+  transform: translateY(-2px);
+}
+
+.phoenix-btn-ghost {
+  color: var(--phoenix-text-secondary);
+  padding: 0.5rem 1rem;
+}
+
+.phoenix-btn-ghost:hover {
+  color: var(--phoenix-sienna);
+  background: var(--phoenix-cream);
+}
+
+/* ============================================
+   QUOTE BLOCKS - Mission Statement Style
+   ============================================ */
+
+.phoenix-quote {
+  position: relative;
+  padding: var(--phoenix-space-xl) var(--phoenix-space-2xl);
+  margin: var(--phoenix-space-2xl) 0;
+  font-family: var(--phoenix-font-serif);
+  font-size: var(--phoenix-text-lg);
+  font-style: italic;
+  line-height: 1.8;
+  color: var(--phoenix-text-primary);
+  background: var(--phoenix-white);
+  border-left: 4px solid var(--phoenix-sienna);
+  box-shadow: var(--phoenix-shadow-sm);
+}
+
+.phoenix-quote::before {
+  content: '"';
+  position: absolute;
+  top: var(--phoenix-space-lg);
+  left: var(--phoenix-space-lg);
+  font-size: 4rem;
+  line-height: 1;
+  color: var(--phoenix-sienna);
+  opacity: 0.2;
+  font-family: var(--phoenix-font-serif);
+}
+
+/* ============================================
+   CARDS - Publications Grid
+   ============================================ */
+
+.phoenix-card {
+  background: var(--phoenix-white);
+  border-radius: var(--phoenix-radius-lg);
+  overflow: hidden;
+  transition: all var(--phoenix-transition-base);
+  box-shadow: var(--phoenix-shadow-md);
+  cursor: pointer;
+}
+
+.phoenix-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: var(--phoenix-shadow-3d);
+}
+
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   ============================================ */
+
+@media (max-width: 600px) {
+  :root {
+    --phoenix-padding-mobile: var(--phoenix-padding-mobile);
+    --phoenix-header-height: 70px;
+    --phoenix-header-height-scrolled: 60px;
+  }
+  
+  .phoenix-btn {
+    min-height: 44px;
+    padding: 0.75rem 1.5rem;
+    font-size: var(--phoenix-text-sm);
+  }
+}
+
+@media (min-width: 601px) and (max-width: 1024px) {
+  :root {
+    --phoenix-padding-desktop: var(--phoenix-padding-desktop);
+  }
+}
+
+@media (min-width: 1025px) {
+  :root {
+    --phoenix-padding-desktop: var(--phoenix-padding-desktop);
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.phoenix-container {
+  width: 100%;
+  max-width: var(--phoenix-max-width);
+  margin: 0 auto;
+  padding: 0 var(--phoenix-padding-mobile);
+}
+
+@media (min-width: 1025px) {
+  .phoenix-container {
+    padding: 0 var(--phoenix-padding-desktop);
+  }
+}
+
+.phoenix-content {
+  width: 100%;
+  max-width: var(--phoenix-content-width);
+  margin: 0 auto;
+}
+
+.phoenix-section {
+  padding: var(--phoenix-space-3xl) 0;
+}
+
+.phoenix-text-center {
+  text-align: center;
+}
+
+.phoenix-mt-xl {
+  margin-top: var(--phoenix-space-xl);
+}
+
+.phoenix-mb-xl {
+  margin-bottom: var(--phoenix-space-xl);
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes phoenix-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes phoenix-slide-in {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.phoenix-fade-in {
+  animation: phoenix-fade-in var(--phoenix-transition-base) ease-out;
+}
+
+/* ============================================
+   FOCUS MODE - For Reading
+   ============================================ */
+
+.phoenix-focus-mode {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: var(--phoenix-space-2xl) var(--phoenix-padding-mobile);
+}
+
+.phoenix-focus-mode h1,
+.phoenix-focus-mode h2 {
+  text-align: center;
+  margin-bottom: var(--phoenix-space-xl);
+}
+
+.phoenix-focus-mode p {
+  font-size: var(--phoenix-text-lg);
+  line-height: 1.9;
+  margin-bottom: var(--phoenix-space-lg);
+}
+

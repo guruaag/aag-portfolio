@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import { getCategories, getAboutContent, getPublications, getPoems } from '../lib/supabaseClient'
 import AboutPanel from '../components/AboutPanel'
 import PublicationCard from '../components/PublicationCard'
 import PoemCard from '../components/PoemCard'
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+import './CategoryDetail.css'
 
 function CategoryDetail() {
   const { categoryId } = useParams()
+  const { t } = useTranslation()
   const [category, setCategory] = useState(null)
   const [content, setContent] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -52,71 +55,92 @@ function CategoryDetail() {
   }
 
   if (loading) {
-    return <div className="loading">Loading...</div>
-  }
-
-  if (error || !category) {
     return (
-      <div className="error">
-        <p>{error || 'Category not found'}</p>
-        <button className="btn" onClick={loadCategory}>Refresh</button>
-        <p style={{ marginTop: '16px' }}>
-          <a href="tel:+917676885989" className="link">Call me</a>
-        </p>
+      <div className="phoenix-loading">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+          className="phoenix-spinner"
+        />
+        <p>Loading...</p>
       </div>
     )
   }
 
-  return (
-    <div>
-      {category.content_type === 'about' ? (
-        <AboutPanel aboutContent={content} categoryName={category.name_display || category.name_en} />
-      ) : (
-        <>
-          <h1 style={{ 
-            color: '#1a1a1a', 
-            marginBottom: '32px', 
-            fontSize: '32px',
-            fontFamily: 'Georgia, Times New Roman, serif',
-            fontWeight: 700,
-            lineHeight: 1.2,
-            position: 'relative',
-            paddingBottom: '12px'
-          }}>
-            {category.name_display || category.name_en}
-            <span style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              width: '60px',
-              height: '3px',
-              background: 'var(--accent)'
-            }}></span>
-          </h1>
-          {category.content_type === 'publications' && Array.isArray(content) && (
-            <div className="grid grid-3">
-              {content.map((pub) => (
-                <PublicationCard
-                  key={pub.id}
-                  publication={pub}
-                  supabaseUrl={supabaseUrl}
-                />
-              ))}
-            </div>
-          )}
-          {category.content_type === 'writings' && Array.isArray(content) && (
-            <div>
-              {content.map((poem) => (
-                <PoemCard key={poem.id} poem={poem} />
-              ))}
-            </div>
-          )}
-        </>
-      )}
+  if (error || !category) {
+    return (
+      <div className="phoenix-error">
+        <p>{error || 'Category not found'}</p>
+        <button className="phoenix-btn phoenix-btn-outline" onClick={loadCategory}>
+          Refresh
+        </button>
+      </div>
+    )
+  }
 
-    </div>
+  const categoryName = category.name_display || category.name_en
+
+  return (
+    <>
+      <Helmet>
+        <title>{categoryName} - Guru Pratap Sharma | AAG</title>
+        <meta name="description" content={`${categoryName} - Literary works by Guru Pratap Sharma`} />
+      </Helmet>
+
+      <div className="phoenix-category-detail">
+        {category.content_type === 'about' ? (
+          <AboutPanel aboutContent={content} categoryName={categoryName} />
+        ) : (
+          <>
+            {/* Section Header */}
+            <motion.div
+              className="phoenix-category-header"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h1 className="phoenix-category-title">
+                {categoryName}
+              </h1>
+              <div className="phoenix-title-underline" />
+            </motion.div>
+
+            {/* Publications Grid */}
+            {category.content_type === 'publications' && Array.isArray(content) && (
+              <motion.div
+                className="phoenix-publications-grid phoenix-publications-grid-full"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+              >
+                {content.map((pub, index) => (
+                  <PublicationCard
+                    key={pub.id}
+                    publication={pub}
+                    index={index}
+                  />
+                ))}
+              </motion.div>
+            )}
+
+            {/* Poems List */}
+            {category.content_type === 'writings' && Array.isArray(content) && (
+              <motion.div
+                className="phoenix-poems-list"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+              >
+                {content.map((poem, index) => (
+                  <PoemCard key={poem.id} poem={poem} index={index} />
+                ))}
+              </motion.div>
+            )}
+          </>
+        )}
+      </div>
+    </>
   )
 }
 
 export default CategoryDetail
-

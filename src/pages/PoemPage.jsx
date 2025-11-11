@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { getPoem, getPoems } from '../lib/supabaseClient'
 import PoemDetail from '../components/PoemDetail'
-import { updateMetaTags } from '../lib/metaTags'
 
 function PoemPage() {
   const { id } = useParams()
@@ -27,15 +27,6 @@ function PoemPage() {
 
       setPoem(poemData)
       setAllPoems(allPoemsData)
-
-      // Update meta tags for SEO
-      if (poemData) {
-        updateMetaTags({
-          title: `${poemData.heading || 'Poem'} - Gurupratap Sharma | AAG`,
-          description: poemData.description || poemData.full_text?.substring(0, 160) || '',
-          url: window.location.href
-        })
-      }
     } catch (err) {
       console.error('Error loading poem:', err)
       setError('Content not available')
@@ -44,19 +35,26 @@ function PoemPage() {
     }
   }
 
-
   if (loading) {
-    return <div className="loading">Loading...</div>
+    return (
+      <div className="phoenix-loading">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+          className="phoenix-spinner"
+        />
+        <p>Loading...</p>
+      </div>
+    )
   }
 
   if (error || !poem) {
     return (
-      <div className="error">
+      <div className="phoenix-error">
         <p>{error || 'Poem not found'}</p>
-        <button className="btn" onClick={loadPoem}>Refresh</button>
-        <p style={{ marginTop: '16px' }}>
-          <a href="tel:+917676885989" className="link">Call me</a>
-        </p>
+        <button className="phoenix-btn phoenix-btn-outline" onClick={loadPoem}>
+          Refresh
+        </button>
       </div>
     )
   }
@@ -65,4 +63,3 @@ function PoemPage() {
 }
 
 export default PoemPage
-

@@ -1,5 +1,9 @@
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
+import { Helmet } from 'react-helmet-async'
+import SocialShare from './SocialShare'
+import './PoemDetail.css'
 
 function PoemDetail({ poem, allPoems }) {
   const navigate = useNavigate()
@@ -14,7 +18,6 @@ function PoemDetail({ poem, allPoems }) {
 
     if (currentIndex === -1) return
 
-    // Looping logic
     const prevIndex = currentIndex === 0 ? sortedPoems.length - 1 : currentIndex - 1
     const nextIndex = currentIndex === sortedPoems.length - 1 ? 0 : currentIndex + 1
 
@@ -30,7 +33,6 @@ function PoemDetail({ poem, allPoems }) {
     if (nextId) navigate(`/poem/${nextId}`)
   }
 
-  // Keyboard navigation
   useEffect(() => {
     const handleKeyPress = (e) => {
       if (e.key === 'ArrowLeft') handlePrev()
@@ -43,84 +45,99 @@ function PoemDetail({ poem, allPoems }) {
 
   if (!poem) return null
 
+  const pageUrl = window.location.href
+
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '0 16px' }}>
-      <h1 style={{ 
-        color: '#1a1a1a', 
-        marginBottom: '12px', 
-        fontSize: '32px',
-        fontFamily: 'Georgia, Times New Roman, serif',
-        fontWeight: 700,
-        lineHeight: 1.2
-      }}>
-        {poem.heading || 'Untitled Poem'}
-      </h1>
-      
-      {poem.description && (
-        <p style={{ 
-          marginBottom: '32px', 
-          fontStyle: 'italic', 
-          color: '#666',
-          fontSize: '16px',
-          lineHeight: 1.6
-        }}>
-          {poem.description}
-        </p>
-      )}
+    <>
+      <Helmet>
+        <title>{poem.heading || 'Poem'} - Guru Pratap Sharma | AAG</title>
+        <meta name="description" content={poem.description || poem.full_text?.substring(0, 160) || ''} />
+        <meta property="og:title" content={poem.heading || 'Poem'} />
+        <meta property="og:description" content={poem.description || poem.full_text?.substring(0, 160) || ''} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={pageUrl} />
+      </Helmet>
 
-      <div 
-        className="markdown-content"
-        style={{
-          whiteSpace: 'pre-wrap',
-          lineHeight: '2',
-          marginBottom: '48px',
-          paddingBottom: '32px',
-          borderBottom: '1px solid #e8e8e8',
-          color: '#2a2a2a',
-          fontSize: '17px',
-          fontFamily: 'var(--font-family-main)'
-        }}
+      <motion.article
+        className="phoenix-poem-detail phoenix-focus-mode"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
       >
-        {poem.full_text}
-      </div>
+        {/* Header */}
+        <motion.header
+          className="phoenix-poem-header"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.5 }}
+        >
+          <h1 className="phoenix-poem-title">
+            {poem.heading || 'Untitled Poem'}
+          </h1>
+          {poem.description && (
+            <p className="phoenix-poem-subtitle">
+              {poem.description}
+            </p>
+          )}
+        </motion.header>
 
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        paddingTop: '24px',
-        gap: '16px',
-        flexWrap: 'wrap'
-      }}>
-        <button
-          onClick={handlePrev}
-          className="btn"
-          disabled={!prevId}
-          style={{
-            opacity: prevId ? 1 : 0.5,
-            cursor: prevId ? 'pointer' : 'not-allowed',
-            flex: '1',
-            minWidth: '140px'
-          }}
+        {/* Poem Text - Focus Mode */}
+        <motion.div
+          className="phoenix-poem-text"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
         >
-          ← Previous
-        </button>
-        <button
-          onClick={handleNext}
-          className="btn"
-          disabled={!nextId}
-          style={{
-            opacity: nextId ? 1 : 0.5,
-            cursor: nextId ? 'pointer' : 'not-allowed',
-            flex: '1',
-            minWidth: '140px'
-          }}
+          <div className="phoenix-poem-content">
+            {poem.full_text}
+          </div>
+        </motion.div>
+
+        {/* Social Share - Subtle */}
+        <motion.div
+          className="phoenix-poem-share"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
         >
-          Next →
-        </button>
-      </div>
-    </div>
+          <SocialShare
+            url={pageUrl}
+            title={poem.heading || 'Poem'}
+            description={poem.description || poem.full_text?.substring(0, 160)}
+          />
+        </motion.div>
+
+        {/* Navigation */}
+        <motion.nav
+          className="phoenix-poem-navigation"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
+        >
+          <motion.button
+            className="phoenix-btn phoenix-btn-outline"
+            onClick={handlePrev}
+            disabled={!prevId}
+            whileHover={prevId ? { x: -4 } : {}}
+            whileTap={prevId ? { scale: 0.95 } : {}}
+            style={{ opacity: prevId ? 1 : 0.4, cursor: prevId ? 'pointer' : 'not-allowed' }}
+          >
+            ← Previous
+          </motion.button>
+          <motion.button
+            className="phoenix-btn phoenix-btn-outline"
+            onClick={handleNext}
+            disabled={!nextId}
+            whileHover={nextId ? { x: 4 } : {}}
+            whileTap={nextId ? { scale: 0.95 } : {}}
+            style={{ opacity: nextId ? 1 : 0.4, cursor: nextId ? 'pointer' : 'not-allowed' }}
+          >
+            Next →
+          </motion.button>
+        </motion.nav>
+      </motion.article>
+    </>
   )
 }
 
 export default PoemDetail
-

@@ -1,2 +1,28 @@
-/* App-specific styles */
+/* Phoenix App Styles - Loading & Error States */
+
+.phoenix-loading,
+.phoenix-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: var(--phoenix-space-lg);
+  text-align: center;
+}
+
+.phoenix-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--phoenix-cream);
+  border-top-color: var(--phoenix-sienna);
+  border-radius: 50%;
+}
+
+.phoenix-error p {
+  font-family: var(--phoenix-font-serif);
+  font-size: var(--phoenix-text-lg);
+  color: var(--phoenix-text-secondary);
+  margin-bottom: var(--phoenix-space-lg);
+}
 

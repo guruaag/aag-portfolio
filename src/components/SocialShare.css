@@ -1,0 +1,134 @@
+/* Phoenix Social Share - Floating Button & Menu */
+
+.phoenix-share-float {
+  position: fixed;
+  bottom: 100px;
+  right: var(--phoenix-padding-mobile);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--phoenix-sienna);
+  color: var(--phoenix-white);
+  border: none;
+  box-shadow: var(--phoenix-shadow-lg);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--phoenix-z-modal);
+  transition: all var(--phoenix-transition-base);
+}
+
+@media (min-width: 769px) {
+  .phoenix-share-float {
+    display: none;
+  }
+}
+
+/* Desktop Share Buttons - Inline */
+.phoenix-share-desktop {
+  display: none;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--phoenix-space-sm);
+}
+
+@media (min-width: 769px) {
+  .phoenix-share-desktop {
+    display: flex;
+  }
+}
+
+.phoenix-share-btn-inline {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1.5px solid var(--phoenix-cream);
+  border-radius: var(--phoenix-radius-md);
+  color: var(--phoenix-text-secondary);
+  cursor: pointer;
+  transition: all var(--phoenix-transition-base);
+  padding: 0;
+}
+
+.phoenix-share-btn-inline:hover {
+  border-color: var(--phoenix-sienna);
+  background: var(--phoenix-cream);
+  color: var(--phoenix-sienna);
+}
+
+.phoenix-share-btn-inline svg {
+  width: 18px;
+  height: 18px;
+}
+
+.phoenix-share-float:hover {
+  background: var(--phoenix-sienna-dark);
+  box-shadow: var(--phoenix-shadow-xl);
+}
+
+.phoenix-share-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: calc(var(--phoenix-z-modal) - 1);
+}
+
+.phoenix-share-menu {
+  position: fixed;
+  bottom: 180px;
+  right: var(--phoenix-padding-mobile);
+  background: var(--phoenix-white);
+  border-radius: var(--phoenix-radius-lg);
+  box-shadow: var(--phoenix-shadow-xl);
+  padding: var(--phoenix-space-lg);
+  z-index: var(--phoenix-z-modal);
+  min-width: 200px;
+}
+
+.phoenix-share-title {
+  font-family: var(--phoenix-font-serif);
+  font-size: var(--phoenix-text-lg);
+  color: var(--phoenix-charcoal);
+  margin: 0 0 var(--phoenix-space-md) 0;
+  text-align: center;
+}
+
+.phoenix-share-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--phoenix-space-sm);
+}
+
+.phoenix-share-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--phoenix-space-sm);
+  padding: var(--phoenix-space-sm) var(--phoenix-space-md);
+  background: transparent;
+  border: 1.5px solid var(--phoenix-cream);
+  border-radius: var(--phoenix-radius-md);
+  font-family: var(--phoenix-font-sans);
+  font-size: var(--phoenix-text-sm);
+  color: var(--phoenix-text-primary);
+  cursor: pointer;
+  transition: all var(--phoenix-transition-base);
+}
+
+.phoenix-share-btn:hover {
+  border-color: var(--phoenix-sienna);
+  background: var(--phoenix-cream);
+  color: var(--phoenix-sienna);
+}
+
+.phoenix-share-btn svg {
+  flex-shrink: 0;
+}
+

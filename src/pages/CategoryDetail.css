@@ -1,0 +1,40 @@
+/* Phoenix Category Detail Page */
+
+.phoenix-category-detail {
+  width: 100%;
+}
+
+.phoenix-category-header {
+  text-align: center;
+  margin-bottom: var(--phoenix-space-3xl);
+  padding-bottom: var(--phoenix-space-xl);
+}
+
+.phoenix-category-title {
+  font-family: var(--phoenix-font-serif);
+  font-size: var(--phoenix-text-3xl);
+  font-weight: 700;
+  color: var(--phoenix-charcoal);
+  margin-bottom: var(--phoenix-space-md);
+  letter-spacing: -0.02em;
+}
+
+.phoenix-title-underline {
+  width: 80px;
+  height: 3px;
+  background: var(--phoenix-sienna);
+  margin: 0 auto;
+  border-radius: var(--phoenix-radius-full);
+}
+
+.phoenix-publications-grid-full {
+  margin-top: var(--phoenix-space-2xl);
+}
+
+.phoenix-poems-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--phoenix-space-xl);
+  margin-top: var(--phoenix-space-2xl);
+}
+

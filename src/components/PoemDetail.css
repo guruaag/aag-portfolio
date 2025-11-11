@@ -1,0 +1,84 @@
+/* Phoenix Poem Detail - Focus Mode for Reading */
+
+.phoenix-poem-detail {
+  width: 100%;
+}
+
+.phoenix-poem-header {
+  text-align: center;
+  margin-bottom: var(--phoenix-space-3xl);
+  padding-bottom: var(--phoenix-space-xl);
+}
+
+.phoenix-poem-title {
+  font-family: var(--phoenix-font-serif);
+  font-size: var(--phoenix-text-3xl);
+  font-weight: 700;
+  color: var(--phoenix-charcoal);
+  margin-bottom: var(--phoenix-space-md);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.phoenix-poem-subtitle {
+  font-family: var(--phoenix-font-serif);
+  font-size: var(--phoenix-text-lg);
+  color: var(--phoenix-text-secondary);
+  font-style: italic;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.phoenix-poem-text {
+  margin: var(--phoenix-space-3xl) 0;
+  padding: var(--phoenix-space-2xl) 0;
+  border-top: 1px solid var(--phoenix-cream);
+  border-bottom: 1px solid var(--phoenix-cream);
+}
+
+.phoenix-poem-content {
+  font-family: var(--phoenix-font-serif);
+  font-size: var(--phoenix-text-xl);
+  line-height: 2;
+  color: var(--phoenix-text-primary);
+  white-space: pre-wrap;
+  text-align: left;
+  max-width: 100%;
+  word-wrap: break-word;
+}
+
+/* Hindi font support */
+.phoenix-poem-content[lang="hi"] {
+  font-family: var(--phoenix-font-hindi);
+}
+
+.phoenix-poem-share {
+  margin: var(--phoenix-space-2xl) 0;
+  text-align: center;
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+
+.phoenix-poem-share:hover {
+  opacity: 1;
+}
+
+.phoenix-poem-navigation {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--phoenix-space-lg);
+  margin-top: var(--phoenix-space-3xl);
+  padding-top: var(--phoenix-space-xl);
+  border-top: 1px solid var(--phoenix-cream);
+}
+
+@media (max-width: 600px) {
+  .phoenix-poem-navigation {
+    flex-direction: column;
+  }
+  
+  .phoenix-poem-navigation .phoenix-btn {
+    width: 100%;
+  }
+}
+

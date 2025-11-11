@@ -1,0 +1,135 @@
+/* Phoenix Home Page - Profound Minimalism */
+
+.phoenix-home {
+  width: 100%;
+}
+
+/* Hero Section */
+.phoenix-hero {
+  text-align: center;
+  padding: var(--phoenix-space-3xl) 0;
+  margin-bottom: var(--phoenix-space-3xl);
+}
+
+.phoenix-hero-title {
+  font-family: var(--phoenix-font-serif);
+  font-size: var(--phoenix-text-3xl);
+  font-weight: 700;
+  color: var(--phoenix-charcoal);
+  margin-bottom: var(--phoenix-space-md);
+  letter-spacing: -0.02em;
+}
+
+.phoenix-hero-subtitle {
+  font-family: var(--phoenix-font-sans);
+  font-size: var(--phoenix-text-xl);
+  font-weight: 400;
+  color: var(--phoenix-sienna);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin-bottom: var(--phoenix-space-xl);
+}
+
+.phoenix-hero-description {
+  font-family: var(--phoenix-font-serif);
+  font-size: var(--phoenix-text-lg);
+  line-height: 1.8;
+  color: var(--phoenix-text-secondary);
+  max-width: 800px;
+  margin: 0 auto;
+  font-style: italic;
+}
+
+/* Publications Section */
+.phoenix-publications-section {
+  margin: var(--phoenix-space-3xl) 0;
+}
+
+.phoenix-section-title {
+  font-family: var(--phoenix-font-serif);
+  font-size: var(--phoenix-text-2xl);
+  font-weight: 600;
+  color: var(--phoenix-charcoal);
+  text-align: center;
+  margin-bottom: var(--phoenix-space-md);
+  letter-spacing: -0.01em;
+}
+
+.phoenix-section-subtitle {
+  font-family: var(--phoenix-font-sans);
+  font-size: var(--phoenix-text-base);
+  color: var(--phoenix-text-secondary);
+  text-align: center;
+  margin-bottom: var(--phoenix-space-2xl);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Publications Grid */
+.phoenix-publications-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--phoenix-space-xl);
+  margin-bottom: var(--phoenix-space-2xl);
+}
+
+@media (max-width: 600px) {
+  .phoenix-publications-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--phoenix-space-lg);
+  }
+}
+
+@media (min-width: 1025px) {
+  .phoenix-publications-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--phoenix-space-2xl);
+  }
+}
+
+.phoenix-section-footer {
+  text-align: center;
+  margin-top: var(--phoenix-space-2xl);
+}
+
+/* About Section */
+.phoenix-about-section {
+  margin: var(--phoenix-space-3xl) 0;
+}
+
+.phoenix-quote-content {
+  font-family: var(--phoenix-font-serif);
+  font-size: var(--phoenix-text-lg);
+  line-height: 1.9;
+  color: var(--phoenix-text-primary);
+}
+
+.phoenix-quote-content p {
+  margin-bottom: var(--phoenix-space-md);
+}
+
+.phoenix-quote-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Loading & Error States */
+.phoenix-loading,
+.phoenix-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: var(--phoenix-space-lg);
+  text-align: center;
+}
+
+.phoenix-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--phoenix-cream);
+  border-top-color: var(--phoenix-sienna);
+  border-radius: 50%;
+}
+

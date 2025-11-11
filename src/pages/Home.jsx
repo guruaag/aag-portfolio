@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
+import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import { getCategories, getAboutContent, getPublications, getPoems } from '../lib/supabaseClient'
-import { updateMetaTags } from '../lib/metaTags'
-import CategoryCard from '../components/CategoryCard'
 import PublicationCard from '../components/PublicationCard'
-import PoemCard from '../components/PoemCard'
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+import './Home.css'
 
 function Home() {
+  const { t } = useTranslation()
   const [categories, setCategories] = useState([])
   const [aboutContent, setAboutContent] = useState(null)
   const [publications, setPublications] = useState([])
@@ -33,15 +33,8 @@ function Home() {
 
       setCategories(catsData)
       setAboutContent(aboutData)
-      setPublications(pubsData.slice(0, 3)) // Show first 3 on home
-      setPoems(poemsData.slice(0, 5)) // Show first 5 on home
-
-      // Update meta tags for SEO
-      updateMetaTags({
-        title: 'Gurupratap Sharma | AAG',
-        description: aboutData?.truncated_preview || 'Portfolio of poems, publications, and writings by Gurupratap Sharma.',
-        url: window.location.href
-      })
+      setPublications(pubsData.slice(0, 6))
+      setPoems(poemsData.slice(0, 5))
     } catch (err) {
       console.error('Error loading data:', err)
       setError('Content not available')
@@ -51,60 +44,145 @@ function Home() {
   }
 
   if (loading) {
-    return <div className="loading">Loading...</div>
-  }
-
-  if (error) {
     return (
-      <div className="error">
-        <p>{error}</p>
-        <button className="btn" onClick={loadData}>Refresh</button>
-        <p style={{ marginTop: '16px' }}>
-          <a href="tel:+917676885989" className="link">Call me</a>
-        </p>
+      <div className="phoenix-loading">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+          className="phoenix-spinner"
+        />
+        <p>Loading...</p>
       </div>
     )
   }
 
-  const aboutCategory = categories.find(c => c.content_type === 'about')
+  if (error) {
+    return (
+      <div className="phoenix-error">
+        <p>{error}</p>
+        <button className="phoenix-btn phoenix-btn-outline" onClick={loadData}>
+          {t('common.readMore')}
+        </button>
+      </div>
+    )
+  }
+
   const publicationsCategory = categories.find(c => c.content_type === 'publications')
-  const writingsCategory = categories.find(c => c.content_type === 'writings')
 
   return (
-    <div>
-      {aboutCategory && (
-        <CategoryCard
-          category={aboutCategory}
-          preview={aboutContent?.truncated_preview || aboutContent?.body_text?.substring(0, 150)}
-        />
-      )}
+    <>
+      <Helmet>
+        <title>Guru Pratap Sharma | AAG - Literary Works & Poetry</title>
+        <meta name="description" content={aboutContent?.truncated_preview || 'Portfolio of poems, publications, and writings by Guru Pratap Sharma.'} />
+        <meta property="og:title" content="Guru Pratap Sharma | AAG" />
+        <meta property="og:description" content={aboutContent?.truncated_preview || 'Literary works and poetry'} />
+        <meta property="og:type" content="website" />
+      </Helmet>
 
-      {publicationsCategory && publications.length > 0 && (
-        <CategoryCard category={publicationsCategory}>
-          <div className="grid grid-3" style={{ marginBottom: '16px' }}>
-            {publications.map((pub) => (
-              <PublicationCard
-                key={pub.id}
-                publication={pub}
-                supabaseUrl={supabaseUrl}
-              />
-            ))}
-          </div>
-        </CategoryCard>
-      )}
+      <div className="phoenix-home">
+        {/* Hero Section */}
+        <motion.section
+          className="phoenix-hero"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <h1 className="phoenix-hero-title">
+            {t('home.title')}
+          </h1>
+          <p className="phoenix-hero-subtitle">
+            {t('home.subtitle')}
+          </p>
+          {aboutContent?.truncated_preview && (
+            <motion.p
+              className="phoenix-hero-description"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+            >
+              {aboutContent.truncated_preview}
+            </motion.p>
+          )}
+        </motion.section>
 
-      {writingsCategory && poems.length > 0 && (
-        <CategoryCard category={writingsCategory}>
-          <div style={{ marginBottom: '16px' }}>
-            {poems.map((poem) => (
-              <PoemCard key={poem.id} poem={poem} />
-            ))}
-          </div>
-        </CategoryCard>
-      )}
-    </div>
+        {/* Publications Grid */}
+        {publicationsCategory && publications.length > 0 && (
+          <motion.section
+            className="phoenix-section phoenix-publications-section"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+          >
+            <div className="phoenix-content">
+              <motion.h2
+                className="phoenix-section-title"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+              >
+                {t('publications.title')}
+              </motion.h2>
+              <motion.p
+                className="phoenix-section-subtitle"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6, duration: 0.5 }}
+              >
+                {t('publications.subtitle')}
+              </motion.p>
+              
+              <div className="phoenix-publications-grid">
+                {publications.map((pub, index) => (
+                  <PublicationCard
+                    key={pub.id}
+                    publication={pub}
+                    index={index}
+                  />
+                ))}
+              </div>
+
+              {publications.length >= 6 && (
+                <motion.div
+                  className="phoenix-section-footer"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8, duration: 0.5 }}
+                >
+                  <a
+                    href={`/category/${publicationsCategory.id}`}
+                    className="phoenix-btn phoenix-btn-outline"
+                  >
+                    {t('common.readMore')} →
+                  </a>
+                </motion.div>
+              )}
+            </div>
+          </motion.section>
+        )}
+
+        {/* About Quote Block */}
+        {aboutContent && (
+          <motion.section
+            className="phoenix-section phoenix-about-section"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+          >
+            <div className="phoenix-content">
+              <div className="phoenix-quote">
+                {aboutContent.body_text && (
+                  <div
+                    className="phoenix-quote-content"
+                    dangerouslySetInnerHTML={{ __html: aboutContent.body_text }}
+                  />
+                )}
+              </div>
+            </div>
+          </motion.section>
+        )}
+      </div>
+    </>
   )
 }
 
 export default Home
-

@@ -1,118 +1,106 @@
-import { useNavigate } from 'react-router-dom'
-import Toast from './Toast'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useState } from 'react'
+import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
+import SocialShare from './SocialShare'
+import Toast from './Toast'
+import ThankYouPopup from './ThankYouPopup'
+import './Footer.css'
 
 function Footer() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { t, i18n } = useTranslation()
   const [toast, setToast] = useState(null)
+  const [showThankYou, setShowThankYou] = useState(false)
+
+  // Check if user is admin (from localStorage - for security, this should be server-side)
+  const isAdmin = localStorage.getItem('adminAuth') === 'true'
 
   const handleBack = () => {
     navigate('/')
   }
 
   const handleThankYou = () => {
-    setToast('Thank you!')
-    setTimeout(() => setToast(null), 2500)
+    setShowThankYou(true)
   }
 
-  const handleShare = async () => {
-    const url = window.location.href
-    
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'Gurupratap Sharma | AAG',
-          url: url
-        })
-      } catch (err) {
-        // User cancelled or error
-        console.log('Share cancelled')
-      }
-    } else {
-      // Fallback: copy to clipboard
-      try {
-        await navigator.clipboard.writeText(url)
-        setToast('Link copied to clipboard!')
-        setTimeout(() => setToast(null), 2500)
-      } catch (err) {
-        setToast('Unable to copy link')
-        setTimeout(() => setToast(null), 2500)
-      }
-    }
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'en' ? 'hi' : 'en'
+    i18n.changeLanguage(newLang)
+    localStorage.setItem('siteLanguage', newLang)
   }
 
-  const handleAdmin = () => {
+  const handleAdmin = (e) => {
+    e.preventDefault()
     navigate('/admin')
   }
 
   return (
     <>
-      <footer
-        style={{
-          height: 'var(--footer-height)',
-          borderTop: '2px solid var(--accent)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 var(--content-padding)',
-          background: 'white',
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 100
-        }}
+      <motion.footer
+        className="phoenix-footer"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
       >
-        <button
-          onClick={handleBack}
-          className="btn"
-          style={{
-            fontSize: 'clamp(12px, 3vw, 14px)',
-            padding: '6px 12px'
-          }}
-        >
-          Back
-        </button>
+        <div className="phoenix-footer-container">
+          {/* Left: Back Button */}
+          <motion.button
+            className="phoenix-btn phoenix-btn-ghost"
+            onClick={handleBack}
+            whileHover={{ x: -4 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {t('common.back')}
+          </motion.button>
 
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-          <button
-            onClick={handleThankYou}
-            className="btn"
-            style={{
-              fontSize: 'clamp(12px, 3vw, 14px)',
-              padding: '6px 12px'
-            }}
-          >
-            Thank You
-          </button>
-          <span
-            onClick={handleAdmin}
-            style={{
-              fontSize: '8px',
-              color: '#999',
-              cursor: 'pointer',
-              textDecoration: 'underline'
-            }}
-          >
-            admin only
-          </span>
+          {/* Center: Thank You */}
+          <div className="phoenix-footer-center">
+            <motion.button
+              className="phoenix-btn phoenix-btn-ghost"
+              onClick={handleThankYou}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {t('footer.thankYou')}
+            </motion.button>
+            {/* Hidden admin link - only visible to admins or via direct URL */}
+            {isAdmin && (
+              <a
+                href="/admin"
+                onClick={handleAdmin}
+                className="phoenix-admin-link"
+                aria-label="Admin"
+              >
+                admin
+              </a>
+            )}
+          </div>
+
+          {/* Right: Language Toggle & Share */}
+          <div className="phoenix-footer-right">
+            <motion.button
+              className="phoenix-lang-toggle phoenix-lang-toggle-footer"
+              onClick={toggleLanguage}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <span className={i18n.language === 'en' ? 'active' : ''}>EN</span>
+              <span className="phoenix-lang-divider">|</span>
+              <span className={i18n.language === 'hi' ? 'active' : ''}>HI</span>
+            </motion.button>
+          </div>
         </div>
+      </motion.footer>
 
-        <button
-          onClick={handleShare}
-          className="btn"
-          style={{
-            fontSize: 'clamp(12px, 3vw, 14px)',
-            padding: '6px 12px'
-          }}
-        >
-          Share
-        </button>
-      </footer>
+      {/* Social Share Floating Button (Mobile) */}
+      <SocialShare url={window.location.href} title="Guru Pratap Sharma | AAG" />
+
       {toast && <Toast message={toast} />}
+      {showThankYou && <ThankYouPopup onClose={() => setShowThankYou(false)} />}
     </>
   )
 }
 
 export default Footer
-

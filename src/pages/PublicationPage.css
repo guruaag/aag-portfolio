@@ -1,0 +1,89 @@
+/* Phoenix Publication Page - Focus Mode */
+
+.phoenix-publication-page {
+  width: 100%;
+}
+
+.phoenix-publication-header {
+  text-align: center;
+  margin-bottom: var(--phoenix-space-3xl);
+  padding-bottom: var(--phoenix-space-xl);
+}
+
+.phoenix-publication-page-title {
+  font-family: var(--phoenix-font-serif);
+  font-size: var(--phoenix-text-3xl);
+  font-weight: 700;
+  color: var(--phoenix-charcoal);
+  margin-bottom: var(--phoenix-space-md);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.phoenix-publication-page-subtitle {
+  font-family: var(--phoenix-font-serif);
+  font-size: var(--phoenix-text-xl);
+  color: var(--phoenix-text-secondary);
+  font-style: italic;
+  margin: 0;
+}
+
+.phoenix-publication-cover {
+  margin: var(--phoenix-space-3xl) 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--phoenix-white);
+  border-radius: var(--phoenix-radius-lg);
+  padding: var(--phoenix-space-xl);
+  box-shadow: var(--phoenix-shadow-md);
+}
+
+.phoenix-publication-cover-image {
+  max-width: 100%;
+  max-height: 600px;
+  object-fit: contain;
+  border-radius: var(--phoenix-radius-md);
+  box-shadow: var(--phoenix-shadow-lg);
+}
+
+.phoenix-publication-description {
+  margin: var(--phoenix-space-3xl) 0;
+}
+
+.phoenix-markdown-content {
+  font-family: var(--phoenix-font-serif);
+  font-size: var(--phoenix-text-lg);
+  line-height: 1.9;
+  color: var(--phoenix-text-primary);
+}
+
+.phoenix-markdown-content p {
+  margin-bottom: var(--phoenix-space-lg);
+}
+
+.phoenix-markdown-content p:last-child {
+  margin-bottom: 0;
+}
+
+.phoenix-markdown-content h2,
+.phoenix-markdown-content h3 {
+  font-family: var(--phoenix-font-serif);
+  margin-top: var(--phoenix-space-2xl);
+  margin-bottom: var(--phoenix-space-lg);
+  color: var(--phoenix-charcoal);
+}
+
+.phoenix-publication-share {
+  margin-top: var(--phoenix-space-3xl);
+  padding-top: var(--phoenix-space-xl);
+  border-top: 1px solid var(--phoenix-cream);
+  display: none;
+}
+
+@media (min-width: 769px) {
+  .phoenix-publication-share {
+    display: block;
+  }
+}
+
