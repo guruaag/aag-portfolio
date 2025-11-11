@@ -8,6 +8,7 @@ import Home from './pages/Home'
 import CategoryDetail from './pages/CategoryDetail'
 import PoemPage from './pages/PoemPage'
 import PublicationPage from './pages/PublicationPage'
+import Contact from './pages/Contact'
 import AdminLogin from './pages/Admin/Login'
 import AdminDashboard from './pages/Admin/Dashboard'
 import './styles/phoenix-design-system.css'
@@ -70,6 +71,7 @@ function App() {
                 <Route path="/category/:categoryId" element={<CategoryDetail />} />
                 <Route path="/poem/:id" element={<PoemPage />} />
                 <Route path="/publication/:id" element={<PublicationPage />} />
+                <Route path="/contact" element={<Contact />} />
                 <Route path="/admin" element={<AdminLogin />} />
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
               </Routes>

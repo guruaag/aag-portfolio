@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { getCategories, getAboutContent, getPublications, getPoems } from '../lib/supabaseClient'
 import PublicationCard from '../components/PublicationCard'
+import { marked } from 'marked'
 import './Home.css'
 
 function Home() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const [categories, setCategories] = useState([])
   const [aboutContent, setAboutContent] = useState(null)
   const [publications, setPublications] = useState([])
@@ -33,8 +36,8 @@ function Home() {
 
       setCategories(catsData)
       setAboutContent(aboutData)
-      setPublications(pubsData.slice(0, 6))
-      setPoems(poemsData.slice(0, 5))
+      setPublications(pubsData.slice(0, 5)) // Max 5 for horizontal scroll
+      setPoems(poemsData.slice(0, 5)) // Max 5 titles
     } catch (err) {
       console.error('Error loading data:', err)
       setError('Content not available')
@@ -61,13 +64,15 @@ function Home() {
       <div className="phoenix-error">
         <p>{error}</p>
         <button className="phoenix-btn phoenix-btn-outline" onClick={loadData}>
-          {t('common.readMore')}
+          Refresh
         </button>
       </div>
     )
   }
 
+  const aboutCategory = categories.find(c => c.content_type === 'about')
   const publicationsCategory = categories.find(c => c.content_type === 'publications')
+  const poemsCategory = categories.find(c => c.content_type === 'writings')
 
   return (
     <>
@@ -80,35 +85,58 @@ function Home() {
       </Helmet>
 
       <div className="phoenix-home">
-        {/* Hero Section */}
-        <motion.section
-          className="phoenix-hero"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h1 className="phoenix-hero-title">
-            {t('home.title')}
-          </h1>
-          <p className="phoenix-hero-subtitle">
-            {t('home.subtitle')}
-          </p>
-          {aboutContent?.truncated_preview && (
-            <motion.p
-              className="phoenix-hero-description"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-            >
-              {aboutContent.truncated_preview}
-            </motion.p>
-          )}
-        </motion.section>
-
-        {/* Publications Grid */}
-        {publicationsCategory && publications.length > 0 && (
+        {/* 1. About Section */}
+        {aboutContent && (
           <motion.section
-            className="phoenix-section phoenix-publications-section"
+            className="phoenix-section phoenix-about-section-home"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="phoenix-content">
+              <motion.h2
+                className="phoenix-section-title"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1, duration: 0.5 }}
+              >
+                {aboutContent.title || t('about.title')}
+              </motion.h2>
+              
+              {aboutContent.truncated_preview && (
+                <motion.p
+                  className="phoenix-about-preview"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2, duration: 0.5 }}
+                >
+                  {aboutContent.truncated_preview}
+                </motion.p>
+              )}
+
+              {aboutCategory && (
+                <motion.div
+                  className="phoenix-section-footer"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3, duration: 0.5 }}
+                >
+                  <button
+                    className="phoenix-btn phoenix-btn-outline"
+                    onClick={() => navigate(`/category/${aboutCategory.id}`)}
+                  >
+                    {t('common.readMore')} →
+                  </button>
+                </motion.div>
+              )}
+            </div>
+          </motion.section>
+        )}
+
+        {/* 2. Poems Section */}
+        {poems.length > 0 && (
+          <motion.section
+            className="phoenix-section phoenix-poems-section-home"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4, duration: 0.6 }}
@@ -120,18 +148,66 @@ function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.5 }}
               >
+                {t('nav.poems')}
+              </motion.h2>
+              
+              <div className="phoenix-poems-list-home">
+                {poems.map((poem, index) => (
+                  <motion.div
+                    key={poem.id}
+                    className="phoenix-poem-item-home"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.6 + index * 0.1, duration: 0.5 }}
+                  >
+                    <button
+                      className="phoenix-poem-link"
+                      onClick={() => navigate(`/poem/${poem.id}`)}
+                    >
+                      <h3 className="phoenix-poem-heading">{poem.heading || 'Untitled'}</h3>
+                    </button>
+                  </motion.div>
+                ))}
+              </div>
+
+              {poemsCategory && (
+                <motion.div
+                  className="phoenix-section-footer"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8, duration: 0.5 }}
+                >
+                  <button
+                    className="phoenix-btn phoenix-btn-outline"
+                    onClick={() => navigate(`/category/${poemsCategory.id}`)}
+                  >
+                    {t('common.readMore')} →
+                  </button>
+                </motion.div>
+              )}
+            </div>
+          </motion.section>
+        )}
+
+        {/* 3. Publications Section */}
+        {publications.length > 0 && (
+          <motion.section
+            className="phoenix-section phoenix-publications-section-home"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+          >
+            <div className="phoenix-content">
+              <motion.h2
+                className="phoenix-section-title"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7, duration: 0.5 }}
+              >
                 {t('publications.title')}
               </motion.h2>
-              <motion.p
-                className="phoenix-section-subtitle"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.6, duration: 0.5 }}
-              >
-                {t('publications.subtitle')}
-              </motion.p>
               
-              <div className="phoenix-publications-grid">
+              <div className="phoenix-publications-scroll">
                 {publications.map((pub, index) => (
                   <PublicationCard
                     key={pub.id}
@@ -141,42 +217,21 @@ function Home() {
                 ))}
               </div>
 
-              {publications.length >= 6 && (
+              {publicationsCategory && (
                 <motion.div
                   className="phoenix-section-footer"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 0.8, duration: 0.5 }}
+                  transition={{ delay: 0.9, duration: 0.5 }}
                 >
-                  <a
-                    href={`/category/${publicationsCategory.id}`}
+                  <button
                     className="phoenix-btn phoenix-btn-outline"
+                    onClick={() => navigate(`/category/${publicationsCategory.id}`)}
                   >
                     {t('common.readMore')} →
-                  </a>
+                  </button>
                 </motion.div>
               )}
-            </div>
-          </motion.section>
-        )}
-
-        {/* About Quote Block */}
-        {aboutContent && (
-          <motion.section
-            className="phoenix-section phoenix-about-section"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
-          >
-            <div className="phoenix-content">
-              <div className="phoenix-quote">
-                {aboutContent.body_text && (
-                  <div
-                    className="phoenix-quote-content"
-                    dangerouslySetInnerHTML={{ __html: aboutContent.body_text }}
-                  />
-                )}
-              </div>
             </div>
           </motion.section>
         )}

@@ -41,6 +41,18 @@
   flex-direction: column;
   cursor: pointer;
   user-select: none;
+  padding-left: var(--phoenix-padding-mobile);
+  transition: padding-left 0.3s ease;
+}
+
+@media (min-width: 1025px) {
+  .phoenix-header-logo {
+    padding-left: var(--phoenix-padding-desktop);
+  }
+}
+
+.phoenix-header-scrolled .phoenix-header-logo {
+  padding-left: var(--phoenix-padding-mobile);
 }
 
 .phoenix-header-title {

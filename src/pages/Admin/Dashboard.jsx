@@ -706,7 +706,13 @@ function SettingsManager({ settings, onUpdate }) {
     whatsapp_text: '',
     email: '',
     email_text: '',
+    facebook: '',
+    instagram: '',
     thank_you_message: '',
+    thank_you_title: '',
+    thank_you_heading: '',
+    thank_you_description: '',
+    thank_you_button_text: '',
     default_accent: '#964B00'
   })
 
@@ -718,7 +724,13 @@ function SettingsManager({ settings, onUpdate }) {
       whatsapp_text: settings.whatsapp_text || 'Whatsapp me',
       email: settings.email || '',
       email_text: settings.email_text || 'Email me',
+      facebook: settings.facebook || '',
+      instagram: settings.instagram || '',
       thank_you_message: settings.thank_you_message || 'Thank you!',
+      thank_you_title: settings.thank_you_title || '',
+      thank_you_heading: settings.thank_you_heading || '',
+      thank_you_description: settings.thank_you_description || '',
+      thank_you_button_text: settings.thank_you_button_text || '',
       default_accent: settings.default_accent || '#964B00'
     })
   }, [settings])
@@ -799,7 +811,58 @@ function SettingsManager({ settings, onUpdate }) {
           />
         </div>
         <div className="form-group">
-          <label>Thank You Message</label>
+          <label>Facebook URL</label>
+          <input
+            value={formData.facebook}
+            onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
+            placeholder="https://facebook.com/yourpage"
+          />
+        </div>
+        <div className="form-group">
+          <label>Instagram URL</label>
+          <input
+            value={formData.instagram}
+            onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
+            placeholder="https://instagram.com/yourprofile"
+          />
+        </div>
+        <hr style={{ margin: '24px 0', border: 'none', borderTop: '1px solid var(--border-light)' }} />
+        <h3 style={{ color: 'var(--accent)', marginBottom: '16px' }}>Thank You Section</h3>
+        <div className="form-group">
+          <label>Thank You Title</label>
+          <input
+            value={formData.thank_you_title}
+            onChange={(e) => setFormData({ ...formData, thank_you_title: e.target.value })}
+            placeholder="Thank You"
+          />
+        </div>
+        <div className="form-group">
+          <label>Thank You Heading</label>
+          <input
+            value={formData.thank_you_heading}
+            onChange={(e) => setFormData({ ...formData, thank_you_heading: e.target.value })}
+            placeholder="Thank you for visiting!"
+          />
+        </div>
+        <div className="form-group">
+          <label>Thank You Description</label>
+          <textarea
+            value={formData.thank_you_description}
+            onChange={(e) => setFormData({ ...formData, thank_you_description: e.target.value })}
+            placeholder="Your message here..."
+            rows="4"
+          />
+        </div>
+        <div className="form-group">
+          <label>Thank You Button Text</label>
+          <input
+            value={formData.thank_you_button_text}
+            onChange={(e) => setFormData({ ...formData, thank_you_button_text: e.target.value })}
+            placeholder="Close"
+          />
+        </div>
+        <div className="form-group">
+          <label>Thank You Message (Legacy - for popup)</label>
           <textarea
             value={formData.thank_you_message}
             onChange={(e) => setFormData({ ...formData, thank_you_message: e.target.value })}

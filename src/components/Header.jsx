@@ -35,7 +35,8 @@ function Header() {
     { path: '/', label: t('nav.home') },
     { path: '/category/publications', label: t('nav.publications') },
     { path: '/category/about', label: t('nav.about') },
-    { path: '/category/poems', label: t('nav.poems') }
+    { path: '/category/poems', label: t('nav.poems') },
+    { path: '/contact', label: t('nav.contact') }
   ]
 
   return (
@@ -58,10 +59,13 @@ function Header() {
             onClick={() => navigate('/')}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            style={{ paddingLeft: isScrolled ? 'var(--phoenix-padding-mobile)' : '0' }}
           >
+            {/* Logo Image - if available from settings */}
             <motion.h1
               animate={{
-                fontSize: isScrolled ? '1.25rem' : '1.75rem'
+                fontSize: isScrolled ? '1.25rem' : '1.75rem',
+                marginLeft: isScrolled ? '0' : '0'
               }}
               transition={{ duration: 0.3 }}
               className="phoenix-header-title"

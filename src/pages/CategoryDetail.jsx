@@ -27,7 +27,21 @@ function CategoryDetail() {
       setError(null)
 
       const categories = await getCategories()
-      const foundCategory = categories.find(c => c.id === categoryId)
+      // Support both UUID and slug-based routing
+      let foundCategory = categories.find(c => c.id === categoryId)
+      
+      // If not found by ID, try to find by content_type slug
+      if (!foundCategory) {
+        const slugMap = {
+          'publications': 'publications',
+          'about': 'about',
+          'poems': 'writings'
+        }
+        const contentType = slugMap[categoryId]
+        if (contentType) {
+          foundCategory = categories.find(c => c.content_type === contentType)
+        }
+      }
       
       if (!foundCategory) {
         setError('Category not found')

@@ -4,11 +4,15 @@
   width: 100%;
 }
 
-/* Hero Section */
-.phoenix-hero {
-  text-align: center;
-  padding: var(--phoenix-space-3xl) 0;
-  margin-bottom: var(--phoenix-space-3xl);
+/* Section Spacing - Reduced */
+.phoenix-section {
+  margin: var(--phoenix-space-2xl) 0;
+}
+
+.phoenix-about-section-home,
+.phoenix-poems-section-home,
+.phoenix-publications-section-home {
+  margin: var(--phoenix-space-xl) 0;
 }
 
 .phoenix-hero-title {
@@ -40,9 +44,99 @@
   font-style: italic;
 }
 
-/* Publications Section */
-.phoenix-publications-section {
-  margin: var(--phoenix-space-3xl) 0;
+/* About Preview */
+.phoenix-about-preview {
+  font-family: var(--phoenix-font-serif);
+  font-size: var(--phoenix-text-lg);
+  line-height: 1.8;
+  color: var(--phoenix-text-secondary);
+  max-width: 800px;
+  margin: 0 auto var(--phoenix-space-lg);
+  text-align: center;
+}
+
+/* Poems List Home */
+.phoenix-poems-list-home {
+  display: flex;
+  flex-direction: column;
+  gap: var(--phoenix-space-md);
+  margin-bottom: var(--phoenix-space-lg);
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.phoenix-poem-item-home {
+  width: 100%;
+}
+
+.phoenix-poem-link {
+  width: 100%;
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  padding: var(--phoenix-space-md) 0;
+  border-bottom: 1px solid var(--phoenix-cream);
+  transition: all 0.3s ease;
+}
+
+.phoenix-poem-link:hover {
+  border-bottom-color: var(--phoenix-sienna);
+  padding-left: var(--phoenix-space-md);
+}
+
+.phoenix-poem-heading {
+  font-family: var(--phoenix-font-serif);
+  font-size: var(--phoenix-text-xl);
+  font-weight: 600;
+  color: var(--phoenix-charcoal);
+  margin: 0;
+  transition: color 0.3s ease;
+}
+
+.phoenix-poem-link:hover .phoenix-poem-heading {
+  color: var(--phoenix-sienna);
+}
+
+/* Publications Horizontal Scroll */
+.phoenix-publications-scroll {
+  display: flex;
+  gap: var(--phoenix-space-xl);
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: var(--phoenix-space-md) 0;
+  margin-bottom: var(--phoenix-space-lg);
+  scrollbar-width: thin;
+  scrollbar-color: var(--phoenix-sienna) var(--phoenix-cream);
+  -webkit-overflow-scrolling: touch;
+}
+
+.phoenix-publications-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.phoenix-publications-scroll::-webkit-scrollbar-track {
+  background: var(--phoenix-cream);
+  border-radius: 4px;
+}
+
+.phoenix-publications-scroll::-webkit-scrollbar-thumb {
+  background: var(--phoenix-sienna);
+  border-radius: 4px;
+}
+
+.phoenix-publications-scroll > * {
+  flex: 0 0 auto;
+  min-width: 200px;
+  max-width: 250px;
+}
+
+@media (max-width: 600px) {
+  .phoenix-publications-scroll > * {
+    min-width: 150px;
+    max-width: 180px;
+  }
 }
 
 .phoenix-section-title {

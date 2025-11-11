@@ -1,0 +1,82 @@
+/* Phoenix Contact Page */
+
+.phoenix-contact {
+  width: 100%;
+  padding: var(--phoenix-space-3xl) 0;
+}
+
+.phoenix-contact-title {
+  font-family: var(--phoenix-font-serif);
+  font-size: var(--phoenix-text-3xl);
+  font-weight: 700;
+  color: var(--phoenix-charcoal);
+  text-align: center;
+  margin-bottom: var(--phoenix-space-md);
+  letter-spacing: -0.02em;
+}
+
+.phoenix-contact-subtitle {
+  font-family: var(--phoenix-font-sans);
+  font-size: var(--phoenix-text-lg);
+  color: var(--phoenix-text-secondary);
+  text-align: center;
+  margin-bottom: var(--phoenix-space-3xl);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.phoenix-contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--phoenix-space-xl);
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+@media (max-width: 600px) {
+  .phoenix-contact-grid {
+    grid-template-columns: 1fr;
+    gap: var(--phoenix-space-lg);
+  }
+}
+
+.phoenix-contact-card {
+  background: var(--phoenix-white);
+  border: none;
+  border-radius: var(--phoenix-radius-lg);
+  padding: var(--phoenix-space-2xl);
+  box-shadow: var(--phoenix-shadow-md);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--phoenix-space-md);
+}
+
+.phoenix-contact-card:hover {
+  box-shadow: var(--phoenix-shadow-lg);
+}
+
+.phoenix-contact-card svg {
+  color: var(--phoenix-sienna);
+  margin-bottom: var(--phoenix-space-sm);
+}
+
+.phoenix-contact-card h3 {
+  font-family: var(--phoenix-font-serif);
+  font-size: var(--phoenix-text-xl);
+  font-weight: 600;
+  color: var(--phoenix-charcoal);
+  margin: 0;
+}
+
+.phoenix-contact-card p {
+  font-family: var(--phoenix-font-sans);
+  font-size: var(--phoenix-text-base);
+  color: var(--phoenix-text-secondary);
+  margin: 0;
+}
+
