@@ -30,7 +30,16 @@
   text-align: left;
   margin-bottom: var(--phoenix-space-lg);
   padding-bottom: var(--phoenix-space-sm);
-  border-bottom: 2px solid var(--theme-accent);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+  padding-left: var(--phoenix-padding-mobile);
+  padding-right: var(--phoenix-padding-mobile);
+}
+
+@media (min-width: 1025px) {
+  .phoenix-section-title {
+    padding-left: var(--phoenix-padding-desktop);
+    padding-right: var(--phoenix-padding-desktop);
+  }
 }
 
 /* About Section Home Layout */
@@ -38,6 +47,15 @@
   display: flex;
   gap: var(--phoenix-space-xl);
   align-items: flex-start;
+  padding-left: var(--phoenix-padding-mobile);
+  padding-right: var(--phoenix-padding-mobile);
+}
+
+@media (min-width: 1025px) {
+  .phoenix-about-home-layout {
+    padding-left: var(--phoenix-padding-desktop);
+    padding-right: var(--phoenix-padding-desktop);
+  }
 }
 
 @media (max-width: 768px) {
@@ -85,6 +103,15 @@
   flex-direction: column;
   gap: var(--phoenix-space-sm);
   margin-bottom: var(--phoenix-space-md);
+  padding-left: var(--phoenix-padding-mobile);
+  padding-right: var(--phoenix-padding-mobile);
+}
+
+@media (min-width: 1025px) {
+  .phoenix-poems-list-home {
+    padding-left: var(--phoenix-padding-desktop);
+    padding-right: var(--phoenix-padding-desktop);
+  }
 }
 
 .phoenix-poem-item-home {
@@ -98,7 +125,7 @@
   text-align: center;
   cursor: pointer;
   padding: var(--phoenix-space-md) 0;
-  border-bottom: 1px solid var(--theme-border);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
 }
 
@@ -127,25 +154,36 @@
   gap: var(--phoenix-space-xl);
   overflow-x: auto;
   overflow-y: hidden;
-  padding: var(--phoenix-space-md) 0;
+  padding: var(--phoenix-space-md) var(--phoenix-padding-mobile);
   margin-bottom: var(--phoenix-space-lg);
   scrollbar-width: thin;
-  scrollbar-color: var(--theme-accent) var(--theme-surface);
+  scrollbar-color: rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.05);
   -webkit-overflow-scrolling: touch;
 }
 
+@media (min-width: 1025px) {
+  .phoenix-publications-scroll {
+    padding-left: var(--phoenix-padding-desktop);
+    padding-right: var(--phoenix-padding-desktop);
+  }
+}
+
 .phoenix-publications-scroll::-webkit-scrollbar {
-  height: 8px;
+  height: 4px;
 }
 
 .phoenix-publications-scroll::-webkit-scrollbar-track {
-  background: var(--theme-surface);
-  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 2px;
 }
 
 .phoenix-publications-scroll::-webkit-scrollbar-thumb {
-  background: var(--theme-accent);
-  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+}
+
+.phoenix-publications-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
 }
 
 .phoenix-publications-scroll > * {

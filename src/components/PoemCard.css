@@ -51,7 +51,7 @@
   display: flex;
   justify-content: flex-end;
   padding-top: var(--phoenix-space-md);
-  border-top: 1px solid var(--phoenix-cream);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .phoenix-poem-read-more {

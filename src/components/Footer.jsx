@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabaseClient'
 import ContactModal from './ContactModal'
+import FollowModal from './FollowModal'
 import Toast from './Toast'
 import ThankYouPopup from './ThankYouPopup'
 import './Footer.css'
@@ -16,6 +17,7 @@ function Footer() {
   const [showFollow, setShowFollow] = useState(false)
   const [showShareMenu, setShowShareMenu] = useState(false)
   const [showContact, setShowContact] = useState(false)
+  const [showFollowModal, setShowFollowModal] = useState(false)
   const [socialLinks, setSocialLinks] = useState({
     facebook: '',
     instagram: '',
@@ -156,51 +158,15 @@ function Footer() {
               {t('nav.contact')}
             </motion.button>
 
-            {/* Follow Button with Expand */}
-            <div className="phoenix-footer-follow-wrapper">
-              <motion.button
-                className="phoenix-footer-btn"
-                onClick={() => setShowFollow(!showFollow)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                {t('footer.follow')}
-                <motion.span
-                  animate={{ rotate: showFollow ? 180 : 0 }}
-                  transition={{ duration: 0.25 }}
-                  className="phoenix-footer-arrow"
-                >
-                  ▼
-                </motion.span>
-              </motion.button>
-
-              {/* Social Links Expand */}
-              <AnimatePresence>
-                {showFollow && activeSocialLinks.length > 0 && (
-                  <motion.div
-                    className="phoenix-footer-social-expand"
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.25 }}
-                  >
-                    {activeSocialLinks.map(([platform, url]) => (
-                      <a
-                        key={platform}
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="phoenix-footer-social-link"
-                        title={platform.charAt(0).toUpperCase() + platform.slice(1)}
-                      >
-                        {socialIcons[platform]}
-                        <span className="phoenix-footer-social-label">{platform}</span>
-                      </a>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+            {/* Follow Button - Opens Modal */}
+            <motion.button
+              className="phoenix-footer-btn"
+              onClick={() => setShowFollowModal(true)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {t('footer.follow')}
+            </motion.button>
 
             <motion.button
               className="phoenix-footer-btn"
@@ -266,6 +232,13 @@ function Footer() {
 
       {/* Contact Modal */}
       <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} />
+
+      {/* Follow Modal */}
+      <FollowModal 
+        isOpen={showFollowModal} 
+        onClose={() => setShowFollowModal(false)}
+        socialLinks={socialLinks}
+      />
 
       {toast && <Toast message={toast} />}
       {showThankYou && <ThankYouPopup onClose={() => setShowThankYou(false)} />}

@@ -21,9 +21,9 @@
 
 .phoenix-title-underline {
   width: 80px;
-  height: 3px;
-  background: var(--phoenix-sienna);
-  margin: 0 auto;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.15);
+  margin: var(--phoenix-space-md) auto 0;
   border-radius: var(--phoenix-radius-full);
 }
 
@@ -65,10 +65,11 @@
 }
 
 .phoenix-category-header {
-  padding-top: 0;
-  margin-top: 0;
+  padding-top: var(--phoenix-space-lg);
+  margin-top: var(--phoenix-space-md);
   padding-left: var(--phoenix-padding-mobile);
   padding-right: var(--phoenix-padding-mobile);
+  margin-bottom: var(--phoenix-space-lg);
 }
 
 @media (min-width: 1025px) {

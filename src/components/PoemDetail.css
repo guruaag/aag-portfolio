@@ -6,8 +6,19 @@
 
 .phoenix-poem-header {
   text-align: center;
-  margin-bottom: var(--phoenix-space-3xl);
-  padding-bottom: var(--phoenix-space-xl);
+  margin-top: var(--phoenix-space-md);
+  margin-bottom: var(--phoenix-space-xl);
+  padding-top: var(--phoenix-space-sm);
+  padding-bottom: var(--phoenix-space-lg);
+  padding-left: var(--phoenix-padding-mobile);
+  padding-right: var(--phoenix-padding-mobile);
+}
+
+@media (min-width: 1025px) {
+  .phoenix-poem-header {
+    padding-left: var(--phoenix-padding-desktop);
+    padding-right: var(--phoenix-padding-desktop);
+  }
 }
 
 .phoenix-poem-title {
@@ -30,14 +41,23 @@
 }
 
 .phoenix-poem-text {
-  margin: var(--phoenix-space-3xl) 0;
-  padding: var(--phoenix-space-2xl) 0;
-  border-top: 1px solid var(--phoenix-cream);
-  border-bottom: 1px solid var(--phoenix-cream);
+  margin: var(--phoenix-space-xl) 0;
+  padding: var(--phoenix-space-lg) 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding-left: var(--phoenix-padding-mobile);
+  padding-right: var(--phoenix-padding-mobile);
+}
+
+@media (min-width: 1025px) {
+  .phoenix-poem-text {
+    padding-left: var(--phoenix-padding-desktop);
+    padding-right: var(--phoenix-padding-desktop);
+  }
 }
 
 .phoenix-poem-content {
-  font-family: var(--phoenix-font-serif);
+  font-family: var(--phoenix-font-serif), var(--phoenix-font-hindi-serif);
   font-size: var(--phoenix-text-xl);
   line-height: 1.6;
   color: var(--phoenix-text-primary);
@@ -45,7 +65,15 @@
   text-align: center;
   max-width: 100%;
   word-wrap: break-word;
-  font-family: var(--phoenix-font-serif), var(--phoenix-font-hindi-serif);
+  padding-left: var(--phoenix-padding-mobile);
+  padding-right: var(--phoenix-padding-mobile);
+}
+
+@media (min-width: 1025px) {
+  .phoenix-poem-content {
+    padding-left: var(--phoenix-padding-desktop);
+    padding-right: var(--phoenix-padding-desktop);
+  }
 }
 
 /* Hindi font support */
@@ -68,9 +96,18 @@
   display: flex;
   justify-content: space-between;
   gap: var(--phoenix-space-md);
-  margin-top: var(--phoenix-space-xl);
-  padding-top: var(--phoenix-space-lg);
-  border-top: 1px solid var(--phoenix-cream);
+  margin-top: var(--phoenix-space-lg);
+  padding-top: var(--phoenix-space-md);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  padding-left: var(--phoenix-padding-mobile);
+  padding-right: var(--phoenix-padding-mobile);
+}
+
+@media (min-width: 1025px) {
+  .phoenix-poem-navigation {
+    padding-left: var(--phoenix-padding-desktop);
+    padding-right: var(--phoenix-padding-desktop);
+  }
 }
 
 .phoenix-poem-nav-btn {
@@ -81,12 +118,13 @@
 
 @media (max-width: 600px) {
   .phoenix-poem-navigation {
-    flex-direction: column;
+    flex-direction: row;
     gap: var(--phoenix-space-sm);
   }
   
   .phoenix-poem-nav-btn {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
   }
 }
 

@@ -111,12 +111,12 @@ function Header() {
             <div className="phoenix-header-title-wrapper">
               <motion.h1
                 animate={{
-                  fontSize: isScrolled ? '1.25rem' : '1.75rem'
+                  fontSize: isScrolled ? '0.875rem' : '1.225rem' // Reduced by 30%: 1.75rem * 0.7 = 1.225rem
                 }}
                 transition={{ duration: 0.3 }}
                 className="phoenix-header-title"
               >
-                GURU PRATAP SHARMA
+                {i18n.language === 'hi' ? 'गुरु प्रताप शर्मा' : 'GURU PRATAP SHARMA'}
               </motion.h1>
               <motion.span
                 animate={{
@@ -125,8 +125,9 @@ function Header() {
                 }}
                 transition={{ duration: 0.3 }}
                 className="phoenix-header-subtitle"
+                style={{ color: '#8B0000' }} // Dark red
               >
-                AAG
+                {i18n.language === 'hi' ? 'आग' : 'AAG'}
               </motion.span>
             </div>
           </motion.div>

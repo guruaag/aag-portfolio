@@ -34,7 +34,7 @@ function Settings() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="phoenix-content">
+        <div className="phoenix-content" style={{ paddingTop: 'var(--phoenix-space-lg)' }}>
           <h1 className="phoenix-settings-title">{t('nav.settings')}</h1>
 
           <div className="phoenix-settings-section">

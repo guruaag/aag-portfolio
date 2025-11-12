@@ -87,7 +87,7 @@ function Contact() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <div className="phoenix-content">
+        <div className="phoenix-content" style={{ paddingTop: 'var(--phoenix-space-lg)' }}>
           <motion.h1
             className="phoenix-contact-title"
             initial={{ opacity: 0, y: 20 }}

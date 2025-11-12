@@ -75,8 +75,8 @@
   --phoenix-space-3xl: 3rem;     /* 48px */
   
   /* Mobile Padding - Never touch edges - INCREASED for proper spacing */
-  --phoenix-padding-mobile: clamp(1rem, 4vw, 1.5rem);
-  --phoenix-padding-desktop: clamp(2rem, 5vw, 3rem);
+  --phoenix-padding-mobile: clamp(1.25rem, 5vw, 2rem);
+  --phoenix-padding-desktop: clamp(2.5rem, 6vw, 4rem);
   
   /* ============================================
      LAYOUT
@@ -98,6 +98,11 @@
   --phoenix-shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.15);
   --phoenix-shadow-glow: 0 0 30px rgba(160, 82, 45, 0.2);
   --phoenix-shadow-3d: 0 10px 40px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  /* Border and Underline Colors - Lighter and Thinner */
+  --phoenix-border-light: rgba(0, 0, 0, 0.08);
+  --phoenix-border-thin: 1px;
+  --phoenix-underline-thin: 1px;
   
   /* ============================================
      TRANSITIONS - Smooth & Elegant
@@ -343,6 +348,14 @@ p {
   width: 100%;
   max-width: var(--phoenix-content-width);
   margin: 0 auto;
+  padding: 0 var(--phoenix-padding-mobile);
+  box-sizing: border-box;
+}
+
+@media (min-width: 1025px) {
+  .phoenix-content {
+    padding: 0 var(--phoenix-padding-desktop);
+  }
 }
 
 .phoenix-section {

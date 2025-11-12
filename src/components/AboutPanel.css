@@ -10,15 +10,35 @@
   font-weight: 700;
   color: var(--phoenix-charcoal);
   text-align: center;
-  margin-bottom: var(--phoenix-space-3xl);
+  margin-top: var(--phoenix-space-lg);
+  margin-bottom: var(--phoenix-space-xl);
+  padding-top: var(--phoenix-space-md);
+  padding-left: var(--phoenix-padding-mobile);
+  padding-right: var(--phoenix-padding-mobile);
   letter-spacing: -0.02em;
+}
+
+@media (min-width: 1025px) {
+  .phoenix-about-title {
+    padding-left: var(--phoenix-padding-desktop);
+    padding-right: var(--phoenix-padding-desktop);
+  }
 }
 
 .phoenix-about-layout {
   display: grid;
   grid-template-columns: minmax(280px, 350px) 1fr;
-  gap: var(--phoenix-space-3xl);
+  gap: var(--phoenix-space-xl);
   align-items: flex-start;
+  padding-left: var(--phoenix-padding-mobile);
+  padding-right: var(--phoenix-padding-mobile);
+}
+
+@media (min-width: 1025px) {
+  .phoenix-about-layout {
+    padding-left: var(--phoenix-padding-desktop);
+    padding-right: var(--phoenix-padding-desktop);
+  }
 }
 
 @media (max-width: 768px) {

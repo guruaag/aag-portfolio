@@ -1,0 +1,63 @@
+/* Phoenix Follow Modal - Same size as other modals */
+
+.phoenix-follow-modal {
+  padding: var(--phoenix-space-xl);
+  max-width: 400px;
+  width: 100%;
+}
+
+.phoenix-follow-modal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: var(--phoenix-space-md);
+  margin-bottom: var(--phoenix-space-lg);
+}
+
+.phoenix-follow-modal-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--phoenix-space-sm);
+  padding: var(--phoenix-space-lg);
+  background: var(--theme-surface);
+  border: 1px solid var(--theme-border);
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--theme-text);
+  transition: all 0.2s ease;
+  min-height: 100px;
+}
+
+.phoenix-follow-modal-card:hover {
+  border-color: var(--theme-accent);
+  background: var(--phoenix-white);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  color: var(--theme-accent);
+}
+
+.phoenix-follow-modal-card svg {
+  width: 32px;
+  height: 32px;
+  color: var(--theme-accent);
+}
+
+.phoenix-follow-modal-label {
+  font-family: var(--phoenix-font-sans);
+  font-size: var(--phoenix-text-sm);
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+@media (max-width: 600px) {
+  .phoenix-follow-modal-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--phoenix-space-sm);
+  }
+  
+  .phoenix-follow-modal-card {
+    padding: var(--phoenix-space-md);
+    min-height: 80px;
+  }
+}
+

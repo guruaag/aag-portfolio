@@ -81,7 +81,7 @@ function PublicationPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="phoenix-content phoenix-focus-mode">
+        <div className="phoenix-content phoenix-focus-mode" style={{ paddingTop: 'var(--phoenix-space-lg)' }}>
           {/* Header */}
           <motion.header
             className="phoenix-publication-header"
