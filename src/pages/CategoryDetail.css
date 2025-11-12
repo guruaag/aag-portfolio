@@ -28,14 +28,32 @@
 }
 
 .phoenix-publications-grid-full {
-  margin-top: var(--phoenix-space-2xl);
+  margin-top: var(--phoenix-space-lg);
+  padding-left: var(--phoenix-padding-mobile);
+  padding-right: var(--phoenix-padding-mobile);
+}
+
+@media (min-width: 1025px) {
+  .phoenix-publications-grid-full {
+    padding-left: var(--phoenix-padding-desktop);
+    padding-right: var(--phoenix-padding-desktop);
+  }
 }
 
 .phoenix-poems-list {
   display: flex;
   flex-direction: column;
-  gap: var(--phoenix-space-xl);
-  margin-top: var(--phoenix-space-2xl);
+  gap: var(--phoenix-space-md);
+  margin-top: var(--phoenix-space-lg);
+  padding-left: var(--phoenix-padding-mobile);
+  padding-right: var(--phoenix-padding-mobile);
+}
+
+@media (min-width: 1025px) {
+  .phoenix-poems-list {
+    padding-left: var(--phoenix-padding-desktop);
+    padding-right: var(--phoenix-padding-desktop);
+  }
 }
 
 .phoenix-poems-list .phoenix-poem-card {
@@ -49,5 +67,20 @@
 .phoenix-category-header {
   padding-top: 0;
   margin-top: 0;
+  padding-left: var(--phoenix-padding-mobile);
+  padding-right: var(--phoenix-padding-mobile);
+}
+
+@media (min-width: 1025px) {
+  .phoenix-category-header {
+    padding-left: var(--phoenix-padding-desktop);
+    padding-right: var(--phoenix-padding-desktop);
+  }
+}
+
+.phoenix-category-title {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 

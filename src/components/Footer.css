@@ -40,7 +40,7 @@
   background: transparent;
   border: 1.5px solid var(--theme-accent);
   border-radius: 4px;
-  padding: 0.5rem 1rem;
+  padding: var(--phoenix-space-md) var(--phoenix-space-lg);
   font-family: var(--phoenix-font-sans);
   font-size: var(--phoenix-text-sm);
   font-weight: 500;
@@ -50,8 +50,10 @@
   min-height: 44px;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .phoenix-footer-btn:hover {
@@ -121,79 +123,46 @@
   text-transform: capitalize;
 }
 
-/* Share Modal */
-.phoenix-footer-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 2000;
-  backdrop-filter: blur(4px);
+/* Share Modal - Centered */
+.phoenix-share-modal {
+  padding: var(--phoenix-space-xl);
+  max-width: 400px;
 }
 
-.phoenix-footer-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: var(--phoenix-white);
-  border-radius: 12px;
-  padding: 1.5rem;
-  max-width: 300px;
-  width: 90%;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  z-index: 2001;
+.phoenix-share-modal .phoenix-modal-header {
+  margin-bottom: var(--phoenix-space-lg);
 }
 
-.phoenix-footer-modal h3 {
-  margin: 0 0 1rem 0;
-  font-family: var(--phoenix-font-serif);
-  font-size: var(--phoenix-text-lg);
-  color: var(--theme-text);
+.phoenix-share-modal .phoenix-modal-title {
+  font-size: var(--phoenix-text-xl);
 }
 
 .phoenix-footer-share-buttons {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  gap: var(--phoenix-space-sm);
+  margin-bottom: var(--phoenix-space-lg);
 }
 
-.phoenix-footer-share-buttons button {
-  padding: 0.75rem;
-  background: var(--theme-surface);
-  border: 1px solid var(--theme-border);
-  border-radius: 6px;
+.phoenix-share-modal-btn {
+  width: 100%;
+  padding: var(--phoenix-space-md);
+  background: transparent;
+  border: 1.5px solid var(--theme-accent);
+  border-radius: 4px;
   font-family: var(--phoenix-font-sans);
   font-size: var(--phoenix-text-sm);
+  font-weight: 500;
   color: var(--theme-text);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
+  min-height: 44px;
+  text-align: left;
 }
 
-.phoenix-footer-share-buttons button:hover {
+.phoenix-share-modal-btn:hover {
   background: var(--theme-accent);
   color: var(--phoenix-white);
-  border-color: var(--theme-accent);
-}
-
-.phoenix-footer-modal-close {
-  width: 100%;
-  padding: 0.5rem;
-  background: transparent;
-  border: 1px solid var(--theme-border);
-  border-radius: 6px;
-  font-family: var(--phoenix-font-sans);
-  font-size: var(--phoenix-text-sm);
-  color: var(--theme-text-secondary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.phoenix-footer-modal-close:hover {
-  background: var(--theme-surface);
   border-color: var(--theme-accent);
 }
 

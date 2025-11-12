@@ -67,18 +67,25 @@
 .phoenix-poem-navigation {
   display: flex;
   justify-content: space-between;
-  gap: var(--phoenix-space-lg);
-  margin-top: var(--phoenix-space-3xl);
-  padding-top: var(--phoenix-space-xl);
+  gap: var(--phoenix-space-md);
+  margin-top: var(--phoenix-space-xl);
+  padding-top: var(--phoenix-space-lg);
   border-top: 1px solid var(--phoenix-cream);
+}
+
+.phoenix-poem-nav-btn {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
 }
 
 @media (max-width: 600px) {
   .phoenix-poem-navigation {
     flex-direction: column;
+    gap: var(--phoenix-space-sm);
   }
   
-  .phoenix-poem-navigation .phoenix-btn {
+  .phoenix-poem-nav-btn {
     width: 100%;
   }
 }

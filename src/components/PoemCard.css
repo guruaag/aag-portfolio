@@ -15,7 +15,7 @@
 
 .phoenix-poem-link {
   display: block;
-  padding: var(--phoenix-space-xl);
+  padding: var(--phoenix-space-lg);
   text-decoration: none;
   color: inherit;
   transition: all var(--phoenix-transition-base);

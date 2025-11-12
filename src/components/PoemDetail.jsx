@@ -2,11 +2,13 @@ import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import SocialShare from './SocialShare'
 import './PoemDetail.css'
 
 function PoemDetail({ poem, allPoems }) {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [prevId, setPrevId] = useState(null)
   const [nextId, setNextId] = useState(null)
 
@@ -115,24 +117,24 @@ function PoemDetail({ poem, allPoems }) {
           transition={{ delay: 0.4, duration: 0.5 }}
         >
           <motion.button
-            className="phoenix-btn phoenix-btn-outline"
+            className="phoenix-btn phoenix-btn-outline phoenix-poem-nav-btn"
             onClick={handlePrev}
             disabled={!prevId}
             whileHover={prevId ? { x: -4 } : {}}
             whileTap={prevId ? { scale: 0.95 } : {}}
             style={{ opacity: prevId ? 1 : 0.4, cursor: prevId ? 'pointer' : 'not-allowed' }}
           >
-            ← Previous
+            ← {t('common.previous')}
           </motion.button>
           <motion.button
-            className="phoenix-btn phoenix-btn-outline"
+            className="phoenix-btn phoenix-btn-outline phoenix-poem-nav-btn"
             onClick={handleNext}
             disabled={!nextId}
             whileHover={nextId ? { x: 4 } : {}}
             whileTap={nextId ? { scale: 0.95 } : {}}
             style={{ opacity: nextId ? 1 : 0.4, cursor: nextId ? 'pointer' : 'not-allowed' }}
           >
-            Next →
+            {t('common.next')} →
           </motion.button>
         </motion.nav>
       </motion.article>

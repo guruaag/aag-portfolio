@@ -21,7 +21,9 @@ const resources = {
         back: 'Back',
         share: 'Share',
         close: 'Close',
-        menu: 'Menu'
+        menu: 'Menu',
+        previous: 'Previous',
+        next: 'Next'
       },
       // Home
       home: {
@@ -71,7 +73,9 @@ const resources = {
         back: 'वापस',
         share: 'साझा करें',
         close: 'बंद करें',
-        menu: 'मेनू'
+        menu: 'मेनू',
+        previous: 'पिछला',
+        next: 'अगला'
       },
       // Home
       home: {
@@ -109,7 +113,7 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: localStorage.getItem('siteLanguage') || 'en',
+    lng: localStorage.getItem('siteLanguage') || 'hi', // Default to Hindi
     fallbackLng: 'en',
     interpolation: {
       escapeValue: false

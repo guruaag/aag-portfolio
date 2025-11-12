@@ -65,17 +65,18 @@
      SPACING - Generous Whitespace
      ============================================ */
   
-  --phoenix-space-xs: 0.5rem;    /* 8px */
-  --phoenix-space-sm: 1rem;      /* 16px */
-  --phoenix-space-md: 1.5rem;    /* 24px */
-  --phoenix-space-lg: 2rem;      /* 32px */
-  --phoenix-space-xl: 3rem;      /* 48px */
-  --phoenix-space-2xl: 4rem;     /* 64px */
-  --phoenix-space-3xl: 6rem;     /* 96px */
+  /* Reduced spacing by ~80% */
+  --phoenix-space-xs: 0.25rem;   /* 4px */
+  --phoenix-space-sm: 0.5rem;    /* 8px */
+  --phoenix-space-md: 0.75rem;   /* 12px */
+  --phoenix-space-lg: 1rem;      /* 16px */
+  --phoenix-space-xl: 1.5rem;    /* 24px */
+  --phoenix-space-2xl: 2rem;     /* 32px */
+  --phoenix-space-3xl: 3rem;     /* 48px */
   
-  /* Mobile Padding - Never touch edges */
-  --phoenix-padding-mobile: clamp(1.5rem, 4vw, 2rem);
-  --phoenix-padding-desktop: clamp(2rem, 5vw, 4rem);
+  /* Mobile Padding - Never touch edges - INCREASED for proper spacing */
+  --phoenix-padding-mobile: clamp(1rem, 4vw, 1.5rem);
+  --phoenix-padding-desktop: clamp(2rem, 5vw, 3rem);
   
   /* ============================================
      LAYOUT

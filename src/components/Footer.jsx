@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabaseClient'
+import ContactModal from './ContactModal'
 import Toast from './Toast'
 import ThankYouPopup from './ThankYouPopup'
 import './Footer.css'
@@ -14,6 +15,7 @@ function Footer() {
   const [showThankYou, setShowThankYou] = useState(false)
   const [showFollow, setShowFollow] = useState(false)
   const [showShareMenu, setShowShareMenu] = useState(false)
+  const [showContact, setShowContact] = useState(false)
   const [socialLinks, setSocialLinks] = useState({
     facebook: '',
     instagram: '',
@@ -54,7 +56,7 @@ function Footer() {
   }
 
   const handleContact = () => {
-    navigate('/contact')
+    setShowContact(true)
   }
 
   const handleShare = async (platform) => {
@@ -225,37 +227,45 @@ function Footer() {
         </div>
       </footer>
 
-      {/* Share Menu Modal */}
+      {/* Share Menu Modal - Centered */}
       <AnimatePresence>
         {showShareMenu && (
-          <>
+          <motion.div
+            className="phoenix-modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowShareMenu(false)}
+          >
             <motion.div
-              className="phoenix-footer-modal-overlay"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowShareMenu(false)}
-            />
-            <motion.div
-              className="phoenix-footer-modal"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
+              className="phoenix-modal-content phoenix-share-modal"
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
             >
-              <h3>{t('common.share')}</h3>
-              <div className="phoenix-footer-share-buttons">
-                <button onClick={() => handleShare('facebook')}>Facebook</button>
-                <button onClick={() => handleShare('twitter')}>Twitter</button>
-                <button onClick={() => handleShare('whatsapp')}>WhatsApp</button>
-                <button onClick={() => handleShare('copy')}>Copy Link</button>
+              <div className="phoenix-modal-header">
+                <h3 className="phoenix-modal-title">{t('common.share')}</h3>
+                <button className="phoenix-modal-close-btn" onClick={() => setShowShareMenu(false)} aria-label="Close">
+                  ×
+                </button>
               </div>
-              <button className="phoenix-footer-modal-close" onClick={() => setShowShareMenu(false)}>
-                Close
+              <div className="phoenix-footer-share-buttons">
+                <button className="phoenix-share-modal-btn" onClick={() => handleShare('facebook')}>Facebook</button>
+                <button className="phoenix-share-modal-btn" onClick={() => handleShare('twitter')}>Twitter</button>
+                <button className="phoenix-share-modal-btn" onClick={() => handleShare('whatsapp')}>WhatsApp</button>
+                <button className="phoenix-share-modal-btn" onClick={() => handleShare('copy')}>Copy Link</button>
+              </div>
+              <button className="phoenix-modal-close-button" onClick={() => setShowShareMenu(false)}>
+                {t('common.close')}
               </button>
             </motion.div>
-          </>
+          </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Contact Modal */}
+      <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} />
 
       {toast && <Toast message={toast} />}
       {showThankYou && <ThankYouPopup onClose={() => setShowThankYou(false)} />}
