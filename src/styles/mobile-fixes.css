@@ -1,0 +1,157 @@
+/* ============================================
+   CRITICAL MOBILE FIXES - Edge Spacing & Vertical Rhythm
+   Applied with !important to override all conflicting styles
+   ============================================ */
+
+/* CRITICAL: Force edge padding on mobile - NO CONTENT TOUCHING EDGES */
+@media (max-width: 768px) {
+  /* Main content wrapper - force padding */
+  .phoenix-main {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* All content containers */
+  .phoenix-content {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Home page sections */
+  .phoenix-home,
+  .phoenix-section-box,
+  .phoenix-about-section-home,
+  .phoenix-poems-section-home,
+  .phoenix-publications-section-home {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Category pages */
+  .phoenix-category-detail,
+  .phoenix-category-header,
+  .phoenix-publications-grid-full,
+  .phoenix-poems-list {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Publication pages */
+  .phoenix-publication-page,
+  .phoenix-publication-header,
+  .phoenix-publication-cover,
+  .phoenix-publication-description {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Poem pages */
+  .phoenix-poem-detail,
+  .phoenix-poem-header,
+  .phoenix-poem-text,
+  .phoenix-poem-content,
+  .phoenix-poem-navigation {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* About pages */
+  .phoenix-about-panel,
+  .phoenix-about-title,
+  .phoenix-about-layout {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Settings and Contact pages */
+  .phoenix-settings,
+  .phoenix-contact {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Section titles */
+  .phoenix-section-title,
+  .phoenix-category-title {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Lists and grids */
+  .phoenix-poems-list-home,
+  .phoenix-about-home-layout,
+  .phoenix-publications-scroll {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Images - ensure they don't break out */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Prevent any element from using full viewport width */
+  * {
+    max-width: 100% !important;
+  }
+
+  /* CRITICAL: Reduce vertical spacing between sections */
+  .phoenix-section,
+  .phoenix-section-box {
+    margin-top: 30px !important;
+    margin-bottom: 30px !important;
+  }
+
+  /* Reduce spacing between list items */
+  .phoenix-poem-item-home,
+  .phoenix-poem-card {
+    margin-bottom: 12px !important;
+  }
+
+  .phoenix-poems-list-home {
+    gap: 8px !important;
+  }
+
+  /* Reduce spacing in category pages */
+  .phoenix-category-header {
+    margin-bottom: 20px !important;
+    padding-top: 20px !important;
+  }
+
+  .phoenix-publications-grid-full,
+  .phoenix-poems-list {
+    margin-top: 20px !important;
+  }
+}
+
+/* Additional mobile-specific spacing reductions */
+@media (max-width: 600px) {
+  .phoenix-main {
+    padding-top: 12px !important;
+    padding-bottom: 100px !important;
+  }
+
+  .phoenix-section-box {
+    padding-top: 16px !important;
+    padding-bottom: 16px !important;
+    margin-top: 24px !important;
+    margin-bottom: 24px !important;
+  }
+
+  .phoenix-section-title {
+    margin-bottom: 12px !important;
+    padding-bottom: 8px !important;
+  }
+}
+

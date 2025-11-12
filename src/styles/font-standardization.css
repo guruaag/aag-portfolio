@@ -1,0 +1,67 @@
+/* ============================================
+   FONT STANDARDIZATION - Site-wide Consistency
+   ============================================ */
+
+/* Force consistent font families across all elements */
+* {
+  font-family: var(--phoenix-font-sans) !important;
+}
+
+/* Headings - Serif font */
+h1, h2, h3, h4, h5, h6,
+.phoenix-header-title,
+.phoenix-section-title,
+.phoenix-category-title,
+.phoenix-poem-title,
+.phoenix-publication-page-title,
+.phoenix-about-title,
+.phoenix-contact-title,
+.phoenix-settings-title,
+.phoenix-modal-title {
+  font-family: var(--phoenix-font-serif), var(--phoenix-font-hindi-serif) !important;
+}
+
+/* Body text - Sans font */
+p, span, div, a, button, input, textarea, select,
+.phoenix-about-preview,
+.phoenix-poem-content,
+.phoenix-markdown-content,
+.phoenix-about-text,
+.phoenix-contact-subtitle,
+.phoenix-footer-btn,
+.phoenix-btn,
+.phoenix-nav-link {
+  font-family: var(--phoenix-font-sans), var(--phoenix-font-hindi-sans) !important;
+}
+
+/* Poem content - Serif for readability */
+.phoenix-poem-content,
+.phoenix-poem-heading {
+  font-family: var(--phoenix-font-serif), var(--phoenix-font-hindi-serif) !important;
+}
+
+/* Buttons - Consistent sans */
+button,
+.phoenix-btn,
+.phoenix-footer-btn,
+.phoenix-modal-close-button,
+.phoenix-share-modal-btn,
+.phoenix-poem-nav-btn {
+  font-family: var(--phoenix-font-sans), var(--phoenix-font-hindi-sans) !important;
+  font-weight: 500 !important;
+  font-size: var(--phoenix-text-sm) !important;
+}
+
+/* Navigation - Consistent sans */
+nav,
+.phoenix-nav-link,
+.phoenix-menu-item {
+  font-family: var(--phoenix-font-sans), var(--phoenix-font-hindi-sans) !important;
+}
+
+/* Ensure Hindi fonts are available */
+[lang="hi"],
+:lang(hi) {
+  font-family: var(--phoenix-font-hindi-serif), var(--phoenix-font-hindi-sans) !important;
+}
+

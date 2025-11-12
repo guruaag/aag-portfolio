@@ -123,7 +123,12 @@ function PoemDetail({ poem, allPoems }) {
             disabled={!prevId}
             whileHover={prevId ? { x: -4 } : {}}
             whileTap={prevId ? { scale: 0.95 } : {}}
-            style={{ opacity: prevId ? 1 : 0.4, cursor: prevId ? 'pointer' : 'not-allowed' }}
+            style={{ 
+              opacity: prevId ? 1 : 0.4, 
+              cursor: prevId ? 'pointer' : 'not-allowed',
+              borderColor: 'var(--theme-accent)',
+              color: prevId ? 'var(--theme-text)' : 'var(--theme-text-secondary)'
+            }}
           >
             ← {t('common.previous')}
           </motion.button>
@@ -133,7 +138,12 @@ function PoemDetail({ poem, allPoems }) {
             disabled={!nextId}
             whileHover={nextId ? { x: 4 } : {}}
             whileTap={nextId ? { scale: 0.95 } : {}}
-            style={{ opacity: nextId ? 1 : 0.4, cursor: nextId ? 'pointer' : 'not-allowed' }}
+            style={{ 
+              opacity: nextId ? 1 : 0.4, 
+              cursor: nextId ? 'pointer' : 'not-allowed',
+              borderColor: 'var(--theme-accent)',
+              color: nextId ? 'var(--theme-text)' : 'var(--theme-text-secondary)'
+            }}
           >
             {t('common.next')} →
           </motion.button>

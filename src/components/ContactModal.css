@@ -125,20 +125,22 @@
   width: 100%;
   padding: var(--phoenix-space-md);
   background: transparent;
-  border: 1.5px solid var(--theme-accent);
+  border: 1.5px solid var(--theme-accent) !important;
   border-radius: 4px;
-  font-family: var(--phoenix-font-sans);
-  font-size: var(--phoenix-text-sm);
-  font-weight: 500;
-  color: var(--theme-text);
+  font-family: var(--phoenix-font-sans), var(--phoenix-font-hindi-sans) !important;
+  font-size: var(--phoenix-text-sm) !important;
+  font-weight: 500 !important;
+  color: var(--theme-text) !important;
   cursor: pointer;
   transition: all 0.25s ease;
   min-height: 44px;
+  box-sizing: border-box;
 }
 
 .phoenix-modal-close-button:hover {
-  background: var(--theme-accent);
-  color: var(--phoenix-white);
+  background: var(--theme-accent) !important;
+  color: var(--phoenix-white) !important;
+  border-color: var(--theme-accent) !important;
 }
 
 @media (max-width: 600px) {

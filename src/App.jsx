@@ -16,6 +16,8 @@ import { initTheme } from './lib/themeSystem'
 import './styles/phoenix-design-system.css'
 import './styles/app.css'
 import './styles/layout.css'
+import './styles/mobile-fixes.css'
+import './styles/font-standardization.css'
 
 function App() {
   useEffect(() => {

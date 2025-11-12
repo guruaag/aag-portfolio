@@ -94,7 +94,19 @@ function CategoryDetail() {
     )
   }
 
-  const categoryName = category.name_display || category.name_en
+  // Get translated category name based on content_type
+  const getCategoryName = () => {
+    if (category.content_type === 'publications') {
+      return t('publications.title')
+    } else if (category.content_type === 'writings') {
+      return t('nav.poems')
+    } else if (category.content_type === 'about') {
+      return t('nav.about')
+    }
+    return category.name_display || category.name_en
+  }
+
+  const categoryName = getCategoryName()
 
   return (
     <>

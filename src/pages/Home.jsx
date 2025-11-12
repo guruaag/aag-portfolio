@@ -101,7 +101,7 @@ function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1, duration: 0.3 }}
               >
-                {aboutContent.title || 'About Guru Pratap Sharma'}
+                {aboutCategory ? t('nav.about') : (aboutContent.title || t('nav.about'))}
               </motion.h2>
               
               <div className="phoenix-about-home-layout">
