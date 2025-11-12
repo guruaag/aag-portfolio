@@ -708,6 +708,10 @@ function SettingsManager({ settings, onUpdate }) {
     email_text: '',
     facebook: '',
     instagram: '',
+    twitter: '',
+    linkedin: '',
+    youtube: '',
+    logo_path: '',
     thank_you_message: '',
     thank_you_title: '',
     thank_you_heading: '',
@@ -715,6 +719,8 @@ function SettingsManager({ settings, onUpdate }) {
     thank_you_button_text: '',
     default_accent: '#964B00'
   })
+  const [uploadingLogo, setUploadingLogo] = useState(false)
+  const [logoPreview, setLogoPreview] = useState(null)
 
   useEffect(() => {
     setFormData({
@@ -726,6 +732,10 @@ function SettingsManager({ settings, onUpdate }) {
       email_text: settings.email_text || 'Email me',
       facebook: settings.facebook || '',
       instagram: settings.instagram || '',
+      twitter: settings.twitter || '',
+      linkedin: settings.linkedin || '',
+      youtube: settings.youtube || '',
+      logo_path: settings.logo_path || '',
       thank_you_message: settings.thank_you_message || 'Thank you!',
       thank_you_title: settings.thank_you_title || '',
       thank_you_heading: settings.thank_you_heading || '',
@@ -733,7 +743,33 @@ function SettingsManager({ settings, onUpdate }) {
       thank_you_button_text: settings.thank_you_button_text || '',
       default_accent: settings.default_accent || '#964B00'
     })
+    if (settings.logo_path) {
+      setLogoPreview(getImageUrl(settings.logo_path))
+    }
   }, [settings])
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file')
+      return
+    }
+
+    try {
+      setUploadingLogo(true)
+      const fileName = `logo-${Date.now()}.${file.name.split('.').pop()}`
+      const path = await uploadImage(file, 'logos', fileName)
+      setFormData({ ...formData, logo_path: path })
+      setLogoPreview(URL.createObjectURL(file))
+      alert('Logo uploaded!')
+    } catch (err) {
+      alert('Error uploading logo: ' + err.message)
+    } finally {
+      setUploadingLogo(false)
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -760,6 +796,39 @@ function SettingsManager({ settings, onUpdate }) {
     <div>
       <h2 style={{ color: 'var(--accent)', marginBottom: '16px' }}>Site Settings</h2>
       <form onSubmit={handleSubmit} className="admin-form">
+        <div className="form-group">
+          <label>Website Logo (Square recommended)</label>
+          <div style={{ marginBottom: '12px' }}>
+            {logoPreview && (
+              <img 
+                src={logoPreview} 
+                alt="Logo Preview" 
+                style={{ 
+                  width: '100px', 
+                  height: '100px', 
+                  objectFit: 'contain', 
+                  borderRadius: '4px',
+                  border: '1px solid var(--border-light)',
+                  marginBottom: '12px',
+                  background: '#f5f5f5'
+                }} 
+              />
+            )}
+          </div>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleLogoUpload}
+            disabled={uploadingLogo}
+          />
+          {uploadingLogo && <div style={{ marginTop: '8px', color: '#666' }}>Uploading...</div>}
+          {formData.logo_path && (
+            <div style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
+              Current: {formData.logo_path}
+            </div>
+          )}
+        </div>
+        <hr style={{ margin: '24px 0', border: 'none', borderTop: '1px solid var(--border-light)' }} />
         <div className="form-group">
           <label>Phone Number</label>
           <input
@@ -824,6 +893,30 @@ function SettingsManager({ settings, onUpdate }) {
             value={formData.instagram}
             onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
             placeholder="https://instagram.com/yourprofile"
+          />
+        </div>
+        <div className="form-group">
+          <label>Twitter/X URL</label>
+          <input
+            value={formData.twitter}
+            onChange={(e) => setFormData({ ...formData, twitter: e.target.value })}
+            placeholder="https://twitter.com/yourprofile"
+          />
+        </div>
+        <div className="form-group">
+          <label>LinkedIn URL</label>
+          <input
+            value={formData.linkedin}
+            onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
+            placeholder="https://linkedin.com/in/yourprofile"
+          />
+        </div>
+        <div className="form-group">
+          <label>YouTube URL</label>
+          <input
+            value={formData.youtube}
+            onChange={(e) => setFormData({ ...formData, youtube: e.target.value })}
+            placeholder="https://youtube.com/@yourchannel"
           />
         </div>
         <hr style={{ margin: '24px 0', border: 'none', borderTop: '1px solid var(--border-light)' }} />

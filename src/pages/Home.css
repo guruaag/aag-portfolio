@@ -1,58 +1,82 @@
-/* Phoenix Home Page - Profound Minimalism */
+/* Phoenix Home Page - Reduced Spacing, Box Sections */
 
 .phoenix-home {
   width: 100%;
+  padding-top: var(--phoenix-space-md);
 }
 
-/* Section Spacing - Reduced */
-.phoenix-section {
-  margin: var(--phoenix-space-2xl) 0;
+/* Box-Shaped Sections */
+.phoenix-section-box {
+  background: #F5F5F0;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: var(--phoenix-space-xl);
+  margin: var(--phoenix-space-lg) 0;
 }
 
-.phoenix-about-section-home,
-.phoenix-poems-section-home,
-.phoenix-publications-section-home {
-  margin: var(--phoenix-space-xl) 0;
+@media (max-width: 600px) {
+  .phoenix-section-box {
+    padding: var(--phoenix-space-lg);
+    margin: var(--phoenix-space-md) 0;
+  }
 }
 
-.phoenix-hero-title {
+/* Section Title */
+.phoenix-section-title {
   font-family: var(--phoenix-font-serif);
-  font-size: var(--phoenix-text-3xl);
-  font-weight: 700;
-  color: var(--phoenix-charcoal);
-  margin-bottom: var(--phoenix-space-md);
-  letter-spacing: -0.02em;
+  font-size: var(--phoenix-text-2xl);
+  font-weight: 600;
+  color: var(--theme-text);
+  text-align: left;
+  margin-bottom: var(--phoenix-space-lg);
+  padding-bottom: var(--phoenix-space-sm);
+  border-bottom: 2px solid var(--theme-accent);
 }
 
-.phoenix-hero-subtitle {
-  font-family: var(--phoenix-font-sans);
-  font-size: var(--phoenix-text-xl);
-  font-weight: 400;
-  color: var(--phoenix-sienna);
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  margin-bottom: var(--phoenix-space-xl);
+/* About Section Home Layout */
+.phoenix-about-home-layout {
+  display: flex;
+  gap: var(--phoenix-space-xl);
+  align-items: flex-start;
 }
 
-.phoenix-hero-description {
-  font-family: var(--phoenix-font-serif);
-  font-size: var(--phoenix-text-lg);
-  line-height: 1.8;
-  color: var(--phoenix-text-secondary);
-  max-width: 800px;
-  margin: 0 auto;
-  font-style: italic;
+@media (max-width: 768px) {
+  .phoenix-about-home-layout {
+    flex-direction: column;
+    gap: var(--phoenix-space-lg);
+  }
 }
 
-/* About Preview */
+.phoenix-about-home-image {
+  flex-shrink: 0;
+}
+
+.phoenix-about-home-img {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: var(--phoenix-shadow-md);
+}
+
+@media (max-width: 768px) {
+  .phoenix-about-home-img {
+    width: 150px;
+    height: 150px;
+  }
+}
+
+.phoenix-about-home-text {
+  flex: 1;
+}
+
 .phoenix-about-preview {
   font-family: var(--phoenix-font-serif);
   font-size: var(--phoenix-text-lg);
-  line-height: 1.8;
-  color: var(--phoenix-text-secondary);
-  max-width: 800px;
-  margin: 0 auto var(--phoenix-space-lg);
-  text-align: center;
+  line-height: 1.6;
+  color: var(--theme-text-secondary);
+  margin-bottom: var(--phoenix-space-lg);
+  text-align: left;
 }
 
 /* Poems List Home */
@@ -61,9 +85,6 @@
   flex-direction: column;
   gap: var(--phoenix-space-md);
   margin-bottom: var(--phoenix-space-lg);
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .phoenix-poem-item-home {
@@ -74,29 +95,30 @@
   width: 100%;
   background: transparent;
   border: none;
-  text-align: left;
+  text-align: center;
   cursor: pointer;
   padding: var(--phoenix-space-md) 0;
-  border-bottom: 1px solid var(--phoenix-cream);
+  border-bottom: 1px solid var(--theme-border);
   transition: all 0.3s ease;
 }
 
 .phoenix-poem-link:hover {
-  border-bottom-color: var(--phoenix-sienna);
+  border-bottom-color: var(--theme-accent);
   padding-left: var(--phoenix-space-md);
+  padding-right: var(--phoenix-space-md);
 }
 
 .phoenix-poem-heading {
   font-family: var(--phoenix-font-serif);
   font-size: var(--phoenix-text-xl);
   font-weight: 600;
-  color: var(--phoenix-charcoal);
+  color: var(--theme-text);
   margin: 0;
   transition: color 0.3s ease;
 }
 
 .phoenix-poem-link:hover .phoenix-poem-heading {
-  color: var(--phoenix-sienna);
+  color: var(--theme-accent);
 }
 
 /* Publications Horizontal Scroll */
@@ -108,7 +130,7 @@
   padding: var(--phoenix-space-md) 0;
   margin-bottom: var(--phoenix-space-lg);
   scrollbar-width: thin;
-  scrollbar-color: var(--phoenix-sienna) var(--phoenix-cream);
+  scrollbar-color: var(--theme-accent) var(--theme-surface);
   -webkit-overflow-scrolling: touch;
 }
 
@@ -117,12 +139,12 @@
 }
 
 .phoenix-publications-scroll::-webkit-scrollbar-track {
-  background: var(--phoenix-cream);
+  background: var(--theme-surface);
   border-radius: 4px;
 }
 
 .phoenix-publications-scroll::-webkit-scrollbar-thumb {
-  background: var(--phoenix-sienna);
+  background: var(--theme-accent);
   border-radius: 4px;
 }
 
@@ -139,72 +161,10 @@
   }
 }
 
-.phoenix-section-title {
-  font-family: var(--phoenix-font-serif);
-  font-size: var(--phoenix-text-2xl);
-  font-weight: 600;
-  color: var(--phoenix-charcoal);
-  text-align: center;
-  margin-bottom: var(--phoenix-space-md);
-  letter-spacing: -0.01em;
-}
-
-.phoenix-section-subtitle {
-  font-family: var(--phoenix-font-sans);
-  font-size: var(--phoenix-text-base);
-  color: var(--phoenix-text-secondary);
-  text-align: center;
-  margin-bottom: var(--phoenix-space-2xl);
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* Publications Grid */
-.phoenix-publications-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: var(--phoenix-space-xl);
-  margin-bottom: var(--phoenix-space-2xl);
-}
-
-@media (max-width: 600px) {
-  .phoenix-publications-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: var(--phoenix-space-lg);
-  }
-}
-
-@media (min-width: 1025px) {
-  .phoenix-publications-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--phoenix-space-2xl);
-  }
-}
-
+/* Section Footer */
 .phoenix-section-footer {
   text-align: center;
-  margin-top: var(--phoenix-space-2xl);
-}
-
-/* About Section */
-.phoenix-about-section {
-  margin: var(--phoenix-space-3xl) 0;
-}
-
-.phoenix-quote-content {
-  font-family: var(--phoenix-font-serif);
-  font-size: var(--phoenix-text-lg);
-  line-height: 1.9;
-  color: var(--phoenix-text-primary);
-}
-
-.phoenix-quote-content p {
-  margin-bottom: var(--phoenix-space-md);
-}
-
-.phoenix-quote-content p:last-child {
-  margin-bottom: 0;
+  margin-top: var(--phoenix-space-lg);
 }
 
 /* Loading & Error States */
@@ -222,8 +182,7 @@
 .phoenix-spinner {
   width: 48px;
   height: 48px;
-  border: 3px solid var(--phoenix-cream);
-  border-top-color: var(--phoenix-sienna);
+  border: 3px solid var(--theme-surface);
+  border-top-color: var(--theme-accent);
   border-radius: 50%;
 }
-

@@ -88,7 +88,7 @@ function PoemDetail({ poem, allPoems }) {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.6 }}
         >
-          <div className="phoenix-poem-content">
+          <div className="phoenix-poem-content" style={{ whiteSpace: 'pre-wrap' }}>
             {poem.full_text}
           </div>
         </motion.div>

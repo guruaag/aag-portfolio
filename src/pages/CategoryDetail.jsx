@@ -18,6 +18,8 @@ function CategoryDetail() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
+    // Scroll to top when category changes
+    window.scrollTo({ top: 0, behavior: 'instant' })
     loadCategory()
   }, [categoryId])
 

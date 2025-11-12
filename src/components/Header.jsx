@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
+import { supabase } from '../lib/supabaseClient'
+import { getImageUrl } from '../lib/imageUtils'
 import './Header.css'
 
 function Header() {
@@ -10,6 +12,34 @@ function Header() {
   const { t, i18n } = useTranslation()
   const [isScrolled, setIsScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [logoPath, setLogoPath] = useState(null)
+
+  // Load logo from settings
+  useEffect(() => {
+    loadLogo()
+    // Reload logo periodically in case it was updated
+    const interval = setInterval(loadLogo, 10000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const loadLogo = async () => {
+    try {
+      const { data } = await supabase
+        .from('settings')
+        .select('value')
+        .eq('key', 'logo_path')
+        .single()
+      
+      if (data?.value) {
+        setLogoPath(data.value)
+      } else {
+        setLogoPath(null)
+      }
+    } catch (err) {
+      // Logo not set, use default
+      setLogoPath(null)
+    }
+  }
 
   // Scroll listener for header transformation
   useEffect(() => {
@@ -36,8 +66,10 @@ function Header() {
     { path: '/category/publications', label: t('nav.publications') },
     { path: '/category/about', label: t('nav.about') },
     { path: '/category/poems', label: t('nav.poems') },
-    { path: '/contact', label: t('nav.contact') }
+    { path: '/settings', label: t('nav.settings') }
   ]
+
+  const logoUrl = logoPath ? getImageUrl(logoPath) : null
 
   return (
     <>
@@ -57,31 +89,46 @@ function Header() {
           <motion.div
             className="phoenix-header-logo"
             onClick={() => navigate('/')}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            style={{ paddingLeft: isScrolled ? 'var(--phoenix-padding-mobile)' : '0' }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
-            {/* Logo Image - if available from settings */}
-            <motion.h1
-              animate={{
-                fontSize: isScrolled ? '1.25rem' : '1.75rem',
-                marginLeft: isScrolled ? '0' : '0'
-              }}
-              transition={{ duration: 0.3 }}
-              className="phoenix-header-title"
-            >
-              GURU PRATAP SHARMA
-            </motion.h1>
-            <motion.span
-              animate={{
-                fontSize: isScrolled ? '0.75rem' : '0.875rem',
-                opacity: isScrolled ? 0.7 : 1
-              }}
-              transition={{ duration: 0.3 }}
-              className="phoenix-header-subtitle"
-            >
-              AAG
-            </motion.span>
+            {/* Logo Image */}
+            {logoUrl && (
+              <motion.img
+                src={logoUrl}
+                alt="Logo"
+                className="phoenix-header-logo-image"
+                animate={{
+                  width: isScrolled ? '32px' : '48px',
+                  height: isScrolled ? '32px' : '48px'
+                }}
+                transition={{ duration: 0.3 }}
+                onError={() => setLogoPath(null)}
+              />
+            )}
+            
+            {/* Title */}
+            <div className="phoenix-header-title-wrapper">
+              <motion.h1
+                animate={{
+                  fontSize: isScrolled ? '1.25rem' : '1.75rem'
+                }}
+                transition={{ duration: 0.3 }}
+                className="phoenix-header-title"
+              >
+                GURU PRATAP SHARMA
+              </motion.h1>
+              <motion.span
+                animate={{
+                  fontSize: isScrolled ? '0.75rem' : '0.875rem',
+                  opacity: isScrolled ? 0.7 : 1
+                }}
+                transition={{ duration: 0.3 }}
+                className="phoenix-header-subtitle"
+              >
+                AAG
+              </motion.span>
+            </div>
           </motion.div>
 
           {/* Desktop Navigation */}
@@ -196,6 +243,20 @@ function Header() {
                   <span className="phoenix-lang-divider">|</span>
                   <span className={i18n.language === 'hi' ? 'active' : ''}>HI</span>
                 </button>
+                {/* Hidden Admin Link - Only visible to admins */}
+                {localStorage.getItem('adminAuth') === 'true' && (
+                  <a
+                    href="/admin"
+                    className="phoenix-menu-admin-link"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      navigate('/admin')
+                      setMenuOpen(false)
+                    }}
+                  >
+                    Admin
+                  </a>
+                )}
               </div>
             </motion.nav>
           </>

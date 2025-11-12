@@ -38,3 +38,16 @@
   margin-top: var(--phoenix-space-2xl);
 }
 
+.phoenix-poems-list .phoenix-poem-card {
+  text-align: center;
+}
+
+.phoenix-category-detail {
+  padding-top: 0;
+}
+
+.phoenix-category-header {
+  padding-top: 0;
+  margin-top: 0;
+}
+

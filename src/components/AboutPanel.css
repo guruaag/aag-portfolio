@@ -86,14 +86,17 @@
 }
 
 .phoenix-about-text {
-  font-family: var(--phoenix-font-serif);
+  font-family: var(--phoenix-font-serif), var(--phoenix-font-hindi-serif);
   font-size: var(--phoenix-text-lg);
-  line-height: 1.9;
+  line-height: 1.6;
   color: var(--phoenix-text-primary);
+  text-align: left;
+  white-space: pre-wrap;
 }
 
 .phoenix-about-text p {
-  margin-bottom: var(--phoenix-space-lg);
+  margin-bottom: var(--phoenix-space-md);
+  white-space: pre-wrap;
 }
 
 .phoenix-about-text p:last-child {

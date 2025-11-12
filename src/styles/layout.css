@@ -10,13 +10,15 @@
 .phoenix-main {
   flex: 1;
   margin-top: var(--phoenix-header-height);
-  padding: var(--phoenix-space-3xl) var(--phoenix-padding-mobile);
-  min-height: calc(100vh - var(--phoenix-header-height));
+  padding: var(--phoenix-space-md) var(--phoenix-padding-mobile);
+  padding-bottom: 120px; /* Space for fixed footer */
+  min-height: calc(100vh - var(--phoenix-header-height) - 80px);
 }
 
 @media (min-width: 1025px) {
   .phoenix-main {
-    padding: var(--phoenix-space-3xl) var(--phoenix-padding-desktop);
+    padding: var(--phoenix-space-lg) var(--phoenix-padding-desktop);
+    padding-bottom: 120px;
   }
 }
 

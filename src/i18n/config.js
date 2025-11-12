@@ -11,7 +11,8 @@ const resources = {
         publications: 'Publications',
         about: 'About',
         poems: 'Poems',
-        contact: 'Contact'
+        contact: 'Contact',
+        settings: 'Settings'
       },
       // Common
       common: {
@@ -44,6 +45,11 @@ const resources = {
       footer: {
         thankYou: 'Thank You',
         follow: 'Follow'
+      },
+      // Contact
+      contact: {
+        title: 'Contact',
+        subtitle: 'Get in touch'
       }
     }
   },
@@ -55,7 +61,8 @@ const resources = {
         publications: 'प्रकाशन',
         about: 'के बारे में',
         poems: 'कविताएं',
-        contact: 'संपर्क'
+        contact: 'संपर्क',
+        settings: 'सेटिंग्स'
       },
       // Common
       common: {
@@ -88,6 +95,11 @@ const resources = {
       footer: {
         thankYou: 'धन्यवाद',
         follow: 'फॉलो करें'
+      },
+      // Contact
+      contact: {
+        title: 'संपर्क',
+        subtitle: 'संपर्क करें'
       }
     }
   }

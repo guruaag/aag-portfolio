@@ -9,54 +9,25 @@ import CategoryDetail from './pages/CategoryDetail'
 import PoemPage from './pages/PoemPage'
 import PublicationPage from './pages/PublicationPage'
 import Contact from './pages/Contact'
+import Settings from './pages/Settings'
 import AdminLogin from './pages/Admin/Login'
 import AdminDashboard from './pages/Admin/Dashboard'
+import { initTheme } from './lib/themeSystem'
 import './styles/phoenix-design-system.css'
 import './styles/app.css'
 import './styles/layout.css'
 
 function App() {
-  const [accentColor, setAccentColor] = useState('#964B00')
-
   useEffect(() => {
-    // Set default accent color first (dark orange)
-    const defaultColor = '#964B00'
-    document.documentElement.style.setProperty('--accent', defaultColor)
-    const metaThemeColor = document.querySelector('meta[name="theme-color"]')
-    if (metaThemeColor) {
-      metaThemeColor.setAttribute('content', defaultColor)
-    }
-    
-    // Then load persisted accent color if exists (allows user override)
-    const saved = localStorage.getItem('siteAccent')
-    if (saved) {
-      setAccentColor(saved)
-      document.documentElement.style.setProperty('--accent', saved)
-      if (metaThemeColor) {
-        metaThemeColor.setAttribute('content', saved)
-      }
-    } else {
-      // If no saved preference, use default
-      setAccentColor(defaultColor)
-      localStorage.setItem('siteAccent', defaultColor)
-    }
+    // Initialize theme system on app load
+    initTheme()
   }, [])
-
-  const handleAccentChange = (color) => {
-    setAccentColor(color)
-    localStorage.setItem('siteAccent', color)
-    document.documentElement.style.setProperty('--accent', color)
-    const metaThemeColor = document.querySelector('meta[name="theme-color"]')
-    if (metaThemeColor) {
-      metaThemeColor.setAttribute('content', color)
-    }
-  }
 
   return (
     <HelmetProvider>
       <I18nextProvider i18n={i18n}>
         <BrowserRouter>
-          <Layout onAccentChange={handleAccentChange} accentColor={accentColor}>
+          <Layout>
             <Suspense fallback={<div style={{ 
               display: 'flex', 
               justifyContent: 'center', 
@@ -72,6 +43,7 @@ function App() {
                 <Route path="/poem/:id" element={<PoemPage />} />
                 <Route path="/publication/:id" element={<PublicationPage />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/settings" element={<Settings />} />
                 <Route path="/admin" element={<AdminLogin />} />
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
               </Routes>

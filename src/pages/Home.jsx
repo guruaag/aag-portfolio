@@ -4,8 +4,8 @@ import { motion } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { getCategories, getAboutContent, getPublications, getPoems } from '../lib/supabaseClient'
+import { getImageUrl } from '../lib/imageUtils'
 import PublicationCard from '../components/PublicationCard'
-import { marked } from 'marked'
 import './Home.css'
 
 function Home() {
@@ -36,8 +36,8 @@ function Home() {
 
       setCategories(catsData)
       setAboutContent(aboutData)
-      setPublications(pubsData.slice(0, 5)) // Max 5 for horizontal scroll
-      setPoems(poemsData.slice(0, 5)) // Max 5 titles
+      setPublications(pubsData.slice(0, 5))
+      setPoems(poemsData.slice(0, 5))
     } catch (err) {
       console.error('Error loading data:', err)
       setError('Content not available')
@@ -73,6 +73,7 @@ function Home() {
   const aboutCategory = categories.find(c => c.content_type === 'about')
   const publicationsCategory = categories.find(c => c.content_type === 'publications')
   const poemsCategory = categories.find(c => c.content_type === 'writings')
+  const aboutImageUrl = aboutContent?.photo_path ? getImageUrl(aboutContent.photo_path) : null
 
   return (
     <>
@@ -85,68 +86,82 @@ function Home() {
       </Helmet>
 
       <div className="phoenix-home">
-        {/* 1. About Section */}
+        {/* 1. About Section with Box Background */}
         {aboutContent && (
           <motion.section
-            className="phoenix-section phoenix-about-section-home"
-            initial={{ opacity: 0, y: 30 }}
+            className="phoenix-section phoenix-section-box phoenix-about-section-home"
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.3 }}
           >
             <div className="phoenix-content">
               <motion.h2
                 className="phoenix-section-title"
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1, duration: 0.5 }}
+                transition={{ delay: 0.1, duration: 0.3 }}
               >
-                {aboutContent.title || t('about.title')}
+                {aboutContent.title || 'About Guru Pratap Sharma'}
               </motion.h2>
               
-              {aboutContent.truncated_preview && (
-                <motion.p
-                  className="phoenix-about-preview"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.2, duration: 0.5 }}
-                >
-                  {aboutContent.truncated_preview}
-                </motion.p>
-              )}
-
-              {aboutCategory && (
-                <motion.div
-                  className="phoenix-section-footer"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3, duration: 0.5 }}
-                >
-                  <button
-                    className="phoenix-btn phoenix-btn-outline"
-                    onClick={() => navigate(`/category/${aboutCategory.id}`)}
+              <div className="phoenix-about-home-layout">
+                {/* Image Left */}
+                {aboutImageUrl && (
+                  <motion.div
+                    className="phoenix-about-home-image"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2, duration: 0.3 }}
                   >
-                    {t('common.readMore')} →
-                  </button>
+                    <img
+                      src={aboutImageUrl}
+                      alt={aboutContent.title || 'Guru Pratap Sharma'}
+                      className="phoenix-about-home-img"
+                    />
+                  </motion.div>
+                )}
+                
+                {/* Text Right */}
+                <motion.div
+                  className="phoenix-about-home-text"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2, duration: 0.3 }}
+                >
+                  {aboutContent.truncated_preview && (
+                    <p className="phoenix-about-preview">
+                      {aboutContent.truncated_preview}
+                    </p>
+                  )}
+
+                  {aboutCategory && (
+                    <button
+                      className="phoenix-btn phoenix-btn-outline"
+                      onClick={() => navigate(`/category/${aboutCategory.id}`)}
+                    >
+                      {t('common.readMore')} →
+                    </button>
+                  )}
                 </motion.div>
-              )}
+              </div>
             </div>
           </motion.section>
         )}
 
-        {/* 2. Poems Section */}
+        {/* 2. Poems Section with Box Background */}
         {poems.length > 0 && (
           <motion.section
-            className="phoenix-section phoenix-poems-section-home"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
+            className="phoenix-section phoenix-section-box phoenix-poems-section-home"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
           >
             <div className="phoenix-content">
               <motion.h2
                 className="phoenix-section-title"
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
+                transition={{ delay: 0.2, duration: 0.3 }}
               >
                 {t('nav.poems')}
               </motion.h2>
@@ -156,9 +171,9 @@ function Home() {
                   <motion.div
                     key={poem.id}
                     className="phoenix-poem-item-home"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.6 + index * 0.1, duration: 0.5 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 + index * 0.05, duration: 0.3 }}
                   >
                     <button
                       className="phoenix-poem-link"
@@ -175,7 +190,7 @@ function Home() {
                   className="phoenix-section-footer"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 0.8, duration: 0.5 }}
+                  transition={{ delay: 0.5, duration: 0.3 }}
                 >
                   <button
                     className="phoenix-btn phoenix-btn-outline"
@@ -189,20 +204,20 @@ function Home() {
           </motion.section>
         )}
 
-        {/* 3. Publications Section */}
+        {/* 3. Publications Section with Box Background */}
         {publications.length > 0 && (
           <motion.section
-            className="phoenix-section phoenix-publications-section-home"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
+            className="phoenix-section phoenix-section-box phoenix-publications-section-home"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
           >
             <div className="phoenix-content">
               <motion.h2
                 className="phoenix-section-title"
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7, duration: 0.5 }}
+                transition={{ delay: 0.3, duration: 0.3 }}
               >
                 {t('publications.title')}
               </motion.h2>
@@ -222,7 +237,7 @@ function Home() {
                   className="phoenix-section-footer"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 0.9, duration: 0.5 }}
+                  transition={{ delay: 0.5, duration: 0.3 }}
                 >
                   <button
                     className="phoenix-btn phoenix-btn-outline"

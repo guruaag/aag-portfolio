@@ -3,30 +3,39 @@
    Complete UI/UX Overhaul - Modern, Elegant, Poetic
    ============================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Noto+Serif+Devanagari:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Noto+Serif+Devanagari:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap');
 
 :root {
   /* ============================================
-     COLOR PALETTE - Sienna & Charcoal
+     THEME SYSTEM - Dynamic Colors
      ============================================ */
   
-  /* Primary Colors */
-  --phoenix-sienna: #A0522D;        /* Burnt Sienna */
+  /* Default Theme Variables (Ivory & Charcoal) */
+  --theme-bg: #FAF9F6;
+  --theme-surface: #F5F5F0;
+  --theme-text: #2C2C2C;
+  --theme-text-secondary: #666666;
+  --theme-accent: #2C2C2C;
+  --theme-accent-light: #4A4A4A;
+  --theme-border: #E0E0E0;
+  
+  /* Legacy Colors (for backward compatibility) */
+  --phoenix-sienna: #A0522D;
   --phoenix-sienna-light: #C17A4F;
   --phoenix-sienna-dark: #8B4513;
-  --phoenix-charcoal: #2C2C2C;      /* Deep Charcoal */
+  --phoenix-charcoal: #2C2C2C;
   --phoenix-charcoal-light: #4A4A4A;
   --phoenix-charcoal-dark: #1A1A1A;
   
   /* Neutral Palette */
-  --phoenix-ivory: #FAF9F6;         /* Light Ivory Background */
-  --phoenix-cream: #F5F3F0;
+  --phoenix-ivory: var(--theme-bg);
+  --phoenix-cream: var(--theme-surface);
   --phoenix-white: #FFFFFF;
   --phoenix-off-white: #FEFEFE;
   
   /* Text Colors */
-  --phoenix-text-primary: #1A1A1A;
-  --phoenix-text-secondary: #4A4A4A;
+  --phoenix-text-primary: var(--theme-text);
+  --phoenix-text-secondary: var(--theme-text-secondary);
   --phoenix-text-muted: #8A8A8A;
   --phoenix-text-light: #B0B0B0;
   
@@ -38,9 +47,10 @@
      TYPOGRAPHY - Lora Serif + Inter Sans
      ============================================ */
   
-  --phoenix-font-serif: 'Lora', Georgia, 'Times New Roman', serif;
-  --phoenix-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --phoenix-font-hindi: 'Noto Serif Devanagari', 'Mukta', sans-serif;
+  --phoenix-font-serif: 'Lora', 'Noto Serif Devanagari', Georgia, 'Times New Roman', serif;
+  --phoenix-font-sans: 'Inter', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --phoenix-font-hindi-serif: 'Noto Serif Devanagari', serif;
+  --phoenix-font-hindi-sans: 'Noto Sans Devanagari', sans-serif;
   
   /* Font Sizes - Fluid Typography */
   --phoenix-text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);

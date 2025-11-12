@@ -53,25 +53,7 @@ function SocialShare({ url, title, description }) {
 
   return (
     <>
-      {/* Floating Share Button - Mobile Only */}
-      <motion.button
-        className="phoenix-share-float"
-        onClick={() => setIsOpen(!isOpen)}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.5 }}
-        aria-label="Share"
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <circle cx="18" cy="5" r="3"/>
-          <circle cx="6" cy="12" r="3"/>
-          <circle cx="18" cy="19" r="3"/>
-          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-        </svg>
-      </motion.button>
+      {/* Floating Share Button - REMOVED (using footer share instead) */}
 
       {/* Desktop Share Buttons - Inline */}
       <div className="phoenix-share-desktop">
