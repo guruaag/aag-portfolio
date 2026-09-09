@@ -1,0 +1,138 @@
+.leona-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(30, 27, 24, 0.65);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.leona-modal-card {
+  background: #FAF7F2;
+  border: 1.5px solid #D4AF37;
+  border-radius: 16px;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  font-family: 'Tiro Devanagari Hindi', 'Noto Serif Devanagari', 'Lora', serif;
+}
+
+.leona-modal-header {
+  background: #1E1B18;
+  color: #FAF7F2;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #D4AF37;
+}
+
+.leona-modal-brand-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.leona-modal-logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  border: 1px solid #D4AF37;
+}
+
+.leona-modal-close {
+  background: transparent;
+  border: none;
+  color: #FAF7F2;
+  font-size: 1.2rem;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.leona-modal-close:hover {
+  opacity: 1;
+}
+
+.leona-modal-body {
+  padding: 24px 20px 16px 20px;
+}
+
+.leona-modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1E1B18;
+  margin: 0 0 10px 0;
+}
+
+.leona-modal-message {
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: #4A423A;
+  margin: 0;
+}
+
+.leona-modal-actions {
+  padding: 14px 20px 20px 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  background: #F4EFE6;
+  border-top: 1px solid rgba(226, 215, 197, 0.8);
+}
+
+.leona-btn-modal-primary {
+  background: #F66E5E;
+  color: #FFFFFF;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 20px;
+  font-family: 'Tiro Devanagari Hindi', 'Noto Serif Devanagari', serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(246, 110, 94, 0.3);
+}
+
+.leona-btn-modal-primary:hover {
+  background: #D95343;
+  transform: translateY(-1px);
+}
+
+.leona-btn-modal-primary.danger {
+  background: #D95343;
+  box-shadow: 0 4px 12px rgba(217, 83, 67, 0.3);
+}
+
+.leona-btn-modal-primary.danger:hover {
+  background: #C43D2D;
+}
+
+.leona-btn-modal-secondary {
+  background: #FFFFFF;
+  color: #1E1B18;
+  border: 1px solid rgba(226, 215, 197, 0.9);
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-family: 'Tiro Devanagari Hindi', 'Noto Serif Devanagari', serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.leona-btn-modal-secondary:hover {
+  background: rgba(226, 215, 197, 0.5);
+  color: #F66E5E;
+}
