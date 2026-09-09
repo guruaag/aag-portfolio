@@ -46,6 +46,7 @@ function App() {
               <Route path="/preview.html" element={<iframe src="/preview.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Prototype Preview" />} />
               <Route path="/kavi-parichay.html" element={<iframe src="/kavi-parichay.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Kavi Parichay" />} />
               <Route path="/poem-reader.html" element={<iframe src="/poem-reader.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Poem Reader" />} />
+              <Route path="/poem.html" element={<iframe src="/poem.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Poem View" />} />
 
               {/* Standard routes inside React Layout wrapper */}
               <Route path="*" element={

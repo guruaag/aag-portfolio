@@ -116,7 +116,7 @@ function Footer() {
             
             {/* Left: Copyright Note */}
             <div className="footer-copyright-note">
-              © २०२६ गुरुप्रताप शर्मा 'आग' | सर्वाधिकार सुरक्षित | Auspicious Beginning
+              © २०२६ गुरुप्रताप शर्मा 'आग'
             </div>
 
             {/* Middle: SVG Social Icon Buttons */}
