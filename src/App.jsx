@@ -33,6 +33,74 @@ function DynamicIframeRoute() {
   )
 }
 
+import { Component } from 'react'
+
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { hasError: false, error: null }
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error }
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('Uncaught UI error caught by ErrorBoundary:', error, errorInfo)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{
+          padding: '60px 20px',
+          textAlign: 'center',
+          fontFamily: 'system-ui, -apple-system, sans-serif',
+          background: '#FAF7F2',
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div style={{
+            background: '#FFFFFF',
+            padding: '32px 40px',
+            borderRadius: '16px',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+            maxWidth: '480px',
+            border: '1px solid #E2D7C5'
+          }}>
+            <h2 style={{ color: '#D95343', marginBottom: '12px', fontSize: '1.4rem' }}>⚠️ पृष्ठ लोड करने में त्रुटि (Page Error)</h2>
+            <p style={{ color: '#555', marginBottom: '24px', fontSize: '0.95rem', lineHeight: '1.6' }}>
+              {this.state.error?.message || 'सामग्री प्रदर्शित करने में समस्या आई है।'}
+            </p>
+            <button
+              onClick={() => {
+                this.setState({ hasError: false, error: null })
+                window.location.reload()
+              }}
+              style={{
+                background: '#F66E5E',
+                color: '#FFF',
+                border: 'none',
+                padding: '10px 24px',
+                borderRadius: '20px',
+                fontWeight: 600,
+                fontSize: '0.95rem',
+                cursor: 'pointer'
+              }}
+            >
+              🔄 पुनः प्रयास करें (Reload Page)
+            </button>
+          </div>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
+
 function App() {
   useEffect(() => {
     // Initialize theme system on app load
@@ -40,9 +108,10 @@ function App() {
   }, [])
 
   return (
-    <HelmetProvider>
-      <I18nextProvider i18n={i18n}>
-        <BrowserRouter>
+    <ErrorBoundary>
+      <HelmetProvider>
+        <I18nextProvider i18n={i18n}>
+          <BrowserRouter>
           <Suspense fallback={<div style={{ 
             display: 'flex', 
             justifyContent: 'center', 
@@ -102,6 +171,7 @@ function App() {
         </BrowserRouter>
       </I18nextProvider>
     </HelmetProvider>
+    </ErrorBoundary>
   )
 }
 

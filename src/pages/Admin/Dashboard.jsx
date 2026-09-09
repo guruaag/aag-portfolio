@@ -129,30 +129,31 @@ function AdminDashboard({ tab }) {
       }
 
       const [cats, about, pubs, poems, settingsResult] = await Promise.all([
-        getCategories(),
-        getAboutContent(),
-        getPublications(),
-        getPoems(),
-        supabase.from('settings').select('*')
+        getCategories().catch(err => { console.error('Error fetching categories:', err); return [] }),
+        getAboutContent().catch(err => { console.error('Error fetching about content:', err); return null }),
+        getPublications().catch(err => { console.error('Error fetching publications:', err); return [] }),
+        getPoems().catch(err => { console.error('Error fetching poems:', err); return [] }),
+        supabase.from('settings').select('*').catch(err => { console.error('Error fetching settings:', err); return { data: [] } })
       ])
       
       const settingsMap = {}
-      if (settingsResult.data) {
+      if (settingsResult && settingsResult.data && Array.isArray(settingsResult.data)) {
         settingsResult.data.forEach(s => {
-          settingsMap[s.key] = s.value
+          if (s && s.key) {
+            settingsMap[s.key] = s.value
+          }
         })
       }
       
       setData({ 
-        categories: cats, 
-        about, 
-        publications: pubs, 
-        poems,
+        categories: Array.isArray(cats) ? cats : [], 
+        about: about || null, 
+        publications: Array.isArray(pubs) ? pubs : [], 
+        poems: Array.isArray(poems) ? poems : [],
         settings: settingsMap
       })
     } catch (err) {
       console.error('Error loading admin data:', err)
-      alert('Failed to load data')
     } finally {
       setLoading(false)
     }
@@ -411,14 +412,18 @@ function CategoriesManager({ categories, onUpdate }) {
       )}
 
       <div>
-        <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
-          {tLabel('सक्रिय अनुभाग सूची', 'Active Sections List')} ({categories.length})
-        </h3>
-        {categories.length === 0 ? (
-          <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई अनुभाग नहीं मिला। नया अनुभाग जोड़ने के लिए बटन दबाएं।', 'No sections found. Click button to add new section.')}</p>
-        ) : (
-          <ul className="admin-item-list">
-            {categories.map((cat) => (
+        {(() => {
+          const safeCats = Array.isArray(categories) ? categories : []
+          return (
+            <>
+              <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
+                {tLabel('सक्रिय अनुभाग सूची', 'Active Sections List')} ({safeCats.length})
+              </h3>
+              {safeCats.length === 0 ? (
+                <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई अनुभाग नहीं मिला। नया अनुभाग जोड़ने के लिए बटन दबाएं।', 'No sections found. Click button to add new section.')}</p>
+              ) : (
+                <ul className="admin-item-list">
+                  {safeCats.map((cat) => (
               <li key={cat.id} className="admin-item-card">
                 <div>
                   <div className="admin-item-title">{cat.name_display || cat.name_en}</div>
@@ -437,6 +442,9 @@ function CategoriesManager({ categories, onUpdate }) {
             ))}
           </ul>
         )}
+      </>
+    )
+  })()}
       </div>
     </div>
   )
@@ -1092,14 +1100,18 @@ function PublicationsManager({ publications, onUpdate }) {
       )}
 
       <div>
-        <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
-          {tLabel('प्रकाशित पुस्तकों की सूची', 'Published Books List')} ({publications.length})
-        </h3>
-        {publications.length === 0 ? (
-          <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई पुस्तक नहीं मिली। नई पुस्तक जोड़ने के लिए बटन दबाएं।', 'No books found. Click button to add new book.')}</p>
-        ) : (
-          <ul className="admin-item-list">
-            {publications.map((pub) => (
+        {(() => {
+          const safePubs = Array.isArray(publications) ? publications : []
+          return (
+            <>
+              <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
+                {tLabel('प्रकाशित पुस्तकों की सूची', 'Published Books List')} ({safePubs.length})
+              </h3>
+              {safePubs.length === 0 ? (
+                <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई पुस्तक नहीं मिली। नई पुस्तक जोड़ने के लिए बटन दबाएं।', 'No books found. Click button to add new book.')}</p>
+              ) : (
+                <ul className="admin-item-list">
+                  {safePubs.map((pub) => (
               <li key={pub.id} className="admin-item-card">
                 <div>
                   <div className="admin-item-title">{pub.title}</div>
@@ -1118,6 +1130,9 @@ function PublicationsManager({ publications, onUpdate }) {
             ))}
           </ul>
         )}
+      </>
+    )
+  })()}
       </div>
     </div>
   )
@@ -1311,14 +1326,18 @@ function PoemsManager({ poems, onUpdate }) {
       )}
 
       <div>
-        <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
-          {tLabel('कुल काव्य रचनाएं', 'Total Poems Collection')} ({poems.length})
-        </h3>
-        {poems.length === 0 ? (
-          <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई कविता नहीं मिली। नई रचना जोड़ने के लिए बटन दबाएं।', 'No poems found. Click button to add new poem.')}</p>
-        ) : (
-          <ul className="admin-item-list">
-            {poems.map((poem) => (
+        {(() => {
+          const safePoems = Array.isArray(poems) ? poems : []
+          return (
+            <>
+              <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
+                {tLabel('कुल काव्य रचनाएं', 'Total Poems Collection')} ({safePoems.length})
+              </h3>
+              {safePoems.length === 0 ? (
+                <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई कविता नहीं मिली। नई रचना जोड़ने के लिए बटन दबाएं।', 'No poems found. Click button to add new poem.')}</p>
+              ) : (
+                <ul className="admin-item-list">
+                  {safePoems.map((poem) => (
               <li key={poem.id} className="admin-item-card">
                 <div>
                   <div className="admin-item-title">{poem.heading || poem.heading_hi || poem.heading_en || 'Untitled'}</div>
@@ -1332,6 +1351,9 @@ function PoemsManager({ poems, onUpdate }) {
             ))}
           </ul>
         )}
+      </>
+    )
+  })()}
       </div>
     </div>
   )
@@ -2002,11 +2024,13 @@ function InboxManager({ onUpdate }) {
         <h2 className="admin-panel-title">📬 {tLabel('प्राप्त संदेश इनबॉक्स', 'Messages Inbox')}</h2>
       </div>
 
-      {messages.length === 0 ? (
-        <p style={{ color: '#666', fontStyle: 'italic', padding: '20px' }}>{tLabel('कोई नया संदेश नहीं मिला।', 'No new messages found.')}</p>
-      ) : (
-        <ul className="admin-item-list">
-          {messages.map(msg => (
+      {(() => {
+        const safeMsgs = Array.isArray(messages) ? messages : []
+        return safeMsgs.length === 0 ? (
+          <p style={{ color: '#666', fontStyle: 'italic', padding: '20px' }}>{tLabel('कोई नया संदेश नहीं मिला।', 'No new messages found.')}</p>
+        ) : (
+          <ul className="admin-item-list">
+            {safeMsgs.map(msg => (
             <li key={msg.id} className="admin-item-card" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '8px' }}>
               <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--leona-charcoal)' }}>{msg.name} ({msg.email})</span>
@@ -2022,7 +2046,8 @@ function InboxManager({ onUpdate }) {
             </li>
           ))}
         </ul>
-      )}
+      )
+    })()}
     </div>
   )
 }
