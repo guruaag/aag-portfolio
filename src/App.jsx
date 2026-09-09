@@ -31,29 +31,38 @@ function App() {
     <HelmetProvider>
       <I18nextProvider i18n={i18n}>
         <BrowserRouter>
-          <Layout>
-            <Suspense fallback={<div style={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center', 
-              minHeight: '100vh',
-              fontFamily: 'var(--phoenix-font-serif)',
-              fontSize: 'var(--phoenix-text-lg)',
-              color: 'var(--phoenix-text-secondary)'
-            }}>Loading...</div>}>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/category/:categoryId" element={<CategoryDetail />} />
-                <Route path="/poem/:id" element={<PoemPage />} />
-                <Route path="/publication/:id" element={<PublicationPage />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/admin" element={<AdminLogin />} />
-                <Route path="/admin/dashboard" element={<AdminDashboard />} />
-                <Route path="/preview" element={<iframe src="/preview.html" style={{ width: '100%', height: '100vh', border: 'none' }} title="Prototype Preview" />} />
-              </Routes>
-            </Suspense>
-          </Layout>
+          <Suspense fallback={<div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            minHeight: '100vh',
+            fontFamily: 'var(--phoenix-font-serif)',
+            fontSize: 'var(--phoenix-text-lg)',
+            color: 'var(--phoenix-text-secondary)'
+          }}>Loading...</div>}>
+            <Routes>
+              {/* Standalone HTML prototype route without outer Layout wrapper */}
+              <Route path="/preview" element={<iframe src="/preview.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Prototype Preview" />} />
+              <Route path="/preview.html" element={<iframe src="/preview.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Prototype Preview" />} />
+              <Route path="/kavi-parichay.html" element={<iframe src="/kavi-parichay.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Kavi Parichay" />} />
+
+              {/* Standard routes inside React Layout wrapper */}
+              <Route path="*" element={
+                <Layout>
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/category/:categoryId" element={<CategoryDetail />} />
+                    <Route path="/poem/:id" element={<PoemPage />} />
+                    <Route path="/publication/:id" element={<PublicationPage />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/admin" element={<AdminLogin />} />
+                    <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                  </Routes>
+                </Layout>
+              } />
+            </Routes>
+          </Suspense>
         </BrowserRouter>
       </I18nextProvider>
     </HelmetProvider>

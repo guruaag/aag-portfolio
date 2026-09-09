@@ -64,7 +64,7 @@ function Header() {
 
   const menuItems = [
     { path: '/', label: t('nav.home') },
-    { path: '/category/about', label: t('nav.about') },
+    { path: '/kavi-parichay.html', label: t('nav.about'), isHtml: true },
     { path: '/category/poems', label: t('nav.poems') },
     { path: '/category/publications', label: t('nav.publications') },
     { path: '/contact', label: t('nav.contact') }
@@ -140,7 +140,13 @@ function Header() {
               <motion.button
                 key={item.path}
                 className={`phoenix-nav-link ${location.pathname === item.path ? 'active' : ''}`}
-                onClick={() => navigate(item.path)}
+                onClick={() => {
+                  if (item.isHtml) {
+                    window.location.href = item.path
+                  } else {
+                    navigate(item.path)
+                  }
+                }}
                 whileHover={{ y: -2 }}
                 whileTap={{ y: 0 }}
               >
@@ -151,21 +157,6 @@ function Header() {
 
           {/* Right Side Actions */}
           <div className="phoenix-header-actions">
-            {/* Admin Link - Visible on Desktop */}
-            {localStorage.getItem('adminAuth') === 'true' && (
-              <motion.a
-                href="/admin"
-                className="phoenix-admin-link-desktop"
-                onClick={(e) => {
-                  e.preventDefault()
-                  navigate('/admin')
-                }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                {i18n.language === 'hi' ? 'प्रशासन' : 'Admin'}
-              </motion.a>
-            )}
 
             {/* Menu Button - Always visible */}
             <motion.button

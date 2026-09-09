@@ -59,10 +59,10 @@ const resources = {
     translation: {
       // Navigation
       nav: {
-        home: 'होम',
+        home: 'मुख्य पृष्ठ',
         publications: 'प्रकाशन',
-        about: 'के बारे में',
-        poems: 'कविताएं',
+        about: 'कवि परिचय',
+        poems: 'काव्य संग्रह',
         contact: 'संपर्क',
         settings: 'सेटिंग्स'
       },
