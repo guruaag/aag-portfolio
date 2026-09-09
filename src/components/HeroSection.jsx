@@ -51,60 +51,90 @@ function HeroSection() {
 
   if (loading) return null
 
-  const authorImageUrl = aboutContent?.photo_path ? getImageUrl(aboutContent.photo_path) : null
+  const authorImageUrl = aboutContent?.photo_path ? getImageUrl(aboutContent.photo_path) : '/logo.png'
   const authorName = i18n.language === 'hi' ? 'गुरु प्रताप शर्मा' : 'Guru Pratap Sharma'
   const penName = i18n.language === 'hi' ? 'आग' : 'AAG'
-  const tagline = i18n.language === 'hi' ? heroTagline.hi : heroTagline.en
+  const isHi = i18n.language === 'hi'
 
   return (
-    <section className="phoenix-hero">
-      <div className="phoenix-hero-background">
-        {authorImageUrl && (
-          <motion.div
-            className="phoenix-hero-image-wrapper"
-            style={{ y }}
+    <section className="phoenix-hero leona-hero">
+      <div className="phoenix-container">
+        <div className="leona-hero-grid">
+          
+          {/* 1. Left: 3D Featured Book Showcase */}
+          <motion.div 
+            className="leona-hero-book-showcase"
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
           >
-            <motion.img
-              src={authorImageUrl}
-              alt={authorName}
-              className="phoenix-hero-image"
-              initial={{ scale: 1.1 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 1.5, ease: 'easeOut' }}
-            />
+            <div className="leona-book-cover-3d-wrapper">
+              <span className="leona-book-badge-award">★ {isHi ? 'विशेष संकलन' : 'Featured Collection'}</span>
+              <img
+                src={authorImageUrl}
+                alt="अग्नि कलश"
+                className="leona-book-cover-3d"
+                onError={(e) => {
+                  e.target.src = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80'
+                }}
+              />
+            </div>
           </motion.div>
-        )}
-        <div className="phoenix-hero-overlay" />
+
+          {/* 2. Right: Book Metadata & CTAs */}
+          <motion.div
+            className="leona-hero-content-meta"
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <span className="leona-featured-tag">
+              🔥 {isHi ? 'कवि' : 'Poet'} {authorName} <span className="phoenix-hero-aag">{penName}</span>
+            </span>
+
+            <h1 className="leona-hero-title">
+              {isHi ? 'अग्नि कलश' : 'Agni Kalash'}
+            </h1>
+
+            <div className="leona-hero-subtitle">
+              {isHi ? '"हिंदी काव्य और ओजस्वी चेतना की अमर गाथा"' : '"Timeless Odyssey of Hindi Poetry & Fire"'}
+            </div>
+
+            <p className="leona-hero-description">
+              {isHi
+                ? 'कवि गुरुप्रताप शर्मा \'आग\' का कालजयी काव्य संग्रह \'अग्नि कलश\' राष्ट्रभक्ति, मानवीय संवेदनाओं और ओजस्वी छंदों का अनूठा संगम है।'
+                : 'Renowned poet Guru Pratap Sharma \'Aag\' presents a masterwork of fiery patriotic verse, human emotion, and timeless poetic rhythm.'}
+            </p>
+
+            <div className="leona-hero-actions">
+              <motion.button
+                className="btn-primary-terracotta"
+                onClick={() => {
+                  const pubsSec = document.querySelector('.phoenix-publications-section-home') || document.querySelector('.phoenix-poems-section-home')
+                  if (pubsSec) pubsSec.scrollIntoView({ behavior: 'smooth' })
+                }}
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+              >
+                🛒 {isHi ? 'अभी पुस्तक प्राप्त करें' : 'Explore Book Collection'}
+              </motion.button>
+
+              <motion.button
+                className="btn-secondary-teal"
+                onClick={() => {
+                  const poemsSec = document.querySelector('.phoenix-poems-section-home')
+                  if (poemsSec) poemsSec.scrollIntoView({ behavior: 'smooth' })
+                }}
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+              >
+                📖 {isHi ? 'काव्य पाठ पढ़ें' : 'Read Sample Poems'}
+              </motion.button>
+            </div>
+          </motion.div>
+
+        </div>
       </div>
-      
-      <motion.div
-        className="phoenix-hero-content"
-        style={{ opacity }}
-      >
-        <motion.div
-          className="phoenix-hero-text"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          <motion.h1
-            className="phoenix-hero-title phoenix-hero-title-inline"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-          >
-            {authorName} <span className="phoenix-hero-aag">{penName}</span>
-          </motion.h1>
-          <motion.p
-            className="phoenix-hero-tagline"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-          >
-            {tagline}
-          </motion.p>
-        </motion.div>
-      </motion.div>
     </section>
   )
 }

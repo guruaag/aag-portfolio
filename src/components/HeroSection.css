@@ -1,121 +1,181 @@
-.phoenix-hero {
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  min-height: 600px;
-  max-height: 800px;
-  overflow: hidden;
-  display: flex;
+/* LEONA THEME HERO STYLES */
+.phoenix-hero.leona-hero {
+  height: auto;
+  min-height: 540px;
+  max-height: none;
+  padding: 60px 0 80px;
+  background: linear-gradient(135deg, var(--leona-ivory, #FAF7F2) 0%, var(--leona-cream, #F4EFE6) 100%);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.leona-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 50px;
   align-items: center;
+  width: 100%;
+}
+
+.leona-hero-book-showcase {
+  display: flex;
   justify-content: center;
+  align-items: center;
 }
 
-.phoenix-hero-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
+.leona-book-cover-3d-wrapper {
+  position: relative;
+  perspective: 1200px;
 }
 
-.phoenix-hero-image-wrapper {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  will-change: transform;
-}
-
-.phoenix-hero-image {
-  width: 100%;
-  height: 100%;
+.leona-book-cover-3d {
+  width: 300px;
+  height: 450px;
   object-fit: cover;
-  object-position: center;
-  filter: brightness(0.7);
+  border-radius: 6px;
+  box-shadow: -15px 15px 35px rgba(30, 27, 24, 0.25), 0 0 20px rgba(246, 110, 94, 0.15);
+  transform: rotateY(-12deg) rotateX(4deg);
+  transition: transform 0.5s ease, box-shadow 0.5s ease;
+  cursor: pointer;
 }
 
-.phoenix-hero-overlay {
+.leona-book-cover-3d-wrapper:hover .leona-book-cover-3d {
+  transform: rotateY(0deg) rotateX(0deg) scale(1.03);
+  box-shadow: 0 20px 45px rgba(30, 27, 24, 0.3);
+}
+
+.leona-book-badge-award {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    to bottom,
-    rgba(44, 36, 22, 0.3) 0%,
-    rgba(44, 36, 22, 0.6) 50%,
-    rgba(44, 36, 22, 0.8) 100%
-  );
-  z-index: 2;
-}
-
-.phoenix-hero-content {
-  position: relative;
-  z-index: 3;
-  width: 100%;
-  max-width: 1200px;
-  padding: 0 var(--phoenix-padding-mobile);
-  text-align: center;
-  will-change: opacity;
-}
-
-.phoenix-hero-text {
-  color: var(--phoenix-white);
-}
-
-.phoenix-hero-title {
-  font-family: var(--premium-serif-heading);
-  font-size: clamp(2.5rem, 5vw, 5rem);
+  top: -16px;
+  right: -16px;
+  background: var(--leona-gold, #D4AF37);
+  color: var(--leona-charcoal, #1E1B18);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
   font-weight: 700;
-  color: var(--phoenix-white);
-  margin: 0 0 1rem 0;
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
-  letter-spacing: -0.02em;
+  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);
+  z-index: 10;
 }
 
-.phoenix-hero-title-inline {
+.leona-hero-content-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  text-align: left;
+}
+
+.leona-featured-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: rgba(246, 110, 94, 0.12);
+  border: 1px solid var(--leona-terracotta, #F66E5E);
+  border-radius: 20px;
+  color: #D95343;
+  font-size: 0.88rem;
+  font-weight: 700;
+  width: fit-content;
+}
+
+.leona-hero-title {
+  font-family: var(--phoenix-font-serif, 'Lora', serif);
+  font-size: clamp(2.5rem, 4vw, 3.8rem);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--leona-charcoal, #1E1B18);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.leona-hero-subtitle {
+  font-family: var(--phoenix-font-serif, 'Lora', serif);
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  font-style: italic;
+  color: #6E665E;
+  line-height: 1.5;
+}
+
+.leona-hero-description {
+  font-size: 1.05rem;
+  color: var(--leona-charcoal, #1E1B18);
+  line-height: 1.8;
+  margin: 0;
+}
+
+.leona-hero-actions {
   display: flex;
   align-items: center;
+  gap: 16px;
+  margin-top: 8px;
   flex-wrap: wrap;
-  gap: var(--phoenix-space-md);
-  justify-content: center;
 }
 
-.phoenix-hero-subtitle {
-  display: inline-block;
-  font-family: var(--premium-serif-heading);
-  font-size: clamp(1.5rem, 3vw, 3rem);
-  font-weight: 600;
-  color: var(--premium-burnt-orange);
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
-  margin-left: var(--phoenix-space-md);
+.btn-primary-terracotta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  background: var(--leona-terracotta, #F66E5E);
+  color: #FFFFFF !important;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(246, 110, 94, 0.3);
+  transition: all 0.3s ease;
 }
 
-.phoenix-hero-aag {
-  color: #CC5500 !important;
+.btn-primary-terracotta:hover {
+  background: #D95343;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(246, 110, 94, 0.4);
 }
 
-.phoenix-hero-tagline {
-  font-family: var(--premium-sans-body);
-  font-size: clamp(1rem, 1.5vw, 1.5rem);
-  color: var(--phoenix-white);
-  opacity: 0.95;
-  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
-  max-width: 600px;
-  margin: 0 auto;
-  line-height: 1.6;
+.btn-secondary-teal {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: transparent;
+  color: #2C988F !important;
+  border: 2px solid var(--leona-teal, #39BAAF);
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-@media (max-width: 768px) {
-  .phoenix-hero {
-    height: 70vh;
-    min-height: 500px;
+.btn-secondary-teal:hover {
+  background: var(--leona-teal, #39BAAF);
+  color: #FFFFFF !important;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(57, 186, 175, 0.3);
+}
+
+@media (max-width: 900px) {
+  .leona-hero-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+    text-align: center;
   }
   
-  .phoenix-hero-content {
-    padding: 0 var(--phoenix-padding-mobile);
+  .leona-hero-content-meta {
+    align-items: center;
+    text-align: center;
+  }
+
+  .leona-book-cover-3d {
+    width: 240px;
+    height: 360px;
+  }
+  
+  .leona-hero-actions {
+    justify-content: center;
   }
 }
 

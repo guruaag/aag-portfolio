@@ -10,22 +10,33 @@
      THEME SYSTEM - Dynamic Colors
      ============================================ */
   
-  /* Default Theme Variables (Ivory & Charcoal) */
-  --theme-bg: #FAF9F6;
-  --theme-surface: #F5F5F0;
-  --theme-text: #2C2C2C;
-  --theme-text-secondary: #666666;
-  --theme-accent: #2C2C2C;
-  --theme-accent-light: #4A4A4A;
-  --theme-border: #E0E0E0;
+  /* Default Theme Variables (Ivory & Charcoal - Leona Palette) */
+  --theme-bg: #FAF7F2;
+  --theme-surface: #F4EFE6;
+  --theme-text: #1E1B18;
+  --theme-text-secondary: #6E665E;
+  --theme-accent: #F66E5E;
+  --theme-accent-light: #FF8677;
+  --theme-border: #E2D7C5;
+  
+  /* Leona Signature Palette */
+  --leona-terracotta: #F66E5E;
+  --leona-terracotta-dark: #D95343;
+  --leona-teal: #39BAAF;
+  --leona-teal-dark: #2C988F;
+  --leona-charcoal: #1E1B18;
+  --leona-ivory: #FAF7F2;
+  --leona-cream: #F4EFE6;
+  --leona-white: #FFFFFF;
+  --leona-gold: #D4AF37;
   
   /* Legacy Colors (for backward compatibility) */
-  --phoenix-sienna: #A0522D;
-  --phoenix-sienna-light: #C17A4F;
-  --phoenix-sienna-dark: #8B4513;
-  --phoenix-charcoal: #2C2C2C;
-  --phoenix-charcoal-light: #4A4A4A;
-  --phoenix-charcoal-dark: #1A1A1A;
+  --phoenix-sienna: #F66E5E;
+  --phoenix-sienna-light: #FF8677;
+  --phoenix-sienna-dark: #D95343;
+  --phoenix-charcoal: #1E1B18;
+  --phoenix-charcoal-light: #2A2622;
+  --phoenix-charcoal-dark: #12100E;
   
   /* Neutral Palette */
   --phoenix-ivory: var(--theme-bg);
