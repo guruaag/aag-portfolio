@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>काव्य पठन | गुरुप्रताप शर्मा 'आग'</title>
+
+  <!-- Google Fonts: Fanwood Text, Lora, Tiro Devanagari Hindi, Quicksand, Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fanwood+Text:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Quicksand:wght@500;600;700&family=Tiro+Devanagari+Hindi:ital@0;1&display=swap" rel="stylesheet">
+
+  <style>
+    /* ============================================
+       LEONA DESIGN SYSTEM & COLOR TOKENS
+       ============================================ */
+    :root {
+      --leona-terracotta: #F66E5E;
+      --leona-terracotta-dark: #D95343;
+      --leona-teal: #39BAAF;
+      --leona-teal-dark: #2C988F;
+      --leona-charcoal: #1E1B18;
+      --leona-charcoal-light: #2A2622;
+      --leona-ivory: #FAF7F2;
+      --leona-cream: #F4EFE6;
+      --leona-white: #FFFFFF;
+      --leona-gold: #D4AF37;
+      --leona-text-main: #2C2622;
+      --leona-text-muted: #6E665E;
+      
+      --font-serif: 'Lora', 'Tiro Devanagari Hindi', 'Fanwood Text', Georgia, serif;
+      --font-sans: 'Inter', 'Quicksand', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-hindi: 'Tiro Devanagari Hindi', serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--leona-ivory);
+      color: var(--leona-text-main);
+      line-height: 1.7;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Container Utility */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+      width: 100%;
+    }
+
+    /* ============================================
+       1. STICKY HEADER & DEDUPLICATED NAVIGATION
+       ============================================ */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(250, 247, 242, 0.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(226, 215, 197, 0.6);
+      transition: all 0.3s ease;
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 80px;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--leona-charcoal);
+    }
+
+    .brand-logo img {
+      width: 44px;
+      height: 44px;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+
+    .brand-title {
+      font-family: var(--font-serif);
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-title .accent {
+      color: var(--leona-terracotta);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-link {
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--leona-text-main);
+      position: relative;
+      padding: 6px 0;
+      transition: color 0.3s ease;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--leona-terracotta);
+      transition: width 0.3s ease;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      color: var(--leona-terracotta);
+    }
+
+    .nav-link:hover::after, .nav-link.active::after {
+      width: 100%;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .btn-lang {
+      padding: 6px 16px;
+      border: 1.5px solid var(--leona-charcoal);
+      border-radius: 20px;
+      background: transparent;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-lang:hover {
+      border-color: var(--leona-terracotta);
+      color: var(--leona-terracotta);
+      background: var(--leona-cream);
+    }
+
+    /* ============================================
+       2. SINGLE POEM READER MAIN SECTION
+       ============================================ */
+    .reader-section {
+      flex: 1;
+      padding: 60px 0 80px;
+      background: linear-gradient(135deg, var(--leona-ivory) 0%, var(--leona-cream) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .reader-wrapper {
+      position: relative;
+      max-width: 760px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Minimalist side chevron arrows */
+    .chevron-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--leona-white);
+      border: 1.5px solid rgba(212, 175, 55, 0.4);
+      color: var(--leona-charcoal);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+
+    .chevron-btn:hover:not(:disabled) {
+      background: var(--leona-gold);
+      color: var(--leona-charcoal);
+      border-color: var(--leona-gold);
+      box-shadow: 0 6px 18px rgba(212, 175, 55, 0.4);
+      transform: translateY(-50%) scale(1.08);
+    }
+
+    .chevron-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .chevron-btn.left {
+      left: -64px;
+    }
+
+    .chevron-btn.right {
+      right: -64px;
+    }
+
+    /* Single Reader Paper Sheet */
+    .reader-paper {
+      background: var(--leona-white);
+      border-radius: 12px;
+      padding: 50px 60px;
+      border: 1px solid rgba(226, 215, 197, 0.8);
+      box-shadow: 0 12px 40px rgba(30, 27, 24, 0.08);
+      position: relative;
+      border-top: 4px solid var(--leona-gold);
+      min-height: 480px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .reader-paper-header {
+      text-align: center;
+      padding-bottom: 24px;
+      border-bottom: 1px dashed rgba(226, 215, 197, 0.8);
+      margin-bottom: 32px;
+    }
+
+    .poem-meta-category {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--leona-terracotta-dark);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .poem-main-title {
+      font-family: var(--font-serif);
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: var(--leona-charcoal);
+      margin-bottom: 6px;
+    }
+
+    .poem-author-sub {
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      color: var(--leona-text-muted);
+      font-style: italic;
+    }
+
+    /* Poem Body Verses */
+    .poem-body {
+      font-family: var(--font-hindi);
+      font-size: 1.35rem;
+      color: var(--leona-text-main);
+      line-height: 2.1;
+      text-align: center;
+      margin-bottom: 36px;
+      white-space: pre-line;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Page Counter & Footer Info inside sheet */
+    .reader-paper-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 20px;
+      border-top: 1px dashed rgba(226, 215, 197, 0.8);
+      font-size: 0.88rem;
+      color: var(--leona-text-muted);
+    }
+
+    .page-counter-badge {
+      background: var(--leona-cream);
+      color: var(--leona-charcoal);
+      padding: 4px 14px;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+    }
+
+    .back-link {
+      color: var(--leona-terracotta-dark);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+
+    .back-link:hover {
+      color: var(--leona-terracotta);
+      text-decoration: underline;
+    }
+
+    /* ============================================
+       3. CONSOLIDATED SINGLE-ROW DARK FOOTER
+       ============================================ */
+    .footer {
+      background: var(--leona-charcoal);
+      color: var(--leona-ivory);
+      padding: 24px 0;
+      border-top: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    .footer-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .footer-copyright {
+      font-size: 0.88rem;
+      color: rgba(250, 247, 242, 0.75);
+    }
+
+    .footer-social-icons {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .social-icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(250, 247, 242, 0.08);
+      color: var(--leona-gold);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .social-icon-btn:hover {
+      background: var(--leona-gold);
+      color: var(--leona-charcoal);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+    }
+
+    .footer-admin-link {
+      color: rgba(250, 247, 242, 0.7);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 6px 14px;
+      border: 1px solid rgba(250, 247, 242, 0.2);
+      border-radius: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .footer-admin-link:hover {
+      color: var(--leona-gold);
+      border-color: var(--leona-gold);
+      background: rgba(212, 175, 55, 0.1);
+    }
+
+    @media (max-width: 900px) {
+      .chevron-btn.left {
+        left: 10px;
+      }
+      .chevron-btn.right {
+        right: 10px;
+      }
+      .reader-paper {
+        padding: 40px 30px;
+      }
+      .footer-row {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. STICKY HEADER & DEDUPLICATED NAVIGATION -->
+  <header class="header">
+    <div class="container">
+      <div class="header-inner">
+        <!-- Brand Logo -->
+        <a href="preview.html" class="brand-logo">
+          <img src="/logo.png" alt="Logo" onerror="this.src='https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=100&q=80'">
+          <span class="brand-title">गुरुप्रताप शर्मा <span class="accent">'आग'</span></span>
+        </a>
+
+        <!-- Main Navigation Links -->
+        <nav>
+          <ul class="nav-links">
+            <li><a href="preview.html" class="nav-link">मुख्य पृष्ठ</a></li>
+            <li><a href="kavi-parichay.html" class="nav-link">कवि परिचय</a></li>
+            <li><a href="preview.html#poems" class="nav-link active">काव्य संग्रह</a></li>
+            <li><a href="preview.html#publications" class="nav-link">प्रकाशन</a></li>
+            <li><a href="#contact" class="nav-link">संपर्क</a></li>
+          </ul>
+        </nav>
+
+        <!-- Header Actions: Language Switcher Only -->
+        <div class="header-actions">
+          <button class="btn-lang">HI / EN</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. SINGLE POEM READER MAIN SECTION -->
+  <main class="reader-section">
+    <div class="container">
+      <div class="reader-wrapper">
+        
+        <!-- Left Chevron Arrow -->
+        <button class="chevron-btn left" id="prevBtn" onclick="prevPage()" aria-label="पिछला पृष्ठ">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </button>
+
+        <!-- Single Reader Paper Sheet -->
+        <article class="reader-paper" id="poemSheet">
+          
+          <div class="reader-paper-header">
+            <div class="poem-meta-category" id="poemCategory">काव्य संग्रह • अग्नि कलश</div>
+            <h1 class="poem-main-title" id="poemTitle">अग्निपथ की ओर</h1>
+            <div class="poem-author-sub">— गुरुप्रताप शर्मा 'आग'</div>
+          </div>
+
+          <div class="poem-body" id="poemVerse">
+            "उठो हे वीर सम्मुख काल है खड़ा,
+            प्रदीप्त हो रहा समस्त व्योम है।
+
+            न डगमगाओ विपदा की घनी घटा में,
+            सत्य की समिधा से प्रज्वलित यह होम है।"
+          </div>
+
+          <div class="reader-paper-footer">
+            <a href="preview.html#poems" class="back-link">← मुख्य पृष्ठ पर वापस जाएं</a>
+            <span class="page-counter-badge" id="pageCounter">पृष्ठ १ / ३</span>
+          </div>
+
+        </article>
+
+        <!-- Right Chevron Arrow -->
+        <button class="chevron-btn right" id="nextBtn" onclick="nextPage()" aria-label="अगला पृष्ठ">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M9 18l6-6-6-6"/>
+          </svg>
+        </button>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- 3. CONSOLIDATED SINGLE-ROW DARK FOOTER -->
+  <footer class="footer" id="contact">
+    <div class="container">
+      <div class="footer-row">
+        
+        <div class="footer-copyright">
+          © २०२६ गुरुप्रताप शर्मा 'आग' | सर्वाधिकार सुरक्षित | Auspicious Beginning
+        </div>
+
+        <div class="footer-social-icons">
+          <a href="#" class="social-icon-btn" title="WhatsApp">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+            </svg>
+          </a>
+
+          <a href="#" class="social-icon-btn" title="Facebook">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+          </a>
+
+          <a href="#" class="social-icon-btn" title="Instagram">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+            </svg>
+          </a>
+
+          <a href="#" class="social-icon-btn" title="YouTube">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+            </svg>
+          </a>
+        </div>
+
+        <div>
+          <a href="/admin" class="footer-admin-link">प्रशासन (Admin)</a>
+        </div>
+
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const poemsData = {
+      "1": {
+        category: "काव्य संग्रह • अग्नि कलश",
+        title: "अग्निपथ की ओर",
+        pages: [
+          `"उठो हे वीर सम्मुख काल है खड़ा,
+          प्रदीप्त हो रहा समस्त व्योम है।
+
+          न डगमगाओ विपदा की घनी घटा में,
+          सत्य की समिधा से प्रज्वलित यह होम है।"`,
+          
+          `"बढ़ो निरंतर बाधाओं को चीरते,
+          पग-पग पर नया प्रकाश चमकेगा।
+
+          जो कायरता के बंधनों को तोड़ेगा,
+          उसी के मस्तक पर विजय-तिलक चमकेगा।"`,
+          
+          `"कलम जब ओज उगलती है गगन में,
+          युग परिवर्तन की ध्वनि गूंज उठती है।
+
+          सत्य और न्याय की इस अमर राह पर,
+          अग्नि की पावन शिखा सदा जलती है।"`
+        ]
+      },
+      "2": {
+        category: "काव्य संग्रह • मातृभूमि का नमन",
+        title: "मातृभूमि का नमन",
+        pages: [
+          `"शिरोमणि बना रहे सदैव यह शिखर,
+          तुम्हारा प्रेम ही हमारा प्राण है।
+
+          हे मातृभूमि तेरे पावन चरणों में,
+          हमारा सर्वस्व आज कुर्बान है।"`,
+          
+          `"हिमालय की उत्तुंग चोटियों से,
+          सागर की विशाल उमड़ती लहरों तक।
+
+          गूंज रहा एक ही अमर गौरव गान,
+          तेरी महिमा अनंत युग-युगों तक।"`
+        ]
+      },
+      "3": {
+        category: "काव्य संग्रह • चेतना के स्वर",
+        title: "चेतना का सवेरा",
+        pages: [
+          `"अंधेरा छट रहा प्रभात आ गया,
+          नव्य दीप जला प्रदीप्त ज्ञान का।
+
+          अज्ञान की रात अब ढल चुकी है,
+          संगीत गूंज उठा नव विधान का।"`,
+          
+          `"चेतना के इस अनमोल क्षितिज पर,
+          मानवता का नया सूर्य उगेगा।
+
+          भेदभाव के सारे तमस मिटेंगे,
+          समरसता का अमर संदेश सजेगा।"`
+        ]
+      }
+    };
+
+    // Get poem ID from URL params (default to 1)
+    const urlParams = new URLSearchParams(window.location.search);
+    const poemId = urlParams.get('id') || '1';
+    
+    const currentPoem = poemsData[poemId] || poemsData["1"];
+    let currentPage = 0;
+
+    function renderPage() {
+      document.getElementById('poemCategory').innerText = currentPoem.category;
+      document.getElementById('poemTitle').innerText = currentPoem.title;
+      document.getElementById('poemVerse').innerText = currentPoem.pages[currentPage];
+      
+      const hindiDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+      const currentHindi = String(currentPage + 1).replace(/[0-9]/g, w => hindiDigits[+w]);
+      const totalHindi = String(currentPoem.pages.length).replace(/[0-9]/g, w => hindiDigits[+w]);
+      
+      document.getElementById('pageCounter').innerText = `पृष्ठ ${currentHindi} / ${totalHindi}`;
+      
+      document.getElementById('prevBtn').disabled = (currentPage === 0);
+      document.getElementById('nextBtn').disabled = (currentPage === currentPoem.pages.length - 1);
+    }
+
+    function prevPage() {
+      if (currentPage > 0) {
+        currentPage--;
+        renderPage();
+      }
+    }
+
+    function nextPage() {
+      if (currentPage < currentPoem.pages.length - 1) {
+        currentPage++;
+        renderPage();
+      }
+    }
+
+    // Keyboard Arrow Key Navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') prevPage();
+      if (e.key === 'ArrowRight') nextPage();
+    });
+
+    // Initial render
+    renderPage();
+  </script>
+</body>
+</html>

@@ -90,7 +90,7 @@ export default function BookReader({
   };
 
   const turnPage = (dir) => {
-    const step = isMobile() ? 1 : 2;
+    const step = 1; // Strictly one page at a time
     const maxIdx = totalPages - 1;
     const nextIdx = currentIdx + dir * step;
 
