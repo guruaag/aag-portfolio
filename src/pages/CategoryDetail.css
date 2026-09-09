@@ -37,6 +37,10 @@
 }
 
 .phoenix-publications-grid-full {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--phoenix-space-xl);
+  width: 100%;
   margin-top: var(--phoenix-space-lg);
   padding-left: var(--phoenix-padding-mobile);
   padding-right: var(--phoenix-padding-mobile);
@@ -46,6 +50,13 @@
   .phoenix-publications-grid-full {
     padding-left: var(--phoenix-padding-desktop);
     padding-right: var(--phoenix-padding-desktop);
+  }
+}
+
+@media (max-width: 600px) {
+  .phoenix-publications-grid-full {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: var(--phoenix-space-md);
   }
 }
 

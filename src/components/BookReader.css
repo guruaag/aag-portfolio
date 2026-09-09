@@ -421,3 +421,23 @@
   font-size: 0.8rem;
   color: var(--reader-muted);
 }
+
+/* FULLSCREEN / FOCUS MODE STYLES */
+.book-stage:fullscreen,
+.book-stage:-webkit-full-screen {
+  width: 100vw;
+  height: 100vh;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--reader-cover);
+  border-radius: 0;
+}
+
+.book-stage:fullscreen .book-spread,
+.book-stage:-webkit-full-screen .book-spread {
+  height: calc(100vh - 48px);
+  width: 100%;
+  max-width: 1400px;
+}

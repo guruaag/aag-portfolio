@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { getPoem, getPoems } from '../lib/supabaseClient'
+import { sanitizePoem } from '../lib/dataSanitizer'
 import PoemDetail from '../components/PoemDetail'
 
 function PoemPage() {
@@ -25,8 +26,8 @@ function PoemPage() {
         getPoems()
       ])
 
-      setPoem(poemData)
-      setAllPoems(allPoemsData)
+      setPoem(poemData ? sanitizePoem(poemData) : null)
+      setAllPoems((allPoemsData || []).map(sanitizePoem).filter(Boolean))
     } catch (err) {
       console.error('Error loading poem:', err)
       setError('Content not available')

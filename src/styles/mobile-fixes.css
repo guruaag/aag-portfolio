@@ -113,11 +113,6 @@
     height: auto !important;
   }
 
-  /* Prevent any element from using full viewport width */
-  * {
-    max-width: 100% !important;
-  }
-
   /* CRITICAL: Reduce vertical spacing between sections */
   .phoenix-section,
   .phoenix-section-box {

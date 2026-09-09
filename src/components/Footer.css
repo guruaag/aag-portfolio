@@ -2,11 +2,11 @@
 
 .phoenix-footer {
   position: relative;
-  background: linear-gradient(180deg, var(--premium-paper, #FDFBF7) 0%, #15110E 100%);
-  color: #E2D7C5;
+  background: #15110E;
+  color: #F7F3E9;
   border-top: 3px solid #D4AF37;
   padding: 24px 0 16px;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
   z-index: 100;
   margin-top: 40px;
 }
@@ -31,22 +31,22 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 16px;
+  padding: 8px 18px;
   border-radius: 20px;
-  background: rgba(212, 175, 55, 0.12);
-  border: 1px solid #D4AF37;
-  color: #D4AF37;
+  background: rgba(212, 175, 55, 0.15);
+  border: 1.5px solid #D4AF37;
+  color: #FFDF73;
   text-decoration: none;
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.88rem;
+  font-weight: 700;
   transition: all 0.2s ease;
 }
 
 .footer-social-btn:hover {
   background: #D4AF37;
-  color: #15110E;
+  color: #15110E !important;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);
 }
 
 .footer-bottom-row {

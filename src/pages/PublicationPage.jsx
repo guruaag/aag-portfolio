@@ -3,8 +3,8 @@ import { useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
 import { getPublication } from '../lib/supabaseClient'
+import { sanitizePublication } from '../lib/dataSanitizer'
 import { getImageUrl } from '../lib/imageUtils'
-import SocialShare from '../components/SocialShare'
 import BookReader from '../components/BookReader'
 import './PublicationPage.css'
 
@@ -24,7 +24,7 @@ function PublicationPage() {
       setError(null)
 
       const pubData = await getPublication(id)
-      setPublication(pubData)
+      setPublication(pubData ? sanitizePublication(pubData) : null)
     } catch (err) {
       console.error('Error loading publication:', err)
       setError('Content not available')
@@ -83,7 +83,7 @@ function PublicationPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="phoenix-content phoenix-focus-mode" style={{ paddingTop: 'var(--phoenix-space-lg)' }}>
+        <div className="phoenix-content" style={{ paddingTop: 'var(--phoenix-space-lg)', maxWidth: '1400px' }}>
           
           {/* 100X Physical 3D Book Reader */}
           <BookReader
@@ -93,21 +93,6 @@ function PublicationPage() {
             collection={publication.subtitle || 'प्रकाशित कृति'}
             year={publication.publication_year ? publication.publication_year.toString() : '१९८५'}
           />
-
-          {/* Social Share */}
-          <motion.div
-            className="phoenix-publication-share"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
-            style={{ marginTop: '24px' }}
-          >
-            <SocialShare
-              url={pageUrl}
-              title={publication.title}
-              description={publication.description || publication.subtitle}
-            />
-          </motion.div>
         </div>
       </motion.article>
     </>

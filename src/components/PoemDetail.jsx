@@ -64,11 +64,11 @@ function PoemDetail({ poem, allPoems }) {
       </Helmet>
 
       <motion.article
-        className="phoenix-poem-detail phoenix-focus-mode"
+        className="phoenix-poem-detail"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        style={{ paddingTop: 'var(--phoenix-space-lg)' }}
+        style={{ paddingTop: 'var(--phoenix-space-lg)', maxWidth: '1400px', margin: '0 auto' }}
       >
         {/* 100X Physical 3D Book Reader Component */}
         <BookReader
@@ -80,27 +80,12 @@ function PoemDetail({ poem, allPoems }) {
           audioUrl={audioUrl}
         />
 
-        {/* Social Share & Navigation Footer */}
-        <motion.div
-          className="phoenix-poem-share"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-          style={{ marginTop: '24px' }}
-        >
-          <SocialShare
-            url={pageUrl}
-            title={poemTitle}
-            description={poem.description || (typeof poemContent === 'string' ? poemContent : poemContent.join(' '))?.substring(0, 160)}
-          />
-        </motion.div>
-
-        {/* Navigation */}
+        {/* Navigation Bar below BookReader */}
         <motion.nav
           className="phoenix-poem-navigation"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
         >
           <motion.button
             className="phoenix-btn phoenix-btn-outline phoenix-poem-nav-btn"
