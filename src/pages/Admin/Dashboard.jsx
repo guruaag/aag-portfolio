@@ -174,7 +174,7 @@ function AdminDashboard({ tab }) {
   return (
     <AdminLangContext.Provider value={{ adminLang, setAdminLang: setAdminLangState, toggleAdminLang, tLabel }}>
       <div className="admin-dashboard-container">
-        <div className="admin-main-wrapper" style={{ marginTop: '20px' }}>
+        <div className="admin-main-wrapper">
           {/* Navigation Tabs aligned 1-to-1 with User Site Page Categories */}
           <div className="admin-tabs-bar">
             <button

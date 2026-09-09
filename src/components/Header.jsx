@@ -267,7 +267,11 @@ function Header() {
                     <motion.button
                       className={`phoenix-menu-item ${location.pathname === item.path ? 'active' : ''}`}
                       onClick={() => {
-                        navigate(item.path)
+                        if (item.isHtml) {
+                          window.location.href = item.path
+                        } else {
+                          navigate(item.path)
+                        }
                         setMenuOpen(false)
                       }}
                       whileHover={{ x: -10 }}

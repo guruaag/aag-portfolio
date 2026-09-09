@@ -15,10 +15,17 @@
   min-height: calc(100vh - var(--phoenix-header-height) - 80px);
 }
 
+.phoenix-main.admin-main-container {
+  padding-top: 16px;
+}
+
 @media (min-width: 1025px) {
   .phoenix-main {
     padding: var(--phoenix-space-xl) var(--phoenix-padding-desktop);
     padding-bottom: 80px;
+  }
+  .phoenix-main.admin-main-container {
+    padding-top: 16px;
   }
 }
 
