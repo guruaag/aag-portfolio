@@ -11,6 +11,23 @@ function Layout({ children }) {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [location.pathname])
 
+  const isAdmin = location.pathname.startsWith('/admin')
+
+  // Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [location.pathname])
+
+  if (isAdmin) {
+    return (
+      <div className="phoenix-app admin-app-layout">
+        <main className="phoenix-main admin-main-container" style={{ padding: 0 }}>
+          {children}
+        </main>
+      </div>
+    )
+  }
+
   return (
     <div className="phoenix-app">
       <Header />

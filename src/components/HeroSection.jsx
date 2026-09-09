@@ -75,7 +75,7 @@ function HeroSection() {
                 alt="अग्नि कलश"
                 className="leona-book-cover-3d"
                 onError={(e) => {
-                  e.target.src = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80'
+                  e.target.src = '/logo.png'
                 }}
               />
             </div>
