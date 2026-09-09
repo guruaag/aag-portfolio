@@ -110,16 +110,30 @@
   padding: 0 24px;
 }
 
-/* Tabs Bar */
+/* Custom Scrollbar for Tabs Bar */
 .admin-tabs-bar {
   display: flex;
   gap: 10px;
   margin-bottom: 28px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
   background: var(--leona-cream, #F4EFE6);
-  padding: 8px;
+  padding: 8px 12px;
   border-radius: 16px;
   border: 1px solid rgba(226, 215, 197, 0.8);
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-tabs-bar::-webkit-scrollbar {
+  height: 6px;
+}
+.admin-tabs-bar::-webkit-scrollbar-track {
+  background: rgba(226, 215, 197, 0.4);
+  border-radius: 3px;
+}
+.admin-tabs-bar::-webkit-scrollbar-thumb {
+  background: var(--leona-gold, #D4AF37);
+  border-radius: 3px;
 }
 
 .admin-tab-btn {
@@ -132,6 +146,7 @@
   padding: 10px 22px;
   border-radius: 12px;
   cursor: pointer;
+  white-space: nowrap;
   transition: all 0.25s ease;
   display: inline-flex;
   align-items: center;
