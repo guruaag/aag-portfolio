@@ -440,12 +440,10 @@
               <p id="valAddress">साहित्य सदन, सिविल लाइन्स, जयपुर (राजस्थान), भारत - 302006</p>
             </div>
           </div>
-
-          <div class="info-item">
             <div class="info-icon">✉️</div>
             <div class="info-details">
               <h4 id="lblEmail">ईमेल (Email):</h4>
-              <p>contact@gurupratapsharma.com</p>
+              <p id="valEmail">contact@gurupratapsharma.com</p>
             </div>
           </div>
 
@@ -453,7 +451,7 @@
             <div class="info-icon">📞</div>
             <div class="info-details">
               <h4 id="lblPhone">दूरभाष (Phone):</h4>
-              <p>+91 98290 12345 / +91 141 2345678</p>
+              <p id="valPhone">+91 98290 12345 / +91 141 2345678</p>
             </div>
           </div>
         </div>
@@ -532,6 +530,31 @@
   </footer>
 
   <script>
+    const SUPABASE_URL = "https://dxucmtfuyfobvcqxtnmz.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR4dWNtdGZ1eWZvYnZjcXh0bm16Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIwOTAxOTksImV4cCI6MjA3NzY2NjE5OX0.5qZ4MpbTUMKxG_2jixq1KAXs4nh580h4Nxf4NaBEE6U";
+
+    async function loadLiveSettings() {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/settings?select=*`, {
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          }
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && data.length > 0) {
+          const map = {};
+          data.forEach(s => map[s.key] = s.value);
+          if (map.address) document.getElementById('valAddress').innerText = map.address;
+          if (map.email) document.getElementById('valEmail').innerText = map.email;
+          if (map.phone) document.getElementById('valPhone').innerText = map.phone;
+        }
+      } catch (e) {
+        console.info('Supabase settings notice: using default presentation.');
+      }
+    }
+
     function handleContactSubmit(e) {
       e.preventDefault();
       alert('संदेश सफलतापूर्वक भेज दिया गया है! कवि जी की टीम शीघ्र आपसे संपर्क करेगी।');
@@ -579,6 +602,7 @@
     }
 
     updateLangUI();
+    loadLiveSettings();
   </script>
 </body>
 </html>

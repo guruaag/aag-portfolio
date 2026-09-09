@@ -1020,6 +1020,7 @@ function PoemsManager({ poems, onUpdate }) {
 
 // Settings Manager Component
 function SettingsManager({ settings, onUpdate }) {
+  const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState({
     phone: '',
     phone_text: '',
@@ -1027,6 +1028,7 @@ function SettingsManager({ settings, onUpdate }) {
     whatsapp_text: '',
     email: '',
     email_text: '',
+    address: '',
     facebook: '',
     instagram: '',
     twitter: '',
@@ -1047,12 +1049,13 @@ function SettingsManager({ settings, onUpdate }) {
 
   useEffect(() => {
     setFormData({
-      phone: settings.phone || '+917676885989',
+      phone: settings.phone || '+91 98290 12345',
       phone_text: settings.phone_text || 'Call me',
-      whatsapp: settings.whatsapp || 'https://wa.me/917676885989',
+      whatsapp: settings.whatsapp || 'https://wa.me/919829012345',
       whatsapp_text: settings.whatsapp_text || 'Whatsapp me',
-      email: settings.email || '',
+      email: settings.email || 'contact@gurupratapsharma.com',
       email_text: settings.email_text || 'Email me',
+      address: settings.address || 'साहित्य सदन, सिविल लाइन्स, जयपुर (राजस्थान), भारत - 302006',
       facebook: settings.facebook || '',
       instagram: settings.instagram || '',
       twitter: settings.twitter || '',
@@ -1081,12 +1084,13 @@ function SettingsManager({ settings, onUpdate }) {
     setShowForm(false)
     // Reset form data to current settings
     setFormData({
-      phone: settings.phone || '+917676885989',
+      phone: settings.phone || '+91 98290 12345',
       phone_text: settings.phone_text || 'Call me',
-      whatsapp: settings.whatsapp || 'https://wa.me/917676885989',
+      whatsapp: settings.whatsapp || 'https://wa.me/919829012345',
       whatsapp_text: settings.whatsapp_text || 'Whatsapp me',
-      email: settings.email || '',
+      email: settings.email || 'contact@gurupratapsharma.com',
       email_text: settings.email_text || 'Email me',
+      address: settings.address || 'साहित्य सदन, सिविल लाइन्स, जयपुर (राजस्थान), भारत - 302006',
       facebook: settings.facebook || '',
       instagram: settings.instagram || '',
       twitter: settings.twitter || '',
@@ -1223,6 +1227,15 @@ function SettingsManager({ settings, onUpdate }) {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="info@gurupratapsharma.com"
+              />
+            </div>
+            <div className="admin-form-group full-width">
+              <label>संपर्क पता (Location Address)</label>
+              <input
+                className="admin-input"
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                placeholder="साहित्य सदन, सिविल लाइन्स, जयपुर (राजस्थान), भारत - 302006"
               />
             </div>
             <div className="admin-form-group">
