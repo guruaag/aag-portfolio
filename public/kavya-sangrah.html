@@ -587,7 +587,26 @@
       updateLangUI();
     }
 
+    async function loadLivePoems() {
+      try {
+        const livePoems = await fetchSupabaseData('poems');
+        if (livePoems && livePoems.length > 0) {
+          poemsList = livePoems.map((p, idx) => ({
+            id: p.id || String(idx + 1),
+            slug: p.slug || `poem-${p.id || idx + 1}`,
+            title: p.heading || p.title || 'काव्य रचना',
+            collection: p.collection || 'अग्नि कलश',
+            excerpt: p.description || (p.full_text ? p.full_text.substring(0, 100) + '...' : '')
+          }));
+          renderPoems();
+        }
+      } catch (err) {
+        console.warn('Live poems fetch notice:', err);
+      }
+    }
+
     updateLangUI();
+    loadLivePoems();
   </script>
 </body>
 </html>

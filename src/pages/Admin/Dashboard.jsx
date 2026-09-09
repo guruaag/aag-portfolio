@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabaseClient'
 import { getCategories, getAboutContent, getPublications, getPoems, getSetting } from '../../lib/supabaseClient'
 import { uploadImage, getImageUrl, deleteImage } from '../../lib/imageUtils'
 import PM5WritingDesk from '../../components/PM5WritingDesk'
+import './AdminDashboard.css'
 
 function AdminDashboard() {
   const navigate = useNavigate()
@@ -107,64 +108,78 @@ function AdminDashboard() {
   }
 
   if (loading) {
-    return <div className="loading">Loading...</div>
+    return <div className="loading" style={{ textAlign: 'center', padding: '60px', color: 'var(--leona-terracotta)', fontSize: '1.2rem', fontWeight: 600 }}>लोड हो रहा है... (Loading Admin...)</div>
   }
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h1 style={{ color: 'var(--accent)', fontSize: '1.5rem', margin: 0, whiteSpace: 'nowrap' }}>Admin Dashboard</h1>
-        <button onClick={handleLogout} className="btn">Logout</button>
-      </div>
+    <div className="admin-dashboard-container">
+      {/* Leona Header Bar */}
+      <header className="admin-header-bar">
+        <div className="admin-header-title">
+          <span>गुरुप्रताप शर्मा 'आग'</span>
+          <span className="accent-badge">CMS ADMIN</span>
+        </div>
+        <button onClick={handleLogout} className="admin-btn-logout">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          प्रशासन से बाहर निकलें (Logout)
+        </button>
+      </header>
 
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
-        <button
-          className={`btn ${activeTab === 'categories' ? 'active' : ''}`}
-          onClick={() => setActiveTab('categories')}
-        >
-          Website Sections / Categories (वेबसाइट अनुभाग)
-        </button>
-        <button
-          className={`btn ${activeTab === 'about' ? 'active' : ''}`}
-          onClick={() => setActiveTab('about')}
-        >
-          About
-        </button>
-        <button
-          className={`btn ${activeTab === 'publications' ? 'active' : ''}`}
-          onClick={() => setActiveTab('publications')}
-        >
-          Publications
-        </button>
-        <button
-          className={`btn ${activeTab === 'poems' ? 'active' : ''}`}
-          onClick={() => setActiveTab('poems')}
-        >
-          Poems
-        </button>
-        <button
-          className={`btn ${activeTab === 'settings' ? 'active' : ''}`}
-          onClick={() => setActiveTab('settings')}
-        >
-          Settings
-        </button>
-      </div>
+      <div className="admin-main-wrapper">
+        {/* Navigation Tabs */}
+        <div className="admin-tabs-bar">
+          <button
+            className={`admin-tab-btn ${activeTab === 'categories' ? 'active' : ''}`}
+            onClick={() => setActiveTab('categories')}
+          >
+            🌐 वेबसाइट अनुभाग (Website Sections)
+          </button>
+          <button
+            className={`admin-tab-btn ${activeTab === 'about' ? 'active' : ''}`}
+            onClick={() => setActiveTab('about')}
+          >
+            📖 कवि परिचय (About Bio)
+          </button>
+          <button
+            className={`admin-tab-btn ${activeTab === 'publications' ? 'active' : ''}`}
+            onClick={() => setActiveTab('publications')}
+          >
+            📚 प्रकाशन (Publications & Books)
+          </button>
+          <button
+            className={`admin-tab-btn ${activeTab === 'poems' ? 'active' : ''}`}
+            onClick={() => setActiveTab('poems')}
+          >
+            ✍️ काव्य रचनाएं (Poems)
+          </button>
+          <button
+            className={`admin-tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
+            onClick={() => setActiveTab('settings')}
+          >
+            ⚙️ सेटिंग्स (Settings)
+          </button>
+        </div>
 
-      {activeTab === 'categories' && (
-        <CategoriesManager categories={data.categories} onUpdate={loadData} />
-      )}
-      {activeTab === 'about' && (
-        <AboutManager about={data.about} onUpdate={loadData} />
-      )}
-      {activeTab === 'publications' && (
-        <PublicationsManager publications={data.publications} onUpdate={loadData} />
-      )}
-      {activeTab === 'poems' && (
-        <PoemsManager poems={data.poems} onUpdate={loadData} />
-      )}
-      {activeTab === 'settings' && (
-        <SettingsManager settings={data.settings} onUpdate={loadData} />
-      )}
+        {activeTab === 'categories' && (
+          <CategoriesManager categories={data.categories} onUpdate={loadData} />
+        )}
+        {activeTab === 'about' && (
+          <AboutManager about={data.about} onUpdate={loadData} />
+        )}
+        {activeTab === 'publications' && (
+          <PublicationsManager publications={data.publications} onUpdate={loadData} />
+        )}
+        {activeTab === 'poems' && (
+          <PoemsManager poems={data.poems} onUpdate={loadData} />
+        )}
+        {activeTab === 'settings' && (
+          <SettingsManager settings={data.settings} onUpdate={loadData} />
+        )}
+      </div>
     </div>
   )
 }
@@ -253,120 +268,103 @@ function CategoriesManager({ categories, onUpdate }) {
   }
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <h2 style={{ color: 'var(--accent)', margin: 0 }}>Website Sections / Categories (वेबसाइट अनुभाग)</h2>
+    <div className="admin-card-panel">
+      <div className="admin-panel-header">
+        <h2 className="admin-panel-title">वेबसाइट अनुभाग (Website Sections & Categories)</h2>
         {!showForm && (
-          <button type="button" className="btn" onClick={handleCreate}>
-            Create Category
+          <button type="button" className="admin-btn-primary" onClick={handleCreate}>
+            + नया अनुभाग जोड़ें (Add Section)
           </button>
         )}
       </div>
       
       {(showForm || editing) && (
-        <form onSubmit={handleSubmit} className="admin-form" style={{ marginBottom: '24px', padding: '16px', border: '1px solid #ddd', borderRadius: '8px', background: '#f9f9f9' }}>
-        <div className="form-group">
-          <label>Name (EN) *</label>
-          <input
-            value={formData.name_en}
-            onChange={(e) => setFormData({ ...formData, name_en: e.target.value })}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Display Name</label>
-          <input
-            value={formData.name_display}
-            onChange={(e) => setFormData({ ...formData, name_display: e.target.value })}
-          />
-        </div>
-        <div className="form-group">
-          <label>Content Type *</label>
-          <select
-            value={formData.content_type}
-            onChange={(e) => setFormData({ ...formData, content_type: e.target.value })}
-            required
-          >
-            <option value="about">image + text</option>
-            <option value="publications">cover page</option>
-            <option value="writings">poems</option>
-            <option value="hero">Hero Section</option>
-          </select>
-        </div>
-        <div className="form-group">
-          <label>Sort Order</label>
-          <input
-            type="number"
-            value={formData.sort_order}
-            onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })}
-          />
-        </div>
-        <div className="form-group">
-          <label>
-            <input
-              type="checkbox"
-              checked={formData.is_active !== false}
-              onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-            />
-            {' '}Active (Show on website)
-          </label>
-        </div>
-          <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-            <button type="submit" className="btn">
-              {editing ? 'Update' : 'Create'} Category
+        <form onSubmit={handleSubmit} className="admin-form-container">
+          <div className="admin-form-grid">
+            <div className="admin-form-group">
+              <label>अनुभाग नाम (English Name) *</label>
+              <input
+                className="admin-input"
+                value={formData.name_en}
+                onChange={(e) => setFormData({ ...formData, name_en: e.target.value })}
+                required
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>प्रदर्शित नाम (Hindi Display Name)</label>
+              <input
+                className="admin-input"
+                value={formData.name_display}
+                onChange={(e) => setFormData({ ...formData, name_display: e.target.value })}
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>सामग्री प्रकार (Content Type) *</label>
+              <select
+                className="admin-select"
+                value={formData.content_type}
+                onChange={(e) => setFormData({ ...formData, content_type: e.target.value })}
+                required
+              >
+                <option value="about">कवि परिचय (About)</option>
+                <option value="publications">प्रकाशन (Publications)</option>
+                <option value="writings">काव्य संग्रह (Poems)</option>
+                <option value="hero">Hero Banner</option>
+              </select>
+            </div>
+            <div className="admin-form-group">
+              <label>क्रम संख्या (Sort Order)</label>
+              <input
+                className="admin-input"
+                type="number"
+                value={formData.sort_order}
+                onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })}
+              />
+            </div>
+            <div className="admin-form-group full-width">
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={formData.is_active !== false}
+                  onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                />
+                वेबसाइट पर सक्रिय रखें (Active / Visible on website)
+              </label>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+            <button type="submit" className="admin-btn-primary">
+              {editing ? 'सहेजें (Update)' : 'जोड़ें (Create)'}
             </button>
-            <button type="button" className="btn" onClick={handleCancel} style={{ background: '#999' }}>
-              Cancel
+            <button type="button" className="admin-btn-secondary" onClick={handleCancel}>
+              रद्द करें (Cancel)
             </button>
           </div>
         </form>
       )}
 
-      <div style={{ marginTop: '24px' }}>
-        <h3 style={{ color: 'var(--accent)', marginBottom: '12px' }}>All Categories ({categories.length})</h3>
+      <div>
+        <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
+          सक्रिय अनुभाग सूची ({categories.length})
+        </h3>
         {categories.length === 0 ? (
-          <p style={{ color: '#666', fontStyle: 'italic' }}>No categories found. Click "Create Category" to add one.</p>
+          <p style={{ color: '#666', fontStyle: 'italic' }}>कोई अनुभाग नहीं मिला। नया अनुभाग जोड़ने के लिए बटन दबाएं।</p>
         ) : (
-          <ul className="admin-list">
+          <ul className="admin-item-list">
             {categories.map((cat) => (
-              <li key={cat.id} className="admin-list-item" style={{ 
-                padding: '12px', 
-                marginBottom: '8px', 
-                border: '1px solid #ddd', 
-                borderRadius: '4px',
-                background: cat.is_active === false ? '#f5f5f5' : '#fff'
-              }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                    <strong style={{ fontSize: '16px' }}>{cat.name_display || cat.name_en}</strong>
-                    {cat.is_active === false && (
-                      <span style={{ 
-                        color: '#fff', 
-                        background: '#999', 
-                        padding: '2px 8px', 
-                        borderRadius: '4px',
-                        fontSize: '12px'
-                      }}>INACTIVE</span>
-                    )}
-                    {cat.is_active !== false && (
-                      <span style={{ 
-                        color: '#fff', 
-                        background: '#28a745', 
-                        padding: '2px 8px', 
-                        borderRadius: '4px',
-                        fontSize: '12px'
-                      }}>ACTIVE</span>
-                    )}
-                  </div>
-                  <div style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>
-                    <strong>Content Type:</strong> {getContentTypeDisplay(cat.content_type)} | 
-                    <strong> Sort Order:</strong> {cat.sort_order} |
-                    <strong> ID:</strong> {cat.id.substring(0, 8)}...
-                  </div>
+              <li key={cat.id} className="admin-item-card">
+                <div>
+                  <div className="admin-item-title">{cat.name_display || cat.name_en}</div>
+                  <div className="admin-item-sub">English: {cat.name_en} • प्रकार: {cat.content_type} • क्रम: {cat.sort_order || 0}</div>
+                  {cat.is_active === false ? (
+                    <span className="admin-item-badge" style={{ background: '#FFF0ED', color: '#D95343', borderColor: '#FFC4BD' }}>निष्क्रिय (Inactive)</span>
+                  ) : (
+                    <span className="admin-item-badge" style={{ background: '#EAF8F5', color: '#2C988F', borderColor: '#B5E8E2' }}>सक्रिय (Active)</span>
+                  )}
                 </div>
-                <div className="actions" style={{ display: 'flex', gap: '8px' }}>
-                  <button className="btn" onClick={() => handleEdit(cat)}>Edit</button>
-                  <button className="btn btn-danger" onClick={() => handleDelete(cat.id)}>Delete</button>
+                <div className="admin-actions-group">
+                  <button type="button" className="admin-btn-secondary" onClick={() => handleEdit(cat)}>संपादित करें (Edit)</button>
+                  <button type="button" className="admin-btn-danger" onClick={() => handleDelete(cat.id)}>हटाएं (Delete)</button>
                 </div>
               </li>
             ))}
@@ -467,96 +465,90 @@ function AboutManager({ about, onUpdate }) {
   }
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <h2 style={{ color: 'var(--accent)', margin: 0 }}>About Content</h2>
+    <div className="admin-card-panel">
+      <div className="admin-panel-header">
+        <h2 className="admin-panel-title">कवि परिचय (Poet Biography & Overview)</h2>
         {!showForm && (
-          <button type="button" className="btn" onClick={about ? handleEdit : handleCreate}>
-            {about ? 'Edit' : 'Create'} About
+          <button type="button" className="admin-btn-primary" onClick={about ? handleEdit : handleCreate}>
+            {about ? 'संपादित करें (Edit About)' : '+ नया विवरण जोड़ें (Add About)'}
           </button>
         )}
       </div>
       
       {(showForm || editing) && (
-        <form onSubmit={handleSubmit} className="admin-form" style={{ marginBottom: '24px', padding: '16px', border: '1px solid #ddd', borderRadius: '8px', background: '#f9f9f9' }}>
-        <div className="form-group">
-          <label>Title</label>
-          <input
-            value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          />
-        </div>
-        
-        <div className="form-group">
-          <label>Photo</label>
-          <div style={{ marginBottom: '12px' }}>
-            {photoPreview && (
-              <img 
-                src={photoPreview} 
-                alt="Preview" 
-                style={{ 
-                  width: '150px', 
-                  height: '150px', 
-                  objectFit: 'cover', 
-                  borderRadius: '8px',
-                  border: '1px solid var(--border-light)',
-                  marginBottom: '12px'
-                }} 
+        <form onSubmit={handleSubmit} className="admin-form-container">
+          <div className="admin-form-grid">
+            <div className="admin-form-group full-width">
+              <label>शीर्षक (Title)</label>
+              <input
+                className="admin-input"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               />
-            )}
-          </div>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handlePhotoUpload}
-            disabled={uploadingPhoto}
-          />
-          {uploadingPhoto && <div style={{ marginTop: '8px', color: '#666' }}>Uploading...</div>}
-          {formData.photo_path && (
-            <div style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
-              Current: {formData.photo_path}
             </div>
-          )}
-        </div>
+            
+            <div className="admin-form-group full-width">
+              <label>कवि फोटो (Poet Photo)</label>
+              {photoPreview && (
+                <div style={{ marginBottom: '12px' }}>
+                  <img 
+                    src={photoPreview} 
+                    alt="Preview" 
+                    style={{ 
+                      width: '140px', 
+                      height: '140px', 
+                      objectFit: 'cover', 
+                      borderRadius: '12px',
+                      border: '2px solid var(--leona-gold)'
+                    }} 
+                  />
+                </div>
+              )}
+              <input
+                className="admin-input"
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                disabled={uploadingPhoto}
+              />
+              {uploadingPhoto && <div style={{ marginTop: '6px', color: 'var(--leona-terracotta)', fontSize: '0.85rem' }}>फोटो अपलोड हो रही है...</div>}
+            </div>
 
-        <div className="form-group">
-          <label>Body Text (Markdown) *</label>
-          <textarea
-            value={formData.body_text}
-            onChange={(e) => setFormData({ ...formData, body_text: e.target.value })}
-            required
-            style={{ minHeight: '300px' }}
-          />
-        </div>
-        <div className="form-group">
-          <label>Truncated Preview</label>
-          <textarea
-            value={formData.truncated_preview}
-            onChange={(e) => setFormData({ ...formData, truncated_preview: e.target.value })}
-          />
-        </div>
-          <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-            <button type="submit" className="btn">Save</button>
-            <button type="button" className="btn" onClick={handleCancel} style={{ background: '#999' }}>
-              Cancel
-            </button>
+            <div className="admin-form-group full-width">
+              <label>सम्पूर्ण जीवनी (Full Bio Prose Text) *</label>
+              <textarea
+                className="admin-textarea"
+                value={formData.body_text}
+                onChange={(e) => setFormData({ ...formData, body_text: e.target.value })}
+                required
+                style={{ minHeight: '220px' }}
+              />
+            </div>
+            <div className="admin-form-group full-width">
+              <label>संक्षिप्त परिचय (Truncated Preview for Home Page)</label>
+              <textarea
+                className="admin-textarea"
+                value={formData.truncated_preview}
+                onChange={(e) => setFormData({ ...formData, truncated_preview: e.target.value })}
+                style={{ minHeight: '100px' }}
+              />
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+            <button type="submit" className="admin-btn-primary">सहेजें (Save Changes)</button>
+            <button type="button" className="admin-btn-secondary" onClick={handleCancel}>रद्द करें (Cancel)</button>
           </div>
         </form>
       )}
 
       {about && !showForm && (
-        <div style={{ marginTop: '24px', padding: '16px', border: '1px solid #ddd', borderRadius: '8px', background: '#f9f9f9' }}>
-          <h3 style={{ color: 'var(--accent)', marginBottom: '12px' }}>Current About Content</h3>
-          <div style={{ marginBottom: '8px' }}>
-            <strong>Title:</strong> {about.title || '(Not set)'}
-          </div>
-          {about.photo_path && (
-            <div style={{ marginBottom: '8px' }}>
-              <strong>Photo:</strong> {about.photo_path}
-            </div>
-          )}
-          <div style={{ marginBottom: '8px' }}>
-            <strong>Preview:</strong> {about.truncated_preview ? about.truncated_preview.substring(0, 100) + '...' : '(Not set)'}
+        <div style={{ background: '#FFFFFF', padding: '20px', borderRadius: '12px', border: '1px solid rgba(226, 215, 197, 0.8)' }}>
+          <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.15rem', color: 'var(--leona-charcoal)', marginBottom: '12px' }}>
+            वर्तमान कवि परिचय विवरण
+          </h3>
+          <div style={{ fontSize: '0.92rem', color: 'var(--leona-text-main)', lineHeight: '1.7' }}>
+            <p><strong>शीर्षक:</strong> {about.title || 'गुरुप्रताप शर्मा "आग"'}</p>
+            <p style={{ marginTop: '8px' }}><strong>संक्षिप्त संक्षेप:</strong> {about.truncated_preview ? about.truncated_preview.substring(0, 160) + '...' : '(उपलब्ध नहीं)'}</p>
           </div>
         </div>
       )}
@@ -685,126 +677,134 @@ function PublicationsManager({ publications, onUpdate }) {
   }
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <h2 style={{ color: 'var(--accent)', margin: 0 }}>Publications</h2>
+    <div className="admin-card-panel">
+      <div className="admin-panel-header">
+        <h2 className="admin-panel-title">प्रकाशन एवं पुस्तकें (Publications & Books)</h2>
         {!showForm && (
-          <button type="button" className="btn" onClick={handleCreate}>
-            Create Publication
+          <button type="button" className="admin-btn-primary" onClick={handleCreate}>
+            + नई पुस्तक जोड़ें (Add Publication)
           </button>
         )}
       </div>
       
       {(showForm || editing) && (
-        <form onSubmit={handleSubmit} className="admin-form" style={{ marginBottom: '24px', padding: '16px', border: '1px solid #ddd', borderRadius: '8px', background: '#f9f9f9' }}>
-        <div className="form-group">
-          <label>Title *</label>
-          <input
-            value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Subtitle</label>
-          <input
-            value={formData.subtitle}
-            onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-          />
-        </div>
-        <div className="form-group">
-          <label>Cover Image *</label>
-          <div style={{ marginBottom: '12px' }}>
-            {imagePreview && (
-              <img 
-                src={imagePreview} 
-                alt="Preview" 
-                style={{ 
-                  width: '150px', 
-                  height: '225px', 
-                  objectFit: 'contain', 
-                  border: '1px solid var(--border-light)',
-                  borderRadius: '4px',
-                  marginBottom: '12px',
-                  background: '#f8f8f8'
-                }} 
+        <form onSubmit={handleSubmit} className="admin-form-container">
+          <div className="admin-form-grid">
+            <div className="admin-form-group">
+              <label>पुस्तक का नाम (Book Title) *</label>
+              <input
+                className="admin-input"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                required
               />
-            )}
-          </div>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            disabled={uploadingImage}
-          />
-          {uploadingImage && <div style={{ marginTop: '8px', color: '#666' }}>Uploading...</div>}
-          {formData.image_path && (
-            <div style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
-              Current: {formData.image_path}
             </div>
-          )}
-        </div>
-        <div className="form-group">
-          <label>Image Alt Text</label>
-          <input
-            value={formData.image_alt}
-            onChange={(e) => setFormData({ ...formData, image_alt: e.target.value })}
-          />
-        </div>
-        <div className="form-group">
-          <label>Description</label>
-          <textarea
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          />
-        </div>
-        <div className="form-group">
-          <label>Sort Order</label>
-          <input
-            type="number"
-            value={formData.sort_order}
-            onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })}
-          />
-        </div>
-        <div className="form-group">
-          <label>
-            <input
-              type="checkbox"
-              checked={formData.is_active !== false}
-              onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-            />
-            {' '}Active (Show on website)
-          </label>
-        </div>
-        <button type="submit" className="btn">
-          {editing ? 'Update' : 'Create'} Publication
-        </button>
-        {editing && (
-          <button type="button" className="btn" onClick={() => {
-            setEditing(null)
-            setFormData({ title: '', subtitle: '', image_path: '', image_alt: '', description: '', sort_order: 0, is_active: true })
-            setImagePreview(null)
-          }}>
-            Cancel
-          </button>
-        )}
-      </form>
+            <div className="admin-form-group">
+              <label>उप-शीर्षक (Subtitle)</label>
+              <input
+                className="admin-input"
+                value={formData.subtitle}
+                onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
+              />
+            </div>
+            <div className="admin-form-group full-width">
+              <label>कवर चित्र (Book Cover Image)</label>
+              {imagePreview && (
+                <div style={{ marginBottom: '12px' }}>
+                  <img 
+                    src={imagePreview} 
+                    alt="Cover Preview" 
+                    style={{ 
+                      width: '120px', 
+                      height: '170px', 
+                      objectFit: 'cover', 
+                      border: '2px solid var(--leona-gold)',
+                      borderRadius: '8px'
+                    }} 
+                  />
+                </div>
+              )}
+              <input
+                className="admin-input"
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                disabled={uploadingImage}
+              />
+              {uploadingImage && <div style={{ marginTop: '6px', color: 'var(--leona-terracotta)', fontSize: '0.85rem' }}>कवर फोटो अपलोड हो रही है...</div>}
+            </div>
+            <div className="admin-form-group full-width">
+              <label>पुस्तक विवरण (Book Description & Synopsis)</label>
+              <textarea
+                className="admin-textarea"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>क्रम संख्या (Sort Order)</label>
+              <input
+                className="admin-input"
+                type="number"
+                value={formData.sort_order}
+                onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })}
+              />
+            </div>
+            <div className="admin-form-group full-width">
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={formData.is_active !== false}
+                  onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                />
+                वेबसाइट पर प्रकाशित रखें (Active on website)
+              </label>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+            <button type="submit" className="admin-btn-primary">
+              {editing ? 'सहेजें (Update)' : 'प्रकाशित करें (Publish)'}
+            </button>
+            <button type="button" className="admin-btn-secondary" onClick={() => {
+              setEditing(null)
+              setShowForm(false)
+              setFormData({ title: '', subtitle: '', image_path: '', image_alt: '', description: '', sort_order: 0, is_active: true })
+              setImagePreview(null)
+            }}>
+              रद्द करें (Cancel)
+            </button>
+          </div>
+        </form>
       )}
 
-      <ul className="admin-list" style={{ marginTop: '24px' }}>
-        {publications.map((pub) => (
-          <li key={pub.id} className="admin-list-item">
-            <div>
-              <strong>{pub.title}</strong> (Order: {pub.sort_order})
-              {pub.is_active === false && <span style={{ color: '#999', marginLeft: '8px' }}>(Inactive)</span>}
-            </div>
-            <div className="actions">
-              <button className="btn" onClick={() => handleEdit(pub)}>Edit</button>
-              <button className="btn btn-danger" onClick={() => handleDelete(pub.id)}>Delete</button>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <div>
+        <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
+          प्रकाशित पुस्तकों की सूची ({publications.length})
+        </h3>
+        {publications.length === 0 ? (
+          <p style={{ color: '#666', fontStyle: 'italic' }}>कोई पुस्तक नहीं मिली। नई पुस्तक जोड़ने के लिए बटन दबाएं।</p>
+        ) : (
+          <ul className="admin-item-list">
+            {publications.map((pub) => (
+              <li key={pub.id} className="admin-item-card">
+                <div>
+                  <div className="admin-item-title">{pub.title}</div>
+                  <div className="admin-item-sub">{pub.subtitle || pub.description ? (pub.subtitle || pub.description).substring(0, 80) + '...' : ''} • क्रम: {pub.sort_order || 0}</div>
+                  {pub.is_active === false ? (
+                    <span className="admin-item-badge" style={{ background: '#FFF0ED', color: '#D95343', borderColor: '#FFC4BD' }}>अप्रकाशित (Draft)</span>
+                  ) : (
+                    <span className="admin-item-badge" style={{ background: '#EAF8F5', color: '#2C988F', borderColor: '#B5E8E2' }}>प्रकाशित (Live)</span>
+                  )}
+                </div>
+                <div className="admin-actions-group">
+                  <button type="button" className="admin-btn-secondary" onClick={() => handleEdit(pub)}>संपादित करें (Edit)</button>
+                  <button type="button" className="admin-btn-danger" onClick={() => handleDelete(pub.id)}>हटाएं (Delete)</button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   )
 }
@@ -888,155 +888,126 @@ function PoemsManager({ poems, onUpdate }) {
   }
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <h2 style={{ color: 'var(--accent)', margin: 0 }}>Poems</h2>
+    <div className="admin-card-panel">
+      <div className="admin-panel-header">
+        <h2 className="admin-panel-title">काव्य रचनाएं एवं पद (Poems & Stanzas)</h2>
         {!showForm && (
-          <button type="button" className="btn" onClick={handleCreate}>
-            Create Poem
+          <button type="button" className="admin-btn-primary" onClick={handleCreate}>
+            + नई रचना जोड़ें (Add Poem)
           </button>
         )}
       </div>
       
       {(showForm || editing) && (
-        <form onSubmit={handleSubmit} className="admin-form" style={{ marginBottom: '24px', padding: '16px', border: '1px solid #ddd', borderRadius: '8px', background: '#f9f9f9' }}>
-        <div className="form-group">
-          <label>Heading (English) *</label>
-          <input
-            value={formData.heading_en || ''}
-            onChange={(e) => setFormData({ ...formData, heading_en: e.target.value })}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Heading (Hindi)</label>
-          <input
-            value={formData.heading_hi || ''}
-            onChange={(e) => setFormData({ ...formData, heading_hi: e.target.value })}
-          />
-        </div>
-        <div className="form-group">
-          <label>Description</label>
-          <textarea
-            value={formData.description || ''}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          />
-        </div>
-        <div className="form-group">
-          <label>Body Text (English)</label>
-          <textarea
-            value={formData.body_text_en || ''}
-            onChange={(e) => setFormData({ ...formData, body_text_en: e.target.value })}
-            style={{ minHeight: '200px' }}
-          />
-        </div>
-        <div className="form-group" style={{ marginBottom: '24px' }}>
-          <label style={{ fontWeight: 'bold', fontSize: '1.05rem', color: '#8B4513', marginBottom: '8px', display: 'block' }}>
-            🖋️ पापा का पेजमेकर (PM5) कैनवस (Hindi PM5 Writing Desk)
-          </label>
-          <PM5WritingDesk
-            initialPages={formData.body_text_hi ? [formData.body_text_hi] : ['']}
-            initialTitle={formData.heading_hi || formData.heading_en || ''}
-            onSave={(pagesArray, pageTitle) => {
-              const joinedText = pagesArray.join('\n\n');
-              setFormData(prev => ({
-                ...prev,
-                body_text_hi: joinedText,
-                heading_hi: pageTitle || prev.heading_hi
-              }));
-              alert('✓ PM5 पेजमेकर कैनवस सामग्री फॉर्म में सहेज दी गई है!');
-            }}
-          />
-        </div>
-        <div className="form-group">
-          <label>Body Text (Hindi) *</label>
-          <textarea
-            value={formData.body_text_hi || ''}
-            onChange={(e) => setFormData({ ...formData, body_text_hi: e.target.value })}
-            required
-            style={{ minHeight: '180px' }}
-          />
-        </div>
-        <div className="form-group">
-          <label>Language</label>
-          <input
-            value={formData.language}
-            onChange={(e) => setFormData({ ...formData, language: e.target.value })}
-          />
-        </div>
-        <div className="form-group">
-          <label>Sort Order</label>
-          <input
-            type="number"
-            value={formData.sort_order}
-            onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })}
-          />
-        </div>
-        <div className="form-group">
-          <label>
-            <input
-              type="checkbox"
-              checked={formData.is_active !== false}
-              onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-            />
-            {' '}Active (Show on website)
-          </label>
-        </div>
-          <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-            <button type="submit" className="btn">
-              {editing ? 'Update' : 'Create'} Poem
+        <form onSubmit={handleSubmit} className="admin-form-container">
+          <div className="admin-form-grid">
+            <div className="admin-form-group">
+              <label>कविता का नाम (Hindi Title) *</label>
+              <input
+                className="admin-input"
+                value={formData.heading_hi || ''}
+                onChange={(e) => setFormData({ ...formData, heading_hi: e.target.value })}
+                required
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>अंग्रेजी शीर्षक (English Title)</label>
+              <input
+                className="admin-input"
+                value={formData.heading_en || ''}
+                onChange={(e) => setFormData({ ...formData, heading_en: e.target.value })}
+              />
+            </div>
+            <div className="admin-form-group full-width">
+              <label>रचना संदर्भ / विवरण (Context / Description)</label>
+              <textarea
+                className="admin-textarea"
+                value={formData.description || ''}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                style={{ minHeight: '80px' }}
+              />
+            </div>
+            <div className="admin-form-group full-width" style={{ marginBottom: '16px' }}>
+              <label style={{ fontWeight: 'bold', fontSize: '1.02rem', color: 'var(--leona-terracotta)', marginBottom: '8px', display: 'block' }}>
+                🖋️ पापा का पेजमेकर (PM5) कैनवस (Hindi PM5 PageMaker Studio)
+              </label>
+              <PM5WritingDesk
+                initialPages={formData.body_text_hi ? [formData.body_text_hi] : ['']}
+                initialTitle={formData.heading_hi || formData.heading_en || ''}
+                onSave={(pagesArray, pageTitle) => {
+                  const joinedText = pagesArray.join('\n\n');
+                  setFormData(prev => ({
+                    ...prev,
+                    body_text_hi: joinedText,
+                    heading_hi: pageTitle || prev.heading_hi
+                  }));
+                  alert('✓ PM5 पेजमेकर कैनवस सामग्री फॉर्म में सहेज दी गई है!');
+                }}
+              />
+            </div>
+            <div className="admin-form-group full-width">
+              <label>सम्पूर्ण कविता पंक्तियाँ (Full Stanzas / Verse Text) *</label>
+              <textarea
+                className="admin-textarea"
+                value={formData.body_text_hi || ''}
+                onChange={(e) => setFormData({ ...formData, body_text_hi: e.target.value })}
+                required
+                style={{ minHeight: '220px', fontFamily: 'Tiro Devanagari Hindi, Lora, serif', fontSize: '1.05rem', lineHeight: '1.7' }}
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>क्रम संख्या (Sort Order)</label>
+              <input
+                className="admin-input"
+                type="number"
+                value={formData.sort_order}
+                onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })}
+              />
+            </div>
+            <div className="admin-form-group full-width">
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={formData.is_active !== false}
+                  onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                />
+                वेबसाइट पर प्रकाशित रखें (Active / Visible on website)
+              </label>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+            <button type="submit" className="admin-btn-primary">
+              {editing ? 'सहेजें (Update Poem)' : 'प्रकाशित करें (Publish Poem)'}
             </button>
-            <button type="button" className="btn" onClick={handleCancel} style={{ background: '#999' }}>
-              Cancel
+            <button type="button" className="admin-btn-secondary" onClick={handleCancel}>
+              रद्द करें (Cancel)
             </button>
           </div>
         </form>
       )}
 
-      <div style={{ marginTop: '24px' }}>
-        <h3 style={{ color: 'var(--accent)', marginBottom: '12px' }}>All Poems ({poems.length})</h3>
+      <div>
+        <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
+          कुल काव्य रचनाएं ({poems.length})
+        </h3>
         {poems.length === 0 ? (
-          <p style={{ color: '#666', fontStyle: 'italic' }}>No poems found. Click "Create Poem" to add one.</p>
+          <p style={{ color: '#666', fontStyle: 'italic' }}>कोई कविता नहीं मिली। नई रचना जोड़ने के लिए बटन दबाएं।</p>
         ) : (
-          <ul className="admin-list">
+          <ul className="admin-item-list">
             {poems.map((poem) => (
-              <li key={poem.id} className="admin-list-item" style={{ 
-                padding: '12px', 
-                marginBottom: '8px', 
-                border: '1px solid #ddd', 
-                borderRadius: '4px',
-                background: poem.is_active === false ? '#f5f5f5' : '#fff'
-              }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                    <strong style={{ fontSize: '16px' }}>{poem.heading_en || poem.heading_hi || poem.heading || 'Untitled'}</strong>
-                    {poem.is_active === false && (
-                      <span style={{ 
-                        color: '#fff', 
-                        background: '#999', 
-                        padding: '2px 8px', 
-                        borderRadius: '4px',
-                        fontSize: '12px'
-                      }}>INACTIVE</span>
-                    )}
-                    {poem.is_active !== false && (
-                      <span style={{ 
-                        color: '#fff', 
-                        background: '#28a745', 
-                        padding: '2px 8px', 
-                        borderRadius: '4px',
-                        fontSize: '12px'
-                      }}>ACTIVE</span>
-                    )}
-                  </div>
-                  <div style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>
-                    <strong>Sort Order:</strong> {poem.sort_order} |
-                    <strong> Language:</strong> {poem.language || 'mixed'}
-                  </div>
+              <li key={poem.id} className="admin-item-card">
+                <div>
+                  <div className="admin-item-title">{poem.heading_hi || poem.heading_en || poem.heading || 'बिना शीर्षक'}</div>
+                  <div className="admin-item-sub">English: {poem.heading_en || '(कोई नहीं)'} • क्रम: {poem.sort_order || 0}</div>
+                  {poem.is_active === false ? (
+                    <span className="admin-item-badge" style={{ background: '#FFF0ED', color: '#D95343', borderColor: '#FFC4BD' }}>अप्रकाशित (Draft)</span>
+                  ) : (
+                    <span className="admin-item-badge" style={{ background: '#EAF8F5', color: '#2C988F', borderColor: '#B5E8E2' }}>प्रकाशित (Live)</span>
+                  )}
                 </div>
-                <div className="actions" style={{ display: 'flex', gap: '8px' }}>
-                  <button className="btn" onClick={() => handleEdit(poem)}>Edit</button>
-                  <button className="btn btn-danger" onClick={() => handleDelete(poem.id)}>Delete</button>
+                <div className="admin-actions-group">
+                  <button type="button" className="admin-btn-secondary" onClick={() => handleEdit(poem)}>संपादित करें (Edit)</button>
+                  <button type="button" className="admin-btn-danger" onClick={() => handleDelete(poem.id)}>हटाएं (Delete)</button>
                 </div>
               </li>
             ))}
@@ -1184,265 +1155,130 @@ function SettingsManager({ settings, onUpdate }) {
   }
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <h2 style={{ color: 'var(--accent)', margin: 0 }}>Site Settings</h2>
+    <div className="admin-card-panel">
+      <div className="admin-panel-header">
+        <h2 className="admin-panel-title">वेबसाइट सेटिंग्स (Website Settings & Social Links)</h2>
         {!showForm && (
-          <button type="button" className="btn" onClick={handleEdit}>
-            Edit Settings
+          <button type="button" className="admin-btn-primary" onClick={handleEdit}>
+            संपादित करें (Edit Settings)
           </button>
         )}
       </div>
       
       {showForm && (
-        <form onSubmit={handleSubmit} className="admin-form" style={{ marginBottom: '24px', padding: '16px', border: '1px solid #ddd', borderRadius: '8px', background: '#f9f9f9' }}>
-        <div className="form-group">
-          <label>Website Logo (Square recommended)</label>
-          <div style={{ marginBottom: '12px' }}>
-            {logoPreview && (
-              <img 
-                src={logoPreview} 
-                alt="Logo Preview" 
-                style={{ 
-                  width: '100px', 
-                  height: '100px', 
-                  objectFit: 'contain', 
-                  borderRadius: '4px',
-                  border: '1px solid var(--border-light)',
-                  marginBottom: '12px',
-                  background: '#f5f5f5'
-                }} 
+        <form onSubmit={handleSubmit} className="admin-form-container">
+          <div className="admin-form-grid">
+            <div className="admin-form-group full-width">
+              <label>वेबसाइट लोगो (Website Logo Image)</label>
+              {logoPreview && (
+                <div style={{ marginBottom: '12px' }}>
+                  <img 
+                    src={logoPreview} 
+                    alt="Logo Preview" 
+                    style={{ 
+                      width: '90px', 
+                      height: '90px', 
+                      objectFit: 'contain', 
+                      borderRadius: '8px',
+                      border: '1px solid rgba(226, 215, 197, 0.8)',
+                      background: '#FFFFFF'
+                    }} 
+                  />
+                </div>
+              )}
+              <input
+                className="admin-input"
+                type="file"
+                accept="image/*"
+                onChange={handleLogoUpload}
+                disabled={uploadingLogo}
               />
-            )}
-          </div>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleLogoUpload}
-            disabled={uploadingLogo}
-          />
-          {uploadingLogo && <div style={{ marginTop: '8px', color: '#666' }}>Uploading...</div>}
-          {formData.logo_path && (
-            <div style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
-              Current: {formData.logo_path}
-              <button
-                type="button"
-                onClick={async () => {
-                  if (confirm('Delete current logo?')) {
-                    try {
-                      if (formData.logo_path && !formData.logo_path.startsWith('/')) {
-                        await deleteImage(formData.logo_path)
-                      }
-                      setFormData({ ...formData, logo_path: '' })
-                      setLogoPreview(null)
-                      alert('Logo deleted!')
-                    } catch (err) {
-                      alert('Error deleting logo: ' + err.message)
-                    }
-                  }
-                }}
-                style={{
-                  marginLeft: '12px',
-                  padding: '4px 8px',
-                  background: '#dc3545',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '11px'
-                }}
-              >
-                Delete Logo
-              </button>
+              {uploadingLogo && <div style={{ marginTop: '6px', color: 'var(--leona-terracotta)', fontSize: '0.85rem' }}>लोगो अपलोड हो रहा है...</div>}
             </div>
-          )}
-        </div>
-        <hr style={{ margin: '24px 0', border: 'none', borderTop: '1px solid var(--border-light)' }} />
-        <div className="form-group">
-          <label>Phone Number</label>
-          <input
-            type="tel"
-            value={formData.phone}
-            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-            placeholder="+917676885989"
-          />
-        </div>
-        <div className="form-group">
-          <label>Phone Link Text</label>
-          <input
-            value={formData.phone_text}
-            onChange={(e) => setFormData({ ...formData, phone_text: e.target.value })}
-            placeholder="Call me"
-          />
-        </div>
-        <div className="form-group">
-          <label>WhatsApp URL</label>
-          <input
-            value={formData.whatsapp}
-            onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-            placeholder="https://wa.me/917676885989"
-          />
-        </div>
-        <div className="form-group">
-          <label>WhatsApp Link Text</label>
-          <input
-            value={formData.whatsapp_text}
-            onChange={(e) => setFormData({ ...formData, whatsapp_text: e.target.value })}
-            placeholder="Whatsapp me"
-          />
-        </div>
-        <div className="form-group">
-          <label>Email Address</label>
-          <input
-            type="email"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            placeholder="example@email.com"
-          />
-        </div>
-        <div className="form-group">
-          <label>Email Link Text</label>
-          <input
-            value={formData.email_text}
-            onChange={(e) => setFormData({ ...formData, email_text: e.target.value })}
-            placeholder="Email me"
-          />
-        </div>
-        <div className="form-group">
-          <label>Facebook URL</label>
-          <input
-            value={formData.facebook}
-            onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
-            placeholder="https://facebook.com/yourpage"
-          />
-        </div>
-        <div className="form-group">
-          <label>Instagram URL</label>
-          <input
-            value={formData.instagram}
-            onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
-            placeholder="https://instagram.com/yourprofile"
-          />
-        </div>
-        <div className="form-group">
-          <label>Twitter/X URL</label>
-          <input
-            value={formData.twitter}
-            onChange={(e) => setFormData({ ...formData, twitter: e.target.value })}
-            placeholder="https://twitter.com/yourprofile"
-          />
-        </div>
-        <div className="form-group">
-          <label>LinkedIn URL</label>
-          <input
-            value={formData.linkedin}
-            onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
-            placeholder="https://linkedin.com/in/yourprofile"
-          />
-        </div>
-        <div className="form-group">
-          <label>YouTube URL</label>
-          <input
-            value={formData.youtube}
-            onChange={(e) => setFormData({ ...formData, youtube: e.target.value })}
-            placeholder="https://youtube.com/@yourchannel"
-          />
-        </div>
-        <hr style={{ margin: '24px 0', border: 'none', borderTop: '1px solid var(--border-light)' }} />
-        <h3 style={{ color: 'var(--accent)', marginBottom: '16px' }}>Hero Section</h3>
-        <div className="form-group">
-          <label>Hero Tagline (English)</label>
-          <input
-            value={formData.hero_tagline_en}
-            onChange={(e) => setFormData({ ...formData, hero_tagline_en: e.target.value })}
-            placeholder="Renowned for his fiery literary works"
-          />
-        </div>
-        <div className="form-group">
-          <label>Hero Tagline (Hindi)</label>
-          <input
-            value={formData.hero_tagline_hi}
-            onChange={(e) => setFormData({ ...formData, hero_tagline_hi: e.target.value })}
-            placeholder="साहित्य जगत में अपनी तेजस्वी रचनाओं से प्रसिद्ध"
-          />
-        </div>
-        <hr style={{ margin: '24px 0', border: 'none', borderTop: '1px solid var(--border-light)' }} />
-        <h3 style={{ color: 'var(--accent)', marginBottom: '16px' }}>Thank You Section</h3>
-        <div className="form-group">
-          <label>Thank You Title</label>
-          <input
-            value={formData.thank_you_title}
-            onChange={(e) => setFormData({ ...formData, thank_you_title: e.target.value })}
-            placeholder="Thank You"
-          />
-        </div>
-        <div className="form-group">
-          <label>Thank You Heading</label>
-          <input
-            value={formData.thank_you_heading}
-            onChange={(e) => setFormData({ ...formData, thank_you_heading: e.target.value })}
-            placeholder="Thank you for visiting!"
-          />
-        </div>
-        <div className="form-group">
-          <label>Thank You Description</label>
-          <textarea
-            value={formData.thank_you_description}
-            onChange={(e) => setFormData({ ...formData, thank_you_description: e.target.value })}
-            placeholder="Your message here..."
-            rows="4"
-          />
-        </div>
-        <div className="form-group">
-          <label>Thank You Button Text</label>
-          <input
-            value={formData.thank_you_button_text}
-            onChange={(e) => setFormData({ ...formData, thank_you_button_text: e.target.value })}
-            placeholder="Close"
-          />
-        </div>
-        <div className="form-group">
-          <label>Thank You Message (Legacy - for popup)</label>
-          <textarea
-            value={formData.thank_you_message}
-            onChange={(e) => setFormData({ ...formData, thank_you_message: e.target.value })}
-            placeholder="Thank you!"
-            rows="3"
-          />
-        </div>
-        <div className="form-group">
-          <label>Default Theme Color</label>
-          <input
-            type="color"
-            value={formData.default_accent}
-            onChange={(e) => setFormData({ ...formData, default_accent: e.target.value })}
-            style={{ width: '100px', height: '40px' }}
-          />
-          <input
-            type="text"
-            value={formData.default_accent}
-            onChange={(e) => setFormData({ ...formData, default_accent: e.target.value })}
-            placeholder="#964B00"
-            style={{ marginLeft: '12px', width: '200px' }}
-          />
-        </div>
-          <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-            <button type="submit" className="btn">Save Settings</button>
-            <button type="button" className="btn" onClick={handleCancel} style={{ background: '#999' }}>
-              Cancel
-            </button>
+
+            <div className="admin-form-group">
+              <label>फोन नंबर (Phone Number)</label>
+              <input
+                className="admin-input"
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                placeholder="+917676885989"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>व्हाट्सएप लिंक (WhatsApp Link / Number)</label>
+              <input
+                className="admin-input"
+                value={formData.whatsapp}
+                onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
+                placeholder="https://wa.me/917676885989"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>ईमेल पता (Email Address)</label>
+              <input
+                className="admin-input"
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                placeholder="info@gurupratapsharma.com"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>फेसबुक (Facebook Profile)</label>
+              <input
+                className="admin-input"
+                value={formData.facebook}
+                onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
+                placeholder="https://facebook.com/gurupratap"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>इंस्टाग्राम (Instagram Profile)</label>
+              <input
+                className="admin-input"
+                value={formData.instagram}
+                onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
+                placeholder="https://instagram.com/gurupratap"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>यूट्यूब (YouTube Channel)</label>
+              <input
+                className="admin-input"
+                value={formData.youtube}
+                onChange={(e) => setFormData({ ...formData, youtube: e.target.value })}
+                placeholder="https://youtube.com/@gurupratap"
+              />
+            </div>
+
+            <div className="admin-form-group full-width">
+              <label>मुख्य पृष्ठ टैगलाइन (Hero Tagline - Hindi)</label>
+              <input
+                className="admin-input"
+                value={formData.hero_tagline_hi}
+                onChange={(e) => setFormData({ ...formData, hero_tagline_hi: e.target.value })}
+                placeholder="साहित्य जगत में अपनी तेजस्वी रचनाओं से प्रसिद्ध"
+              />
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+            <button type="submit" className="admin-btn-primary">सहेजें (Save Settings)</button>
+            <button type="button" className="admin-btn-secondary" onClick={handleCancel}>रद्द करें (Cancel)</button>
           </div>
         </form>
       )}
 
       {!showForm && (
-        <div style={{ marginTop: '24px', padding: '16px', border: '1px solid #ddd', borderRadius: '8px', background: '#f9f9f9' }}>
-          <h3 style={{ color: 'var(--accent)', marginBottom: '12px' }}>Current Settings</h3>
-          <div style={{ fontSize: '14px', color: '#666' }}>
-            <div style={{ marginBottom: '8px' }}><strong>Logo:</strong> {settings.logo_path ? 'Uploaded' : 'Not set'}</div>
-            <div style={{ marginBottom: '8px' }}><strong>Phone:</strong> {settings.phone || '(Not set)'}</div>
-            <div style={{ marginBottom: '8px' }}><strong>Email:</strong> {settings.email || '(Not set)'}</div>
-            <div style={{ marginBottom: '8px' }}><strong>Default Accent:</strong> {settings.default_accent || '#964B00'}</div>
+        <div style={{ background: '#FFFFFF', padding: '20px', borderRadius: '12px', border: '1px solid rgba(226, 215, 197, 0.8)' }}>
+          <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.15rem', color: 'var(--leona-charcoal)', marginBottom: '12px' }}>
+            वर्तमान वेबसाइट सेटिंग्स
+          </h3>
+          <div style={{ fontSize: '0.92rem', color: 'var(--leona-text-main)', lineHeight: '1.8' }}>
+            <p><strong>फोन:</strong> {settings.phone || '+91 76768 85989'}</p>
+            <p><strong>ईमेल:</strong> {settings.email || '(उपलब्ध नहीं)'}</p>
+            <p><strong>टैगलाइन:</strong> {settings.hero_tagline_hi || 'साहित्य जगत में अपनी तेजस्वी रचनाओं से प्रसिद्ध'}</p>
           </div>
         </div>
       )}

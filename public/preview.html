@@ -925,13 +925,61 @@
 
     // Load dynamic content from Supabase API on page load
     async function loadLiveContent() {
-      const livePoems = await fetchSupabaseData('poems');
-      if (livePoems && livePoems.length > 0) {
-        console.log('Successfully connected to Supabase live poems API:', livePoems.length);
-      }
-      const liveBooks = await fetchSupabaseData('publications');
-      if (liveBooks && liveBooks.length > 0) {
-        console.log('Successfully connected to Supabase live publications API:', liveBooks.length);
+      try {
+        const livePoems = await fetchSupabaseData('poems');
+        if (livePoems && livePoems.length > 0) {
+          const grid = document.querySelector('.poems-grid');
+          if (grid) {
+            grid.innerHTML = livePoems.slice(0, 3).map(p => {
+              const title = p.heading || p.title || 'काव्य रचना';
+              const desc = p.description || (p.full_text ? p.full_text.substring(0, 75) + '...' : '');
+              const id = p.id;
+              return `
+                <div class="poem-card-leona" onclick="(window.top || window).location.href='/poem-reader.html?id=${id}'">
+                  <div>
+                    <h3 class="poem-card-title">${title}</h3>
+                    <p class="poem-card-excerpt">"${desc}"</p>
+                  </div>
+                  <a href="/poem-reader.html?id=${id}" class="poem-card-cta" onclick="event.stopPropagation()">काव्य पढ़ें →</a>
+                </div>
+              `;
+            }).join('');
+          }
+        }
+
+        const liveBooks = await fetchSupabaseData('publications');
+        if (liveBooks && liveBooks.length > 0) {
+          const grid = document.querySelector('.pubs-grid');
+          if (grid) {
+            grid.innerHTML = liveBooks.slice(0, 4).map(b => {
+              const title = b.title || 'पुस्तक';
+              const sub = b.subtitle || 'काव्य संग्रह';
+              const img = b.image_path || '/logo.png';
+              const id = b.id;
+              return `
+                <div class="pub-card-leona" onclick="(window.top || window).location.href='/book-detail.html?id=${id}'">
+                  <div class="pub-cover-box">
+                    <img src="${img}" alt="${title}" onerror="this.src='/logo.png'">
+                  </div>
+                  <div class="pub-info">
+                    <h3 class="pub-title">${title}</h3>
+                    <div class="pub-subtitle">${sub}</div>
+                  </div>
+                </div>
+              `;
+            }).join('');
+          }
+        }
+
+        const liveAbout = await fetchSupabaseData('about_content');
+        if (liveAbout && liveAbout.length > 0 && liveAbout[0].body_text) {
+          const quoteElem = document.querySelector('.author-quote-card');
+          if (quoteElem) {
+            quoteElem.innerText = `"${liveAbout[0].title || liveAbout[0].truncated_preview || 'साहित्य केवल शब्दों का सृजन नहीं...'}"`;
+          }
+        }
+      } catch (err) {
+        console.warn('Live content rendering notice:', err);
       }
     }
 

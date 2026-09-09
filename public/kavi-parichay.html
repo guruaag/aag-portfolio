@@ -653,7 +653,7 @@
       </div>
 
       <!-- Prose Narrative -->
-      <div class="bio-prose">
+      <div class="bio-prose" id="bioProse">
         <p>
           <strong>पंडित गुरुप्रताप शर्मा 'आग'</strong> का जन्म राजस्थान की पावन साहित्यिक भूमि पर हुआ। बचपन से ही हिंदी साहित्य और महाकाव्यों के प्रति उनका गहरा लगाव रहा। उनकी कविताओं में जहाँ एक ओर राष्ट्रप्रेम और ओजस्वी चेतना की गूंज है, वहीं दूसरी ओर सामाजिक यथार्थ और मानवीय संवेदनाओं का सहज चित्रण मिलता है।
         </p>
@@ -885,7 +885,34 @@
       updateLangUI();
     }
 
+    const SUPABASE_URL = "https://dxucmtfuyfobvcqxtnmz.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR4dWNtdGZ1eWZvYnZjcXh0bm16Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIwOTAxOTksImV4cCI6MjA3NzY2NjE5OX0.5qZ4MpbTUMKxG_2jixq1KAXs4nh580h4Nxf4NaBEE6U";
+
+    async function loadLiveAbout() {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/about_content?select=*`, {
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          }
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && data.length > 0) {
+          const about = data[0];
+          const proseElem = document.getElementById('bioProse');
+          if (proseElem && (about.bio || about.content)) {
+            const paragraphs = (about.bio || about.content).split('\n\n');
+            proseElem.innerHTML = paragraphs.map(p => `<p>${p.trim()}</p>`).join('');
+          }
+        }
+      } catch (e) {
+        console.info('Supabase about fetch notice: using cached content.');
+      }
+    }
+
     updateLangUI();
+    loadLiveAbout();
   </script>
 </body>
 </html>

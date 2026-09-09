@@ -1,0 +1,306 @@
+/* ============================================
+   LEONA ADMIN DASHBOARD STYLING SYSTEM
+   Clean, Elegant, Easy & Simple to Use
+   ============================================ */
+
+.admin-dashboard-container {
+  min-height: 100vh;
+  background-color: var(--leona-ivory, #FAF7F2);
+  color: var(--leona-charcoal, #1E1B18);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  padding-bottom: 60px;
+}
+
+.admin-header-bar {
+  background: var(--leona-charcoal, #1E1B18);
+  color: var(--leona-ivory, #FAF7F2);
+  padding: 16px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 3px solid var(--leona-gold, #D4AF37);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.admin-header-title {
+  font-family: 'Lora', 'Tiro Devanagari Hindi', Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--leona-ivory, #FAF7F2);
+}
+
+.admin-header-title .accent-badge {
+  background: var(--leona-terracotta, #F66E5E);
+  color: #FFFFFF;
+  font-size: 0.72rem;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.admin-btn-logout {
+  background: transparent;
+  color: var(--leona-terracotta, #F66E5E);
+  border: 1.5px solid var(--leona-terracotta, #F66E5E);
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-btn-logout:hover {
+  background: var(--leona-terracotta, #F66E5E);
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(246, 110, 94, 0.3);
+}
+
+.admin-main-wrapper {
+  max-width: 1200px;
+  margin: 32px auto 0 auto;
+  padding: 0 24px;
+}
+
+/* Tabs Bar */
+.admin-tabs-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  background: var(--leona-cream, #F4EFE6);
+  padding: 8px;
+  border-radius: 16px;
+  border: 1px solid rgba(226, 215, 197, 0.8);
+}
+
+.admin-tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--leona-text-main, #2C2622);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-tab-btn:hover {
+  background: rgba(246, 110, 94, 0.1);
+  color: var(--leona-terracotta, #F66E5E);
+}
+
+.admin-tab-btn.active {
+  background: var(--leona-terracotta, #F66E5E);
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(246, 110, 94, 0.35);
+}
+
+/* Manager Card Panels */
+.admin-card-panel {
+  background: var(--leona-white, #FFFFFF);
+  border-radius: 16px;
+  border: 1px solid rgba(226, 215, 197, 0.8);
+  box-shadow: 0 8px 30px rgba(30, 27, 24, 0.05);
+  padding: 28px;
+}
+
+.admin-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px dashed rgba(226, 215, 197, 0.9);
+}
+
+.admin-panel-title {
+  font-family: 'Lora', 'Tiro Devanagari Hindi', serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--leona-charcoal, #1E1B18);
+  margin: 0;
+}
+
+.admin-btn-primary {
+  background: var(--leona-terracotta, #F66E5E);
+  color: #FFFFFF;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 24px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(246, 110, 94, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-btn-primary:hover {
+  background: var(--leona-terracotta-dark, #D95343);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(217, 83, 67, 0.35);
+}
+
+.admin-btn-secondary {
+  background: var(--leona-cream, #F4EFE6);
+  color: var(--leona-charcoal, #1E1B18);
+  border: 1px solid rgba(226, 215, 197, 0.8);
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-btn-secondary:hover {
+  background: rgba(226, 215, 197, 0.6);
+  color: var(--leona-terracotta, #F66E5E);
+}
+
+.admin-btn-danger {
+  background: #FFF0ED;
+  color: #D95343;
+  border: 1px solid #FFC4BD;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-btn-danger:hover {
+  background: #D95343;
+  color: #FFFFFF;
+}
+
+/* Forms */
+.admin-form-container {
+  background: var(--leona-cream, #F4EFE6);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 28px;
+  border: 1px solid rgba(226, 215, 197, 0.9);
+}
+
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.admin-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.admin-form-group label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--leona-charcoal, #1E1B18);
+  letter-spacing: 0.02em;
+}
+
+.admin-input, .admin-textarea, .admin-select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid rgba(226, 215, 197, 0.9);
+  border-radius: 8px;
+  background: #FFFFFF;
+  color: var(--leona-charcoal, #1E1B18);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.92rem;
+  transition: all 0.2s ease;
+}
+
+.admin-textarea {
+  min-height: 140px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.admin-input:focus, .admin-textarea:focus, .admin-select:focus {
+  outline: none;
+  border-color: var(--leona-terracotta, #F66E5E);
+  box-shadow: 0 0 0 3px rgba(246, 110, 94, 0.15);
+}
+
+/* Item Lists */
+.admin-item-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.admin-item-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(226, 215, 197, 0.8);
+  border-radius: 12px;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  transition: all 0.2s ease;
+}
+
+.admin-item-card:hover {
+  border-color: var(--leona-gold, #D4AF37);
+  box-shadow: 0 4px 16px rgba(30, 27, 24, 0.06);
+}
+
+.admin-item-title {
+  font-family: 'Lora', 'Tiro Devanagari Hindi', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--leona-charcoal, #1E1B18);
+  margin-bottom: 4px;
+}
+
+.admin-item-sub {
+  font-size: 0.83rem;
+  color: #6E665E;
+}
+
+.admin-item-badge {
+  display: inline-block;
+  background: var(--leona-cream, #F4EFE6);
+  color: var(--leona-charcoal, #1E1B18);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
+  margin-top: 4px;
+}
+
+.admin-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
