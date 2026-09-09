@@ -63,17 +63,17 @@ function Header() {
   }
 
   const menuItems = [
-    { path: '/', label: t('nav.home') },
-    { path: '/kavi-parichay.html', label: t('nav.about'), isHtml: true },
-    { path: '/category/poems', label: t('nav.poems') },
-    { path: '/category/publications', label: t('nav.publications') },
-    { path: '/contact', label: t('nav.contact') }
+    { path: '/', label: i18n.language === 'en' ? 'Home' : 'मुख्य पृष्ठ' },
+    { path: '/kavi-parichay.html', label: i18n.language === 'en' ? 'About Poet' : 'कवि परिचय', isHtml: true },
+    { path: '/category/poems', label: i18n.language === 'en' ? 'Poetry Archive' : 'काव्य संग्रह' },
+    { path: '/category/publications', label: i18n.language === 'en' ? 'Publications' : 'प्रकाशन' },
+    { path: '/contact', label: i18n.language === 'en' ? 'Contact' : 'संपर्क' }
   ]
 
-  // Get logo URL - if it's a public path, use it directly, otherwise get from Supabase
+  // Get logo URL - fallback to /logo.png
   const logoUrl = logoPath 
     ? (logoPath.startsWith('/') ? logoPath : getImageUrl(logoPath))
-    : '/logo.png' // Fallback to public logo
+    : '/logo.png'
 
   const isAdminRoute = location.pathname.startsWith('/admin')
 
@@ -105,33 +105,38 @@ function Header() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            {/* Logo Image - Show if logo exists in settings */}
-            {logoPath && (
-              <motion.img
-                src={logoUrl}
-                alt="Logo"
-                className="phoenix-header-logo-image"
-                animate={{
-                  width: isScrolled ? '36px' : '48px',
-                  height: isScrolled ? '36px' : '48px'
-                }}
-                transition={{ duration: 0.3 }}
-                onError={(e) => {
-                  // If logo fails to load, hide image
-                  e.target.style.display = 'none'
-                }}
-              />
-            )}
+            <motion.img
+              src={logoUrl}
+              alt="Logo"
+              className="phoenix-header-logo-image"
+              animate={{
+                width: isScrolled ? '36px' : '44px',
+                height: isScrolled ? '36px' : '44px'
+              }}
+              transition={{ duration: 0.3 }}
+              onError={(e) => {
+                e.target.src = '/logo.png'
+              }}
+            />
             
             {/* Title - Always show alongside logo */}
             <motion.h1
               animate={{
-                fontSize: isScrolled ? '0.875rem' : '1.225rem'
+                fontSize: isScrolled ? '0.875rem' : '1.25rem'
               }}
               transition={{ duration: 0.3 }}
               className="phoenix-header-title phoenix-header-title-inline"
+              style={{ fontFamily: 'var(--font-serif, "Tiro Devanagari Hindi", serif)', fontWeight: 700 }}
             >
-              गुरु प्रताप शर्मा <span className="phoenix-header-aag" style={{ color: '#F66E5E' }}>आग</span>
+              {i18n.language === 'en' ? (
+                <>
+                  Guru Pratap Sharma <span className="phoenix-header-aag" style={{ color: '#F66E5E' }}>Aag</span>
+                </>
+              ) : (
+                <>
+                  गुरु प्रताप शर्मा <span className="phoenix-header-aag" style={{ color: '#F66E5E' }}>आग</span>
+                </>
+              )}
             </motion.h1>
           </motion.div>
 
@@ -175,7 +180,7 @@ function Header() {
                 cursor: 'pointer'
               }}
             >
-              HI / EN
+              {i18n.language === 'hi' ? 'HI / EN' : 'EN / HI'}
             </motion.button>
 
             {/* Logout Button when on Admin routes */}
@@ -194,7 +199,8 @@ function Header() {
                   color: '#FFFFFF',
                   fontSize: '0.85rem',
                   fontWeight: 600,
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  marginLeft: '8px'
                 }}
               >
                 Logout
