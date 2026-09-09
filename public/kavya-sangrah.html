@@ -587,10 +587,35 @@
       updateLangUI();
     }
 
+    // Instant synchronous cache hydration for poems (0ms execution)
+    (function hydratePoemsSync() {
+      try {
+        const cached = localStorage.getItem('app_poems');
+        if (cached) {
+          const livePoems = JSON.parse(cached);
+          if (livePoems && livePoems.length > 0) {
+            poemsList = livePoems.map((p, idx) => {
+              const title = p.heading_hi || p.heading_en || p.heading || p.title || 'काव्य रचना';
+              const body = p.body_text_hi || p.body_text_en || p.description || (p.full_text ? p.full_text.substring(0, 100) + '...' : '');
+              return {
+                id: p.id || String(idx + 1),
+                slug: p.slug || `poem-${p.id || idx + 1}`,
+                title: title,
+                collection: p.category || p.collection || 'काव्य संग्रह',
+                excerpt: body ? (body.length > 120 ? body.substring(0, 120) + '...' : body) : ''
+              };
+            });
+            renderPoems();
+          }
+        }
+      } catch (e) {}
+    })();
+
     async function loadLivePoems() {
       try {
         const livePoems = await fetchSupabaseData('poems');
         if (livePoems && livePoems.length > 0) {
+          localStorage.setItem('app_poems', JSON.stringify(livePoems));
           poemsList = livePoems.map((p, idx) => {
             const title = p.heading_hi || p.heading_en || p.heading || p.title || 'काव्य रचना';
             const body = p.body_text_hi || p.body_text_en || p.description || (p.full_text ? p.full_text.substring(0, 100) + '...' : '');

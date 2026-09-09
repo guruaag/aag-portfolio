@@ -157,6 +157,16 @@ function Header() {
 
           {/* Right Side Actions */}
           <div className="phoenix-header-actions">
+            {/* Language Switcher Button */}
+            <motion.button
+              className="phoenix-lang-switch-btn"
+              onClick={toggleLanguage}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              title={i18n.language === 'en' ? 'Switch to Hindi' : 'Switch to English'}
+            >
+              🌐 {i18n.language === 'hi' ? 'HI (हिंदी)' : 'EN (English)'}
+            </motion.button>
 
             {/* Menu Button - Always visible */}
             <motion.button

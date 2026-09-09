@@ -439,3 +439,24 @@
   color: var(--premium-burnt-orange);
 }
 
+.phoenix-lang-switch-btn {
+  background: rgba(212, 175, 55, 0.12);
+  color: #1E1B18;
+  border: 1.5px solid var(--leona-gold, #D4AF37);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.25s ease;
+}
+
+.phoenix-lang-switch-btn:hover {
+  background: var(--leona-gold, #D4AF37);
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+

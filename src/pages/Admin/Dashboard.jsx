@@ -22,7 +22,26 @@ function AdminDashboard({ tab }) {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState(tab || 'categories')
   const [loading, setLoading] = useState(false)
-  const [adminLang, setAdminLangState] = useState(() => localStorage.getItem('siteLanguage') || 'hi')
+  const [adminLang, setAdminLangState] = useState(() => localStorage.getItem('siteLanguage') || (i18n.language === 'en' ? 'en' : 'hi'))
+
+  useEffect(() => {
+    const handleLangChange = () => {
+      const current = localStorage.getItem('siteLanguage') || (i18n.language === 'en' ? 'en' : 'hi')
+      setAdminLangState(current)
+    }
+    window.addEventListener('languageChange', handleLangChange)
+    window.addEventListener('storage', handleLangChange)
+    if (i18n && i18n.on) {
+      i18n.on('languageChanged', handleLangChange)
+    }
+    return () => {
+      window.removeEventListener('languageChange', handleLangChange)
+      window.removeEventListener('storage', handleLangChange)
+      if (i18n && i18n.off) {
+        i18n.off('languageChanged', handleLangChange)
+      }
+    }
+  }, [])
 
   const toggleAdminLang = () => {
     const nextLang = adminLang === 'en' ? 'hi' : 'en'
@@ -31,6 +50,7 @@ function AdminDashboard({ tab }) {
     if (i18n && i18n.changeLanguage) {
       i18n.changeLanguage(nextLang)
     }
+    window.dispatchEvent(new Event('languageChange'))
   }
 
   const tLabel = (hiText, enText) => {
@@ -163,10 +183,11 @@ function AdminDashboard({ tab }) {
           <div className="admin-header-actions">
             <button 
               onClick={toggleAdminLang} 
-              className="admin-lang-toggle-btn"
-              title={tLabel('अंग्रेजी में बदलें (Switch to English)', 'हिंदी में बदलें (Switch to Hindi)')}
+              className="phoenix-lang-switch-btn"
+              title={adminLang === 'en' ? 'Switch to Hindi' : 'Switch to English'}
+              style={{ padding: '6px 14px', borderRadius: '20px' }}
             >
-              🌐 {adminLang === 'hi' ? 'EN (English)' : 'HI (हिंदी)'}
+              🌐 {adminLang === 'hi' ? 'HI (हिंदी)' : 'EN (English)'}
             </button>
             <button onClick={handleLogout} className="admin-btn-logout">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -174,7 +195,7 @@ function AdminDashboard({ tab }) {
                 <polyline points="16 17 21 12 16 7"/>
                 <line x1="21" y1="12" x2="9" y2="12"/>
               </svg>
-              {tLabel('प्रशासन से बाहर निकलें (Logout)', 'Logout')}
+              {tLabel('प्रशासन से बाहर निकलें', 'Logout')}
             </button>
           </div>
         </header>
@@ -356,7 +377,7 @@ function CategoriesManager({ categories, onUpdate }) {
         <form onSubmit={handleSubmit} className="admin-form-container">
           <div className="admin-form-grid">
             <div className="admin-form-group">
-              <label>{tLabel('अनुभाग नाम (English Slug/Key) *', 'Section Name (English Slug/Key) *')}</label>
+              <label>{tLabel('अनुभाग नाम (Slug) *', 'Section Key (Slug) *')}</label>
               <input
                 className="admin-input"
                 value={formData.name_en}
@@ -365,7 +386,7 @@ function CategoriesManager({ categories, onUpdate }) {
               />
             </div>
             <div className="admin-form-group">
-              <label>{tLabel('प्रदर्शित नाम (Hindi Display Name)', 'Display Name (Hindi Display Name)')}</label>
+              <label>{tLabel('प्रदर्शित नाम', 'Display Name')}</label>
               <input
                 className="admin-input"
                 value={formData.name_display}
@@ -373,21 +394,21 @@ function CategoriesManager({ categories, onUpdate }) {
               />
             </div>
             <div className="admin-form-group">
-              <label>{tLabel('सामग्री प्रकार (Content Type) *', 'Content Type *')}</label>
+              <label>{tLabel('सामग्री प्रकार *', 'Content Type *')}</label>
               <select
                 className="admin-select"
                 value={formData.content_type}
                 onChange={(e) => setFormData({ ...formData, content_type: e.target.value })}
                 required
               >
-                <option value="about">{tLabel('कवि परिचय (About)', 'About')}</option>
-                <option value="publications">{tLabel('प्रकाशन (Publications)', 'Publications')}</option>
-                <option value="writings">{tLabel('काव्य संग्रह (Poems)', 'Poems')}</option>
+                <option value="about">{tLabel('कवि परिचय', 'About')}</option>
+                <option value="publications">{tLabel('प्रकाशन', 'Publications')}</option>
+                <option value="writings">{tLabel('काव्य संग्रह', 'Poems')}</option>
                 <option value="hero">Hero Banner</option>
               </select>
             </div>
             <div className="admin-form-group">
-              <label>{tLabel('क्रम संख्या (Sort Order)', 'Sort Order')}</label>
+              <label>{tLabel('क्रम संख्या', 'Sort Order')}</label>
               <input
                 className="admin-input"
                 type="number"
@@ -402,16 +423,16 @@ function CategoriesManager({ categories, onUpdate }) {
                   checked={formData.is_active !== false}
                   onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                 />
-                {tLabel('वेबसाइट पर सक्रिय रखें (Active / Visible)', 'Active / Visible on website')}
+                {tLabel('वेबसाइट पर सक्रिय रखें', 'Active on Website')}
               </label>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
             <button type="submit" className="admin-btn-primary">
-              {editing ? tLabel('सहेजें (Update)', 'Update') : tLabel('जोड़ें (Create)', 'Create')}
+              {editing ? tLabel('सहेजें', 'Update') : tLabel('जोड़ें', 'Create')}
             </button>
             <button type="button" className="admin-btn-secondary" onClick={handleCancel}>
-              {tLabel('रद्द करें (Cancel)', 'Cancel')}
+              {tLabel('रद्द करें', 'Cancel')}
             </button>
           </div>
         </form>
@@ -422,23 +443,23 @@ function CategoriesManager({ categories, onUpdate }) {
           {tLabel('सक्रिय अनुभाग सूची', 'Active Sections List')} ({categories.length})
         </h3>
         {categories.length === 0 ? (
-          <p style={{ color: '#666', fontStyle: 'italic' }}>कोई अनुभाग नहीं मिला। नया अनुभाग जोड़ने के लिए बटन दबाएं।</p>
+          <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई अनुभाग नहीं मिला। नया अनुभाग जोड़ने के लिए बटन दबाएं।', 'No sections found. Click button to add new section.')}</p>
         ) : (
           <ul className="admin-item-list">
             {categories.map((cat) => (
               <li key={cat.id} className="admin-item-card">
                 <div>
                   <div className="admin-item-title">{cat.name_display || cat.name_en}</div>
-                  <div className="admin-item-sub">English: {cat.name_en} • प्रकार: {cat.content_type} • क्रम: {cat.sort_order || 0}</div>
+                  <div className="admin-item-sub">Key: {cat.name_en} • {tLabel('प्रकार:', 'Type:')} {cat.content_type} • {tLabel('क्रम:', 'Order:')} {cat.sort_order || 0}</div>
                   {cat.is_active === false ? (
-                    <span className="admin-item-badge" style={{ background: '#FFF0ED', color: '#D95343', borderColor: '#FFC4BD' }}>निष्क्रिय (Inactive)</span>
+                    <span className="admin-item-badge" style={{ background: '#FFF0ED', color: '#D95343', borderColor: '#FFC4BD' }}>{tLabel('निष्क्रिय', 'Inactive')}</span>
                   ) : (
-                    <span className="admin-item-badge" style={{ background: '#EAF8F5', color: '#2C988F', borderColor: '#B5E8E2' }}>सक्रिय (Active)</span>
+                    <span className="admin-item-badge" style={{ background: '#EAF8F5', color: '#2C988F', borderColor: '#B5E8E2' }}>{tLabel('सक्रिय', 'Active')}</span>
                   )}
                 </div>
                 <div className="admin-actions-group">
-                  <button type="button" className="admin-btn-secondary" onClick={() => handleEdit(cat)}>संपादित करें (Edit)</button>
-                  <button type="button" className="admin-btn-danger" onClick={() => handleDelete(cat.id)}>हटाएं (Delete)</button>
+                  <button type="button" className="admin-btn-secondary" onClick={() => handleEdit(cat)}>{tLabel('संपादित करें', 'Edit')}</button>
+                  <button type="button" className="admin-btn-danger" onClick={() => handleDelete(cat.id)}>{tLabel('हटाएं', 'Delete')}</button>
                 </div>
               </li>
             ))}
@@ -687,11 +708,11 @@ function AboutManager({ about, initialSubTab, onUpdate }) {
             <form onSubmit={handleSubmit} className="admin-form-container">
               <div style={{ background: 'var(--leona-sand-light, #FAF6F0)', padding: '16px', borderRadius: '8px', marginBottom: '20px', borderLeft: '4px solid var(--leona-terracotta)' }}>
                 <h4 style={{ margin: '0 0 12px 0', fontFamily: 'Lora, serif', color: 'var(--leona-charcoal)' }}>
-                  🎯 Hero Banner & Header Text (पेज का मुख्य शीर्षक एवं उप-शीर्षक)
+                  🎯 {tLabel('हीरो बैनर व मुख्य शीर्षक पाठ', 'Hero Banner & Header Text')}
                 </h4>
                 <div className="admin-form-grid">
                   <div className="admin-form-group">
-                    <label>बैनर टैग पिल (Hero Tag Pill e.g. साहित्यिक जीवन परिचय)</label>
+                    <label>{tLabel('बैनर टैग', 'Hero Tag Pill')}</label>
                     <input
                       className="admin-input"
                       value={formData.hero_tag}
@@ -700,7 +721,7 @@ function AboutManager({ about, initialSubTab, onUpdate }) {
                     />
                   </div>
                   <div className="admin-form-group">
-                    <label>कवि का नाम (Poet Full Name) *</label>
+                    <label>{tLabel('कवि का नाम *', 'Poet Full Name *')}</label>
                     <input
                       className="admin-input"
                       value={formData.author_name}
@@ -709,7 +730,7 @@ function AboutManager({ about, initialSubTab, onUpdate }) {
                     />
                   </div>
                   <div className="admin-form-group full-width">
-                    <label>मुख्य उप-शीर्षक / टैगलाइन (Hero Subtitle / Tagline) *</label>
+                    <label>{tLabel('मुख्य उप-शीर्षक / टैगलाइन *', 'Hero Subtitle / Tagline *')}</label>
                     <input
                       className="admin-input"
                       value={formData.hero_subtitle}
@@ -719,7 +740,7 @@ function AboutManager({ about, initialSubTab, onUpdate }) {
                     />
                   </div>
                   <div className="admin-form-group">
-                    <label>बैज टेक्स्ट (Badge Text e.g. वरिष्ठ हिंदी साहित्यकार)</label>
+                    <label>{tLabel('बैज पाठ', 'Badge Text')}</label>
                     <input
                       className="admin-input"
                       value={formData.badge_text}
@@ -727,7 +748,7 @@ function AboutManager({ about, initialSubTab, onUpdate }) {
                     />
                   </div>
                   <div className="admin-form-group">
-                    <label>उद्धरण नाम (Quote Attribution e.g. कवि गुरुप्रताप शर्मा 'आग')</label>
+                    <label>{tLabel('उद्धरण नाम', 'Quote Attribution')}</label>
                     <input
                       className="admin-input"
                       value={formData.quote_attribution}
@@ -739,11 +760,11 @@ function AboutManager({ about, initialSubTab, onUpdate }) {
 
               <div style={{ background: '#FFFFFF', padding: '16px', borderRadius: '8px', marginBottom: '20px', border: '1px solid rgba(226, 215, 197, 0.8)' }}>
                 <h4 style={{ margin: '0 0 12px 0', fontFamily: 'Lora, serif', color: 'var(--leona-charcoal)' }}>
-                  📝 विस्तृत जीवनी व चित्र (Detailed Biography Prose & Photo)
+                  📝 {tLabel('विस्तृत जीवनी गद्य व चित्र', 'Detailed Biography Prose & Photo')}
                 </h4>
                 <div className="admin-form-grid">
                   <div className="admin-form-group full-width">
-                    <label>जीवनी का शीर्षक (Section Title)</label>
+                    <label>{tLabel('जीवनी का शीर्षक', 'Biography Title')}</label>
                     <input
                       className="admin-input"
                       value={formData.title}
@@ -753,7 +774,7 @@ function AboutManager({ about, initialSubTab, onUpdate }) {
                   </div>
 
                   <div className="admin-form-group full-width">
-                    <label>कवि चित्र (Poet Portrait Photo)</label>
+                    <label>{tLabel('कवि चित्र', 'Poet Portrait Photo')}</label>
                     <input
                       type="file"
                       accept="image/*"
@@ -773,7 +794,7 @@ function AboutManager({ about, initialSubTab, onUpdate }) {
                   </div>
 
                   <div className="admin-form-group full-width">
-                    <label>संक्षिप्त परिचय (Homepage Truncated Preview)</label>
+                    <label>{tLabel('संक्षिप्त परिचय', 'Homepage Truncated Preview')}</label>
                     <textarea
                       className="admin-textarea"
                       value={formData.truncated_preview}
@@ -783,7 +804,7 @@ function AboutManager({ about, initialSubTab, onUpdate }) {
                   </div>
 
                   <div className="admin-form-group full-width">
-                    <label>विस्तृत जीवनी गद्य (Full Biography Text Prose) *</label>
+                    <label>{tLabel('विस्तृत जीवनी गद्य *', 'Full Biography Text Prose *')}</label>
                     <textarea
                       className="admin-textarea"
                       value={formData.body_text}
@@ -796,8 +817,8 @@ function AboutManager({ about, initialSubTab, onUpdate }) {
               </div>
 
               <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-                <button type="submit" className="admin-btn-primary">💾 परिवर्तन सहेजें (Save Changes)</button>
-                <button type="button" className="admin-btn-secondary" onClick={() => setEditing(false)}>रद्द करें (Cancel)</button>
+                <button type="submit" className="admin-btn-primary">💾 {tLabel('परिवर्तन सहेजें', 'Save Changes')}</button>
+                <button type="button" className="admin-btn-secondary" onClick={() => setEditing(false)}>{tLabel('रद्द करें', 'Cancel')}</button>
               </div>
             </form>
           ) : (
@@ -1033,7 +1054,7 @@ function PublicationsManager({ publications, onUpdate }) {
               {uploadingImage && <div style={{ marginTop: '6px', color: 'var(--leona-terracotta)', fontSize: '0.85rem' }}>कवर फोटो अपलोड हो रही है...</div>}
             </div>
             <div className="admin-form-group full-width">
-              <label>पुस्तक विवरण (Book Description & Synopsis)</label>
+              <label>{tLabel('पुस्तक विवरण', 'Book Description')}</label>
               <textarea
                 className="admin-textarea"
                 value={formData.description}
@@ -1041,7 +1062,7 @@ function PublicationsManager({ publications, onUpdate }) {
               />
             </div>
             <div className="admin-form-group">
-              <label>क्रम संख्या (Sort Order)</label>
+              <label>{tLabel('क्रम संख्या', 'Sort Order')}</label>
               <input
                 className="admin-input"
                 type="number"
@@ -1056,13 +1077,13 @@ function PublicationsManager({ publications, onUpdate }) {
                   checked={formData.is_active !== false}
                   onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                 />
-                वेबसाइट पर प्रकाशित रखें (Active on website)
+                {tLabel('वेबसाइट पर प्रकाशित रखें', 'Active on Website')}
               </label>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
             <button type="submit" className="admin-btn-primary">
-              {editing ? 'सहेजें (Update)' : 'प्रकाशित करें (Publish)'}
+              {editing ? tLabel('सहेजें', 'Update') : tLabel('प्रकाशित करें', 'Publish')}
             </button>
             <button type="button" className="admin-btn-secondary" onClick={() => {
               setEditing(null)
@@ -1070,7 +1091,7 @@ function PublicationsManager({ publications, onUpdate }) {
               setFormData({ title: '', subtitle: '', image_path: '', image_alt: '', description: '', sort_order: 0, is_active: true })
               setImagePreview(null)
             }}>
-              रद्द करें (Cancel)
+              {tLabel('रद्द करें', 'Cancel')}
             </button>
           </div>
         </form>
@@ -1078,26 +1099,26 @@ function PublicationsManager({ publications, onUpdate }) {
 
       <div>
         <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
-          प्रकाशित पुस्तकों की सूची ({publications.length})
+          {tLabel('प्रकाशित पुस्तकों की सूची', 'Published Books List')} ({publications.length})
         </h3>
         {publications.length === 0 ? (
-          <p style={{ color: '#666', fontStyle: 'italic' }}>कोई पुस्तक नहीं मिली। नई पुस्तक जोड़ने के लिए बटन दबाएं।</p>
+          <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई पुस्तक नहीं मिली। नई पुस्तक जोड़ने के लिए बटन दबाएं।', 'No books found. Click button to add new book.')}</p>
         ) : (
           <ul className="admin-item-list">
             {publications.map((pub) => (
               <li key={pub.id} className="admin-item-card">
                 <div>
                   <div className="admin-item-title">{pub.title}</div>
-                  <div className="admin-item-sub">{pub.subtitle || pub.description ? (pub.subtitle || pub.description).substring(0, 80) + '...' : ''} • क्रम: {pub.sort_order || 0}</div>
+                  <div className="admin-item-sub">{pub.subtitle || pub.description ? (pub.subtitle || pub.description).substring(0, 80) + '...' : ''} • {tLabel('क्रम:', 'Order:')} {pub.sort_order || 0}</div>
                   {pub.is_active === false ? (
-                    <span className="admin-item-badge" style={{ background: '#FFF0ED', color: '#D95343', borderColor: '#FFC4BD' }}>अप्रकाशित (Draft)</span>
+                    <span className="admin-item-badge" style={{ background: '#FFF0ED', color: '#D95343', borderColor: '#FFC4BD' }}>{tLabel('अप्रकाशित', 'Draft')}</span>
                   ) : (
-                    <span className="admin-item-badge" style={{ background: '#EAF8F5', color: '#2C988F', borderColor: '#B5E8E2' }}>प्रकाशित (Live)</span>
+                    <span className="admin-item-badge" style={{ background: '#EAF8F5', color: '#2C988F', borderColor: '#B5E8E2' }}>{tLabel('प्रकाशित', 'Live')}</span>
                   )}
                 </div>
                 <div className="admin-actions-group">
-                  <button type="button" className="admin-btn-secondary" onClick={() => handleEdit(pub)}>संपादित करें (Edit)</button>
-                  <button type="button" className="admin-btn-danger" onClick={() => handleDelete(pub.id)}>हटाएं (Delete)</button>
+                  <button type="button" className="admin-btn-secondary" onClick={() => handleEdit(pub)}>{tLabel('संपादित करें', 'Edit')}</button>
+                  <button type="button" className="admin-btn-danger" onClick={() => handleDelete(pub.id)}>{tLabel('हटाएं', 'Delete')}</button>
                 </div>
               </li>
             ))}
@@ -1138,7 +1159,6 @@ function PoemsManager({ poems, onUpdate }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      // Prepare data for database - include backward compatibility fields
       const dataToSave = {
         heading_en: formData.heading_en,
         heading_hi: formData.heading_hi,
@@ -1147,11 +1167,8 @@ function PoemsManager({ poems, onUpdate }) {
         body_text_hi: formData.body_text_hi,
         language: formData.language,
         sort_order: formData.sort_order,
-        // Keep old 'heading' field for backward compatibility
         heading: formData.heading_en || formData.heading_hi || '',
-        // Keep old 'full_text' field for backward compatibility
         full_text: formData.body_text_hi || formData.body_text_en || '',
-        // Only include is_active if column exists (will be null if column doesn't exist, which is fine)
         ...(formData.is_active !== undefined && { is_active: formData.is_active })
       }
       
@@ -1174,7 +1191,6 @@ function PoemsManager({ poems, onUpdate }) {
   const handleEdit = (poem) => {
     setEditing(poem.id)
     setShowForm(true)
-    // Handle backward compatibility - map old 'heading' to 'heading_en' if needed
     const formDataToSet = {
       heading_en: poem.heading_en || poem.heading || '',
       heading_hi: poem.heading_hi || '',
@@ -1241,7 +1257,7 @@ function PoemsManager({ poems, onUpdate }) {
             </div>
             <div className="admin-form-group full-width" style={{ marginBottom: '16px' }}>
               <label style={{ fontWeight: 'bold', fontSize: '1.02rem', color: 'var(--leona-terracotta)', marginBottom: '8px', display: 'block' }}>
-                🖋️ पापा का पेजमेकर (PM5) कैनवस (Hindi PM5 PageMaker Studio)
+                🖋️ {tLabel('पेजमेकर कैनवस (PM5)', 'PageMaker Canvas (PM5)')}
               </label>
               <PM5WritingDesk
                 initialPages={formData.body_text_hi ? [formData.body_text_hi] : ['']}
@@ -1253,12 +1269,12 @@ function PoemsManager({ poems, onUpdate }) {
                     body_text_hi: joinedText,
                     heading_hi: pageTitle || prev.heading_hi
                   }));
-                  alert('✓ PM5 पेजमेकर कैनवस सामग्री फॉर्म में सहेज दी गई है!');
+                  alert('✓ PM5 PageMaker canvas saved!');
                 }}
               />
             </div>
             <div className="admin-form-group full-width">
-              <label>सम्पूर्ण कविता पंक्तियाँ (Full Stanzas / Verse Text) *</label>
+              <label>{tLabel('सम्पूर्ण कविता पंक्तियाँ *', 'Full Stanzas / Verse Text *')}</label>
               <textarea
                 className="admin-textarea"
                 value={formData.body_text_hi || ''}
@@ -1268,7 +1284,7 @@ function PoemsManager({ poems, onUpdate }) {
               />
             </div>
             <div className="admin-form-group">
-              <label>क्रम संख्या (Sort Order)</label>
+              <label>{tLabel('क्रम संख्या', 'Sort Order')}</label>
               <input
                 className="admin-input"
                 type="number"
@@ -1283,16 +1299,16 @@ function PoemsManager({ poems, onUpdate }) {
                   checked={formData.is_active !== false}
                   onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                 />
-                वेबसाइट पर प्रकाशित रखें (Active / Visible on website)
+                {tLabel('वेबसाइट पर प्रकाशित रखें', 'Active on Website')}
               </label>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
             <button type="submit" className="admin-btn-primary">
-              {editing ? 'सहेजें (Update Poem)' : 'प्रकाशित करें (Publish Poem)'}
+              {editing ? tLabel('सहेजें', 'Save Poem') : tLabel('प्रकाशित करें', 'Publish Poem')}
             </button>
             <button type="button" className="admin-btn-secondary" onClick={handleCancel}>
-              रद्द करें (Cancel)
+              {tLabel('रद्द करें', 'Cancel')}
             </button>
           </div>
         </form>
@@ -1300,26 +1316,26 @@ function PoemsManager({ poems, onUpdate }) {
 
       <div>
         <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
-          कुल काव्य रचनाएं ({poems.length})
+          {tLabel('कुल काव्य रचनाएं', 'Total Poems Collection')} ({poems.length})
         </h3>
         {poems.length === 0 ? (
-          <p style={{ color: '#666', fontStyle: 'italic' }}>कोई कविता नहीं मिली। नई रचना जोड़ने के लिए बटन दबाएं।</p>
+          <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई कविता नहीं मिली। नई रचना जोड़ने के लिए बटन दबाएं।', 'No poems found. Click button to add new poem.')}</p>
         ) : (
           <ul className="admin-item-list">
             {poems.map((poem) => (
               <li key={poem.id} className="admin-item-card">
                 <div>
-                  <div className="admin-item-title">{poem.heading_hi || poem.heading_en || poem.heading || 'बिना शीर्षक'}</div>
-                  <div className="admin-item-sub">English: {poem.heading_en || '(कोई नहीं)'} • क्रम: {poem.sort_order || 0}</div>
+                  <div className="admin-item-title">{poem.heading_hi || poem.heading_en || poem.heading || 'Untitled'}</div>
+                  <div className="admin-item-sub">English: {poem.heading_en || '(None)'} • {tLabel('क्रम:', 'Order:')} {poem.sort_order || 0}</div>
                   {poem.is_active === false ? (
-                    <span className="admin-item-badge" style={{ background: '#FFF0ED', color: '#D95343', borderColor: '#FFC4BD' }}>अप्रकाशित (Draft)</span>
+                    <span className="admin-item-badge" style={{ background: '#FFF0ED', color: '#D95343', borderColor: '#FFC4BD' }}>{tLabel('अप्रकाशित', 'Draft')}</span>
                   ) : (
-                    <span className="admin-item-badge" style={{ background: '#EAF8F5', color: '#2C988F', borderColor: '#B5E8E2' }}>प्रकाशित (Live)</span>
+                    <span className="admin-item-badge" style={{ background: '#EAF8F5', color: '#2C988F', borderColor: '#B5E8E2' }}>{tLabel('प्रकाशित', 'Live')}</span>
                   )}
                 </div>
                 <div className="admin-actions-group">
-                  <button type="button" className="admin-btn-secondary" onClick={() => handleEdit(poem)}>संपादित करें (Edit)</button>
-                  <button type="button" className="admin-btn-danger" onClick={() => handleDelete(poem.id)}>हटाएं (Delete)</button>
+                  <button type="button" className="admin-btn-secondary" onClick={() => handleEdit(poem)}>{tLabel('संपादित करें', 'Edit')}</button>
+                  <button type="button" className="admin-btn-danger" onClick={() => handleDelete(poem.id)}>{tLabel('हटाएं', 'Delete')}</button>
                 </div>
               </li>
             ))}
@@ -1476,10 +1492,10 @@ function SettingsManager({ settings, onUpdate }) {
   return (
     <div className="admin-card-panel">
       <div className="admin-panel-header">
-        <h2 className="admin-panel-title">वेबसाइट सेटिंग्स (Website Settings & Social Links)</h2>
+        <h2 className="admin-panel-title">⚙️ {tLabel('वेबसाइट सेटिंग्स व सोशल लिंक', 'Website Settings & Social Links')}</h2>
         {!showForm && (
           <button type="button" className="admin-btn-primary" onClick={handleEdit}>
-            संपादित करें (Edit Settings)
+            ✏️ {tLabel('संपादित करें', 'Edit Settings')}
           </button>
         )}
       </div>
@@ -1488,7 +1504,7 @@ function SettingsManager({ settings, onUpdate }) {
         <form onSubmit={handleSubmit} className="admin-form-container">
           <div className="admin-form-grid">
             <div className="admin-form-group full-width">
-              <label>वेबसाइट लोगो (Website Logo Image)</label>
+              <label>{tLabel('वेबसाइट लोगो चित्र', 'Website Logo Image')}</label>
               {logoPreview && (
                 <div style={{ marginBottom: '12px' }}>
                   <img 
@@ -1512,11 +1528,11 @@ function SettingsManager({ settings, onUpdate }) {
                 onChange={handleLogoUpload}
                 disabled={uploadingLogo}
               />
-              {uploadingLogo && <div style={{ marginTop: '6px', color: 'var(--leona-terracotta)', fontSize: '0.85rem' }}>लोगो अपलोड हो रहा है...</div>}
+              {uploadingLogo && <div style={{ marginTop: '6px', color: 'var(--leona-terracotta)', fontSize: '0.85rem' }}>{tLabel('लोगो अपलोड हो रहा है...', 'Uploading logo...')}</div>}
             </div>
 
             <div className="admin-form-group">
-              <label>फोन नंबर (Phone Number)</label>
+              <label>{tLabel('फोन नंबर', 'Phone Number')}</label>
               <input
                 className="admin-input"
                 type="tel"
@@ -1526,7 +1542,7 @@ function SettingsManager({ settings, onUpdate }) {
               />
             </div>
             <div className="admin-form-group">
-              <label>व्हाट्सएप लिंक (WhatsApp Link / Number)</label>
+              <label>{tLabel('व्हाट्सएप लिंक', 'WhatsApp Link')}</label>
               <input
                 className="admin-input"
                 value={formData.whatsapp}
@@ -1535,7 +1551,7 @@ function SettingsManager({ settings, onUpdate }) {
               />
             </div>
             <div className="admin-form-group">
-              <label>ईमेल पता (Email Address)</label>
+              <label>{tLabel('ईमेल पता', 'Email Address')}</label>
               <input
                 className="admin-input"
                 type="email"
@@ -1545,7 +1561,7 @@ function SettingsManager({ settings, onUpdate }) {
               />
             </div>
             <div className="admin-form-group full-width">
-              <label>संपर्क पता (Location Address)</label>
+              <label>{tLabel('संपर्क पता', 'Location Address')}</label>
               <input
                 className="admin-input"
                 value={formData.address}
@@ -1554,7 +1570,7 @@ function SettingsManager({ settings, onUpdate }) {
               />
             </div>
             <div className="admin-form-group">
-              <label>फेसबुक (Facebook Profile)</label>
+              <label>{tLabel('फेसबुक प्रोफाइल', 'Facebook Profile Link')}</label>
               <input
                 className="admin-input"
                 value={formData.facebook}
@@ -1563,7 +1579,7 @@ function SettingsManager({ settings, onUpdate }) {
               />
             </div>
             <div className="admin-form-group">
-              <label>इंस्टाग्राम (Instagram Profile)</label>
+              <label>{tLabel('इंस्टाग्राम प्रोफाइल', 'Instagram Profile Link')}</label>
               <input
                 className="admin-input"
                 value={formData.instagram}
@@ -1572,7 +1588,7 @@ function SettingsManager({ settings, onUpdate }) {
               />
             </div>
             <div className="admin-form-group">
-              <label>यूट्यूब (YouTube Channel)</label>
+              <label>{tLabel('यूट्यूब चैनल', 'YouTube Channel Link')}</label>
               <input
                 className="admin-input"
                 value={formData.youtube}
@@ -1582,7 +1598,7 @@ function SettingsManager({ settings, onUpdate }) {
             </div>
 
             <div className="admin-form-group full-width">
-              <label>मुख्य पृष्ठ टैगलाइन (Hero Tagline - Hindi)</label>
+              <label>{tLabel('मुख्य पृष्ठ टैगलाइन', 'Homepage Tagline')}</label>
               <input
                 className="admin-input"
                 value={formData.hero_tagline_hi}
@@ -1592,8 +1608,8 @@ function SettingsManager({ settings, onUpdate }) {
             </div>
           </div>
           <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-            <button type="submit" className="admin-btn-primary">सहेजें (Save Settings)</button>
-            <button type="button" className="admin-btn-secondary" onClick={handleCancel}>रद्द करें (Cancel)</button>
+            <button type="submit" className="admin-btn-primary">{tLabel('सहेजें', 'Save Settings')}</button>
+            <button type="button" className="admin-btn-secondary" onClick={handleCancel}>{tLabel('रद्द करें', 'Cancel')}</button>
           </div>
         </form>
       )}
@@ -1601,12 +1617,12 @@ function SettingsManager({ settings, onUpdate }) {
       {!showForm && (
         <div style={{ background: '#FFFFFF', padding: '20px', borderRadius: '12px', border: '1px solid rgba(226, 215, 197, 0.8)' }}>
           <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.15rem', color: 'var(--leona-charcoal)', marginBottom: '12px' }}>
-            वर्तमान वेबसाइट सेटिंग्स
+            {tLabel('वर्तमान वेबसाइट सेटिंग्स', 'Current Website Settings')}
           </h3>
           <div style={{ fontSize: '0.92rem', color: 'var(--leona-text-main)', lineHeight: '1.8' }}>
-            <p><strong>फोन:</strong> {settings.phone || '+91 76768 85989'}</p>
-            <p><strong>ईमेल:</strong> {settings.email || '(उपलब्ध नहीं)'}</p>
-            <p><strong>टैगलाइन:</strong> {settings.hero_tagline_hi || 'साहित्य जगत में अपनी तेजस्वी रचनाओं से प्रसिद्ध'}</p>
+            <p><strong>{tLabel('फोन:', 'Phone:')}</strong> {settings.phone || '+91 76768 85989'}</p>
+            <p><strong>{tLabel('ईमेल:', 'Email:')}</strong> {settings.email || '(N/A)'}</p>
+            <p><strong>{tLabel('टैगलाइन:', 'Tagline:')}</strong> {settings.hero_tagline_hi || 'साहित्य जगत में अपनी तेजस्वी रचनाओं से प्रसिद्ध'}</p>
           </div>
         </div>
       )}

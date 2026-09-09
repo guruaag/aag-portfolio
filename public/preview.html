@@ -932,11 +932,99 @@
       return `${SUPABASE_URL}/storage/v1/object/public/public-assets/${cleanPath}`;
     }
 
+    // Instant synchronous cache hydration for homepage (0ms execution)
+    (function hydratePreviewSync() {
+      try {
+        const cachedPoems = localStorage.getItem('app_poems');
+        if (cachedPoems) {
+          const livePoems = JSON.parse(cachedPoems);
+          if (livePoems && livePoems.length > 0) {
+            const grid = document.querySelector('.poems-grid');
+            if (grid) {
+              grid.innerHTML = livePoems.slice(0, 3).map(p => {
+                const title = p.heading_hi || p.heading_en || p.heading || p.title || 'काव्य रचना';
+                const desc = p.body_text_hi || p.body_text_en || p.description || (p.full_text ? p.full_text.substring(0, 75) + '...' : '');
+                const excerpt = desc ? desc.substring(0, 80) + '...' : '';
+                const id = p.id;
+                return `
+                  <div class="poem-card-leona" onclick="(window.top || window).location.href='/poem-reader.html?id=${id}'">
+                    <div>
+                      <h3 class="poem-card-title">${title}</h3>
+                      <p class="poem-card-excerpt">"${excerpt}"</p>
+                    </div>
+                    <a href="/poem-reader.html?id=${id}" class="poem-card-cta" onclick="event.stopPropagation()">काव्य पढ़ें →</a>
+                  </div>
+                `;
+              }).join('');
+            }
+          }
+        }
+        const cachedPubs = localStorage.getItem('app_publications');
+        if (cachedPubs) {
+          const liveBooks = JSON.parse(cachedPubs);
+          if (liveBooks && liveBooks.length > 0) {
+            const featuredBook = liveBooks[0];
+            const heroImg = document.querySelector('.book-cover-3d');
+            const heroTitle = document.querySelector('.hero-title');
+            const heroSub = document.querySelector('.hero-subtitle');
+            const heroDesc = document.querySelector('.hero-description');
+            if (heroImg) heroImg.src = getImageUrl(featuredBook.cover_image || featuredBook.image_path, '/logo.png');
+            if (heroTitle) heroTitle.innerText = featuredBook.title || 'अग्नि कलश';
+            if (heroSub) heroSub.innerText = featuredBook.subtitle ? `"${featuredBook.subtitle}"` : '"हिंदी काव्य और ओजस्वी चेतना की अमर गाथा"';
+            if (heroDesc) heroDesc.innerText = featuredBook.description || featuredBook.summary || '';
+            
+            const grid = document.querySelector('.pubs-grid');
+            if (grid) {
+              grid.innerHTML = liveBooks.slice(0, 4).map(b => {
+                const title = b.title || 'पुस्तक';
+                const sub = b.subtitle || 'काव्य संग्रह';
+                const rawImg = b.cover_image || b.image_path;
+                const img = getImageUrl(rawImg, '/logo.png');
+                const id = b.id;
+                return `
+                  <div class="pub-card-leona" onclick="(window.top || window).location.href='/book-detail.html?id=${id}'">
+                    <div class="pub-cover-box">
+                      <img src="${img}" alt="${title}" onerror="this.src='/logo.png'">
+                    </div>
+                    <div class="pub-info">
+                      <h3 class="pub-title">${title}</h3>
+                      <div class="pub-subtitle">${sub}</div>
+                    </div>
+                  </div>
+                `;
+              }).join('');
+            }
+          }
+        }
+        const cachedAbout = localStorage.getItem('app_about_content');
+        if (cachedAbout) {
+          const about = JSON.parse(cachedAbout);
+          const authorHeading = document.querySelector('.author-heading');
+          const quoteElem = document.getElementById('homeQuoteCard') || document.querySelector('.author-quote-card');
+          const authorDesc = document.querySelector('.author-content p');
+          const poetImg = document.getElementById('homePoetImg');
+          if (authorHeading && about.author_name) authorHeading.innerText = about.author_name;
+          if (quoteElem) {
+            const quoteText = about.hero_subtitle || about.title || about.truncated_preview;
+            const attr = about.quote_attribution || about.author_name || "गुरुप्रताप शर्मा 'आग'";
+            if (quoteText) quoteElem.innerText = `"${quoteText}" — ${attr}`;
+          }
+          if (authorDesc && about.truncated_preview) {
+            authorDesc.innerText = about.truncated_preview;
+          }
+          if (poetImg && about.photo_path) {
+            poetImg.src = getImageUrl(about.photo_path);
+          }
+        }
+      } catch (e) {}
+    })();
+
     // Load dynamic content from Supabase API on page load
     async function loadLiveContent() {
       try {
         const livePoems = await fetchSupabaseData('poems');
         if (livePoems && livePoems.length > 0) {
+          localStorage.setItem('app_poems', JSON.stringify(livePoems));
           const grid = document.querySelector('.poems-grid');
           if (grid) {
             grid.innerHTML = livePoems.slice(0, 3).map(p => {
@@ -959,6 +1047,7 @@
 
         const liveBooks = await fetchSupabaseData('publications');
         if (liveBooks && liveBooks.length > 0) {
+          localStorage.setItem('app_publications', JSON.stringify(liveBooks));
           // 1. Render Hero Featured Book Showcase
           const featuredBook = liveBooks[0];
           const heroImg = document.querySelector('.book-cover-3d');
@@ -1002,6 +1091,7 @@
         const liveAbout = await fetchSupabaseData('about_content');
         if (liveAbout && liveAbout.length > 0) {
           const about = liveAbout[0];
+          localStorage.setItem('app_about_content', JSON.stringify(about));
           const authorHeading = document.querySelector('.author-heading');
           const quoteElem = document.getElementById('homeQuoteCard') || document.querySelector('.author-quote-card');
           const authorDesc = document.querySelector('.author-content p');
