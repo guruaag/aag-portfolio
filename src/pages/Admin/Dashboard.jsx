@@ -415,12 +415,17 @@ function CategoriesManager({ categories, onUpdate }) {
   )
 }
 
-// About Manager Component
+// About Manager Component (Includes Poet Hero Banner, Bio Prose, Timeline & Awards Sub-sections)
 function AboutManager({ about, onUpdate }) {
-  const [editing, setEditing] = useState(null)
-  const [showForm, setShowForm] = useState(false)
+  const [subTab, setSubTab] = useState('bio') // 'bio' | 'timeline' | 'awards'
+  const [editing, setEditing] = useState(false)
   const [formData, setFormData] = useState({
-    title: '',
+    author_name: "कवि गुरुप्रताप शर्मा 'आग'",
+    hero_tag: "साहित्यिक जीवन परिचय",
+    hero_subtitle: "राष्ट्रीय चेतना, ओज एवं मानवीय संवेदनाओं के संवाहक",
+    badge_text: "वरिष्ठ हिंदी साहित्यकार",
+    quote_attribution: "गुरुप्रताप शर्मा 'आग'",
+    title: 'जीवनी व साहित्यिक यात्रा',
     body_text: '',
     truncated_preview: '',
     photo_path: ''
@@ -429,56 +434,38 @@ function AboutManager({ about, onUpdate }) {
   const [photoPreview, setPhotoPreview] = useState(null)
 
   useEffect(() => {
-    if (about && !editing) {
-      setFormData(about)
-      if (about.photo_path) {
-        setPhotoPreview(getImageUrl(about.photo_path))
-      }
-    }
-  }, [about, editing])
-
-  const handleCreate = () => {
-    setEditing('new')
-    setFormData({ title: '', body_text: '', truncated_preview: '', photo_path: '' })
-    setPhotoPreview(null)
-    setShowForm(true)
-  }
-
-  const handleCancel = () => {
-    setEditing(null)
-    setShowForm(false)
     if (about) {
-      setFormData(about)
+      setFormData({
+        author_name: about.author_name || "कवि गुरुप्रताप शर्मा 'आग'",
+        hero_tag: about.hero_tag || "साहित्यिक जीवन परिचय",
+        hero_subtitle: about.hero_subtitle || about.subtitle || "राष्ट्रीय चेतना, ओज एवं मानवीय संवेदनाओं के संवाहक",
+        badge_text: about.badge_text || "वरिष्ठ हिंदी साहित्यकार",
+        quote_attribution: about.quote_attribution || "गुरुप्रताप शर्मा 'आग'",
+        title: about.title || 'जीवनी व साहित्यिक यात्रा',
+        body_text: about.body_text || '',
+        truncated_preview: about.truncated_preview || '',
+        photo_path: about.photo_path || ''
+      })
       if (about.photo_path) {
         setPhotoPreview(getImageUrl(about.photo_path))
       }
-    } else {
-      setFormData({ title: '', body_text: '', truncated_preview: '', photo_path: '' })
-      setPhotoPreview(null)
     }
-  }
-
-  const handleEdit = () => {
-    setEditing(about?.id || 'new')
-    setShowForm(true)
-  }
+  }, [about])
 
   const handlePhotoUpload = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
-
     if (!file.type.startsWith('image/')) {
       alert('Please select an image file')
       return
     }
-
     try {
       setUploadingPhoto(true)
       const fileName = `about-photo-${Date.now()}.${file.name.split('.').pop()}`
       const path = await uploadImage(file, 'authors', fileName)
-      setFormData({ ...formData, photo_path: path })
+      setFormData(prev => ({ ...prev, photo_path: path }))
       setPhotoPreview(URL.createObjectURL(file))
-      alert('Photo uploaded!')
+      alert('Photo uploaded successfully!')
     } catch (err) {
       alert('Error uploading photo: ' + err.message)
     } finally {
@@ -489,15 +476,14 @@ function AboutManager({ about, onUpdate }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      if (about && editing !== 'new') {
+      if (about && about.id) {
         await supabase.from('about_content').update(formData).eq('id', about.id)
       } else {
         await supabase.from('about_content').insert(formData)
       }
-      alert('Saved!')
+      alert('कवि परिचय एवं बैनर सफलतापूर्वक सहेजा गया! (Bio & Hero Saved)')
       onUpdate()
-      setEditing(null)
-      setShowForm(false)
+      setEditing(false)
     } catch (err) {
       console.error('Error saving about content:', err)
       alert('Error saving about content: ' + (err.message || 'Unknown error'))
@@ -505,91 +491,200 @@ function AboutManager({ about, onUpdate }) {
   }
 
   return (
-    <div className="admin-card-panel">
-      <div className="admin-panel-header">
-        <h2 className="admin-panel-title">कवि परिचय (Poet Biography & Overview)</h2>
-        {!showForm && (
-          <button type="button" className="admin-btn-primary" onClick={about ? handleEdit : handleCreate}>
-            {about ? 'संपादित करें (Edit About)' : '+ नया विवरण जोड़ें (Add About)'}
-          </button>
-        )}
+    <div>
+      {/* Sub-tab Switcher Header */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '2px solid rgba(226, 215, 197, 0.6)', paddingBottom: '12px' }}>
+        <button
+          type="button"
+          className={subTab === 'bio' ? 'admin-btn-primary' : 'admin-btn-secondary'}
+          onClick={() => setSubTab('bio')}
+          style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'bio' ? 700 : 500 }}
+        >
+          📖 1. कवि परिचय व बैनर (Overview & Hero)
+        </button>
+        <button
+          type="button"
+          className={subTab === 'timeline' ? 'admin-btn-primary' : 'admin-btn-secondary'}
+          onClick={() => setSubTab('timeline')}
+          style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'timeline' ? 700 : 500 }}
+        >
+          ⏳ 2. जीवन यात्रा (Timeline Milestones)
+        </button>
+        <button
+          type="button"
+          className={subTab === 'awards' ? 'admin-btn-primary' : 'admin-btn-secondary'}
+          onClick={() => setSubTab('awards')}
+          style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'awards' ? 700 : 500 }}
+        >
+          🏆 3. पुरस्कार व सम्मान (Awards & Honors)
+        </button>
       </div>
-      
-      {(showForm || editing) && (
-        <form onSubmit={handleSubmit} className="admin-form-container">
-          <div className="admin-form-grid">
-            <div className="admin-form-group full-width">
-              <label>शीर्षक (Title)</label>
-              <input
-                className="admin-input"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              />
-            </div>
-            
-            <div className="admin-form-group full-width">
-              <label>कवि फोटो (Poet Photo)</label>
-              {photoPreview && (
-                <div style={{ marginBottom: '12px' }}>
-                  <img 
-                    src={photoPreview} 
-                    alt="Preview" 
-                    style={{ 
-                      width: '140px', 
-                      height: '140px', 
-                      objectFit: 'cover', 
-                      borderRadius: '12px',
-                      border: '2px solid var(--leona-gold)'
-                    }} 
-                  />
+
+      {subTab === 'timeline' && <TimelineManager onUpdate={onUpdate} />}
+      {subTab === 'awards' && <AwardsManager onUpdate={onUpdate} />}
+
+      {subTab === 'bio' && (
+        <div className="admin-card-panel">
+          <div className="admin-panel-header">
+            <h2 className="admin-panel-title">📖 कवि परिचय व बैनर सम्पादन (Poet Biography & Hero Banner)</h2>
+            {!editing && (
+              <button type="button" className="admin-btn-primary" onClick={() => setEditing(true)}>
+                ✏️ सम्पादित करें (Edit Details)
+              </button>
+            )}
+          </div>
+
+          {editing ? (
+            <form onSubmit={handleSubmit} className="admin-form-container">
+              <div style={{ background: 'var(--leona-sand-light, #FAF6F0)', padding: '16px', borderRadius: '8px', marginBottom: '20px', borderLeft: '4px solid var(--leona-terracotta)' }}>
+                <h4 style={{ margin: '0 0 12px 0', fontFamily: 'Lora, serif', color: 'var(--leona-charcoal)' }}>
+                  🎯 Hero Banner & Header Text (पेज का मुख्य शीर्षक एवं उप-शीर्षक)
+                </h4>
+                <div className="admin-form-grid">
+                  <div className="admin-form-group">
+                    <label>बैनर टैग पिल (Hero Tag Pill e.g. साहित्यिक जीवन परिचय)</label>
+                    <input
+                      className="admin-input"
+                      value={formData.hero_tag}
+                      onChange={(e) => setFormData({ ...formData, hero_tag: e.target.value })}
+                      placeholder="साहित्यिक जीवन परिचय"
+                    />
+                  </div>
+                  <div className="admin-form-group">
+                    <label>कवि का नाम (Poet Full Name) *</label>
+                    <input
+                      className="admin-input"
+                      value={formData.author_name}
+                      onChange={(e) => setFormData({ ...formData, author_name: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="admin-form-group full-width">
+                    <label>मुख्य उप-शीर्षक / टैगलाइन (Hero Subtitle / Tagline) *</label>
+                    <input
+                      className="admin-input"
+                      value={formData.hero_subtitle}
+                      onChange={(e) => setFormData({ ...formData, hero_subtitle: e.target.value })}
+                      placeholder="राष्ट्रीय चेतना, ओज एवं मानवीय संवेदनाओं के संवाहक"
+                      required
+                    />
+                  </div>
+                  <div className="admin-form-group">
+                    <label>बैज टेक्स्ट (Badge Text e.g. वरिष्ठ हिंदी साहित्यकार)</label>
+                    <input
+                      className="admin-input"
+                      value={formData.badge_text}
+                      onChange={(e) => setFormData({ ...formData, badge_text: e.target.value })}
+                    />
+                  </div>
+                  <div className="admin-form-group">
+                    <label>उद्धरण नाम (Quote Attribution e.g. कवि गुरुप्रताप शर्मा 'आग')</label>
+                    <input
+                      className="admin-input"
+                      value={formData.quote_attribution}
+                      onChange={(e) => setFormData({ ...formData, quote_attribution: e.target.value })}
+                    />
+                  </div>
                 </div>
-              )}
-              <input
-                className="admin-input"
-                type="file"
-                accept="image/*"
-                onChange={handlePhotoUpload}
-                disabled={uploadingPhoto}
-              />
-              {uploadingPhoto && <div style={{ marginTop: '6px', color: 'var(--leona-terracotta)', fontSize: '0.85rem' }}>फोटो अपलोड हो रही है...</div>}
-            </div>
+              </div>
 
-            <div className="admin-form-group full-width">
-              <label>सम्पूर्ण जीवनी (Full Bio Prose Text) *</label>
-              <textarea
-                className="admin-textarea"
-                value={formData.body_text}
-                onChange={(e) => setFormData({ ...formData, body_text: e.target.value })}
-                required
-                style={{ minHeight: '220px' }}
-              />
-            </div>
-            <div className="admin-form-group full-width">
-              <label>संक्षिप्त परिचय (Truncated Preview for Home Page)</label>
-              <textarea
-                className="admin-textarea"
-                value={formData.truncated_preview}
-                onChange={(e) => setFormData({ ...formData, truncated_preview: e.target.value })}
-                style={{ minHeight: '100px' }}
-              />
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-            <button type="submit" className="admin-btn-primary">सहेजें (Save Changes)</button>
-            <button type="button" className="admin-btn-secondary" onClick={handleCancel}>रद्द करें (Cancel)</button>
-          </div>
-        </form>
-      )}
+              <div style={{ background: '#FFFFFF', padding: '16px', borderRadius: '8px', marginBottom: '20px', border: '1px solid rgba(226, 215, 197, 0.8)' }}>
+                <h4 style={{ margin: '0 0 12px 0', fontFamily: 'Lora, serif', color: 'var(--leona-charcoal)' }}>
+                  📝 विस्तृत जीवनी व चित्र (Detailed Biography Prose & Photo)
+                </h4>
+                <div className="admin-form-grid">
+                  <div className="admin-form-group full-width">
+                    <label>जीवनी का शीर्षक (Section Title)</label>
+                    <input
+                      className="admin-input"
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      placeholder="जीवनी व साहित्यिक यात्रा"
+                    />
+                  </div>
 
-      {about && !showForm && (
-        <div style={{ background: '#FFFFFF', padding: '20px', borderRadius: '12px', border: '1px solid rgba(226, 215, 197, 0.8)' }}>
-          <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.15rem', color: 'var(--leona-charcoal)', marginBottom: '12px' }}>
-            वर्तमान कवि परिचय विवरण
-          </h3>
-          <div style={{ fontSize: '0.92rem', color: 'var(--leona-text-main)', lineHeight: '1.7' }}>
-            <p><strong>शीर्षक:</strong> {about.title || 'गुरुप्रताप शर्मा "आग"'}</p>
-            <p style={{ marginTop: '8px' }}><strong>संक्षिप्त संक्षेप:</strong> {about.truncated_preview ? about.truncated_preview.substring(0, 160) + '...' : '(उपलब्ध नहीं)'}</p>
-          </div>
+                  <div className="admin-form-group full-width">
+                    <label>कवि चित्र (Poet Portrait Photo)</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                      disabled={uploadingPhoto}
+                      style={{ marginBottom: '8px' }}
+                    />
+                    {photoPreview && (
+                      <div style={{ marginTop: '8px' }}>
+                        <img
+                          src={photoPreview}
+                          alt="Poet Portrait"
+                          style={{ width: '120px', height: '140px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd' }}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="admin-form-group full-width">
+                    <label>संक्षिप्त परिचय (Homepage Truncated Preview)</label>
+                    <textarea
+                      className="admin-textarea"
+                      value={formData.truncated_preview}
+                      onChange={(e) => setFormData({ ...formData, truncated_preview: e.target.value })}
+                      style={{ minHeight: '80px' }}
+                    />
+                  </div>
+
+                  <div className="admin-form-group full-width">
+                    <label>विस्तृत जीवनी गद्य (Full Biography Text Prose) *</label>
+                    <textarea
+                      className="admin-textarea"
+                      value={formData.body_text}
+                      onChange={(e) => setFormData({ ...formData, body_text: e.target.value })}
+                      style={{ minHeight: '220px', lineHeight: '1.7' }}
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+                <button type="submit" className="admin-btn-primary">💾 परिवर्तन सहेजें (Save Changes)</button>
+                <button type="button" className="admin-btn-secondary" onClick={() => setEditing(false)}>रद्द करें (Cancel)</button>
+              </div>
+            </form>
+          ) : (
+            <div style={{ background: '#FFFFFF', padding: '24px', borderRadius: '12px', border: '1px solid rgba(226, 215, 197, 0.8)' }}>
+              <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+                {photoPreview && (
+                  <img
+                    src={photoPreview}
+                    alt={formData.author_name}
+                    style={{ width: '140px', height: '170px', objectFit: 'cover', borderRadius: '10px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                  />
+                )}
+                <div style={{ flex: 1, minWidth: '280px' }}>
+                  <span style={{ display: 'inline-block', background: 'var(--leona-terracotta)', color: '#fff', fontSize: '0.8rem', padding: '2px 10px', borderRadius: '12px', marginBottom: '8px' }}>
+                    {formData.hero_tag}
+                  </span>
+                  <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.4rem', color: 'var(--leona-charcoal)', margin: '4px 0 6px 0' }}>
+                    {formData.author_name}
+                  </h3>
+                  <p style={{ fontStyle: 'italic', color: 'var(--leona-terracotta)', margin: '0 0 12px 0', fontSize: '1.02rem', fontWeight: 500 }}>
+                    "{formData.hero_subtitle}"
+                  </p>
+                  <p style={{ margin: '4px 0', fontSize: '0.9rem', color: '#666' }}>
+                    <strong>बैज:</strong> {formData.badge_text} | <strong>उद्धरण नाम:</strong> {formData.quote_attribution}
+                  </p>
+                  <hr style={{ margin: '16px 0', borderColor: 'rgba(226, 215, 197, 0.5)' }} />
+                  <h4 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', margin: '0 0 8px 0', color: 'var(--leona-charcoal)' }}>
+                    {formData.title || 'जीवनी व साहित्यिक यात्रा'}
+                  </h4>
+                  <div style={{ whiteSpace: 'pre-line', lineHeight: '1.7', color: 'var(--leona-text-main)', fontSize: '0.95rem' }}>
+                    {formData.body_text || '(जीवनी विवरण खाली है)'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

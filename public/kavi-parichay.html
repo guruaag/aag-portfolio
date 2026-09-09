@@ -620,12 +620,12 @@
         <!-- Author Photograph -->
         <div class="author-portrait-box">
           <img id="poetPhoto" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80" alt="कवि गुरुप्रताप शर्मा 'आग'" class="author-portrait">
-          <div class="portrait-badge">वरिष्ठ हिंदी साहित्यकार</div>
+          <div class="portrait-badge" id="poetBadge">वरिष्ठ हिंदी साहित्यकार</div>
         </div>
 
         <!-- Author Meta & Featured Quote -->
         <div class="hero-content">
-          <span class="hero-tag">साहित्यिक जीवन परिचय</span>
+          <span class="hero-tag" id="heroTag">साहित्यिक जीवन परिचय</span>
           <h1 class="author-name" id="authorTitle">कवि गुरुप्रताप शर्मा 'आग'</h1>
           <p class="author-title-sub" id="authorSubTitle">राष्ट्रीय चेतना, ओज एवं मानवीय संवेदनाओं के संवाहक</p>
 
@@ -634,7 +634,7 @@
             <p class="quote-text" id="quoteText">
               "साहित्य केवल शब्दों का संगम नहीं, बल्कि समाज की चेतना को जागृत करने वाली अनवरत अग्नि है। जब तक समाज में न्याय और सत्य की ज्योति प्रज्वलित है, तब तक काव्य स्पंदित रहेगा।"
             </p>
-            <div class="quote-author">— गुरुप्रताप शर्मा 'आग'</div>
+            <div class="quote-author" id="quoteAuthor">— गुरुप्रताप शर्मा 'आग'</div>
           </div>
         </div>
 
@@ -922,6 +922,26 @@
             if (about.title || about.truncated_preview) {
               const quoteElem = document.getElementById('quoteText');
               if (quoteElem) quoteElem.innerText = `"${about.title || about.truncated_preview}"`;
+            }
+            if (about.author_name) {
+              const titleElem = document.getElementById('authorTitle');
+              if (titleElem) titleElem.innerText = about.author_name;
+            }
+            if (about.hero_subtitle || about.subtitle) {
+              const subElem = document.getElementById('authorSubTitle');
+              if (subElem) subElem.innerText = about.hero_subtitle || about.subtitle;
+            }
+            if (about.hero_tag) {
+              const tagElem = document.getElementById('heroTag');
+              if (tagElem) tagElem.innerText = about.hero_tag;
+            }
+            if (about.badge_text) {
+              const badgeElem = document.getElementById('poetBadge');
+              if (badgeElem) badgeElem.innerText = about.badge_text;
+            }
+            if (about.quote_attribution) {
+              const qAuthElem = document.getElementById('quoteAuthor');
+              if (qAuthElem) qAuthElem.innerText = `— ${about.quote_attribution}`;
             }
           }
         }
