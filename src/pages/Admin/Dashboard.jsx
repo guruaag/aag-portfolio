@@ -174,42 +174,7 @@ function AdminDashboard({ tab }) {
   return (
     <AdminLangContext.Provider value={{ adminLang, setAdminLang: setAdminLangState, toggleAdminLang, tLabel }}>
       <div className="admin-dashboard-container">
-        {/* Leona Header Bar */}
-        <header className="admin-header-bar">
-          <div className="admin-header-brand-box" onClick={() => switchTab('home', '/admin/home')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <img 
-              src={data.settings?.logo_path ? (data.settings.logo_path.startsWith('/') ? data.settings.logo_path : getImageUrl(data.settings.logo_path)) : '/logo.png'} 
-              alt="Logo" 
-              className="admin-header-logo-img" 
-              onError={(e) => { e.target.src = '/logo.png' }} 
-              style={{ width: '40px', height: '40px', borderRadius: '6px', objectFit: 'cover', border: '1.5px solid var(--leona-gold, #D4AF37)' }}
-            />
-            <div className="admin-header-title">
-              <span>{adminLang === 'hi' ? <>गुरु प्रताप शर्मा <span className="phoenix-header-aag" style={{ color: '#F66E5E', fontWeight: 600 }}>आग</span></> : <>GURU PRATAP SHARMA <span className="phoenix-header-aag" style={{ color: '#F66E5E', fontWeight: 600 }}>AAG</span></>}</span>
-              <span className="accent-badge">CMS ADMIN</span>
-            </div>
-          </div>
-          <div className="admin-header-actions">
-            <button 
-              onClick={toggleAdminLang} 
-              className="phoenix-lang-switch-btn"
-              title={adminLang === 'en' ? 'Switch to Hindi' : 'Switch to English'}
-              style={{ padding: '6px 14px', borderRadius: '20px' }}
-            >
-              🌐 {adminLang === 'hi' ? 'HI (हिंदी)' : 'EN (English)'}
-            </button>
-            <button onClick={handleLogout} className="admin-btn-logout">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                <polyline points="16 17 21 12 16 7"/>
-                <line x1="21" y1="12" x2="9" y2="12"/>
-              </svg>
-              {tLabel('प्रशासन से बाहर निकलें', 'Logout')}
-            </button>
-          </div>
-        </header>
-
-        <div className="admin-main-wrapper">
+        <div className="admin-main-wrapper" style={{ marginTop: '20px' }}>
           {/* Navigation Tabs aligned 1-to-1 with User Site Page Categories */}
           <div className="admin-tabs-bar">
             <button

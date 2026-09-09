@@ -75,6 +75,15 @@ function Header() {
     ? (logoPath.startsWith('/') ? logoPath : getImageUrl(logoPath))
     : '/logo.png' // Fallback to public logo
 
+  const isAdminRoute = location.pathname.startsWith('/admin')
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    localStorage.removeItem('adminAuth')
+    localStorage.removeItem('adminAuthTime')
+    navigate('/admin')
+  }
+
   return (
     <>
       <motion.header
@@ -167,6 +176,37 @@ function Header() {
             >
               🌐 {i18n.language === 'hi' ? 'HI (हिंदी)' : 'EN (English)'}
             </motion.button>
+
+            {/* Logout Button when on Admin routes */}
+            {isAdminRoute && location.pathname !== '/admin' && (
+              <motion.button
+                className="phoenix-admin-logout-btn"
+                onClick={handleLogout}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                title={i18n.language === 'en' ? 'Logout' : 'बाहर निकलें'}
+                style={{
+                  background: 'rgba(246, 110, 94, 0.12)',
+                  color: '#D95343',
+                  border: '1.5px solid rgba(246, 110, 94, 0.4)',
+                  padding: '6px 14px',
+                  borderRadius: '20px',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                  <polyline points="16 17 21 12 16 7"/>
+                  <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+                {i18n.language === 'hi' ? 'बाहर निकलें' : 'Logout'}
+              </motion.button>
+            )}
 
             {/* Menu Button - Always visible */}
             <motion.button

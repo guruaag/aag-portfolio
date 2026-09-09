@@ -66,28 +66,7 @@ function AdminLogin() {
   }
 
   return (
-    <div className="admin-dashboard-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      {/* Leona Admin Header Bar */}
-      <header className="admin-header-bar">
-        <div className="admin-header-brand-box" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <img 
-            src="/logo.png" 
-            alt="Logo" 
-            style={{ width: '40px', height: '40px', borderRadius: '6px', objectFit: 'cover', border: '1.5px solid var(--leona-gold, #D4AF37)' }}
-          />
-          <div className="admin-header-title">
-            <span>{adminLang === 'hi' ? <>गुरु प्रताप शर्मा <span style={{ color: '#F66E5E', fontWeight: 600 }}>आग</span></> : <>GURU PRATAP SHARMA <span style={{ color: '#F66E5E', fontWeight: 600 }}>AAG</span></>}</span>
-            <span className="accent-badge">CMS ADMIN</span>
-          </div>
-        </div>
-        <button 
-          onClick={toggleLanguage} 
-          className="admin-lang-toggle-btn"
-        >
-          🌐 {adminLang === 'hi' ? 'HI (हिंदी)' : 'EN (English)'}
-        </button>
-      </header>
-
+    <div className="admin-dashboard-container" style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 80px)' }}>
       <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '40px 20px' }}>
         <div className="admin-card-panel" style={{ width: '100%', maxWidth: '440px', border: '1.5px solid var(--leona-gold, #D4AF37)', boxShadow: '0 12px 40px rgba(30, 27, 24, 0.08)' }}>
           <div style={{ textAlign: 'center', marginBottom: '28px' }}>
