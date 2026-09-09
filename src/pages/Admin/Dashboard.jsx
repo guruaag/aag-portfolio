@@ -1134,15 +1134,13 @@ function PoemsManager({ poems, onUpdate }) {
     e.preventDefault()
     try {
       const dataToSave = {
-        heading_en: formData.heading_en,
-        heading_hi: formData.heading_hi,
-        description: formData.description,
-        body_text_en: formData.body_text_en,
-        body_text_hi: formData.body_text_hi,
-        language: formData.language,
-        sort_order: formData.sort_order,
-        heading: formData.heading_en || formData.heading_hi || '',
+        heading_en: formData.heading_en || '',
+        heading_hi: formData.heading_hi || '',
+        heading: formData.heading_hi || formData.heading_en || '',
+        description: formData.description || '',
         full_text: formData.body_text_hi || formData.body_text_en || '',
+        language: formData.language || 'mixed',
+        sort_order: formData.sort_order || 0,
         ...(formData.is_active !== undefined && { is_active: formData.is_active })
       }
       
