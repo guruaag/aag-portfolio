@@ -714,6 +714,25 @@
             }
           }
         }
+
+        const settingsRes = await fetch(`${SUPABASE_URL}/rest/v1/settings?select=*`, {
+          headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+        });
+        if (settingsRes.ok) {
+          const settings = await settingsRes.json();
+          if (settings && settings.length > 0) {
+            const map = {};
+            settings.forEach(s => map[s.key] = s.value);
+            const waBtn = document.querySelector('a[title="WhatsApp"]');
+            const fbBtn = document.querySelector('a[title="Facebook"]');
+            const igBtn = document.querySelector('a[title="Instagram"]');
+            const ytBtn = document.querySelector('a[title="YouTube"]');
+            if (waBtn && map.whatsapp) waBtn.href = map.whatsapp;
+            if (fbBtn && map.facebook) fbBtn.href = map.facebook;
+            if (igBtn && map.instagram) igBtn.href = map.instagram;
+            if (ytBtn && map.youtube) ytBtn.href = map.youtube;
+          }
+        }
       } catch (e) {
         console.info('Supabase book fetch notice: using cached info.');
       }

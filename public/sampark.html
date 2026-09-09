@@ -549,6 +549,15 @@
           if (map.address) document.getElementById('valAddress').innerText = map.address;
           if (map.email) document.getElementById('valEmail').innerText = map.email;
           if (map.phone) document.getElementById('valPhone').innerText = map.phone;
+
+          const waBtn = document.querySelector('a[title="WhatsApp"]');
+          const fbBtn = document.querySelector('a[title="Facebook"]');
+          const igBtn = document.querySelector('a[title="Instagram"]');
+          const ytBtn = document.querySelector('a[title="YouTube"]');
+          if (waBtn && map.whatsapp) waBtn.href = map.whatsapp;
+          if (fbBtn && map.facebook) fbBtn.href = map.facebook;
+          if (igBtn && map.instagram) igBtn.href = map.instagram;
+          if (ytBtn && map.youtube) ytBtn.href = map.youtube;
         }
       } catch (e) {
         console.info('Supabase settings notice: using default presentation.');

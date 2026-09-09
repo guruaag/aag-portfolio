@@ -486,7 +486,7 @@
       }
     }
 
-    const poemsList = [
+    let poemsList = [
       {
         id: "1",
         slug: "agni-path-ki-or",
@@ -527,7 +527,7 @@
         slug: "manavta-ka-gaan",
         title: "मानवता का गान",
         collection: "अंतर्मन की गूँज",
-        excerpt: `"भेदभाव की दीवारों को तोड़कर आज खड़े हों,\nप्रेम और समरसता की राह पर निरंतर आगे बढ़ें।\nहर प्राणी में जो ज्योति जलती सत्य की वही ईश्वर है,\nमानवता के अमर मंत्र को हृदय में धारण करें।" `
+        excerpt: `"भेदभाव की दीवारों को तोड़कर आज खड़े हों,\nप्रेम और समरसता की राह पर निरंतर आगे बढ़ें।\nहर प्राणी में जो ज्योति जलती सत्य की वही ईश्वर है,\nमानवता के अमर मंत्र को हृदय में धारण करें।"`
       }
     ];
 
@@ -543,7 +543,7 @@
             <p class="poem-card-excerpt">${p.excerpt}</p>
           </div>
           <div class="poem-card-footer">
-            <a href="/kavya-sangrah/${p.slug}.html" class="read-poem-link">
+            <a href="/poem-reader.html?id=${p.id}" class="read-poem-link">
               ${currentLang === 'en' ? 'Read Poem →' : 'काव्य पढ़ें →'}
             </a>
           </div>
@@ -603,6 +603,20 @@
             };
           });
           renderPoems();
+        }
+
+        const liveSettings = await fetchSupabaseData('settings');
+        if (liveSettings && liveSettings.length > 0) {
+          const map = {};
+          liveSettings.forEach(s => map[s.key] = s.value);
+          const waBtn = document.querySelector('a[title="WhatsApp"]');
+          const fbBtn = document.querySelector('a[title="Facebook"]');
+          const igBtn = document.querySelector('a[title="Instagram"]');
+          const ytBtn = document.querySelector('a[title="YouTube"]');
+          if (waBtn && map.whatsapp) waBtn.href = map.whatsapp;
+          if (fbBtn && map.facebook) fbBtn.href = map.facebook;
+          if (igBtn && map.instagram) igBtn.href = map.instagram;
+          if (ytBtn && map.youtube) ytBtn.href = map.youtube;
         }
       } catch (err) {
         console.warn('Live poems fetch notice:', err);

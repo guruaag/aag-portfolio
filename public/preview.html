@@ -959,6 +959,23 @@
 
         const liveBooks = await fetchSupabaseData('publications');
         if (liveBooks && liveBooks.length > 0) {
+          // 1. Render Hero Featured Book Showcase
+          const featuredBook = liveBooks[0];
+          const heroImg = document.querySelector('.book-cover-3d');
+          const heroTitle = document.querySelector('.hero-title');
+          const heroSub = document.querySelector('.hero-subtitle');
+          const heroDesc = document.querySelector('.hero-description');
+          const heroBuyBtn = document.querySelector('.hero-actions button:nth-child(1)');
+          const heroReadBtn = document.querySelector('.hero-actions button:nth-child(2)');
+
+          if (heroImg) heroImg.src = getImageUrl(featuredBook.cover_image || featuredBook.image_path, '/logo.png');
+          if (heroTitle) heroTitle.innerText = featuredBook.title || 'अग्नि कलश';
+          if (heroSub) heroSub.innerText = featuredBook.subtitle ? `"${featuredBook.subtitle}"` : '"हिंदी काव्य और ओजस्वी चेतना की अमर गाथा"';
+          if (heroDesc) heroDesc.innerText = featuredBook.description || featuredBook.summary || '';
+          if (heroBuyBtn) heroBuyBtn.onclick = () => window.location.href = `/book-detail.html?id=${featuredBook.id}`;
+          if (heroReadBtn) heroReadBtn.onclick = () => window.location.href = `/poem-reader.html?id=1`;
+
+          // 2. Render Publications Grid
           const grid = document.querySelector('.pubs-grid');
           if (grid) {
             grid.innerHTML = liveBooks.slice(0, 4).map(b => {
@@ -985,14 +1002,37 @@
         const liveAbout = await fetchSupabaseData('about_content');
         if (liveAbout && liveAbout.length > 0) {
           const about = liveAbout[0];
+          const authorHeading = document.querySelector('.author-heading');
           const quoteElem = document.getElementById('homeQuoteCard') || document.querySelector('.author-quote-card');
-          if (quoteElem && (about.title || about.truncated_preview)) {
-            quoteElem.innerText = `"${about.title || about.truncated_preview}"`;
+          const authorDesc = document.querySelector('.author-content p');
+          const poetImg = document.getElementById('homePoetImg');
+
+          if (authorHeading && about.author_name) authorHeading.innerText = about.author_name;
+          if (quoteElem) {
+            const quoteText = about.hero_subtitle || about.title || about.truncated_preview;
+            const attr = about.quote_attribution || about.author_name || "गुरुप्रताप शर्मा 'आग'";
+            if (quoteText) quoteElem.innerText = `"${quoteText}" — ${attr}`;
           }
-          if (about.photo_path) {
-            const poetImg = document.getElementById('homePoetImg');
-            if (poetImg) poetImg.src = getImageUrl(about.photo_path);
+          if (authorDesc && about.truncated_preview) {
+            authorDesc.innerText = about.truncated_preview;
           }
+          if (poetImg && about.photo_path) {
+            poetImg.src = getImageUrl(about.photo_path);
+          }
+        }
+
+        const liveSettings = await fetchSupabaseData('settings');
+        if (liveSettings && liveSettings.length > 0) {
+          const map = {};
+          liveSettings.forEach(s => map[s.key] = s.value);
+          const waBtn = document.querySelector('a[title="WhatsApp"]');
+          const fbBtn = document.querySelector('a[title="Facebook"]');
+          const igBtn = document.querySelector('a[title="Instagram"]');
+          const ytBtn = document.querySelector('a[title="YouTube"]');
+          if (waBtn && map.whatsapp) waBtn.href = map.whatsapp;
+          if (fbBtn && map.facebook) fbBtn.href = map.facebook;
+          if (igBtn && map.instagram) igBtn.href = map.instagram;
+          if (ytBtn && map.youtube) ytBtn.href = map.youtube;
         }
       } catch (err) {
         console.warn('Live content rendering notice:', err);

@@ -628,6 +628,20 @@
           `).join('');
         }
       }
+
+      const liveSettings = await fetchSupabaseData('settings');
+      if (liveSettings && liveSettings.length > 0) {
+        const map = {};
+        liveSettings.forEach(s => map[s.key] = s.value);
+        const waBtn = document.querySelector('a[title="WhatsApp"]');
+        const fbBtn = document.querySelector('a[title="Facebook"]');
+        const igBtn = document.querySelector('a[title="Instagram"]');
+        const ytBtn = document.querySelector('a[title="YouTube"]');
+        if (waBtn && map.whatsapp) waBtn.href = map.whatsapp;
+        if (fbBtn && map.facebook) fbBtn.href = map.facebook;
+        if (igBtn && map.instagram) igBtn.href = map.instagram;
+        if (ytBtn && map.youtube) ytBtn.href = map.youtube;
+      }
     }
 
     let currentLang = localStorage.getItem('lang') || 'hi';
