@@ -1201,6 +1201,26 @@ function PoemsManager({ poems, onUpdate }) {
     }
   }
 
+  const handleDescriptionChange = (e) => {
+    let val = e.target.value
+    let lines = val.split('\n')
+    if (lines.length > 2) {
+      lines = lines.slice(0, 2)
+    }
+    lines = lines.map(line => line.substring(0, 80))
+    let finalVal = lines.join('\n').substring(0, 160)
+    setFormData(prev => ({ ...prev, description: finalVal }))
+  }
+
+  const handleDescriptionKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      const lines = (formData.description || '').split('\n')
+      if (lines.length >= 2) {
+        e.preventDefault()
+      }
+    }
+  }
+
   return (
     <div className="admin-card-panel">
       <div className="admin-panel-header">
@@ -1226,16 +1246,20 @@ function PoemsManager({ poems, onUpdate }) {
               />
             </div>
             <div className="admin-form-group full-width">
-              <label>{tLabel('रचना संदर्भ / संक्षिप्त विवरण (अधिकतम २ पंक्तियाँ)', 'Context / Brief Description (Max 2 lines)')}</label>
+              <label>{tLabel('रचना संदर्भ / संक्षिप्त विवरण (अधिकतम २ पंक्तियाँ, १६० अक्षर)', 'Context / Brief Description (Max 2 lines, 160 chars)')}</label>
               <textarea
                 className="admin-textarea"
                 rows={2}
-                maxLength={250}
+                maxLength={160}
                 value={formData.description || ''}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder={tLabel('संक्षिप्त २ पंक्तियों में संदर्भ...', 'Brief 2-line context...')}
-                style={{ minHeight: '52px', maxHeight: '72px', resize: 'vertical' }}
+                onChange={handleDescriptionChange}
+                onKeyDown={handleDescriptionKeyDown}
+                placeholder={tLabel('संक्षिप्त २ पंक्तियों में संदर्भ (अधिकतम ८० अक्षर प्रति पंक्ति)...', 'Brief 2-line context (max 80 chars per line)...')}
+                style={{ minHeight: '52px', maxHeight: '72px', resize: 'none' }}
               />
+              <span style={{ fontSize: '0.78rem', color: '#888', display: 'block', marginTop: '4px' }}>
+                {(formData.description || '').split('\n').length} / 2 {tLabel('पंक्तियां', 'lines')} | {(formData.description || '').length} / 160 {tLabel('अक्षर', 'chars')}
+              </span>
             </div>
             <div className="admin-form-group full-width" style={{ marginBottom: '16px' }}>
               <label style={{ fontWeight: 'bold', fontSize: '1.02rem', color: 'var(--leona-terracotta)', marginBottom: '8px', display: 'block' }}>
@@ -1244,6 +1268,7 @@ function PoemsManager({ poems, onUpdate }) {
               <PM5WritingDesk
                 initialPages={formData.body_text ? [formData.body_text] : ['']}
                 initialTitle={formData.heading || ''}
+                lang={adminLang}
                 onSave={(pagesArray, pageTitle) => {
                   const joinedText = pagesArray.join('\n\n');
                   setFormData(prev => ({
