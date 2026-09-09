@@ -53,7 +53,8 @@ function App() {
             color: 'var(--phoenix-text-secondary)'
           }}>Loading...</div>}>
             <Routes>
-              {/* Standalone HTML prototype route without outer Layout wrapper */}
+              {/* Leona Theme Primary Homepage & Standalone HTML Prototype routes */}
+              <Route path="/" element={<iframe src="/preview.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Gurupratap Sharma 'Aag'" />} />
               <Route path="/preview" element={<iframe src="/preview.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Prototype Preview" />} />
               <Route path="/preview.html" element={<iframe src="/preview.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Prototype Preview" />} />
               <Route path="/kavi-parichay.html" element={<iframe src="/kavi-parichay.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Kavi Parichay" />} />
