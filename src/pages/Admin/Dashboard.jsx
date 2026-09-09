@@ -1,15 +1,42 @@
-import { useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabaseClient'
 import { getCategories, getAboutContent, getPublications, getPoems, getSetting } from '../../lib/supabaseClient'
 import { uploadImage, getImageUrl, deleteImage } from '../../lib/imageUtils'
 import PM5WritingDesk from '../../components/PM5WritingDesk'
+import i18n from '../../i18n/config'
 import './AdminDashboard.css'
+
+const AdminLangContext = createContext({
+  adminLang: 'hi',
+  setAdminLang: () => {},
+  toggleAdminLang: () => {},
+  tLabel: (hi, en) => hi
+})
+
+export function useAdminLang() {
+  return useContext(AdminLangContext)
+}
 
 function AdminDashboard({ tab }) {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState(tab || 'categories')
   const [loading, setLoading] = useState(false)
+  const [adminLang, setAdminLangState] = useState(() => localStorage.getItem('siteLanguage') || 'hi')
+
+  const toggleAdminLang = () => {
+    const nextLang = adminLang === 'en' ? 'hi' : 'en'
+    setAdminLangState(nextLang)
+    localStorage.setItem('siteLanguage', nextLang)
+    if (i18n && i18n.changeLanguage) {
+      i18n.changeLanguage(nextLang)
+    }
+  }
+
+  const tLabel = (hiText, enText) => {
+    if (adminLang === 'en') return enText || hiText
+    return hiText || enText
+  }
 
   useEffect(() => {
     if (tab) {
@@ -125,102 +152,114 @@ function AdminDashboard({ tab }) {
   }
 
   return (
-    <div className="admin-dashboard-container">
-      {/* Leona Header Bar */}
-      <header className="admin-header-bar">
-        <div className="admin-header-title">
-          <span>गुरुप्रताप शर्मा 'आग'</span>
-          <span className="accent-badge">CMS ADMIN</span>
-        </div>
-        <button onClick={handleLogout} className="admin-btn-logout">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-            <polyline points="16 17 21 12 16 7"/>
-            <line x1="21" y1="12" x2="9" y2="12"/>
-          </svg>
-          प्रशासन से बाहर निकलें (Logout)
-        </button>
-      </header>
+    <AdminLangContext.Provider value={{ adminLang, setAdminLang: setAdminLangState, toggleAdminLang, tLabel }}>
+      <div className="admin-dashboard-container">
+        {/* Leona Header Bar */}
+        <header className="admin-header-bar">
+          <div className="admin-header-title">
+            <span>{tLabel("गुरुप्रताप शर्मा 'आग'", "Gurupratap Sharma 'AAG'")}</span>
+            <span className="accent-badge">CMS ADMIN</span>
+          </div>
+          <div className="admin-header-actions">
+            <button 
+              onClick={toggleAdminLang} 
+              className="admin-lang-toggle-btn"
+              title={tLabel('अंग्रेजी में बदलें (Switch to English)', 'हिंदी में बदलें (Switch to Hindi)')}
+            >
+              🌐 {adminLang === 'hi' ? 'EN (English)' : 'HI (हिंदी)'}
+            </button>
+            <button onClick={handleLogout} className="admin-btn-logout">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+              {tLabel('प्रशासन से बाहर निकलें (Logout)', 'Logout')}
+            </button>
+          </div>
+        </header>
 
-      <div className="admin-main-wrapper">
-        {/* Navigation Tabs aligned 1-to-1 with User Site Page Categories */}
-        <div className="admin-tabs-bar">
-          <button
-            className={`admin-tab-btn ${activeTab === 'home' ? 'active' : ''}`}
-            onClick={() => switchTab('home', '/admin/home')}
-          >
-            🏠 मुख्य पृष्ठ (Home Page)
-          </button>
-          <button
-            className={`admin-tab-btn ${activeTab === 'about' || activeTab === 'timeline' || activeTab === 'awards' ? 'active' : ''}`}
-            onClick={() => switchTab('about', '/admin/parichay')}
-          >
-            📖 कवि परिचय (About Bio)
-          </button>
-          <button
-            className={`admin-tab-btn ${activeTab === 'poems' || activeTab === 'categories' ? 'active' : ''}`}
-            onClick={() => switchTab('poems', '/admin/kavya-sangrah')}
-          >
-            ✍️ काव्य संग्रह (Poetry Archive)
-          </button>
-          <button
-            className={`admin-tab-btn ${activeTab === 'publications' ? 'active' : ''}`}
-            onClick={() => switchTab('publications', '/admin/prakashan')}
-          >
-            📚 प्रकाशन (Publications)
-          </button>
-          <button
-            className={`admin-tab-btn ${activeTab === 'contact' || activeTab === 'inbox' ? 'active' : ''}`}
-            onClick={() => switchTab('contact', '/admin/sampark')}
-          >
-            📞 संपर्क (Contact & Inbox)
-          </button>
-          <button
-            className={`admin-tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
-            onClick={() => switchTab('settings', '/admin/settings')}
-          >
-            ⚙️ सेटिंग्स (Site Settings)
-          </button>
-        </div>
+        <div className="admin-main-wrapper">
+          {/* Navigation Tabs aligned 1-to-1 with User Site Page Categories */}
+          <div className="admin-tabs-bar">
+            <button
+              className={`admin-tab-btn ${activeTab === 'home' ? 'active' : ''}`}
+              onClick={() => switchTab('home', '/admin/home')}
+            >
+              🏠 {tLabel('मुख्य पृष्ठ', 'Home Page')}
+            </button>
+            <button
+              className={`admin-tab-btn ${activeTab === 'about' || activeTab === 'timeline' || activeTab === 'awards' ? 'active' : ''}`}
+              onClick={() => switchTab('about', '/admin/parichay')}
+            >
+              📖 {tLabel('कवि परिचय', 'About Bio')}
+            </button>
+            <button
+              className={`admin-tab-btn ${activeTab === 'poems' || activeTab === 'categories' ? 'active' : ''}`}
+              onClick={() => switchTab('poems', '/admin/kavya-sangrah')}
+            >
+              ✍️ {tLabel('काव्य संग्रह', 'Poetry Archive')}
+            </button>
+            <button
+              className={`admin-tab-btn ${activeTab === 'publications' ? 'active' : ''}`}
+              onClick={() => switchTab('publications', '/admin/prakashan')}
+            >
+              📚 {tLabel('प्रकाशन', 'Publications')}
+            </button>
+            <button
+              className={`admin-tab-btn ${activeTab === 'contact' || activeTab === 'inbox' ? 'active' : ''}`}
+              onClick={() => switchTab('contact', '/admin/sampark')}
+            >
+              📞 {tLabel('संपर्क व इनबॉक्स', 'Contact & Inbox')}
+            </button>
+            <button
+              className={`admin-tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
+              onClick={() => switchTab('settings', '/admin/settings')}
+            >
+              ⚙️ {tLabel('सेटिंग्स', 'Site Settings')}
+            </button>
+          </div>
 
-        {activeTab === 'home' && (
-          <HomeManager publications={data.publications} about={data.about} settings={data.settings} onUpdate={loadData} />
-        )}
-        {(activeTab === 'about' || activeTab === 'timeline' || activeTab === 'awards') && (
-          <AboutManager
-            about={data.about}
-            initialSubTab={activeTab === 'timeline' ? 'timeline' : (activeTab === 'awards' ? 'awards' : 'bio')}
-            onUpdate={loadData}
-          />
-        )}
-        {(activeTab === 'poems' || activeTab === 'categories') && (
-          <PoemsArchiveManager
-            poems={data.poems}
-            categories={data.categories}
-            initialSubTab={activeTab === 'categories' ? 'categories' : 'poems'}
-            onUpdate={loadData}
-          />
-        )}
-        {activeTab === 'publications' && (
-          <PublicationsManager publications={data.publications} onUpdate={loadData} />
-        )}
-        {(activeTab === 'contact' || activeTab === 'inbox') && (
-          <ContactSectionManager
-            settings={data.settings}
-            initialSubTab={activeTab === 'inbox' ? 'inbox' : 'info'}
-            onUpdate={loadData}
-          />
-        )}
-        {activeTab === 'settings' && (
-          <SettingsManager settings={data.settings} onUpdate={loadData} />
-        )}
+          {activeTab === 'home' && (
+            <HomeManager publications={data.publications} about={data.about} settings={data.settings} onUpdate={loadData} />
+          )}
+          {(activeTab === 'about' || activeTab === 'timeline' || activeTab === 'awards') && (
+            <AboutManager
+              about={data.about}
+              initialSubTab={activeTab === 'timeline' ? 'timeline' : (activeTab === 'awards' ? 'awards' : 'bio')}
+              onUpdate={loadData}
+            />
+          )}
+          {(activeTab === 'poems' || activeTab === 'categories') && (
+            <PoemsArchiveManager
+              poems={data.poems}
+              categories={data.categories}
+              initialSubTab={activeTab === 'categories' ? 'categories' : 'poems'}
+              onUpdate={loadData}
+            />
+          )}
+          {activeTab === 'publications' && (
+            <PublicationsManager publications={data.publications} onUpdate={loadData} />
+          )}
+          {(activeTab === 'contact' || activeTab === 'inbox') && (
+            <ContactSectionManager
+              settings={data.settings}
+              initialSubTab={activeTab === 'inbox' ? 'inbox' : 'info'}
+              onUpdate={loadData}
+            />
+          )}
+          {activeTab === 'settings' && (
+            <SettingsManager settings={data.settings} onUpdate={loadData} />
+          )}
+        </div>
       </div>
-    </div>
+    </AdminLangContext.Provider>
   )
 }
 
 // Categories Manager Component
 function CategoriesManager({ categories, onUpdate }) {
+  const { tLabel } = useAdminLang()
   const [editing, setEditing] = useState(null)
   const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState({ name_en: '', name_display: '', content_type: 'about', sort_order: 0, is_active: true })
@@ -305,10 +344,10 @@ function CategoriesManager({ categories, onUpdate }) {
   return (
     <div className="admin-card-panel">
       <div className="admin-panel-header">
-        <h2 className="admin-panel-title">वेबसाइट अनुभाग (Website Sections & Categories)</h2>
+        <h2 className="admin-panel-title">{tLabel('वेबसाइट अनुभाग', 'Website Sections & Categories')}</h2>
         {!showForm && (
           <button type="button" className="admin-btn-primary" onClick={handleCreate}>
-            + नया अनुभाग जोड़ें (Add Section)
+            + {tLabel('नया अनुभाग जोड़ें', 'Add Section')}
           </button>
         )}
       </div>
@@ -317,7 +356,7 @@ function CategoriesManager({ categories, onUpdate }) {
         <form onSubmit={handleSubmit} className="admin-form-container">
           <div className="admin-form-grid">
             <div className="admin-form-group">
-              <label>अनुभाग नाम (English Name) *</label>
+              <label>{tLabel('अनुभाग नाम (English Slug/Key) *', 'Section Name (English Slug/Key) *')}</label>
               <input
                 className="admin-input"
                 value={formData.name_en}
@@ -326,7 +365,7 @@ function CategoriesManager({ categories, onUpdate }) {
               />
             </div>
             <div className="admin-form-group">
-              <label>प्रदर्शित नाम (Hindi Display Name)</label>
+              <label>{tLabel('प्रदर्शित नाम (Hindi Display Name)', 'Display Name (Hindi Display Name)')}</label>
               <input
                 className="admin-input"
                 value={formData.name_display}
@@ -334,21 +373,21 @@ function CategoriesManager({ categories, onUpdate }) {
               />
             </div>
             <div className="admin-form-group">
-              <label>सामग्री प्रकार (Content Type) *</label>
+              <label>{tLabel('सामग्री प्रकार (Content Type) *', 'Content Type *')}</label>
               <select
                 className="admin-select"
                 value={formData.content_type}
                 onChange={(e) => setFormData({ ...formData, content_type: e.target.value })}
                 required
               >
-                <option value="about">कवि परिचय (About)</option>
-                <option value="publications">प्रकाशन (Publications)</option>
-                <option value="writings">काव्य संग्रह (Poems)</option>
+                <option value="about">{tLabel('कवि परिचय (About)', 'About')}</option>
+                <option value="publications">{tLabel('प्रकाशन (Publications)', 'Publications')}</option>
+                <option value="writings">{tLabel('काव्य संग्रह (Poems)', 'Poems')}</option>
                 <option value="hero">Hero Banner</option>
               </select>
             </div>
             <div className="admin-form-group">
-              <label>क्रम संख्या (Sort Order)</label>
+              <label>{tLabel('क्रम संख्या (Sort Order)', 'Sort Order')}</label>
               <input
                 className="admin-input"
                 type="number"
@@ -363,16 +402,16 @@ function CategoriesManager({ categories, onUpdate }) {
                   checked={formData.is_active !== false}
                   onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                 />
-                वेबसाइट पर सक्रिय रखें (Active / Visible on website)
+                {tLabel('वेबसाइट पर सक्रिय रखें (Active / Visible)', 'Active / Visible on website')}
               </label>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
             <button type="submit" className="admin-btn-primary">
-              {editing ? 'सहेजें (Update)' : 'जोड़ें (Create)'}
+              {editing ? tLabel('सहेजें (Update)', 'Update') : tLabel('जोड़ें (Create)', 'Create')}
             </button>
             <button type="button" className="admin-btn-secondary" onClick={handleCancel}>
-              रद्द करें (Cancel)
+              {tLabel('रद्द करें (Cancel)', 'Cancel')}
             </button>
           </div>
         </form>
@@ -380,7 +419,7 @@ function CategoriesManager({ categories, onUpdate }) {
 
       <div>
         <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
-          सक्रिय अनुभाग सूची ({categories.length})
+          {tLabel('सक्रिय अनुभाग सूची', 'Active Sections List')} ({categories.length})
         </h3>
         {categories.length === 0 ? (
           <p style={{ color: '#666', fontStyle: 'italic' }}>कोई अनुभाग नहीं मिला। नया अनुभाग जोड़ने के लिए बटन दबाएं।</p>
@@ -412,6 +451,7 @@ function CategoriesManager({ categories, onUpdate }) {
 
 // 1. Home Manager Component (Homepage Sections)
 function HomeManager({ publications, about, settings, onUpdate }) {
+  const { tLabel } = useAdminLang()
   const [subTab, setSubTab] = useState('hero') // 'hero' | 'summary'
 
   return (
@@ -423,7 +463,7 @@ function HomeManager({ publications, about, settings, onUpdate }) {
           onClick={() => setSubTab('hero')}
           style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'hero' ? 700 : 500 }}
         >
-          🔥 1. प्रमुख काव्य कृति (Hero Featured Book Showcase)
+          🔥 1. {tLabel('प्रमुख काव्य कृति', 'Hero Featured Showcase')}
         </button>
         <button
           type="button"
@@ -431,7 +471,7 @@ function HomeManager({ publications, about, settings, onUpdate }) {
           onClick={() => setSubTab('summary')}
           style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'summary' ? 700 : 500 }}
         >
-          📖 2. मुख्य पृष्ठ कवि संक्षेप (Homepage Author Overview)
+          📖 2. {tLabel('मुख्य पृष्ठ कवि संक्षेप', 'Homepage Author Bio Preview')}
         </button>
       </div>
 
@@ -443,6 +483,7 @@ function HomeManager({ publications, about, settings, onUpdate }) {
 
 // 2. Poems Archive Manager Component (Poems + Categories)
 function PoemsArchiveManager({ poems, categories, initialSubTab, onUpdate }) {
+  const { tLabel } = useAdminLang()
   const [subTab, setSubTab] = useState(initialSubTab || 'poems') // 'poems' | 'categories'
 
   useEffect(() => {
@@ -460,7 +501,7 @@ function PoemsArchiveManager({ poems, categories, initialSubTab, onUpdate }) {
           onClick={() => setSubTab('poems')}
           style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'poems' ? 700 : 500 }}
         >
-          ✍️ 1. काव्य रचनाएं (Poems Listing)
+          ✍️ 1. {tLabel('काव्य रचनाएं', 'Poetry List')}
         </button>
         <button
           type="button"
@@ -468,7 +509,7 @@ function PoemsArchiveManager({ poems, categories, initialSubTab, onUpdate }) {
           onClick={() => setSubTab('categories')}
           style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'categories' ? 700 : 500 }}
         >
-          🌐 2. काव्य श्रेणियां (Poetry Categories)
+          🌐 2. {tLabel('काव्य श्रेणियां', 'Poetry Categories')}
         </button>
       </div>
 
@@ -480,6 +521,7 @@ function PoemsArchiveManager({ poems, categories, initialSubTab, onUpdate }) {
 
 // 3. Contact Section Manager Component (Contact Details + Inbox)
 function ContactSectionManager({ settings, initialSubTab, onUpdate }) {
+  const { tLabel } = useAdminLang()
   const [subTab, setSubTab] = useState(initialSubTab || 'info') // 'info' | 'inbox'
 
   useEffect(() => {
@@ -497,7 +539,7 @@ function ContactSectionManager({ settings, initialSubTab, onUpdate }) {
           onClick={() => setSubTab('info')}
           style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'info' ? 700 : 500 }}
         >
-          📍 1. संपर्क विवरण (Contact Info & Location)
+          📍 1. {tLabel('संपर्क विवरण', 'Contact Info & Location')}
         </button>
         <button
           type="button"
@@ -505,7 +547,7 @@ function ContactSectionManager({ settings, initialSubTab, onUpdate }) {
           onClick={() => setSubTab('inbox')}
           style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'inbox' ? 700 : 500 }}
         >
-          📬 2. प्राप्त संदेश (Received Submissions)
+          📬 2. {tLabel('प्राप्त संदेश', 'Received Inbox')}
         </button>
       </div>
 
@@ -517,6 +559,7 @@ function ContactSectionManager({ settings, initialSubTab, onUpdate }) {
 
 // About Manager Component (Includes Poet Hero Banner, Bio Prose, Timeline & Awards Sub-sections)
 function AboutManager({ about, initialSubTab, onUpdate }) {
+  const { tLabel } = useAdminLang()
   const [subTab, setSubTab] = useState(initialSubTab || 'bio') // 'bio' | 'timeline' | 'awards'
 
   useEffect(() => {
@@ -606,7 +649,7 @@ function AboutManager({ about, initialSubTab, onUpdate }) {
           onClick={() => setSubTab('bio')}
           style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'bio' ? 700 : 500 }}
         >
-          📖 1. कवि परिचय व बैनर (Overview & Hero)
+          📖 1. {tLabel('कवि परिचय व बैनर', 'Overview & Hero')}
         </button>
         <button
           type="button"
@@ -614,7 +657,7 @@ function AboutManager({ about, initialSubTab, onUpdate }) {
           onClick={() => setSubTab('timeline')}
           style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'timeline' ? 700 : 500 }}
         >
-          ⏳ 2. जीवन यात्रा (Timeline Milestones)
+          ⏳ 2. {tLabel('जीवन यात्रा (टाइमलाइन)', 'Timeline Milestones')}
         </button>
         <button
           type="button"
@@ -622,7 +665,7 @@ function AboutManager({ about, initialSubTab, onUpdate }) {
           onClick={() => setSubTab('awards')}
           style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'awards' ? 700 : 500 }}
         >
-          🏆 3. पुरस्कार व सम्मान (Awards & Honors)
+          🏆 3. {tLabel('पुरस्कार व सम्मान', 'Awards & Honors')}
         </button>
       </div>
 
@@ -632,10 +675,10 @@ function AboutManager({ about, initialSubTab, onUpdate }) {
       {subTab === 'bio' && (
         <div className="admin-card-panel">
           <div className="admin-panel-header">
-            <h2 className="admin-panel-title">📖 कवि परिचय व बैनर सम्पादन (Poet Biography & Hero Banner)</h2>
+            <h2 className="admin-panel-title">📖 {tLabel('कवि परिचय व बैनर सम्पादन', 'Poet Biography & Hero Banner')}</h2>
             {!editing && (
               <button type="button" className="admin-btn-primary" onClick={() => setEditing(true)}>
-                ✏️ सम्पादित करें (Edit Details)
+                ✏️ {tLabel('सम्पादित करें', 'Edit Details')}
               </button>
             )}
           </div>
@@ -799,7 +842,9 @@ function AboutManager({ about, initialSubTab, onUpdate }) {
 
 // Publications Manager Component
 function PublicationsManager({ publications, onUpdate }) {
+  const { tLabel } = useAdminLang()
   const [editing, setEditing] = useState(null)
+  const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
     subtitle: '',
@@ -810,6 +855,19 @@ function PublicationsManager({ publications, onUpdate }) {
   })
   const [uploadingImage, setUploadingImage] = useState(false)
   const [imagePreview, setImagePreview] = useState(null)
+
+  const handleCreate = () => {
+    setEditing(null)
+    setFormData({ title: '', subtitle: '', image_path: '', image_alt: '', description: '', sort_order: 0, is_active: true })
+    setImagePreview(null)
+    setShowForm(true)
+  }
+
+  const handleCancel = () => {
+    setEditing(null)
+    setShowForm(false)
+    setImagePreview(null)
+  }
 
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0]
@@ -920,10 +978,10 @@ function PublicationsManager({ publications, onUpdate }) {
   return (
     <div className="admin-card-panel">
       <div className="admin-panel-header">
-        <h2 className="admin-panel-title">प्रकाशन एवं पुस्तकें (Publications & Books)</h2>
+        <h2 className="admin-panel-title">📚 {tLabel('प्रकाशन एवं पुस्तकें', 'Publications & Books')}</h2>
         {!showForm && (
           <button type="button" className="admin-btn-primary" onClick={handleCreate}>
-            + नई पुस्तक जोड़ें (Add Publication)
+            + {tLabel('नई पुस्तक जोड़ें', 'Add Book')}
           </button>
         )}
       </div>
@@ -932,7 +990,7 @@ function PublicationsManager({ publications, onUpdate }) {
         <form onSubmit={handleSubmit} className="admin-form-container">
           <div className="admin-form-grid">
             <div className="admin-form-group">
-              <label>पुस्तक का नाम (Book Title) *</label>
+              <label>{tLabel('पुस्तक का नाम *', 'Book Title *')}</label>
               <input
                 className="admin-input"
                 value={formData.title}
@@ -941,7 +999,7 @@ function PublicationsManager({ publications, onUpdate }) {
               />
             </div>
             <div className="admin-form-group">
-              <label>उप-शीर्षक (Subtitle)</label>
+              <label>{tLabel('उप-शीर्षक', 'Subtitle')}</label>
               <input
                 className="admin-input"
                 value={formData.subtitle}
@@ -949,7 +1007,7 @@ function PublicationsManager({ publications, onUpdate }) {
               />
             </div>
             <div className="admin-form-group full-width">
-              <label>कवर चित्र (Book Cover Image)</label>
+              <label>{tLabel('कवर चित्र', 'Book Cover Image')}</label>
               {imagePreview && (
                 <div style={{ marginBottom: '12px' }}>
                   <img 
@@ -1052,7 +1110,9 @@ function PublicationsManager({ publications, onUpdate }) {
 
 // Poems Manager Component
 function PoemsManager({ poems, onUpdate }) {
+  const { tLabel } = useAdminLang()
   const [editing, setEditing] = useState(null)
+  const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState({
     heading_en: '',
     heading_hi: '',
@@ -1063,6 +1123,17 @@ function PoemsManager({ poems, onUpdate }) {
     sort_order: 0,
     is_active: true
   })
+
+  const handleCreate = () => {
+    setEditing(null)
+    setFormData({ heading_en: '', heading_hi: '', description: '', body_text_en: '', body_text_hi: '', language: 'mixed', sort_order: 0, is_active: true })
+    setShowForm(true)
+  }
+
+  const handleCancel = () => {
+    setEditing(null)
+    setShowForm(false)
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -1131,10 +1202,10 @@ function PoemsManager({ poems, onUpdate }) {
   return (
     <div className="admin-card-panel">
       <div className="admin-panel-header">
-        <h2 className="admin-panel-title">काव्य रचनाएं एवं पद (Poems & Stanzas)</h2>
+        <h2 className="admin-panel-title">✍️ {tLabel('काव्य रचनाएं एवं पद', 'Poems & Verse Collection')}</h2>
         {!showForm && (
           <button type="button" className="admin-btn-primary" onClick={handleCreate}>
-            + नई रचना जोड़ें (Add Poem)
+            + {tLabel('नई रचना जोड़ें', 'Add New Poem')}
           </button>
         )}
       </div>
@@ -1143,7 +1214,7 @@ function PoemsManager({ poems, onUpdate }) {
         <form onSubmit={handleSubmit} className="admin-form-container">
           <div className="admin-form-grid">
             <div className="admin-form-group">
-              <label>कविता का नाम (Hindi Title) *</label>
+              <label>{tLabel('कविता का नाम (हिंदी) *', 'Poem Title (Hindi) *')}</label>
               <input
                 className="admin-input"
                 value={formData.heading_hi || ''}
@@ -1152,7 +1223,7 @@ function PoemsManager({ poems, onUpdate }) {
               />
             </div>
             <div className="admin-form-group">
-              <label>अंग्रेजी शीर्षक (English Title)</label>
+              <label>{tLabel('अंग्रेजी शीर्षक', 'English Title')}</label>
               <input
                 className="admin-input"
                 value={formData.heading_en || ''}
@@ -1160,7 +1231,7 @@ function PoemsManager({ poems, onUpdate }) {
               />
             </div>
             <div className="admin-form-group full-width">
-              <label>रचना संदर्भ / विवरण (Context / Description)</label>
+              <label>{tLabel('रचना संदर्भ / विवरण', 'Context / Description')}</label>
               <textarea
                 className="admin-textarea"
                 value={formData.description || ''}
@@ -1261,6 +1332,7 @@ function PoemsManager({ poems, onUpdate }) {
 
 // Settings Manager Component
 function SettingsManager({ settings, onUpdate }) {
+  const { tLabel } = useAdminLang()
   const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState({
     phone: '',
@@ -1289,31 +1361,33 @@ function SettingsManager({ settings, onUpdate }) {
   const [logoPreview, setLogoPreview] = useState(null)
 
   useEffect(() => {
-    setFormData({
-      phone: settings.phone || '+91 98290 12345',
-      phone_text: settings.phone_text || 'Call me',
-      whatsapp: settings.whatsapp || 'https://wa.me/919829012345',
-      whatsapp_text: settings.whatsapp_text || 'Whatsapp me',
-      email: settings.email || 'contact@gurupratapsharma.com',
-      email_text: settings.email_text || 'Email me',
-      address: settings.address || 'साहित्य सदन, सिविल लाइन्स, जयपुर (राजस्थान), भारत - 302006',
-      facebook: settings.facebook || '',
-      instagram: settings.instagram || '',
-      twitter: settings.twitter || '',
-      linkedin: settings.linkedin || '',
-      youtube: settings.youtube || '',
-      logo_path: settings.logo_path || '',
-      thank_you_message: settings.thank_you_message || 'Thank you!',
-      thank_you_title: settings.thank_you_title || '',
-      thank_you_heading: settings.thank_you_heading || '',
-      thank_you_description: settings.thank_you_description || '',
-      thank_you_button_text: settings.thank_you_button_text || '',
-      hero_tagline_en: settings.hero_tagline_en || 'Renowned for his fiery literary works',
-      hero_tagline_hi: settings.hero_tagline_hi || 'साहित्य जगत में अपनी तेजस्वी रचनाओं से प्रसिद्ध',
-      default_accent: settings.default_accent || '#964B00'
-    })
-    if (settings.logo_path) {
-      setLogoPreview(getImageUrl(settings.logo_path))
+    if (settings) {
+      setFormData({
+        phone: settings.phone || '',
+        phone_text: settings.phone_text || '',
+        whatsapp: settings.whatsapp || '',
+        whatsapp_text: settings.whatsapp_text || '',
+        email: settings.email || '',
+        email_text: settings.email_text || '',
+        address: settings.address || '',
+        facebook: settings.facebook || '',
+        instagram: settings.instagram || '',
+        twitter: settings.twitter || '',
+        linkedin: settings.linkedin || '',
+        youtube: settings.youtube || '',
+        logo_path: settings.logo_path || '',
+        thank_you_message: settings.thank_you_message || '',
+        thank_you_title: settings.thank_you_title || '',
+        thank_you_heading: settings.thank_you_heading || '',
+        thank_you_description: settings.thank_you_description || '',
+        thank_you_button_text: settings.thank_you_button_text || '',
+        hero_tagline_en: settings.hero_tagline_en || '',
+        hero_tagline_hi: settings.hero_tagline_hi || '',
+        default_accent: settings.default_accent || '#964B00'
+      })
+      if (settings.logo_path) {
+        setLogoPreview(getImageUrl(settings.logo_path))
+      }
     }
   }, [settings])
 
@@ -1540,8 +1614,18 @@ function SettingsManager({ settings, onUpdate }) {
   )
 }
 
+// Helper to extract numeric year from string (supports Hindi Devanagari १९४५ -> 1945)
+function parseYearNumber(yearStr) {
+  if (!yearStr) return 0
+  const devanagariMap = { '०':0,'१':1,'२':2,'३':3,'४':4,'५':5,'६':6,'७':7,'८':8,'९':9 }
+  const asciiStr = String(yearStr).replace(/[०-९]/g, match => devanagariMap[match])
+  const match = asciiStr.match(/\d+/)
+  return match ? parseInt(match[0], 10) : 0
+}
+
 // Timeline Manager Component
 function TimelineManager({ onUpdate }) {
+  const { tLabel } = useAdminLang()
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -1581,6 +1665,41 @@ function TimelineManager({ onUpdate }) {
     }
   }
 
+  const handleSortByYear = async () => {
+    const sorted = [...items].sort((a, b) => parseYearNumber(a.year_display) - parseYearNumber(b.year_display))
+    sorted.forEach((item, idx) => { item.sort_order = idx + 1 })
+    setItems(sorted)
+    localStorage.setItem('app_timeline_milestones', JSON.stringify(sorted))
+    try {
+      for (const item of sorted) {
+        await supabase.from('timeline_milestones').update({ sort_order: item.sort_order }).eq('id', item.id)
+      }
+    } catch (e) {}
+    alert(tLabel('वर्षानुसार क्रमित कर दिया गया है!', 'Sorted chronologically by year!'))
+    onUpdate()
+  }
+
+  const handleMove = async (index, direction) => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1
+    if (targetIndex < 0 || targetIndex >= items.length) return
+
+    const updated = [...items]
+    const temp = updated[index]
+    updated[index] = updated[targetIndex]
+    updated[targetIndex] = temp
+
+    updated.forEach((item, idx) => { item.sort_order = idx + 1 })
+    setItems(updated)
+    localStorage.setItem('app_timeline_milestones', JSON.stringify(updated))
+
+    try {
+      for (const item of updated) {
+        await supabase.from('timeline_milestones').update({ sort_order: item.sort_order }).eq('id', item.id)
+      }
+    } catch (e) {}
+    onUpdate()
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     let updatedList = []
@@ -1590,6 +1709,11 @@ function TimelineManager({ onUpdate }) {
       const newItem = { id: String(Date.now()), ...formData }
       updatedList = [...items, newItem]
     }
+
+    // Auto sort chronologically when adding/updating
+    updatedList.sort((a, b) => parseYearNumber(a.year_display) - parseYearNumber(b.year_display))
+    updatedList.forEach((item, idx) => { item.sort_order = idx + 1 })
+
     setItems(updatedList)
     localStorage.setItem('app_timeline_milestones', JSON.stringify(updatedList))
 
@@ -1601,7 +1725,7 @@ function TimelineManager({ onUpdate }) {
       }
     } catch (err) {}
 
-    alert('Timeline item saved!')
+    alert(tLabel('जीवन यात्रा सहेजी गई!', 'Timeline item saved!'))
     setShowForm(false)
     onUpdate()
   }
@@ -1620,47 +1744,56 @@ function TimelineManager({ onUpdate }) {
   return (
     <div className="admin-card-panel">
       <div className="admin-panel-header">
-        <h2 className="admin-panel-title">कवि जीवन यात्रा Timeline Milestones</h2>
-        {!showForm && (
-          <button className="admin-btn-primary" onClick={() => { setEditingId(null); setFormData({ year_display: '', title: '', description: '', sort_order: items.length + 1 }); setShowForm(true); }}>
-            + नया वर्ष/मील का पत्थर जोड़ें (Add Timeline Year)
+        <h2 className="admin-panel-title">⏳ {tLabel('जीवन यात्रा टाइमलाइन', 'Timeline Milestones')}</h2>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button type="button" className="admin-btn-secondary" onClick={handleSortByYear}>
+            🔄 {tLabel('वर्षानुसार स्वचालित क्रमबद्ध करें', 'Auto-Sort by Year')}
           </button>
-        )}
+          {!showForm && (
+            <button className="admin-btn-primary" onClick={() => { setEditingId(null); setFormData({ year_display: '', title: '', description: '', sort_order: items.length + 1 }); setShowForm(true); }}>
+              + {tLabel('नया मील का पत्थर जोड़ें', 'Add Timeline Year')}
+            </button>
+          )}
+        </div>
       </div>
 
       {showForm && (
         <form onSubmit={handleSubmit} className="admin-form-container">
           <div className="admin-form-grid">
             <div className="admin-form-group">
-              <label>वर्ष (Year Display e.g. १९४५ / 1945)</label>
+              <label>{tLabel('वर्ष (e.g. १९४५ / 1945)', 'Year (e.g. 1945)')}</label>
               <input className="admin-input" value={formData.year_display} onChange={e => setFormData({ ...formData, year_display: e.target.value })} required />
             </div>
             <div className="admin-form-group">
-              <label>शीर्षक (Title)</label>
+              <label>{tLabel('शीर्षक', 'Title')}</label>
               <input className="admin-input" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} required />
             </div>
             <div className="admin-form-group full-width">
-              <label>विवरण (Description)</label>
+              <label>{tLabel('विवरण', 'Description')}</label>
               <textarea className="admin-textarea" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} rows={3} required />
             </div>
           </div>
           <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-            <button type="submit" className="admin-btn-primary">सहेजें (Save Timeline)</button>
-            <button type="button" className="admin-btn-secondary" onClick={() => setShowForm(false)}>रद्द करें (Cancel)</button>
+            <button type="submit" className="admin-btn-primary">{tLabel('सहेजें', 'Save Timeline')}</button>
+            <button type="button" className="admin-btn-secondary" onClick={() => setShowForm(false)}>{tLabel('रद्द करें', 'Cancel')}</button>
           </div>
         </form>
       )}
 
       <ul className="admin-item-list">
-        {items.map(item => (
+        {items.map((item, idx) => (
           <li key={item.id} className="admin-item-card">
             <div>
-              <div className="admin-item-title"><span style={{ color: 'var(--leona-terracotta)', fontWeight: 700 }}>{item.year_display}</span> — {item.title}</div>
+              <div className="admin-item-title">
+                <span style={{ color: 'var(--leona-terracotta)', fontWeight: 700 }}>{item.year_display}</span> — {item.title}
+              </div>
               <div className="admin-item-sub">{item.description}</div>
             </div>
             <div className="admin-actions-group">
-              <button className="admin-btn-secondary" onClick={() => { setEditingId(item.id); setFormData(item); setShowForm(true); }}>संपादित करें</button>
-              <button className="admin-btn-danger" onClick={() => handleDelete(item.id)}>हटाएं</button>
+              <button type="button" className="admin-btn-secondary" disabled={idx === 0} onClick={() => handleMove(idx, 'up')}>{tLabel('▲ ऊपर', '▲ Up')}</button>
+              <button type="button" className="admin-btn-secondary" disabled={idx === items.length - 1} onClick={() => handleMove(idx, 'down')}>{tLabel('▼ नीचे', '▼ Down')}</button>
+              <button className="admin-btn-secondary" onClick={() => { setEditingId(item.id); setFormData(item); setShowForm(true); }}>{tLabel('संपादित करें', 'Edit')}</button>
+              <button className="admin-btn-danger" onClick={() => handleDelete(item.id)}>{tLabel('हटाएं', 'Delete')}</button>
             </div>
           </li>
         ))}
@@ -1671,6 +1804,7 @@ function TimelineManager({ onUpdate }) {
 
 // Awards Manager Component
 function AwardsManager({ onUpdate }) {
+  const { tLabel } = useAdminLang()
   const [items, setItems] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
@@ -1725,7 +1859,7 @@ function AwardsManager({ onUpdate }) {
       }
     } catch (err) {}
 
-    alert('Award saved!')
+    alert(tLabel('पुरस्कार सहेजा गया!', 'Award saved!'))
     setShowForm(false)
     onUpdate()
   }
@@ -1744,10 +1878,10 @@ function AwardsManager({ onUpdate }) {
   return (
     <div className="admin-card-panel">
       <div className="admin-panel-header">
-        <h2 className="admin-panel-title">पुरस्कार एवं सम्मान (Awards & Honors)</h2>
+        <h2 className="admin-panel-title">🏆 {tLabel('पुरस्कार एवं सम्मान', 'Awards & Honors')}</h2>
         {!showForm && (
           <button className="admin-btn-primary" onClick={() => { setEditingId(null); setFormData({ year_display: '', title: '', organization: '', sort_order: items.length + 1 }); setShowForm(true); }}>
-            + नया सम्मान जोड़ें (Add Award)
+            + {tLabel('नया सम्मान जोड़ें', 'Add Award')}
           </button>
         )}
       </div>
@@ -1756,21 +1890,21 @@ function AwardsManager({ onUpdate }) {
         <form onSubmit={handleSubmit} className="admin-form-container">
           <div className="admin-form-grid">
             <div className="admin-form-group">
-              <label>वर्ष (Year e.g. १९९५ / 1995)</label>
+              <label>{tLabel('वर्ष (e.g. १९९५ / 1995)', 'Year (e.g. 1995)')}</label>
               <input className="admin-input" value={formData.year_display} onChange={e => setFormData({ ...formData, year_display: e.target.value })} required />
             </div>
             <div className="admin-form-group">
-              <label>सम्मान का नाम (Award Title)</label>
+              <label>{tLabel('सम्मान का नाम', 'Award Title')}</label>
               <input className="admin-input" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} required />
             </div>
             <div className="admin-form-group full-width">
-              <label>संस्था / आयोजक (Organization)</label>
+              <label>{tLabel('संस्था / आयोजक', 'Organization')}</label>
               <input className="admin-input" value={formData.organization} onChange={e => setFormData({ ...formData, organization: e.target.value })} required />
             </div>
           </div>
           <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-            <button type="submit" className="admin-btn-primary">सहेजें (Save Award)</button>
-            <button type="button" className="admin-btn-secondary" onClick={() => setShowForm(false)}>रद्द करें (Cancel)</button>
+            <button type="submit" className="admin-btn-primary">{tLabel('सहेजें', 'Save Award')}</button>
+            <button type="button" className="admin-btn-secondary" onClick={() => setShowForm(false)}>{tLabel('रद्द करें', 'Cancel')}</button>
           </div>
         </form>
       )}
@@ -1780,11 +1914,11 @@ function AwardsManager({ onUpdate }) {
           <li key={item.id} className="admin-item-card">
             <div>
               <div className="admin-item-title"><span style={{ color: 'var(--leona-terracotta)', fontWeight: 700 }}>{item.year_display}</span> — {item.title}</div>
-              <div className="admin-item-sub">संस्था: {item.organization}</div>
+              <div className="admin-item-sub">{tLabel('संस्था:', 'Org:')} {item.organization}</div>
             </div>
             <div className="admin-actions-group">
-              <button className="admin-btn-secondary" onClick={() => { setEditingId(item.id); setFormData(item); setShowForm(true); }}>संपादित करें</button>
-              <button className="admin-btn-danger" onClick={() => handleDelete(item.id)}>हटाएं</button>
+              <button className="admin-btn-secondary" onClick={() => { setEditingId(item.id); setFormData(item); setShowForm(true); }}>{tLabel('संपादित करें', 'Edit')}</button>
+              <button className="admin-btn-danger" onClick={() => handleDelete(item.id)}>{tLabel('हटाएं', 'Delete')}</button>
             </div>
           </li>
         ))}
@@ -1795,6 +1929,7 @@ function AwardsManager({ onUpdate }) {
 
 // Contact Inbox Manager Component
 function InboxManager({ onUpdate }) {
+  const { tLabel } = useAdminLang()
   const [messages, setMessages] = useState([])
 
   useEffect(() => {
@@ -1829,25 +1964,25 @@ function InboxManager({ onUpdate }) {
   return (
     <div className="admin-card-panel">
       <div className="admin-panel-header">
-        <h2 className="admin-panel-title">पाठक संवाद Inbox (Contact Messages)</h2>
+        <h2 className="admin-panel-title">📬 {tLabel('प्राप्त संदेश इनबॉक्स', 'Messages Inbox')}</h2>
       </div>
 
       {messages.length === 0 ? (
-        <p style={{ color: '#666', fontStyle: 'italic', padding: '20px' }}>कोई नया संदेश नहीं मिला।</p>
+        <p style={{ color: '#666', fontStyle: 'italic', padding: '20px' }}>{tLabel('कोई नया संदेश नहीं मिला।', 'No new messages found.')}</p>
       ) : (
         <ul className="admin-item-list">
           {messages.map(msg => (
             <li key={msg.id} className="admin-item-card" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '8px' }}>
               <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--leona-charcoal)' }}>{msg.name} ({msg.email})</span>
-                <span style={{ fontSize: '0.8rem', color: '#888' }}>{new Date(msg.created_at || Date.now()).toLocaleDateString('hi-IN')}</span>
+                <span style={{ fontSize: '0.8rem', color: '#888' }}>{new Date(msg.created_at || Date.now()).toLocaleDateString()}</span>
               </div>
-              <div style={{ fontWeight: 600, color: 'var(--leona-terracotta)' }}>विषय: {msg.subject}</div>
+              <div style={{ fontWeight: 600, color: 'var(--leona-terracotta)' }}>{tLabel('विषय:', 'Subject:')} {msg.subject}</div>
               <div style={{ background: '#FDFBF7', padding: '12px', borderRadius: '8px', border: '1px solid rgba(226, 215, 197, 0.6)', width: '100%', fontSize: '0.95rem', color: 'var(--leona-text-main)' }}>
                 "{msg.message}"
               </div>
               <div style={{ marginTop: '6px', alignSelf: 'flex-end' }}>
-                <button className="admin-btn-danger" onClick={() => handleDelete(msg.id)}>हटाएं (Delete)</button>
+                <button className="admin-btn-danger" onClick={() => handleDelete(msg.id)}>{tLabel('हटाएं', 'Delete')}</button>
               </div>
             </li>
           ))}
