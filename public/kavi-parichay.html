@@ -663,7 +663,7 @@
       </div>
 
       <!-- Timeline Grid -->
-      <div class="timeline-container">
+      <div class="timeline-container" id="timelineContainer">
         
         <!-- Timeline Item 1 -->
         <div class="timeline-item">
@@ -731,7 +731,7 @@
       </div>
 
       <!-- Awards Card Grid -->
-      <div class="awards-grid">
+      <div class="awards-grid" id="awardsGrid">
         
         <!-- Award 1 -->
         <div class="award-card">
@@ -905,25 +905,85 @@
             'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
           }
         });
-        if (!res.ok) return;
-        const data = await res.json();
-        if (data && data.length > 0) {
-          const about = data[0];
-          const proseElem = document.getElementById('bioProse');
-          const bioContent = about.body_text || about.bio || about.content;
-          if (proseElem && bioContent) {
-            const paragraphs = bioContent.split(/\n\s*\n/).filter(p => p.trim());
-            proseElem.innerHTML = paragraphs.map(p => `<p>${p.trim()}</p>`).join('');
-          }
-          if (about.photo_path) {
-            const poetImg = document.getElementById('poetPhoto');
-            if (poetImg) poetImg.src = getImageUrl(about.photo_path);
-          }
-          if (about.title || about.truncated_preview) {
-            const quoteElem = document.getElementById('quoteText');
-            if (quoteElem) quoteElem.innerText = `"${about.title || about.truncated_preview}"`;
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.length > 0) {
+            const about = data[0];
+            const proseElem = document.getElementById('bioProse');
+            const bioContent = about.body_text || about.bio || about.content;
+            if (proseElem && bioContent) {
+              const paragraphs = bioContent.split(/\n\s*\n/).filter(p => p.trim());
+              proseElem.innerHTML = paragraphs.map(p => `<p>${p.trim()}</p>`).join('');
+            }
+            if (about.photo_path) {
+              const poetImg = document.getElementById('poetPhoto');
+              if (poetImg) poetImg.src = getImageUrl(about.photo_path);
+            }
+            if (about.title || about.truncated_preview) {
+              const quoteElem = document.getElementById('quoteText');
+              if (quoteElem) quoteElem.innerText = `"${about.title || about.truncated_preview}"`;
+            }
           }
         }
+
+        // Dynamic Timeline Milestones
+        try {
+          const tRes = await fetch(`${SUPABASE_URL}/rest/v1/timeline_milestones?select=*&order=sort_order.asc`, {
+            headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+          });
+          if (tRes.ok) {
+            const tData = await tRes.json();
+            if (tData && tData.length > 0) {
+              const container = document.getElementById('timelineContainer');
+              if (container) {
+                container.innerHTML = tData.map(item => `
+                  <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-card">
+                      <div class="timeline-year">${item.year_display}</div>
+                      <h3 class="timeline-title">${item.title}</h3>
+                      <p class="timeline-desc">${item.description}</p>
+                    </div>
+                  </div>
+                `).join('');
+              }
+            }
+          }
+        } catch (e) {
+          console.info('Timeline default presentation active.');
+        }
+
+        // Dynamic Awards & Honors
+        try {
+          const aRes = await fetch(`${SUPABASE_URL}/rest/v1/awards_honors?select=*&order=sort_order.asc`, {
+            headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+          });
+          if (aRes.ok) {
+            const aData = await aRes.json();
+            if (aData && aData.length > 0) {
+              const grid = document.getElementById('awardsGrid');
+              if (grid) {
+                grid.innerHTML = aData.map(item => `
+                  <div class="award-card">
+                    <div class="award-icon-box">
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2l2.4 7.4h7.6l-6.2 4.5 2.4 7.4-6.2-4.5-6.2 4.5 2.4-7.4-6.2-4.5h7.6z"/>
+                      </svg>
+                    </div>
+                    <div class="award-details">
+                      <span class="award-year">${item.year_display}</span>
+                      <h3 class="award-title">${item.title}</h3>
+                      <p class="award-org">${item.organization}</p>
+                    </div>
+                  </div>
+                `).join('');
+              }
+            }
+          }
+        } catch (e) {
+          console.info('Awards default presentation active.');
+        }
+
       } catch (e) {
         console.info('Supabase about fetch notice: using cached content.', e);
       }

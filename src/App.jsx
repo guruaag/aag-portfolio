@@ -80,7 +80,19 @@ function App() {
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/settings" element={<Settings />} />
                     <Route path="/admin" element={<AdminLogin />} />
-                    <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                    <Route path="/admin/dashboard" element={<AdminDashboard tab="categories" />} />
+                    <Route path="/admin/categories" element={<AdminDashboard tab="categories" />} />
+                    <Route path="/admin/parichay" element={<AdminDashboard tab="about" />} />
+                    <Route path="/admin/about" element={<AdminDashboard tab="about" />} />
+                    <Route path="/admin/timeline" element={<AdminDashboard tab="timeline" />} />
+                    <Route path="/admin/awards" element={<AdminDashboard tab="awards" />} />
+                    <Route path="/admin/kavya-sangrah" element={<AdminDashboard tab="poems" />} />
+                    <Route path="/admin/poems" element={<AdminDashboard tab="poems" />} />
+                    <Route path="/admin/prakashan" element={<AdminDashboard tab="publications" />} />
+                    <Route path="/admin/publications" element={<AdminDashboard tab="publications" />} />
+                    <Route path="/admin/sampark" element={<AdminDashboard tab="settings" />} />
+                    <Route path="/admin/settings" element={<AdminDashboard tab="settings" />} />
+                    <Route path="/admin/inbox" element={<AdminDashboard tab="inbox" />} />
                   </Routes>
                 </Layout>
               } />

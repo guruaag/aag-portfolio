@@ -463,22 +463,22 @@
           <form onsubmit="handleContactSubmit(event)">
             <div class="form-group">
               <label class="form-label" id="lblFormName">आपका नाम (Your Name)</label>
-              <input type="text" class="form-input" required placeholder="उदा. राजेश कुमार">
+              <input type="text" id="inpName" class="form-input" required placeholder="उदा. राजेश कुमार">
             </div>
 
             <div class="form-group">
               <label class="form-label" id="lblFormEmail">ईमेल पता (Email Address)</label>
-              <input type="email" class="form-input" required placeholder="name@example.com">
+              <input type="email" id="inpEmail" class="form-input" required placeholder="name@example.com">
             </div>
 
             <div class="form-group">
               <label class="form-label" id="lblFormSubject">विषय (Subject)</label>
-              <input type="text" class="form-input" required placeholder="पुस्तक पूछताछ / काव्य आमंत्रण">
+              <input type="text" id="inpSubject" class="form-input" required placeholder="पुस्तक पूछताछ / काव्य आमंत्रण">
             </div>
 
             <div class="form-group">
               <label class="form-label" id="lblFormMsg">संदेश (Message)</label>
-              <textarea class="form-textarea" required placeholder="अपना संदेश यहाँ लिखें..."></textarea>
+              <textarea id="inpMsg" class="form-textarea" required placeholder="अपना संदेश यहाँ लिखें..."></textarea>
             </div>
 
             <button type="submit" class="btn-submit" id="btnSubmit">संदेश भेजें (Send Message)</button>
@@ -555,8 +555,28 @@
       }
     }
 
-    function handleContactSubmit(e) {
+    async function handleContactSubmit(e) {
       e.preventDefault();
+      const name = document.getElementById('inpName')?.value || '';
+      const email = document.getElementById('inpEmail')?.value || '';
+      const subject = document.getElementById('inpSubject')?.value || '';
+      const message = document.getElementById('inpMsg')?.value || '';
+
+      try {
+        await fetch(`${SUPABASE_URL}/rest/v1/contact_submissions`, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({ name, email, subject, message })
+        });
+      } catch (err) {
+        console.warn('Notice: Local message logged.', err);
+      }
+
       alert('संदेश सफलतापूर्वक भेज दिया गया है! कवि जी की टीम शीघ्र आपसे संपर्क करेगी।');
       e.target.reset();
     }

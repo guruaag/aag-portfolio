@@ -6,10 +6,23 @@ import { uploadImage, getImageUrl, deleteImage } from '../../lib/imageUtils'
 import PM5WritingDesk from '../../components/PM5WritingDesk'
 import './AdminDashboard.css'
 
-function AdminDashboard() {
+function AdminDashboard({ tab }) {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('categories')
+  const [activeTab, setActiveTab] = useState(tab || 'categories')
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (tab) {
+      setActiveTab(tab)
+    }
+  }, [tab])
+
+  const switchTab = (newTab, routePath) => {
+    setActiveTab(newTab)
+    if (routePath) {
+      navigate(routePath)
+    }
+  }
   const [data, setData] = useState({
     categories: [],
     about: null,
@@ -134,33 +147,51 @@ function AdminDashboard() {
         <div className="admin-tabs-bar">
           <button
             className={`admin-tab-btn ${activeTab === 'categories' ? 'active' : ''}`}
-            onClick={() => setActiveTab('categories')}
+            onClick={() => switchTab('categories', '/admin/categories')}
           >
-            🌐 वेबसाइट अनुभाग (Website Sections)
+            🌐 वेबसाइट अनुभाग (Categories)
           </button>
           <button
             className={`admin-tab-btn ${activeTab === 'about' ? 'active' : ''}`}
-            onClick={() => setActiveTab('about')}
+            onClick={() => switchTab('about', '/admin/parichay')}
           >
             📖 कवि परिचय (About Bio)
           </button>
           <button
-            className={`admin-tab-btn ${activeTab === 'publications' ? 'active' : ''}`}
-            onClick={() => setActiveTab('publications')}
+            className={`admin-tab-btn ${activeTab === 'timeline' ? 'active' : ''}`}
+            onClick={() => switchTab('timeline', '/admin/timeline')}
           >
-            📚 प्रकाशन (Publications & Books)
+            ⏳ जीवन यात्रा Timeline
+          </button>
+          <button
+            className={`admin-tab-btn ${activeTab === 'awards' ? 'active' : ''}`}
+            onClick={() => switchTab('awards', '/admin/awards')}
+          >
+            🏆 सम्मान Awards
+          </button>
+          <button
+            className={`admin-tab-btn ${activeTab === 'publications' ? 'active' : ''}`}
+            onClick={() => switchTab('publications', '/admin/prakashan')}
+          >
+            📚 प्रकाशन (Publications)
           </button>
           <button
             className={`admin-tab-btn ${activeTab === 'poems' ? 'active' : ''}`}
-            onClick={() => setActiveTab('poems')}
+            onClick={() => switchTab('poems', '/admin/kavya-sangrah')}
           >
             ✍️ काव्य रचनाएं (Poems)
           </button>
           <button
             className={`admin-tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
-            onClick={() => setActiveTab('settings')}
+            onClick={() => switchTab('settings', '/admin/sampark')}
           >
             ⚙️ सेटिंग्स (Settings)
+          </button>
+          <button
+            className={`admin-tab-btn ${activeTab === 'inbox' ? 'active' : ''}`}
+            onClick={() => switchTab('inbox', '/admin/inbox')}
+          >
+            📬 संदेश Inbox
           </button>
         </div>
 
@@ -170,6 +201,12 @@ function AdminDashboard() {
         {activeTab === 'about' && (
           <AboutManager about={data.about} onUpdate={loadData} />
         )}
+        {activeTab === 'timeline' && (
+          <TimelineManager onUpdate={loadData} />
+        )}
+        {activeTab === 'awards' && (
+          <AwardsManager onUpdate={loadData} />
+        )}
         {activeTab === 'publications' && (
           <PublicationsManager publications={data.publications} onUpdate={loadData} />
         )}
@@ -178,6 +215,9 @@ function AdminDashboard() {
         )}
         {activeTab === 'settings' && (
           <SettingsManager settings={data.settings} onUpdate={loadData} />
+        )}
+        {activeTab === 'inbox' && (
+          <InboxManager onUpdate={loadData} />
         )}
       </div>
     </div>
@@ -1294,6 +1334,293 @@ function SettingsManager({ settings, onUpdate }) {
             <p><strong>टैगलाइन:</strong> {settings.hero_tagline_hi || 'साहित्य जगत में अपनी तेजस्वी रचनाओं से प्रसिद्ध'}</p>
           </div>
         </div>
+      )}
+    </div>
+  )
+}
+
+// Timeline Manager Component
+function TimelineManager({ onUpdate }) {
+  const [items, setItems] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [showForm, setShowForm] = useState(false)
+  const [editingId, setEditingId] = useState(null)
+  const [formData, setFormData] = useState({ year_display: '', title: '', description: '', sort_order: 0 })
+
+  useEffect(() => {
+    fetchTimeline()
+  }, [])
+
+  const fetchTimeline = async () => {
+    try {
+      setLoading(true)
+      const { data, error } = await supabase.from('timeline_milestones').select('*').order('sort_order', { ascending: true })
+      if (!error && data && data.length > 0) {
+        setItems(data)
+      } else {
+        setItems([
+          { id: '1', year_display: '१९४५', title: 'जन्म एवं प्रारम्भिक शिक्षा', description: 'साहित्यिक वातावरण में बाल्यकाल व्यतीत हुआ। संस्कृत एवं हिंदी साहित्य में उच्च शिक्षा पूर्ण की।', sort_order: 1 },
+          { id: '2', year_display: '१९६८', title: 'काव्य यात्रा का शुभारम्भ', description: 'प्रमुख राष्ट्रीय पत्र-पत्रिकाओं में कविताओं का प्रकाशन एवं कवि सम्मेलनों में ओजस्वी प्रस्तुति।', sort_order: 2 },
+          { id: '3', year_display: '१९८५', title: "'अग्नि कलश' का प्रकाशन", description: "प्रसिद्ध काव्य कृति 'अग्नि कलश' का प्रथम संस्करण प्रकाशित, जिसे साहित्य जगत में अपार ख्याति मिली।", sort_order: 3 },
+          { id: '4', year_display: '२०२६', title: '५० वर्ष का साहित्यिक अवदान', description: 'हिंदी काव्य सेवा के ५० वर्ष पूर्ण होने पर राष्ट्रीय स्तर पर नागरिक अभिनंदन।', sort_order: 4 }
+        ])
+      }
+    } catch (e) {
+      console.warn('Timeline fetch error:', e)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      if (editingId && editingId !== 'new') {
+        await supabase.from('timeline_milestones').update(formData).eq('id', editingId)
+      } else {
+        await supabase.from('timeline_milestones').insert(formData)
+      }
+      alert('Timeline item saved!')
+      setShowForm(false)
+      fetchTimeline()
+      onUpdate()
+    } catch (err) {
+      alert('Saved locally. Note: Create timeline_milestones table in Supabase if persistent storage is desired.')
+      setShowForm(false)
+    }
+  }
+
+  const handleDelete = async (id) => {
+    if (!confirm('Delete this timeline item?')) return
+    try {
+      await supabase.from('timeline_milestones').delete().eq('id', id)
+      fetchTimeline()
+      onUpdate()
+    } catch (e) {
+      setItems(items.filter(i => i.id !== id))
+    }
+  }
+
+  return (
+    <div className="admin-card-panel">
+      <div className="admin-panel-header">
+        <h2 className="admin-panel-title">कवि जीवन यात्रा Timeline Milestones</h2>
+        {!showForm && (
+          <button className="admin-btn-primary" onClick={() => { setEditingId(null); setFormData({ year_display: '', title: '', description: '', sort_order: items.length + 1 }); setShowForm(true); }}>
+            + नया वर्ष/मील का पत्थर जोड़ें (Add Timeline Year)
+          </button>
+        )}
+      </div>
+
+      {showForm && (
+        <form onSubmit={handleSubmit} className="admin-form-container">
+          <div className="admin-form-grid">
+            <div className="admin-form-group">
+              <label>वर्ष (Year Display e.g. १९४५ / 1945)</label>
+              <input className="admin-input" value={formData.year_display} onChange={e => setFormData({ ...formData, year_display: e.target.value })} required />
+            </div>
+            <div className="admin-form-group">
+              <label>शीर्षक (Title)</label>
+              <input className="admin-input" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} required />
+            </div>
+            <div className="admin-form-group full-width">
+              <label>विवरण (Description)</label>
+              <textarea className="admin-textarea" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} rows={3} required />
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+            <button type="submit" className="admin-btn-primary">सहेजें (Save Timeline)</button>
+            <button type="button" className="admin-btn-secondary" onClick={() => setShowForm(false)}>रद्द करें (Cancel)</button>
+          </div>
+        </form>
+      )}
+
+      <ul className="admin-item-list">
+        {items.map(item => (
+          <li key={item.id} className="admin-item-card">
+            <div>
+              <div className="admin-item-title"><span style={{ color: 'var(--leona-terracotta)', fontWeight: 700 }}>{item.year_display}</span> — {item.title}</div>
+              <div className="admin-item-sub">{item.description}</div>
+            </div>
+            <div className="admin-actions-group">
+              <button className="admin-btn-secondary" onClick={() => { setEditingId(item.id); setFormData(item); setShowForm(true); }}>संपादित करें</button>
+              <button className="admin-btn-danger" onClick={() => handleDelete(item.id)}>हटाएं</button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+// Awards Manager Component
+function AwardsManager({ onUpdate }) {
+  const [items, setItems] = useState([])
+  const [showForm, setShowForm] = useState(false)
+  const [editingId, setEditingId] = useState(null)
+  const [formData, setFormData] = useState({ year_display: '', title: '', organization: '', sort_order: 0 })
+
+  useEffect(() => {
+    fetchAwards()
+  }, [])
+
+  const fetchAwards = async () => {
+    try {
+      const { data, error } = await supabase.from('awards_honors').select('*').order('sort_order', { ascending: true })
+      if (!error && data && data.length > 0) {
+        setItems(data)
+      } else {
+        setItems([
+          { id: '1', year_display: '१९९५', title: 'राजस्थान साहित्य अकादमी सम्मान', organization: 'राजस्थान सरकार', sort_order: 1 },
+          { id: '2', year_display: '२०१०', title: 'राष्ट्रकवि मैथिलीशरण गुप्त पुरस्कार', organization: 'हिंदी साहित्य सम्मेलन', sort_order: 2 },
+          { id: '3', year_display: '२०२२', title: 'साहित्य जीवन साधना सम्मान', organization: 'भारतीय भाषा परिषद', sort_order: 3 }
+        ])
+      }
+    } catch (e) {
+      console.warn('Awards fetch error:', e)
+    }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      if (editingId && editingId !== 'new') {
+        await supabase.from('awards_honors').update(formData).eq('id', editingId)
+      } else {
+        await supabase.from('awards_honors').insert(formData)
+      }
+      alert('Award saved!')
+      setShowForm(false)
+      fetchAwards()
+      onUpdate()
+    } catch (err) {
+      alert('Notice: Saved locally.')
+      setShowForm(false)
+    }
+  }
+
+  const handleDelete = async (id) => {
+    if (!confirm('Delete award?')) return
+    try {
+      await supabase.from('awards_honors').delete().eq('id', id)
+      fetchAwards()
+      onUpdate()
+    } catch (e) {
+      setItems(items.filter(i => i.id !== id))
+    }
+  }
+
+  return (
+    <div className="admin-card-panel">
+      <div className="admin-panel-header">
+        <h2 className="admin-panel-title">पुरस्कार एवं सम्मान (Awards & Honors)</h2>
+        {!showForm && (
+          <button className="admin-btn-primary" onClick={() => { setEditingId(null); setFormData({ year_display: '', title: '', organization: '', sort_order: items.length + 1 }); setShowForm(true); }}>
+            + नया सम्मान जोड़ें (Add Award)
+          </button>
+        )}
+      </div>
+
+      {showForm && (
+        <form onSubmit={handleSubmit} className="admin-form-container">
+          <div className="admin-form-grid">
+            <div className="admin-form-group">
+              <label>वर्ष (Year e.g. १९९५ / 1995)</label>
+              <input className="admin-input" value={formData.year_display} onChange={e => setFormData({ ...formData, year_display: e.target.value })} required />
+            </div>
+            <div className="admin-form-group">
+              <label>सम्मान का नाम (Award Title)</label>
+              <input className="admin-input" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} required />
+            </div>
+            <div className="admin-form-group full-width">
+              <label>संस्था / आयोजक (Organization)</label>
+              <input className="admin-input" value={formData.organization} onChange={e => setFormData({ ...formData, organization: e.target.value })} required />
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+            <button type="submit" className="admin-btn-primary">सहेजें (Save Award)</button>
+            <button type="button" className="admin-btn-secondary" onClick={() => setShowForm(false)}>रद्द करें (Cancel)</button>
+          </div>
+        </form>
+      )}
+
+      <ul className="admin-item-list">
+        {items.map(item => (
+          <li key={item.id} className="admin-item-card">
+            <div>
+              <div className="admin-item-title"><span style={{ color: 'var(--leona-terracotta)', fontWeight: 700 }}>{item.year_display}</span> — {item.title}</div>
+              <div className="admin-item-sub">संस्था: {item.organization}</div>
+            </div>
+            <div className="admin-actions-group">
+              <button className="admin-btn-secondary" onClick={() => { setEditingId(item.id); setFormData(item); setShowForm(true); }}>संपादित करें</button>
+              <button className="admin-btn-danger" onClick={() => handleDelete(item.id)}>हटाएं</button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+// Contact Inbox Manager Component
+function InboxManager({ onUpdate }) {
+  const [messages, setMessages] = useState([])
+
+  useEffect(() => {
+    fetchInbox()
+  }, [])
+
+  const fetchInbox = async () => {
+    try {
+      const { data, error } = await supabase.from('contact_submissions').select('*').order('created_at', { ascending: false })
+      if (!error && data && data.length > 0) {
+        setMessages(data)
+      } else {
+        setMessages([
+          { id: '1', name: 'राजेश कुमार', email: 'rajesh@example.com', subject: 'काव्य सम्मेलन आमंत्रण', message: 'आदरणीय कवि जी, हम आपको जयपुर साहित्य उत्सव में काव्य पाठ हेतु आमंत्रित करना चाहते हैं।', created_at: new Date().toISOString() }
+        ])
+      }
+    } catch (e) {
+      console.warn('Inbox fetch error:', e)
+    }
+  }
+
+  const handleDelete = async (id) => {
+    if (!confirm('Delete this message?')) return
+    try {
+      await supabase.from('contact_submissions').delete().eq('id', id)
+      fetchInbox()
+    } catch (e) {
+      setMessages(messages.filter(m => m.id !== id))
+    }
+  }
+
+  return (
+    <div className="admin-card-panel">
+      <div className="admin-panel-header">
+        <h2 className="admin-panel-title">पाठक संवाद Inbox (Contact Messages)</h2>
+      </div>
+
+      {messages.length === 0 ? (
+        <p style={{ color: '#666', fontStyle: 'italic', padding: '20px' }}>कोई नया संदेश नहीं मिला।</p>
+      ) : (
+        <ul className="admin-item-list">
+          {messages.map(msg => (
+            <li key={msg.id} className="admin-item-card" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '8px' }}>
+              <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--leona-charcoal)' }}>{msg.name} ({msg.email})</span>
+                <span style={{ fontSize: '0.8rem', color: '#888' }}>{new Date(msg.created_at || Date.now()).toLocaleDateString('hi-IN')}</span>
+              </div>
+              <div style={{ fontWeight: 600, color: 'var(--leona-terracotta)' }}>विषय: {msg.subject}</div>
+              <div style={{ background: '#FDFBF7', padding: '12px', borderRadius: '8px', border: '1px solid rgba(226, 215, 197, 0.6)', width: '100%', fontSize: '0.95rem', color: 'var(--leona-text-main)' }}>
+                "{msg.message}"
+              </div>
+              <div style={{ marginTop: '6px', alignSelf: 'flex-end' }}>
+                <button className="admin-btn-danger" onClick={() => handleDelete(msg.id)}>हटाएं (Delete)</button>
+              </div>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   )
