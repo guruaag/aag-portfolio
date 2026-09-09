@@ -619,7 +619,7 @@
         
         <!-- Author Photograph -->
         <div class="author-portrait-box">
-          <img id="poetPhoto" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80" alt="कवि गुरुप्रताप शर्मा 'आग'" class="author-portrait">
+          <img id="poetPhoto" src="/logo.png" alt="कवि गुरुप्रताप शर्मा 'आग'" class="author-portrait" onError="this.src='/logo.png'">
           <div class="portrait-badge" id="poetBadge">वरिष्ठ हिंदी साहित्यकार</div>
         </div>
 
@@ -888,7 +888,7 @@
     const SUPABASE_URL = "https://dxucmtfuyfobvcqxtnmz.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR4dWNtdGZ1eWZvYnZjcXh0bm16Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIwOTAxOTksImV4cCI6MjA3NzY2NjE5OX0.5qZ4MpbTUMKxG_2jixq1KAXs4nh580h4Nxf4NaBEE6U";
 
-    function getImageUrl(path, fallback = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80') {
+    function getImageUrl(path, fallback = '/logo.png') {
       if (!path) return fallback;
       if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
         return path;

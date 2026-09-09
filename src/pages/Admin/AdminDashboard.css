@@ -1,13 +1,24 @@
-/* ============================================
-   LEONA ADMIN DASHBOARD STYLING SYSTEM
-   Clean, Elegant, Easy & Simple to Use
-   ============================================ */
+:root {
+  --leona-terracotta: #F66E5E;
+  --leona-terracotta-dark: #D95343;
+  --leona-teal: #39BAAF;
+  --leona-teal-dark: #2C988F;
+  --leona-charcoal: #1E1B18;
+  --leona-charcoal-light: #2A2622;
+  --leona-ivory: #FAF7F2;
+  --leona-cream: #F4EFE6;
+  --leona-white: #FFFFFF;
+  --leona-gold: #D4AF37;
+  --font-serif: 'Lora', 'Tiro Devanagari Hindi', Georgia, serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-hindi: 'Tiro Devanagari Hindi', serif;
+}
 
 .admin-dashboard-container {
   min-height: 100vh;
   background-color: var(--leona-ivory, #FAF7F2);
   color: var(--leona-charcoal, #1E1B18);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-sans);
   padding-bottom: 60px;
 }
 
@@ -23,7 +34,7 @@
 }
 
 .admin-header-title {
-  font-family: 'Lora', 'Tiro Devanagari Hindi', Georgia, serif;
+  font-family: var(--font-serif);
   font-size: 1.35rem;
   font-weight: 700;
   display: flex;
@@ -113,10 +124,10 @@
   background: transparent;
   border: none;
   color: var(--leona-text-main, #2C2622);
-  font-family: 'Inter', sans-serif;
-  font-size: 0.92rem;
+  font-family: var(--font-serif);
+  font-size: 0.98rem;
   font-weight: 600;
-  padding: 10px 20px;
+  padding: 10px 22px;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.25s ease;
@@ -155,8 +166,8 @@
 }
 
 .admin-panel-title {
-  font-family: 'Lora', 'Tiro Devanagari Hindi', serif;
-  font-size: 1.35rem;
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
   font-weight: 700;
   color: var(--leona-charcoal, #1E1B18);
   margin: 0;
@@ -168,6 +179,7 @@
   border: none;
   padding: 10px 22px;
   border-radius: 24px;
+  font-family: var(--font-sans);
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
@@ -190,6 +202,7 @@
   border: 1px solid rgba(226, 215, 197, 0.8);
   padding: 8px 18px;
   border-radius: 20px;
+  font-family: var(--font-sans);
   font-weight: 600;
   font-size: 0.85rem;
   cursor: pointer;
@@ -207,6 +220,7 @@
   border: 1px solid #FFC4BD;
   padding: 8px 16px;
   border-radius: 20px;
+  font-family: var(--font-sans);
   font-weight: 600;
   font-size: 0.85rem;
   cursor: pointer;
@@ -244,7 +258,8 @@
 }
 
 .admin-form-group label {
-  font-size: 0.85rem;
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
   font-weight: 700;
   color: var(--leona-charcoal, #1E1B18);
   letter-spacing: 0.02em;
@@ -257,14 +272,15 @@
   border-radius: 8px;
   background: #FFFFFF;
   color: var(--leona-charcoal, #1E1B18);
-  font-family: 'Inter', sans-serif;
-  font-size: 0.92rem;
+  font-family: 'Tiro Devanagari Hindi', 'Lora', 'Inter', -apple-system, sans-serif;
+  font-size: 1.02rem;
+  line-height: 1.65;
   transition: all 0.2s ease;
 }
 
 .admin-textarea {
   min-height: 140px;
-  line-height: 1.6;
+  line-height: 1.7;
   resize: vertical;
 }
 

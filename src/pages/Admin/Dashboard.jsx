@@ -176,9 +176,18 @@ function AdminDashboard({ tab }) {
       <div className="admin-dashboard-container">
         {/* Leona Header Bar */}
         <header className="admin-header-bar">
-          <div className="admin-header-title">
-            <span>{tLabel("गुरुप्रताप शर्मा 'आग'", "Gurupratap Sharma 'AAG'")}</span>
-            <span className="accent-badge">CMS ADMIN</span>
+          <div className="admin-header-brand-box" onClick={() => switchTab('home', '/admin/home')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <img 
+              src={data.settings?.logo_path ? (data.settings.logo_path.startsWith('/') ? data.settings.logo_path : getImageUrl(data.settings.logo_path)) : '/logo.png'} 
+              alt="Logo" 
+              className="admin-header-logo-img" 
+              onError={(e) => { e.target.src = '/logo.png' }} 
+              style={{ width: '40px', height: '40px', borderRadius: '6px', objectFit: 'cover', border: '1.5px solid var(--leona-gold, #D4AF37)' }}
+            />
+            <div className="admin-header-title">
+              <span>{adminLang === 'hi' ? <>गुरु प्रताप शर्मा <span className="phoenix-header-aag" style={{ color: '#F66E5E', fontWeight: 600 }}>आग</span></> : <>GURU PRATAP SHARMA <span className="phoenix-header-aag" style={{ color: '#F66E5E', fontWeight: 600 }}>AAG</span></>}</span>
+              <span className="accent-badge">CMS ADMIN</span>
+            </div>
           </div>
           <div className="admin-header-actions">
             <button 
