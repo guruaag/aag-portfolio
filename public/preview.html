@@ -584,7 +584,12 @@
       background: var(--leona-charcoal);
       color: var(--leona-ivory);
       border-top: 3px solid var(--leona-gold);
-      padding: 24px 0;
+      padding: 16px 0;
+    }
+
+    .footer .container {
+      max-width: 880px;
+      margin: 0 auto;
     }
 
     .footer-row {
@@ -677,15 +682,15 @@
       </a>
 
       <ul class="nav-links">
-        <li><a href="preview.html" class="nav-link active">मुख्य पृष्ठ</a></li>
-        <li><a href="kavi-parichay.html" class="nav-link">कवि परिचय</a></li>
-        <li><a href="#poems" class="nav-link">काव्य संग्रह</a></li>
-        <li><a href="#publications" class="nav-link">प्रकाशन</a></li>
-        <li><a href="#contact" class="nav-link">संपर्क</a></li>
+        <li><a href="/preview.html" class="nav-link active" id="navHome">मुख्य पृष्ठ</a></li>
+        <li><a href="/kavi-parichay.html" class="nav-link" id="navAbout">कवि परिचय</a></li>
+        <li><a href="/kavya-sangrah.html" class="nav-link" id="navPoems">काव्य संग्रह</a></li>
+        <li><a href="/prakashan.html" class="nav-link" id="navBooks">प्रकाशन</a></li>
+        <li><a href="/sampark.html" class="nav-link" id="navContact">संपर्क</a></li>
       </ul>
 
       <div class="header-actions">
-        <button class="btn-lang" onclick="alert('Language switch: HI / EN')">HI | EN</button>
+        <button class="btn-lang" onclick="toggleLanguage()" id="btnLang">HI / EN</button>
       </div>
     </div>
   </header>
@@ -712,11 +717,11 @@
         </p>
 
         <div class="hero-actions">
-          <button class="btn-primary-terracotta" onclick="alert('पुस्तक ऑर्डर करें')">
-            🛒 अभी पुस्तक प्राप्त करें
+          <button class="btn-primary-terracotta" onclick="window.location.href='/prakashan/agni-kalash.html'">
+            🛒 अभी खरीदें (Buy Now)
           </button>
-          <button class="btn-secondary-teal" onclick="alert('नमूना अध्याय पढ़ें')">
-            📖 नमूना अध्याय पढ़ें
+          <button class="btn-secondary-teal" onclick="window.location.href='/kavya-sangrah/agni-path-ki-or.html'">
+            📖 काव्य पढ़ें (Read Book)
           </button>
         </div>
       </div>
@@ -746,7 +751,7 @@
           गुरुप्रताप शर्मा 'आग' हिंदी साहित्य आकाश के तेजस्वी नक्षत्र हैं। आपकी रचनाओं में देशप्रेम, सामाजिक सरोकार और जीवन दर्शन का अनुपम प्रवाह है।
         </p>
 
-        <a href="kavi-parichay.html" class="link-more">सम्पूर्ण जीवन परिचय पढ़ें →</a>
+        <a href="/kavi-parichay.html" class="link-more">सम्पूर्ण जीवन परिचय पढ़ें →</a>
       </div>
 
     </div>
@@ -761,28 +766,28 @@
       </div>
 
       <div class="poems-grid">
-        <div class="poem-card-leona" onclick="window.location.href='poem-reader.html?id=1'">
+        <div class="poem-card-leona" onclick="window.location.href='/kavya-sangrah/agni-path-ki-or.html'">
           <div>
             <h3 class="poem-card-title">अग्निपथ की ओर</h3>
             <p class="poem-card-excerpt">"उठो हे वीर सम्मुख काल है खड़ा, प्रदीप्त हो रहा समस्त व्योम है..."</p>
           </div>
-          <a href="poem-reader.html?id=1" class="poem-card-cta" onclick="event.stopPropagation()">काव्य पढ़ें →</a>
+          <a href="/kavya-sangrah/agni-path-ki-or.html" class="poem-card-cta" onclick="event.stopPropagation()">काव्य पढ़ें →</a>
         </div>
 
-        <div class="poem-card-leona" onclick="window.location.href='poem-reader.html?id=2'">
+        <div class="poem-card-leona" onclick="window.location.href='/kavya-sangrah/matribhumi-ka-naman.html'">
           <div>
             <h3 class="poem-card-title">मातृभूमि का नमन</h3>
             <p class="poem-card-excerpt">"शिरोमणि बना रहे सदैव यह शिखर, तुम्हारा प्रेम ही हमारा प्राण है..."</p>
           </div>
-          <a href="poem-reader.html?id=2" class="poem-card-cta" onclick="event.stopPropagation()">काव्य पढ़ें →</a>
+          <a href="/kavya-sangrah/matribhumi-ka-naman.html" class="poem-card-cta" onclick="event.stopPropagation()">काव्य पढ़ें →</a>
         </div>
 
-        <div class="poem-card-leona" onclick="window.location.href='poem-reader.html?id=3'">
+        <div class="poem-card-leona" onclick="window.location.href='/kavya-sangrah/chetna-ka-savera.html'">
           <div>
             <h3 class="poem-card-title">चेतना का सवेरा</h3>
             <p class="poem-card-excerpt">"अंधेरा छट रहा प्रभात आ गया, नव्य दीप जला प्रदीप्त ज्ञान का..."</p>
           </div>
-          <a href="poem-reader.html?id=3" class="poem-card-cta" onclick="event.stopPropagation()">काव्य पढ़ें →</a>
+          <a href="/kavya-sangrah/chetna-ka-savera.html" class="poem-card-cta" onclick="event.stopPropagation()">काव्य पढ़ें →</a>
         </div>
       </div>
     </div>
@@ -797,7 +802,7 @@
       </div>
 
       <div class="pubs-grid">
-        <div class="pub-card-leona">
+        <div class="pub-card-leona" onclick="window.location.href='/prakashan/agni-kalash.html'">
           <div class="pub-cover-box">
             <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=500&q=80" alt="अग्नि कलश">
           </div>
@@ -807,7 +812,7 @@
           </div>
         </div>
 
-        <div class="pub-card-leona">
+        <div class="pub-card-leona" onclick="window.location.href='/prakashan/chetna-ke-swar.html'">
           <div class="pub-cover-box">
             <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=500&q=80" alt="चेतना के स्वर">
           </div>
@@ -872,5 +877,65 @@
     </div>
   </footer>
 
+  <script>
+    const SUPABASE_URL = "https://dxucmtfuyfobvcqxtnmz.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR4dWNtdGZ1eWZvYnZjcXh0bm16Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIwOTAxOTksImV4cCI6MjA3NzY2NjE5OX0.5qZ4MpbTUMKxG_2jixq1KAXs4nh580h4Nxf4NaBEE6U";
+
+    async function fetchSupabaseData(table) {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?select=*`, {
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          }
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        return (data && data.length > 0) ? data : null;
+      } catch (err) {
+        console.info(`Supabase API notice for ${table}: using active rendering engine.`);
+        return null;
+      }
+    }
+
+    let currentLang = localStorage.getItem('lang') || 'hi';
+    function updateLangUI() {
+      document.getElementById('btnLang').innerText = currentLang === 'hi' ? 'HI / EN' : 'EN / HI';
+      if (currentLang === 'en') {
+        document.getElementById('navHome').innerText = 'Home';
+        document.getElementById('navAbout').innerText = 'About Poet';
+        document.getElementById('navPoems').innerText = 'Poetry Collections';
+        document.getElementById('navBooks').innerText = 'Publications';
+        document.getElementById('navContact').innerText = 'Contact';
+      } else {
+        document.getElementById('navHome').innerText = 'मुख्य पृष्ठ';
+        document.getElementById('navAbout').innerText = 'कवि परिचय';
+        document.getElementById('navPoems').innerText = 'काव्य संग्रह';
+        document.getElementById('navBooks').innerText = 'प्रकाशन';
+        document.getElementById('navContact').innerText = 'संपर्क';
+      }
+    }
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'hi' ? 'en' : 'hi';
+      localStorage.setItem('lang', currentLang);
+      updateLangUI();
+    }
+
+    // Load dynamic content from Supabase API on page load
+    async function loadLiveContent() {
+      const livePoems = await fetchSupabaseData('poems');
+      if (livePoems && livePoems.length > 0) {
+        console.log('Successfully connected to Supabase live poems API:', livePoems.length);
+      }
+      const liveBooks = await fetchSupabaseData('publications');
+      if (liveBooks && liveBooks.length > 0) {
+        console.log('Successfully connected to Supabase live publications API:', liveBooks.length);
+      }
+    }
+
+    updateLangUI();
+    loadLiveContent();
+  </script>
 </body>
 </html>

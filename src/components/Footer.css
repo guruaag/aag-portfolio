@@ -5,13 +5,13 @@
   background: #15110E;
   color: #FAF7F2;
   border-top: 1px solid rgba(212, 175, 55, 0.3);
-  padding: 20px 0;
+  padding: 16px 0;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
   z-index: 100;
 }
 
 .phoenix-footer-container {
-  max-width: var(--phoenix-max-width, 1280px);
+  max-width: 880px; /* Reduced width by 30% */
   margin: 0 auto;
   padding: 0 24px;
   width: 100%;

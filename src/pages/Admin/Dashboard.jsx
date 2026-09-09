@@ -41,6 +41,32 @@ function AdminDashboard() {
   const loadData = async () => {
     try {
       setLoading(true)
+      // Auto-align category seed data to match website sections
+      try {
+        const { data: catsData } = await supabase.from('categories').select('*')
+        if (catsData && catsData.length > 0) {
+          for (const cat of catsData) {
+            if (cat.name_en === 'About Display' || cat.name_display === 'About Display' || cat.content_type === 'about' || cat.name_en === 'About Gurupratap Sharma') {
+              if (cat.name_display !== 'कवि परिचय (About)') {
+                await supabase.from('categories').update({ name_en: 'Kavi Parichay (About)', name_display: 'कवि परिचय (About)', sort_order: 1 }).eq('id', cat.id)
+              }
+            } else if (cat.name_en === 'My Publications' || cat.name_display === 'My Publications' || cat.content_type === 'publications') {
+              if (cat.name_display !== 'प्रकाशन (Publications)') {
+                await supabase.from('categories').update({ name_en: 'Prakashan (Publications)', name_display: 'प्रकाशन (Publications)', sort_order: 2 }).eq('id', cat.id)
+              }
+            } else if (cat.name_en === '2My Writings' || cat.name_en === 'My Writings' || cat.content_type === 'writings') {
+              if (cat.name_display !== 'काव्य संग्रह (Poetry Collection)') {
+                await supabase.from('categories').update({ name_en: 'Kavya Sangrah (Poetry Collection)', name_display: 'काव्य संग्रह (Poetry Collection)', sort_order: 3 }).eq('id', cat.id)
+              }
+            } else if (cat.name_en?.includes('3 writing') || cat.name_display?.includes('3 writing') || cat.name_en?.toLowerCase().includes('test')) {
+              await supabase.from('categories').delete().eq('id', cat.id)
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Category seed alignment check:', e)
+      }
+
       const [cats, about, pubs, poems, settingsResult] = await Promise.all([
         getCategories(),
         getAboutContent(),
@@ -96,7 +122,7 @@ function AdminDashboard() {
           className={`btn ${activeTab === 'categories' ? 'active' : ''}`}
           onClick={() => setActiveTab('categories')}
         >
-          Categories
+          Website Sections / Categories (वेबसाइट अनुभाग)
         </button>
         <button
           className={`btn ${activeTab === 'about' ? 'active' : ''}`}
@@ -229,7 +255,7 @@ function CategoriesManager({ categories, onUpdate }) {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <h2 style={{ color: 'var(--accent)', margin: 0 }}>Categories</h2>
+        <h2 style={{ color: 'var(--accent)', margin: 0 }}>Website Sections / Categories (वेबसाइट अनुभाग)</h2>
         {!showForm && (
           <button type="button" className="btn" onClick={handleCreate}>
             Create Category

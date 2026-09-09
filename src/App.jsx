@@ -21,6 +21,18 @@ import './styles/font-standardization.css'
 import './styles/premium-theme.css'
 import './styles/scroll-reveal.css'
 
+function DynamicIframeRoute() {
+  const pathname = window.location.pathname
+  const search = window.location.search
+  return (
+    <iframe
+      src={`${pathname}${search}`}
+      style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }}
+      title="Page View"
+    />
+  )
+}
+
 function App() {
   useEffect(() => {
     // Initialize theme system on app load
@@ -45,8 +57,16 @@ function App() {
               <Route path="/preview" element={<iframe src="/preview.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Prototype Preview" />} />
               <Route path="/preview.html" element={<iframe src="/preview.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Prototype Preview" />} />
               <Route path="/kavi-parichay.html" element={<iframe src="/kavi-parichay.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Kavi Parichay" />} />
-              <Route path="/poem-reader.html" element={<iframe src="/poem-reader.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Poem Reader" />} />
-              <Route path="/poem.html" element={<iframe src="/poem.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Poem View" />} />
+              <Route path="/kavya-sangrah.html" element={<iframe src="/kavya-sangrah.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Kavya Sangrah" />} />
+              <Route path="/kavya-sangrah/*" element={<DynamicIframeRoute />} />
+              <Route path="/prakashan.html" element={<iframe src="/prakashan.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Prakashan" />} />
+              <Route path="/prakashan/*" element={<DynamicIframeRoute />} />
+              <Route path="/pustak/*" element={<DynamicIframeRoute />} />
+              <Route path="/sampark.html" element={<iframe src="/sampark.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Sampark" />} />
+              <Route path="/book-detail.html" element={<iframe src={`/book-detail.html${window.location.search}`} style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Book Detail" />} />
+              <Route path="/book.html" element={<iframe src={`/book.html${window.location.search}`} style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Book View" />} />
+              <Route path="/poem-reader.html" element={<iframe src={`/poem-reader.html${window.location.search}`} style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Poem Reader" />} />
+              <Route path="/poem.html" element={<iframe src={`/poem.html${window.location.search}`} style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Poem View" />} />
 
               {/* Standard routes inside React Layout wrapper */}
               <Route path="*" element={

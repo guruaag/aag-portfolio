@@ -43,15 +43,21 @@
       scroll-behavior: smooth;
     }
 
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
     body {
       font-family: var(--font-sans);
       background-color: var(--leona-ivory);
-      color: var(--leona-text-main);
+      color: var(--leona-charcoal);
       line-height: 1.7;
-      overflow-x: hidden;
-      min-height: 100vh;
       display: flex;
       flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
 
     /* Container Utility */
@@ -63,113 +69,100 @@
     }
 
     /* ============================================
-       1. COMPACT SINGLE-LINE HEADER WITH BREADCRUMB
+       1. STICKY HEADER & NAVIGATION
        ============================================ */
-    .compact-header {
+    .header {
+      flex-shrink: 0;
       position: sticky;
       top: 0;
       z-index: 1000;
       background: rgba(250, 247, 242, 0.96);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid rgba(226, 215, 197, 0.6);
-      padding: 12px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
       transition: all 0.3s ease;
     }
 
-    .header-left {
+    .header-inner {
       display: flex;
       align-items: center;
-      gap: 16px;
+      justify-content: space-between;
+      height: 80px;
     }
 
     .brand-logo {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       text-decoration: none;
       color: var(--leona-charcoal);
     }
 
     .brand-logo img {
-      width: 36px;
-      height: 36px;
+      width: 44px;
+      height: 44px;
       border-radius: 6px;
       object-fit: cover;
     }
 
     .brand-title {
       font-family: var(--font-serif);
-      font-size: 1.1rem;
+      font-size: 1.25rem;
       font-weight: 700;
-      white-space: nowrap;
+      letter-spacing: -0.02em;
     }
 
     .brand-title .accent {
       color: var(--leona-terracotta);
     }
 
-    .header-divider {
-      width: 1px;
-      height: 20px;
-      background: rgba(226, 215, 197, 0.8);
-    }
-
-    /* Breadcrumb style */
-    .header-breadcrumb {
-      font-size: 0.85rem;
-      color: var(--leona-text-muted);
+    .nav-links {
       display: flex;
       align-items: center;
-      gap: 6px;
-      white-space: nowrap;
+      gap: 32px;
+      list-style: none;
     }
 
-    .breadcrumb-item {
-      color: var(--leona-text-muted);
-    }
-
-    .breadcrumb-item.active {
-      color: var(--leona-terracotta-dark);
+    .nav-link {
+      text-decoration: none;
+      font-size: 0.95rem;
       font-weight: 600;
+      color: var(--leona-text-main);
+      position: relative;
+      padding: 6px 0;
+      transition: color 0.3s ease;
     }
 
-    .header-right {
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--leona-terracotta);
+      transition: width 0.3s ease;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      color: var(--leona-terracotta);
+    }
+
+    .nav-link:hover::after, .nav-link.active::after {
+      width: 100%;
+    }
+
+    .header-actions {
       display: flex;
       align-items: center;
-      gap: 12px;
-    }
-
-    /* Focus Mode Button */
-    .btn-focus {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 14px;
-      border: 1.5px solid var(--leona-gold);
-      border-radius: 20px;
-      background: rgba(212, 175, 55, 0.1);
-      color: var(--leona-charcoal);
-      font-size: 0.82rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .btn-focus:hover {
-      background: var(--leona-gold);
-      color: var(--leona-charcoal);
-      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+      gap: 16px;
     }
 
     .btn-lang {
-      padding: 6px 14px;
+      padding: 6px 16px;
       border: 1.5px solid var(--leona-charcoal);
       border-radius: 20px;
       background: transparent;
-      font-size: 0.82rem;
+      font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
@@ -182,26 +175,37 @@
     }
 
     /* ============================================
-       2. SINGLE PAGE READER VIEW (STRICT SINGLE VIEW)
+       2. SINGLE POEM READER MAIN SECTION
        ============================================ */
     .reader-section {
-      flex: 1;
-      padding: 30px 0;
-      background: linear-gradient(135deg, var(--leona-ivory) 0%, var(--leona-cream) 100%);
+      flex: 1; /* Fills space between header and footer */
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: calc(100vh - 110px);
+      padding: 16px 0;
+      background: linear-gradient(135deg, var(--leona-ivory) 0%, var(--leona-cream) 100%);
+    }
+
+    .reader-section > .container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
     }
 
     .reader-wrapper {
       position: relative;
-      max-width: 720px;
+      max-width: 800px;
       width: 100%;
-      margin: 0 auto;
+      flex: 1;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
+      margin: 0 auto;
     }
 
     /* Minimalist side chevron arrows */
@@ -209,8 +213,8 @@
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      width: 46px;
-      height: 46px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       background: var(--leona-white);
       border: 1.5px solid rgba(212, 175, 55, 0.4);
@@ -239,120 +243,231 @@
     }
 
     .chevron-btn.left {
-      left: -60px;
+      left: -58px;
     }
 
     .chevron-btn.right {
-      right: -60px;
+      right: -58px;
     }
 
-    /* Single Reader Paper Sheet */
+    /* Single Reader Paper Sheet: Full height card canvas */
     .reader-paper {
       background: var(--leona-white);
       border-radius: 12px;
-      padding: 45px 50px;
+      padding: 20px 40px 16px;
       border: 1px solid rgba(226, 215, 197, 0.8);
       box-shadow: 0 12px 40px rgba(30, 27, 24, 0.08);
       position: relative;
       border-top: 4px solid var(--leona-gold);
-      min-height: 70vh;
       width: 100%;
+      flex: 1;
+      min-height: 420px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       transition: all 0.3s ease;
     }
 
+    /* Poem Title Header: Pinned at Top */
     .reader-paper-header {
+      flex-shrink: 0;
       text-align: center;
-      padding-bottom: 20px;
+      padding-top: 4px;
+      padding-bottom: 8px;
       border-bottom: 1px dashed rgba(226, 215, 197, 0.8);
-      margin-bottom: 28px;
-    }
-
-    .poem-meta-category {
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--leona-terracotta-dark);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-bottom: 6px;
+      margin-bottom: 10px;
     }
 
     .poem-main-title {
       font-family: var(--font-serif);
-      font-size: 2.2rem;
+      font-size: 1.6rem;
       font-weight: 700;
       color: var(--leona-charcoal);
-      margin-bottom: 4px;
+      margin-bottom: 0;
+      line-height: 1.2;
     }
 
-    .poem-author-sub {
-      font-family: var(--font-serif);
-      font-size: 0.95rem;
-      color: var(--leona-text-muted);
-      font-style: italic;
-    }
-
-    /* Poem Body Verses */
+    /* Poem Body Verses: Internal Scrollable Canvas */
     .poem-body {
       font-family: var(--font-hindi);
-      font-size: 1.35rem;
+      font-size: 1.0rem;
       color: var(--leona-text-main);
-      line-height: 1.8;
+      line-height: 1.45;
       text-align: center;
       white-space: pre-line;
       flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px 0;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 8px 12px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(212, 175, 55, 0.5) transparent;
     }
 
-    /* ============================================
-       3. INLINE THIN STICKY CONTROL STRIP (FOOTER)
-       ============================================ */
-    .control-strip {
-      position: sticky;
-      bottom: 0;
-      z-index: 1000;
-      background: rgba(30, 27, 24, 0.96);
-      backdrop-filter: blur(10px);
-      border-top: 1px solid rgba(212, 175, 55, 0.3);
-      padding: 10px 24px;
-      color: var(--leona-ivory);
+    /* Card Footer: Pinned at Bottom */
+    .reader-paper-footer {
+      flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      transition: all 0.3s ease;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(226, 215, 197, 0.8);
+      font-size: 0.85rem;
+      position: relative;
     }
 
-    .strip-back-link {
-      color: rgba(250, 247, 242, 0.85);
+    /* Left Aligned: Back Icon */
+    .back-link-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--leona-cream);
+      color: var(--leona-terracotta-dark);
+      transition: all 0.2s ease;
+      border: 1px solid rgba(246, 110, 94, 0.25);
       text-decoration: none;
-      font-size: 0.88rem;
-      font-weight: 600;
-      transition: color 0.2s ease;
     }
 
-    .strip-back-link:hover {
-      color: var(--leona-gold);
+    .back-link-icon:hover {
+      background: var(--leona-terracotta);
+      color: #FFFFFF;
+      transform: translateX(-3px);
     }
 
-    .strip-page-counter {
-      background: rgba(212, 175, 55, 0.15);
-      color: var(--leona-gold);
-      padding: 3px 14px;
-      border-radius: 14px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      border: 1px solid rgba(212, 175, 55, 0.4);
-    }
-
-    .strip-right {
+    /* Center Aligned Toolbar (Fullscreen | Share | Page Number) */
+    .footer-center-toolbar {
       display: flex;
       align-items: center;
+      gap: 12px;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .toolbar-btn {
+      background: transparent;
+      border: none;
+      color: var(--leona-charcoal);
+      opacity: 0.75;
+      cursor: pointer;
+      padding: 5px 8px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .toolbar-btn:hover {
+      opacity: 1.0;
+      background: var(--leona-cream);
+      color: var(--leona-terracotta-dark);
+    }
+
+    .toolbar-badge {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--leona-charcoal);
+      opacity: 0.85;
+      background: var(--leona-cream);
+      padding: 4px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Share Dropdown Menu */
+    .share-dropdown-wrapper {
+      position: relative;
+    }
+
+    .share-menu-popup {
+      display: none;
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #FFFFFF;
+      border: 1px solid rgba(226, 215, 197, 0.9);
+      border-radius: 8px;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.15);
+      padding: 6px 0;
+      z-index: 100;
+      min-width: 140px;
+    }
+
+    .share-menu-popup.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .share-menu-popup button {
+      background: transparent;
+      border: none;
+      padding: 8px 14px;
+      text-align: left;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--leona-charcoal);
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s ease;
+    }
+
+    .share-menu-popup button:hover {
+      background: var(--leona-cream);
+      color: var(--leona-terracotta-dark);
+    }
+
+    /* Right Aligned Author Credit */
+    .poet-credit {
+      font-family: var(--font-hindi);
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--leona-terracotta-dark);
+    }
+
+    /* ============================================
+       3. SITE-WIDE MAIN FOOTER (REDUCED WIDTH & TRUNCATED COPYRIGHT)
+       ============================================ */
+    .footer {
+      flex-shrink: 0;
+      background: var(--leona-charcoal);
+      color: var(--leona-ivory);
+      padding: 16px 0;
+      border-top: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    .footer .container {
+      max-width: 880px; /* Reduced total container width by 30% */
+      margin: 0 auto;
+    }
+
+    .footer-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
       gap: 16px;
+    }
+
+    .footer-copyright {
+      font-size: 0.88rem;
+      color: rgba(250, 247, 242, 0.75);
+    }
+
+    .footer-social-icons {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
     .social-icon-btn {
@@ -363,35 +478,37 @@
       border: none;
       color: #8E867E;
       text-decoration: none;
-      padding: 2px;
-      transition: color 0.2s ease;
-    }
-
-    .social-icon-btn:hover {
-      color: var(--leona-gold);
-    }
-
-    .strip-admin-link {
-      color: rgba(250, 247, 242, 0.7);
-      text-decoration: none;
-      font-size: 0.82rem;
-      font-weight: 600;
-      padding: 4px 12px;
-      border: 1px solid rgba(250, 247, 242, 0.2);
-      border-radius: 14px;
+      padding: 4px;
       transition: all 0.3s ease;
     }
 
-    .strip-admin-link:hover {
+    .social-icon-btn:hover {
+      color: var(--leona-terracotta);
+      transform: translateY(-2px);
+    }
+
+    .footer-admin-link {
+      color: rgba(250, 247, 242, 0.7);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 6px 14px;
+      border: 1px solid rgba(250, 247, 242, 0.2);
+      border-radius: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .footer-admin-link:hover {
       color: var(--leona-gold);
       border-color: var(--leona-gold);
+      background: rgba(212, 175, 55, 0.1);
     }
 
     /* ============================================
        4. DISTRACTION-FREE FOCUS MODE
        ============================================ */
-    body.focus-mode-active .compact-header,
-    body.focus-mode-active .control-strip {
+    body.focus-mode-active .header,
+    body.focus-mode-active .footer {
       display: none !important;
     }
 
@@ -438,10 +555,11 @@
         right: 8px;
       }
       .reader-paper {
-        padding: 30px 24px;
+        padding: 24px 20px 28px;
       }
-      .header-breadcrumb {
-        display: none;
+      .footer-row {
+        flex-direction: column;
+        text-align: center;
       }
     }
   </style>
@@ -453,38 +571,36 @@
     ✕ निकास ध्यान मोड (Exit Focus)
   </button>
 
-  <!-- 1. COMPACT SINGLE-LINE HEADER WITH BREADCRUMB -->
-  <header class="compact-header">
-    <div class="header-left">
-      <a href="preview.html" class="brand-logo">
-        <img src="/logo.png" alt="Logo" onerror="this.src='https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=100&q=80'">
-        <span class="brand-title">गुरुप्रताप शर्मा <span class="accent">'आग'</span></span>
-      </a>
-      
-      <div class="header-divider"></div>
+  <!-- 1. STICKY HEADER & DEDUPLICATED NAVIGATION -->
+  <header class="header">
+    <div class="container">
+      <div class="header-inner">
+        <!-- Brand Logo -->
+        <a href="/preview.html" class="brand-logo">
+          <img src="/logo.png" alt="Logo" onerror="this.src='https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=100&q=80'">
+          <span class="brand-title">गुरुप्रताप शर्मा <span class="accent">'आग'</span></span>
+        </a>
 
-      <nav class="header-breadcrumb">
-        <a href="preview.html#poems" class="breadcrumb-item" style="text-decoration:none; color:inherit;">काव्य संग्रह</a>
-        <span>&gt;</span>
-        <span class="breadcrumb-item" id="crumbCollection">अग्नि कलश</span>
-        <span>&gt;</span>
-        <span class="breadcrumb-item active" id="crumbTitle">अग्निपथ की ओर</span>
-      </nav>
-    </div>
+        <!-- Main Navigation Links -->
+        <nav>
+          <ul class="nav-links">
+            <li><a href="/preview.html" class="nav-link" id="navHome">मुख्य पृष्ठ</a></li>
+            <li><a href="/kavi-parichay.html" class="nav-link" id="navAbout">कवि परिचय</a></li>
+            <li><a href="/kavya-sangrah.html" class="nav-link active" id="navPoems">काव्य संग्रह</a></li>
+            <li><a href="/prakashan.html" class="nav-link" id="navBooks">प्रकाशन</a></li>
+            <li><a href="/sampark.html" class="nav-link" id="navContact">संपर्क</a></li>
+          </ul>
+        </nav>
 
-    <div class="header-right">
-      <button class="btn-focus" onclick="toggleFocusMode()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
-        </svg>
-        ⛶ ध्यान मोड
-      </button>
-
-      <button class="btn-lang">HI / EN</button>
+        <!-- Header Actions: Language Switcher Only -->
+        <div class="header-actions">
+          <button class="btn-lang" onclick="toggleLanguage()" id="btnLang">HI / EN</button>
+        </div>
+      </div>
     </div>
   </header>
 
-  <!-- 2. STRICT SINGLE PAGE READER VIEW -->
+  <!-- 2. SINGLE POEM READER MAIN SECTION -->
   <main class="reader-section">
     <div class="container">
       <div class="reader-wrapper">
@@ -499,18 +615,62 @@
         <!-- Single Reader Paper Sheet -->
         <article class="reader-paper" id="poemSheet">
           
+          <!-- Poem Title Only Header (Section C) -->
           <div class="reader-paper-header">
-            <div class="poem-meta-category" id="poemCategory">काव्य संग्रह • अग्नि कलश</div>
             <h1 class="poem-main-title" id="poemTitle">अग्निपथ की ओर</h1>
-            <div class="poem-author-sub">— गुरुप्रताप शर्मा 'आग'</div>
           </div>
 
+          <!-- Poem Body Verses (Displays 12-16 lines comfortably) -->
           <div class="poem-body" id="poemVerse">
             "उठो हे वीर सम्मुख काल है खड़ा,
             प्रदीप्त हो रहा समस्त व्योम है।
 
             न डगमगाओ विपदा की घनी घटा में,
             सत्य की समिधा से प्रज्वलित यह होम है।"
+          </div>
+
+          <!-- 3-Column Card Footer (Section D) -->
+          <div class="reader-paper-footer">
+            <!-- Left Aligned: Back Icon -->
+            <a href="preview.html#poems" class="back-link-icon" title="मुख्य पृष्ठ पर जाएं">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+            </a>
+
+            <!-- Center Aligned: Toolbar Controls (Fullscreen | Share Dropdown | Page Number) -->
+            <div class="footer-center-toolbar">
+              <button class="toolbar-btn" onclick="toggleFocusMode()" title="ध्यान मोड (Fullscreen Focus)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                </svg>
+              </button>
+
+              <div class="share-dropdown-wrapper">
+                <button class="toolbar-btn" onclick="toggleShareMenu(event)" title="शेयर करें (Share Options)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="18" cy="5" r="3"/>
+                    <circle cx="6" cy="12" r="3"/>
+                    <circle cx="18" cy="19" r="3"/>
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                  </svg>
+                </button>
+
+                <!-- Share Options Menu Popup -->
+                <div class="share-menu-popup" id="shareMenuPopup">
+                  <button onclick="shareVia('whatsapp')">💬 WhatsApp</button>
+                  <button onclick="shareVia('facebook')">🌐 Facebook</button>
+                  <button onclick="shareVia('copy')">🔗 Copy Link</button>
+                </div>
+              </div>
+
+              <span class="toolbar-badge" id="pageBadge">📄 १/३</span>
+            </div>
+
+            <!-- Right Aligned: Author Credit -->
+            <span class="poet-credit">गुरुप्रताप शर्मा 'आग'</span>
           </div>
 
         </article>
@@ -526,106 +686,204 @@
     </div>
   </main>
 
-  <!-- 3. INLINE THIN STICKY CONTROL STRIP (FOOTER) -->
-  <div class="control-strip">
-    <a href="preview.html#poems" class="strip-back-link">← मुख्य पृष्ठ पर वापस जाएं</a>
-    
-    <span class="strip-page-counter" id="pageCounter">पृष्ठ १ / ३</span>
+  <!-- 3. SITE-WIDE MAIN FOOTER (REDUCED WIDTH & TRUNCATED COPYRIGHT) -->
+  <footer class="footer" id="contact">
+    <div class="container">
+      <div class="footer-row">
+        
+        <!-- Left: Copyright Note -->
+        <div class="footer-copyright">
+          © २०२६ गुरुप्रताप शर्मा 'आग'
+        </div>
 
-    <div class="strip-right">
-      <a href="#" class="social-icon-btn" title="WhatsApp">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-        </svg>
-      </a>
+        <!-- Middle: Social SVG Icon Buttons -->
+        <div class="footer-social-icons">
+          <!-- WhatsApp SVG -->
+          <a href="#" class="social-icon-btn" title="WhatsApp">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+            </svg>
+          </a>
 
-      <a href="/admin" class="strip-admin-link">प्रशासन (Admin)</a>
+          <!-- Facebook SVG -->
+          <a href="#" class="social-icon-btn" title="Facebook">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+          </a>
+
+          <!-- Instagram SVG -->
+          <a href="#" class="social-icon-btn" title="Instagram">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+            </svg>
+          </a>
+
+          <!-- YouTube SVG -->
+          <a href="#" class="social-icon-btn" title="YouTube">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+            </svg>
+          </a>
+        </div>
+
+        <!-- Right: Relocated Admin Link -->
+        <div>
+          <a href="/admin" class="footer-admin-link">प्रशासन (Admin)</a>
+        </div>
+
+      </div>
     </div>
-  </div>
+  </footer>
 
   <script>
     const poemsData = {
       "1": {
         collection: "अग्नि कलश",
-        category: "काव्य संग्रह • अग्नि कलश",
         title: "अग्निपथ की ओर",
         pages: [
           `"उठो हे वीर सम्मुख काल है खड़ा,
           प्रदीप्त हो रहा समस्त व्योम है।
 
           न डगमगाओ विपदा की घनी घटा में,
-          सत्य की समिधा से प्रज्वलित यह होम है।"`,
-          
-          `"बढ़ो निरंतर बाधाओं को चीरते,
-          पग-पग पर नया प्रकाश चमकेगा।
+          सत्य की समिधा से प्रज्वलित यह होम है।
+
+          बढ़ो निरंतर बाधाओं को चीरते हुए,
+          पग-पग पर नया प्रकाश चमकेगा सदा।
 
           जो कायरता के बंधनों को तोड़ेगा,
-          उसी के मस्तक पर विजय-तिलक चमकेगा।"`,
+          उसी के मस्तक पर विजय-तिलक सजेगा।
+
+          कलम जब ओज उगलती है गगन में,
+          युग परिवर्तन की ध्वनि गूंज उठती है।
+
+          सत्य और न्याय की इस पावन राह पर,
+          अग्नि की अमिट शिखा सदा जलती है।
+
+          संघर्ष ही तो जीवन का सच्चा राग है,
+          हर कदम पर जलता कर्म का चिराग है।
+
+          नव सूर्य उगेगा तम को भेदकर यहाँ,
+          मानवता का अमर गान गूंजेगा जहाँ।
+
+          अज्ञान की रात अब ढल चुकी है धरा पर,
+          चेतना का नया सवेरा छा गया हर नगर।"`,
           
-          `"कलम जब ओज उगलती है गगन में,
+          `"जो कायरता के बंधनों को तोड़ेगा,
+          उसी के मस्तक पर विजय-तिलक चमकेगा।
+
+          कलम जब ओज उगलती है गगन में,
           युग परिवर्तन की ध्वनि गूंज उठती है।
 
           सत्य और न्याय की इस अमर राह पर,
-          अग्नि की पावन शिखा सदा जलती है。"`
+          अग्नि की पावन शिखा सदा जलती है।"`,
+          
+          `"संघर्ष ही तो जीवन का सच्चा राग है,
+          हर कदम पर जलता कर्म का चिराग है।
+
+          नव सूर्य उगेगा तम को भेदकर यहाँ,
+          मानवता का अमर गान गूंजेगा जहाँ।"`,
         ]
       },
       "2": {
         collection: "मातृभूमि का नमन",
-        category: "काव्य संग्रह • मातृभूमि का नमन",
         title: "मातृभूमि का नमन",
         pages: [
           `"शिरोमणि बना रहे सदैव यह शिखर,
           तुम्हारा प्रेम ही हमारा प्राण है।
 
           हे मातृभूमि तेरे पावन चरणों में,
-          हमारा सर्वस्व आज कुर्बान है।"`,
-          
-          `"हिमालय की उत्तुंग चोटियों से,
-          सागर की विशाल उमड़ती लहरों तक।
+          हमारा सर्वस्व आज कुर्बान है।
 
-          गूंज रहा एक ही अमर गौरव गान,
-          तेरी महिमा अनंत युग-युगों तक。"`
+          हिमालय की उत्तुंग चोटियों से लेकर,
+          सागर की विशाल उमड़ती लहरों तक।"`,
+          
+          `"गूंज रहा एक ही अमर गौरव गान,
+          तेरी महिमा अनंत युग-युगों तक।
+
+          धन्य है यह माटी जिसमें जन्म लिया,
+          अमर प्रेम का पावन दीप जलाया।"`,
         ]
       },
       "3": {
         collection: "चेतना के स्वर",
-        category: "काव्य संग्रह • चेतना के स्वर",
         title: "चेतना का सवेरा",
         pages: [
           `"अंधेरा छट रहा प्रभात आ गया,
           नव्य दीप जला प्रदीप्त ज्ञान का।
 
           अज्ञान की रात अब ढल चुकी है,
-          संगीत गूंज उठा नव विधान का।"`,
-          
-          `"चेतना के इस अनमोल क्षितिज पर,
-          मानवता का नया सूर्य उगेगा।
+          संगीत गूंज उठा नव विधान का।
 
-          भेदभाव के सारे तमस मिटेंगे,
-          समरसता का अमर संदेश सजेगा。"`
+          चेतना के इस अनमोल क्षितिज पर,
+          मानवता का नया सूर्य उगेगा।"`,
+          
+          `"भेदभाव के सारे तमस मिटेंगे,
+          समरसता का अमर संदेश सजेगा।
+
+          सत्य की अमर जोत से जगमगाएगा,
+          हर हृदय में नया उल्लास छाएगा।"`,
         ]
       }
     };
 
-    // Get poem ID from URL params (default to 1)
+    // Slug mapping for clean SEO URLs
+    const slugToIdMap = {
+      'agni-path-ki-or': '1',
+      'agni-pariksha001': '1',
+      'matribhumi-ka-naman': '2',
+      'chetna-ka-savera': '3',
+      'vishwa-shanti-prarthana': '4',
+      'veertan-ka-sangram': '5',
+      'manavta-ka-gaan': '6'
+    };
+
+    // Get poem ID from URL params or URL pathname slug (default to 1)
     const urlParams = new URLSearchParams(window.location.search);
-    const poemId = urlParams.get('id') || '1';
+    let poemId = urlParams.get('id');
+    if (!poemId) {
+      const pathname = window.location.pathname;
+      for (const [slug, id] of Object.entries(slugToIdMap)) {
+        if (pathname.includes(slug)) {
+          poemId = id;
+          break;
+        }
+      }
+    }
+    if (!poemId) poemId = '1';
     
     const currentPoem = poemsData[poemId] || poemsData["1"];
     let currentPage = 0;
 
     function renderPage() {
-      document.getElementById('crumbCollection').innerText = currentPoem.collection;
-      document.getElementById('crumbTitle').innerText = currentPoem.title;
-      document.getElementById('poemCategory').innerText = currentPoem.category;
       document.getElementById('poemTitle').innerText = currentPoem.title;
-      document.getElementById('poemVerse').innerText = currentPoem.pages[currentPage];
+      const verseElem = document.getElementById('poemVerse');
+      const pageText = currentPoem.pages[currentPage];
+      verseElem.innerText = pageText;
+
+      // Dynamic font size adjustment to fit 8-20 lines perfectly
+      const lineCount = pageText.split('\n').filter(l => l.trim().length > 0).length;
+      if (lineCount <= 8) {
+        verseElem.style.fontSize = '1.2rem';
+        verseElem.style.lineHeight = '1.5';
+      } else if (lineCount <= 12) {
+        verseElem.style.fontSize = '1.08rem';
+        verseElem.style.lineHeight = '1.42';
+      } else if (lineCount <= 16) {
+        verseElem.style.fontSize = '1.0rem';
+        verseElem.style.lineHeight = '1.36';
+      } else {
+        verseElem.style.fontSize = '0.94rem';
+        verseElem.style.lineHeight = '1.3';
+      }
       
       const hindiDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
       const currentHindi = String(currentPage + 1).replace(/[0-9]/g, w => hindiDigits[+w]);
       const totalHindi = String(currentPoem.pages.length).replace(/[0-9]/g, w => hindiDigits[+w]);
       
-      document.getElementById('pageCounter').innerText = `पृष्ठ ${currentHindi} / ${totalHindi}`;
+      document.getElementById('pageBadge').innerText = `📄 ${currentHindi}/${totalHindi}`;
       
       document.getElementById('prevBtn').disabled = (currentPage === 0);
       document.getElementById('nextBtn').disabled = (currentPage === currentPoem.pages.length - 1);
@@ -649,6 +907,65 @@
       document.body.classList.toggle('focus-mode-active');
     }
 
+    function toggleShareMenu(event) {
+      event.stopPropagation();
+      const popup = document.getElementById('shareMenuPopup');
+      popup.classList.toggle('active');
+    }
+
+    function shareVia(platform) {
+      const shareUrl = window.location.href;
+      const shareText = `अग्निपथ की ओर - काव्य रचना | गुरुप्रताप शर्मा 'आग': ${shareUrl}`;
+      
+      if (platform === 'whatsapp') {
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+      } else if (platform === 'facebook') {
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank');
+      } else if (platform === 'copy') {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(shareUrl).then(() => {
+            alert('काव्य लिंक कॉपी हो गया है! (Poem link copied!)');
+          });
+        } else {
+          alert(shareUrl);
+        }
+      }
+      document.getElementById('shareMenuPopup').classList.remove('active');
+    }
+
+    // Language switcher
+    let currentLang = localStorage.getItem('lang') || 'hi';
+    function updateLangUI() {
+      document.getElementById('btnLang').innerText = currentLang === 'hi' ? 'HI / EN' : 'EN / HI';
+      if (currentLang === 'en') {
+        document.getElementById('navHome').innerText = 'Home';
+        document.getElementById('navAbout').innerText = 'About Poet';
+        document.getElementById('navPoems').innerText = 'Poetry Collections';
+        document.getElementById('navBooks').innerText = 'Publications';
+        document.getElementById('navContact').innerText = 'Contact';
+      } else {
+        document.getElementById('navHome').innerText = 'मुख्य पृष्ठ';
+        document.getElementById('navAbout').innerText = 'कवि परिचय';
+        document.getElementById('navPoems').innerText = 'काव्य संग्रह';
+        document.getElementById('navBooks').innerText = 'प्रकाशन';
+        document.getElementById('navContact').innerText = 'संपर्क';
+      }
+    }
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'hi' ? 'en' : 'hi';
+      localStorage.setItem('lang', currentLang);
+      updateLangUI();
+    }
+
+    // Close share popup on click outside
+    document.addEventListener('click', (e) => {
+      const popup = document.getElementById('shareMenuPopup');
+      if (popup && popup.classList.contains('active') && !e.target.closest('.share-dropdown-wrapper')) {
+        popup.classList.remove('active');
+      }
+    });
+
     // Keyboard Arrow Key Navigation
     document.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowLeft') prevPage();
@@ -660,6 +977,7 @@
 
     // Initial render
     renderPage();
+    updateLangUI();
   </script>
 </body>
 </html>
