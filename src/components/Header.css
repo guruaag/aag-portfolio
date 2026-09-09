@@ -231,7 +231,7 @@
   }
   
   .phoenix-menu-button {
-    display: flex;
+    display: none !important;
   }
 }
 

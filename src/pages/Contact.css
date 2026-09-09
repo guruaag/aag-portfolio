@@ -43,7 +43,7 @@
 
 .phoenix-contact-card {
   background: var(--phoenix-white);
-  border: none;
+  border: 1px solid rgba(212, 175, 55, 0.2);
   border-radius: var(--phoenix-radius-lg);
   padding: var(--phoenix-space-2xl);
   box-shadow: var(--phoenix-shadow-md);
@@ -53,16 +53,40 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: var(--phoenix-space-md);
 }
 
 .phoenix-contact-card:hover {
-  box-shadow: var(--phoenix-shadow-lg);
+  border-color: #D4AF37;
+  box-shadow: 0 8px 24px rgba(212, 175, 55, 0.15);
+}
+
+.phoenix-contact-card-icon-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--phoenix-space-xs);
+  transition: all 0.3s ease;
+}
+
+.phoenix-contact-card:hover .phoenix-contact-card-icon-box {
+  background: #D4AF37;
+  color: #15110E;
+  transform: scale(1.1);
 }
 
 .phoenix-contact-card svg {
-  color: var(--phoenix-sienna);
-  margin-bottom: var(--phoenix-space-sm);
+  color: #D4AF37;
+  margin: 0;
+}
+
+.phoenix-contact-card:hover svg {
+  color: #15110E;
 }
 
 .phoenix-contact-card h3 {

@@ -138,18 +138,20 @@ function Footer() {
           </div>
 
           <div className="footer-bottom-row">
-            {/* Back Button */}
-            <motion.button
-              className="phoenix-footer-back-icon"
-              onClick={handleBack}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              title={t('common.back')}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
-              </svg>
-            </motion.button>
+            {/* Back Button - Only visible on detail pages */}
+            {!['/', '/category/about', '/about', '/category/poems', '/poems', '/category/publications', '/publications', '/contact'].includes(location.pathname) && (
+              <motion.button
+                className="phoenix-footer-back-icon"
+                onClick={handleBack}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                title={t('common.back')}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+              </motion.button>
+            )}
 
             {/* Copyright Note */}
             <div className="footer-copyright-note">

@@ -163,7 +163,7 @@ function Header() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Admin
+                {i18n.language === 'hi' ? 'प्रशासन' : 'Admin'}
               </motion.a>
             )}
 

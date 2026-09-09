@@ -136,3 +136,31 @@
   margin-top: var(--phoenix-space-2xl);
 }
 
+.phoenix-about-text blockquote,
+.phoenix-quote {
+  position: relative;
+  background: rgba(212, 175, 55, 0.06);
+  border-left: 3px solid #D4AF37;
+  border-radius: 0 8px 8px 0;
+  padding: var(--phoenix-space-lg) var(--phoenix-space-xl);
+  margin: var(--phoenix-space-xl) 0;
+  font-family: var(--phoenix-font-serif), var(--phoenix-font-hindi-serif);
+  font-size: 1.15rem;
+  font-style: italic;
+  color: var(--phoenix-charcoal);
+  line-height: 1.7;
+}
+
+.phoenix-about-text blockquote::before,
+.phoenix-quote::before {
+  content: '“';
+  font-size: 3rem;
+  font-family: Georgia, serif;
+  color: #D4AF37;
+  position: absolute;
+  top: -8px;
+  left: 8px;
+  opacity: 0.3;
+  line-height: 1;
+}
+

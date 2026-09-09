@@ -5,6 +5,7 @@ import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { getCategories, getAboutContent, getPublications, getPoems } from '../lib/supabaseClient'
 import { getImageUrl } from '../lib/imageUtils'
+import { sanitizeText, sanitizePoem, sanitizePublication } from '../lib/dataSanitizer'
 import PublicationCard from '../components/PublicationCard'
 import HeroSection from '../components/HeroSection'
 // VerseOfTheDay component removed - was showing random poem verses on homepage
@@ -38,10 +39,20 @@ function Home() {
         getPoems()
       ])
 
-      setCategories(catsData)
-      setAboutContent(aboutData)
-      setPublications(pubsData.slice(0, 5))
-      setPoems(poemsData.slice(0, 5))
+      const cleanCategories = (catsData || []).map(c => ({
+        ...c,
+        name_display: sanitizeText(c.name_display || c.name_en || c.name),
+        name_hi: sanitizeText(c.name_hi || c.name),
+        name_en: sanitizeText(c.name_en || c.name)
+      }))
+
+      setCategories(cleanCategories)
+      setAboutContent(aboutData ? {
+        ...aboutData,
+        truncated_preview: sanitizeText(aboutData.truncated_preview)
+      } : null)
+      setPublications((pubsData || []).map(sanitizePublication).filter(Boolean).slice(0, 5))
+      setPoems((poemsData || []).map(sanitizePoem).filter(Boolean).slice(0, 5))
     } catch (err) {
       console.error('Error loading data:', err)
       setError('Content not available')

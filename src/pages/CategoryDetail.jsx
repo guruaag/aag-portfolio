@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { getCategories, getAboutContent, getPublications, getPoems } from '../lib/supabaseClient'
+import { sanitizeText, sanitizePoem, sanitizePublication } from '../lib/dataSanitizer'
 import AboutPanel from '../components/AboutPanel'
 import PublicationCard from '../components/PublicationCard'
 import PoemCard from '../components/PoemCard'
@@ -54,13 +55,16 @@ function CategoryDetail() {
 
       if (foundCategory.content_type === 'about') {
         const aboutData = await getAboutContent()
-        setContent(aboutData)
+        setContent(aboutData ? {
+          ...aboutData,
+          truncated_preview: sanitizeText(aboutData.truncated_preview)
+        } : null)
       } else if (foundCategory.content_type === 'publications') {
         const pubsData = await getPublications()
-        setContent(pubsData)
+        setContent((pubsData || []).map(sanitizePublication).filter(Boolean))
       } else if (foundCategory.content_type === 'writings') {
         const poemsData = await getPoems()
-        setContent(poemsData)
+        setContent((poemsData || []).map(sanitizePoem).filter(Boolean))
       }
     } catch (err) {
       console.error('Error loading category:', err)
