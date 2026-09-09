@@ -619,19 +619,19 @@
         
         <!-- Author Photograph -->
         <div class="author-portrait-box">
-          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80" alt="कवि गुरुप्रताप शर्मा 'आग'" class="author-portrait">
+          <img id="poetPhoto" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80" alt="कवि गुरुप्रताप शर्मा 'आग'" class="author-portrait">
           <div class="portrait-badge">वरिष्ठ हिंदी साहित्यकार</div>
         </div>
 
         <!-- Author Meta & Featured Quote -->
         <div class="hero-content">
           <span class="hero-tag">साहित्यिक जीवन परिचय</span>
-          <h1 class="author-name">कवि गुरुप्रताप शर्मा 'आग'</h1>
-          <p class="author-title-sub">राष्ट्रीय चेतना, ओज एवं मानवीय संवेदनाओं के संवाहक</p>
+          <h1 class="author-name" id="authorTitle">कवि गुरुप्रताप शर्मा 'आग'</h1>
+          <p class="author-title-sub" id="authorSubTitle">राष्ट्रीय चेतना, ओज एवं मानवीय संवेदनाओं के संवाहक</p>
 
           <!-- Featured Quote Block -->
           <div class="quote-card">
-            <p class="quote-text">
+            <p class="quote-text" id="quoteText">
               "साहित्य केवल शब्दों का संगम नहीं, बल्कि समाज की चेतना को जागृत करने वाली अनवरत अग्नि है। जब तक समाज में न्याय और सत्य की ज्योति प्रज्वलित है, तब तक काव्य स्पंदित रहेगा।"
             </p>
             <div class="quote-author">— गुरुप्रताप शर्मा 'आग'</div>
@@ -888,6 +888,15 @@
     const SUPABASE_URL = "https://dxucmtfuyfobvcqxtnmz.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR4dWNtdGZ1eWZvYnZjcXh0bm16Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIwOTAxOTksImV4cCI6MjA3NzY2NjE5OX0.5qZ4MpbTUMKxG_2jixq1KAXs4nh580h4Nxf4NaBEE6U";
 
+    function getImageUrl(path, fallback = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80') {
+      if (!path) return fallback;
+      if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
+        return path;
+      }
+      const cleanPath = path.replace(/^\/+/, '');
+      return `${SUPABASE_URL}/storage/v1/object/public/public-assets/${cleanPath}`;
+    }
+
     async function loadLiveAbout() {
       try {
         const res = await fetch(`${SUPABASE_URL}/rest/v1/about_content?select=*`, {
@@ -901,13 +910,22 @@
         if (data && data.length > 0) {
           const about = data[0];
           const proseElem = document.getElementById('bioProse');
-          if (proseElem && (about.bio || about.content)) {
-            const paragraphs = (about.bio || about.content).split('\n\n');
+          const bioContent = about.body_text || about.bio || about.content;
+          if (proseElem && bioContent) {
+            const paragraphs = bioContent.split(/\n\s*\n/).filter(p => p.trim());
             proseElem.innerHTML = paragraphs.map(p => `<p>${p.trim()}</p>`).join('');
+          }
+          if (about.photo_path) {
+            const poetImg = document.getElementById('poetPhoto');
+            if (poetImg) poetImg.src = getImageUrl(about.photo_path);
+          }
+          if (about.title || about.truncated_preview) {
+            const quoteElem = document.getElementById('quoteText');
+            if (quoteElem) quoteElem.innerText = `"${about.title || about.truncated_preview}"`;
           }
         }
       } catch (e) {
-        console.info('Supabase about fetch notice: using cached content.');
+        console.info('Supabase about fetch notice: using cached content.', e);
       }
     }
 

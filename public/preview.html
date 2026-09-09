@@ -736,7 +736,7 @@
       
       <!-- Left Portrait -->
       <div class="author-image-card">
-        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80" alt="Gurupratap Sharma Aag">
+        <img id="homePoetImg" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80" alt="Gurupratap Sharma Aag">
       </div>
 
       <!-- Right Content -->
@@ -744,7 +744,7 @@
         <span class="section-label">कवि परिचय (About the Author)</span>
         <h2 class="author-heading">गुरुप्रताप शर्मा 'आग'</h2>
         
-        <div class="author-quote-card">
+        <div class="author-quote-card" id="homeQuoteCard">
           "साहित्य केवल शब्दों का सृजन नहीं, बल्कि जन-चेतना को जाग्रत करने वाली वह अमर ज्वाला है जो युगों तक मार्ग प्रशस्त करती है।"
         </div>
 
@@ -923,6 +923,15 @@
       updateLangUI();
     }
 
+    function getImageUrl(path, fallback = '/logo.png') {
+      if (!path) return fallback;
+      if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
+        return path;
+      }
+      const cleanPath = path.replace(/^\/+/, '');
+      return `${SUPABASE_URL}/storage/v1/object/public/public-assets/${cleanPath}`;
+    }
+
     // Load dynamic content from Supabase API on page load
     async function loadLiveContent() {
       try {
@@ -931,14 +940,15 @@
           const grid = document.querySelector('.poems-grid');
           if (grid) {
             grid.innerHTML = livePoems.slice(0, 3).map(p => {
-              const title = p.heading || p.title || 'काव्य रचना';
-              const desc = p.description || (p.full_text ? p.full_text.substring(0, 75) + '...' : '');
+              const title = p.heading_hi || p.heading_en || p.heading || p.title || 'काव्य रचना';
+              const desc = p.body_text_hi || p.body_text_en || p.description || (p.full_text ? p.full_text.substring(0, 75) + '...' : '');
+              const excerpt = desc ? desc.substring(0, 80) + '...' : '';
               const id = p.id;
               return `
                 <div class="poem-card-leona" onclick="(window.top || window).location.href='/poem-reader.html?id=${id}'">
                   <div>
                     <h3 class="poem-card-title">${title}</h3>
-                    <p class="poem-card-excerpt">"${desc}"</p>
+                    <p class="poem-card-excerpt">"${excerpt}"</p>
                   </div>
                   <a href="/poem-reader.html?id=${id}" class="poem-card-cta" onclick="event.stopPropagation()">काव्य पढ़ें →</a>
                 </div>
@@ -954,7 +964,8 @@
             grid.innerHTML = liveBooks.slice(0, 4).map(b => {
               const title = b.title || 'पुस्तक';
               const sub = b.subtitle || 'काव्य संग्रह';
-              const img = b.image_path || '/logo.png';
+              const rawImg = b.cover_image || b.image_path;
+              const img = getImageUrl(rawImg, '/logo.png');
               const id = b.id;
               return `
                 <div class="pub-card-leona" onclick="(window.top || window).location.href='/book-detail.html?id=${id}'">
@@ -972,10 +983,15 @@
         }
 
         const liveAbout = await fetchSupabaseData('about_content');
-        if (liveAbout && liveAbout.length > 0 && liveAbout[0].body_text) {
-          const quoteElem = document.querySelector('.author-quote-card');
-          if (quoteElem) {
-            quoteElem.innerText = `"${liveAbout[0].title || liveAbout[0].truncated_preview || 'साहित्य केवल शब्दों का सृजन नहीं...'}"`;
+        if (liveAbout && liveAbout.length > 0) {
+          const about = liveAbout[0];
+          const quoteElem = document.getElementById('homeQuoteCard') || document.querySelector('.author-quote-card');
+          if (quoteElem && (about.title || about.truncated_preview)) {
+            quoteElem.innerText = `"${about.title || about.truncated_preview}"`;
+          }
+          if (about.photo_path) {
+            const poetImg = document.getElementById('homePoetImg');
+            if (poetImg) poetImg.src = getImageUrl(about.photo_path);
           }
         }
       } catch (err) {

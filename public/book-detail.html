@@ -679,6 +679,15 @@
     const SUPABASE_URL = "https://dxucmtfuyfobvcqxtnmz.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR4dWNtdGZ1eWZvYnZjcXh0bm16Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIwOTAxOTksImV4cCI6MjA3NzY2NjE5OX0.5qZ4MpbTUMKxG_2jixq1KAXs4nh580h4Nxf4NaBEE6U";
 
+    function getImageUrl(path, fallback = '/logo.png') {
+      if (!path) return fallback;
+      if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
+        return path;
+      }
+      const cleanPath = path.replace(/^\/+/, '');
+      return `${SUPABASE_URL}/storage/v1/object/public/public-assets/${cleanPath}`;
+    }
+
     async function loadLiveBookDetails() {
       try {
         const res = await fetch(`${SUPABASE_URL}/rest/v1/publications?select=*`, {
@@ -696,8 +705,9 @@
             document.getElementById('bookStory').innerText = matched.description || matched.story || 'काव्य कृति संक्षेप...';
             document.getElementById('bookAbout').innerText = matched.about || matched.description || 'काव्य ग्रंथ परिचय...';
             document.getElementById('bookPrice').innerText = matched.price ? (String(matched.price).startsWith('₹') ? matched.price : `₹ ${matched.price}`) : '₹ 350.00';
-            if (matched.cover_image) {
-              document.getElementById('bookCoverImg').src = matched.cover_image;
+            const rawCover = matched.cover_image || matched.image_path;
+            if (rawCover) {
+              document.getElementById('bookCoverImg').src = getImageUrl(rawCover);
             }
             if (matched.publisher) {
               document.getElementById('valPublisher').innerText = matched.publisher;

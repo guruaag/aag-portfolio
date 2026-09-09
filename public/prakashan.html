@@ -595,6 +595,15 @@
         return null;
       }
     }
+    function getImageUrl(path, fallback = '/logo.png') {
+      if (!path) return fallback;
+      if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
+        return path;
+      }
+      const cleanPath = path.replace(/^\/+/, '');
+      return `${SUPABASE_URL}/storage/v1/object/public/public-assets/${cleanPath}`;
+    }
+
     async function loadLiveContent() {
       const liveBooks = await fetchSupabaseData('publications');
       if (liveBooks && liveBooks.length > 0) {
@@ -603,7 +612,7 @@
           container.innerHTML = liveBooks.map((book) => `
             <article class="book-card">
               <div class="book-cover-container">
-                <img src="${book.cover_image || '/logo.png'}" alt="${book.title}" onerror="this.src='https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80'">
+                <img src="${getImageUrl(book.cover_image || book.image_path)}" alt="${book.title}" onerror="this.src='https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80'">
               </div>
               <div class="book-card-content">
                 <span class="book-badge-year">${book.year ? `${book.year} • ` : ''}प्रकाशित</span>

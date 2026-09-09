@@ -883,9 +883,11 @@
         const data = await res.json();
         if (data && data.length > 0) {
           const matched = data.find(p => String(p.id) === String(poemId)) || data[0];
-          if (matched && matched.content) {
+          const rawText = matched.body_text_hi || matched.body_text_en || matched.content || matched.body_text || matched.full_text;
+          const title = matched.heading_hi || matched.heading_en || matched.heading || matched.title || 'काव्य रचना';
+          if (matched && rawText) {
             // Split content into stanzas or 10-line pages
-            const lines = matched.content.split('\n');
+            const lines = rawText.split('\n');
             const pages = [];
             let currentChunk = [];
             for (let i = 0; i < lines.length; i++) {
@@ -896,9 +898,9 @@
               }
             }
             currentPoem = {
-              title: matched.title || 'काव्य रचना',
-              collection: matched.category || 'काव्य संग्रह',
-              pages: pages.length > 0 ? pages : [matched.content]
+              title: title,
+              collection: matched.category || matched.collection || 'काव्य संग्रह',
+              pages: pages.length > 0 ? pages : [rawText]
             };
             currentPage = 0;
             renderPage();
