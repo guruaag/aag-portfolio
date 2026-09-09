@@ -143,31 +143,25 @@ function AdminDashboard({ tab }) {
       </header>
 
       <div className="admin-main-wrapper">
-        {/* Navigation Tabs */}
+        {/* Navigation Tabs aligned 1-to-1 with User Site Page Categories */}
         <div className="admin-tabs-bar">
           <button
-            className={`admin-tab-btn ${activeTab === 'categories' ? 'active' : ''}`}
-            onClick={() => switchTab('categories', '/admin/categories')}
+            className={`admin-tab-btn ${activeTab === 'home' ? 'active' : ''}`}
+            onClick={() => switchTab('home', '/admin/home')}
           >
-            🌐 वेबसाइट अनुभाग (Categories)
+            🏠 मुख्य पृष्ठ (Home Page)
           </button>
           <button
-            className={`admin-tab-btn ${activeTab === 'about' ? 'active' : ''}`}
+            className={`admin-tab-btn ${activeTab === 'about' || activeTab === 'timeline' || activeTab === 'awards' ? 'active' : ''}`}
             onClick={() => switchTab('about', '/admin/parichay')}
           >
             📖 कवि परिचय (About Bio)
           </button>
           <button
-            className={`admin-tab-btn ${activeTab === 'timeline' ? 'active' : ''}`}
-            onClick={() => switchTab('timeline', '/admin/timeline')}
+            className={`admin-tab-btn ${activeTab === 'poems' || activeTab === 'categories' ? 'active' : ''}`}
+            onClick={() => switchTab('poems', '/admin/kavya-sangrah')}
           >
-            ⏳ जीवन यात्रा Timeline
-          </button>
-          <button
-            className={`admin-tab-btn ${activeTab === 'awards' ? 'active' : ''}`}
-            onClick={() => switchTab('awards', '/admin/awards')}
-          >
-            🏆 सम्मान Awards
+            ✍️ काव्य संग्रह (Poetry Archive)
           </button>
           <button
             className={`admin-tab-btn ${activeTab === 'publications' ? 'active' : ''}`}
@@ -176,48 +170,49 @@ function AdminDashboard({ tab }) {
             📚 प्रकाशन (Publications)
           </button>
           <button
-            className={`admin-tab-btn ${activeTab === 'poems' ? 'active' : ''}`}
-            onClick={() => switchTab('poems', '/admin/kavya-sangrah')}
+            className={`admin-tab-btn ${activeTab === 'contact' || activeTab === 'inbox' ? 'active' : ''}`}
+            onClick={() => switchTab('contact', '/admin/sampark')}
           >
-            ✍️ काव्य रचनाएं (Poems)
+            📞 संपर्क (Contact & Inbox)
           </button>
           <button
             className={`admin-tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
-            onClick={() => switchTab('settings', '/admin/sampark')}
+            onClick={() => switchTab('settings', '/admin/settings')}
           >
-            ⚙️ सेटिंग्स (Settings)
-          </button>
-          <button
-            className={`admin-tab-btn ${activeTab === 'inbox' ? 'active' : ''}`}
-            onClick={() => switchTab('inbox', '/admin/inbox')}
-          >
-            📬 संदेश Inbox
+            ⚙️ सेटिंग्स (Site Settings)
           </button>
         </div>
 
-        {activeTab === 'categories' && (
-          <CategoriesManager categories={data.categories} onUpdate={loadData} />
+        {activeTab === 'home' && (
+          <HomeManager publications={data.publications} about={data.about} settings={data.settings} onUpdate={loadData} />
         )}
-        {activeTab === 'about' && (
-          <AboutManager about={data.about} onUpdate={loadData} />
+        {(activeTab === 'about' || activeTab === 'timeline' || activeTab === 'awards') && (
+          <AboutManager
+            about={data.about}
+            initialSubTab={activeTab === 'timeline' ? 'timeline' : (activeTab === 'awards' ? 'awards' : 'bio')}
+            onUpdate={loadData}
+          />
         )}
-        {activeTab === 'timeline' && (
-          <TimelineManager onUpdate={loadData} />
-        )}
-        {activeTab === 'awards' && (
-          <AwardsManager onUpdate={loadData} />
+        {(activeTab === 'poems' || activeTab === 'categories') && (
+          <PoemsArchiveManager
+            poems={data.poems}
+            categories={data.categories}
+            initialSubTab={activeTab === 'categories' ? 'categories' : 'poems'}
+            onUpdate={loadData}
+          />
         )}
         {activeTab === 'publications' && (
           <PublicationsManager publications={data.publications} onUpdate={loadData} />
         )}
-        {activeTab === 'poems' && (
-          <PoemsManager poems={data.poems} onUpdate={loadData} />
+        {(activeTab === 'contact' || activeTab === 'inbox') && (
+          <ContactSectionManager
+            settings={data.settings}
+            initialSubTab={activeTab === 'inbox' ? 'inbox' : 'info'}
+            onUpdate={loadData}
+          />
         )}
         {activeTab === 'settings' && (
           <SettingsManager settings={data.settings} onUpdate={loadData} />
-        )}
-        {activeTab === 'inbox' && (
-          <InboxManager onUpdate={loadData} />
         )}
       </div>
     </div>
@@ -415,9 +410,120 @@ function CategoriesManager({ categories, onUpdate }) {
   )
 }
 
+// 1. Home Manager Component (Homepage Sections)
+function HomeManager({ publications, about, settings, onUpdate }) {
+  const [subTab, setSubTab] = useState('hero') // 'hero' | 'summary'
+
+  return (
+    <div>
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '2px solid rgba(226, 215, 197, 0.6)', paddingBottom: '12px' }}>
+        <button
+          type="button"
+          className={subTab === 'hero' ? 'admin-btn-primary' : 'admin-btn-secondary'}
+          onClick={() => setSubTab('hero')}
+          style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'hero' ? 700 : 500 }}
+        >
+          🔥 1. प्रमुख काव्य कृति (Hero Featured Book Showcase)
+        </button>
+        <button
+          type="button"
+          className={subTab === 'summary' ? 'admin-btn-primary' : 'admin-btn-secondary'}
+          onClick={() => setSubTab('summary')}
+          style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'summary' ? 700 : 500 }}
+        >
+          📖 2. मुख्य पृष्ठ कवि संक्षेप (Homepage Author Overview)
+        </button>
+      </div>
+
+      {subTab === 'hero' && <PublicationsManager publications={publications} onUpdate={onUpdate} />}
+      {subTab === 'summary' && <AboutManager about={about} onUpdate={onUpdate} />}
+    </div>
+  )
+}
+
+// 2. Poems Archive Manager Component (Poems + Categories)
+function PoemsArchiveManager({ poems, categories, initialSubTab, onUpdate }) {
+  const [subTab, setSubTab] = useState(initialSubTab || 'poems') // 'poems' | 'categories'
+
+  useEffect(() => {
+    if (initialSubTab) {
+      setSubTab(initialSubTab)
+    }
+  }, [initialSubTab])
+
+  return (
+    <div>
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '2px solid rgba(226, 215, 197, 0.6)', paddingBottom: '12px' }}>
+        <button
+          type="button"
+          className={subTab === 'poems' ? 'admin-btn-primary' : 'admin-btn-secondary'}
+          onClick={() => setSubTab('poems')}
+          style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'poems' ? 700 : 500 }}
+        >
+          ✍️ 1. काव्य रचनाएं (Poems Listing)
+        </button>
+        <button
+          type="button"
+          className={subTab === 'categories' ? 'admin-btn-primary' : 'admin-btn-secondary'}
+          onClick={() => setSubTab('categories')}
+          style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'categories' ? 700 : 500 }}
+        >
+          🌐 2. काव्य श्रेणियां (Poetry Categories)
+        </button>
+      </div>
+
+      {subTab === 'poems' && <PoemsManager poems={poems} onUpdate={onUpdate} />}
+      {subTab === 'categories' && <CategoriesManager categories={categories} onUpdate={onUpdate} />}
+    </div>
+  )
+}
+
+// 3. Contact Section Manager Component (Contact Details + Inbox)
+function ContactSectionManager({ settings, initialSubTab, onUpdate }) {
+  const [subTab, setSubTab] = useState(initialSubTab || 'info') // 'info' | 'inbox'
+
+  useEffect(() => {
+    if (initialSubTab) {
+      setSubTab(initialSubTab)
+    }
+  }, [initialSubTab])
+
+  return (
+    <div>
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '2px solid rgba(226, 215, 197, 0.6)', paddingBottom: '12px' }}>
+        <button
+          type="button"
+          className={subTab === 'info' ? 'admin-btn-primary' : 'admin-btn-secondary'}
+          onClick={() => setSubTab('info')}
+          style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'info' ? 700 : 500 }}
+        >
+          📍 1. संपर्क विवरण (Contact Info & Location)
+        </button>
+        <button
+          type="button"
+          className={subTab === 'inbox' ? 'admin-btn-primary' : 'admin-btn-secondary'}
+          onClick={() => setSubTab('inbox')}
+          style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'inbox' ? 700 : 500 }}
+        >
+          📬 2. प्राप्त संदेश (Received Submissions)
+        </button>
+      </div>
+
+      {subTab === 'info' && <SettingsManager settings={settings} onUpdate={onUpdate} />}
+      {subTab === 'inbox' && <InboxManager onUpdate={onUpdate} />}
+    </div>
+  )
+}
+
 // About Manager Component (Includes Poet Hero Banner, Bio Prose, Timeline & Awards Sub-sections)
-function AboutManager({ about, onUpdate }) {
-  const [subTab, setSubTab] = useState('bio') // 'bio' | 'timeline' | 'awards'
+function AboutManager({ about, initialSubTab, onUpdate }) {
+  const [subTab, setSubTab] = useState(initialSubTab || 'bio') // 'bio' | 'timeline' | 'awards'
+
+  useEffect(() => {
+    if (initialSubTab) {
+      setSubTab(initialSubTab)
+    }
+  }, [initialSubTab])
   const [editing, setEditing] = useState(false)
   const [formData, setFormData] = useState({
     author_name: "कवि गुरुप्रताप शर्मा 'आग'",
