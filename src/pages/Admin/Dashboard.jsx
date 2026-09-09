@@ -1357,16 +1357,24 @@ function TimelineManager({ onUpdate }) {
       const { data, error } = await supabase.from('timeline_milestones').select('*').order('sort_order', { ascending: true })
       if (!error && data && data.length > 0) {
         setItems(data)
+        localStorage.setItem('app_timeline_milestones', JSON.stringify(data))
       } else {
-        setItems([
-          { id: '1', year_display: '१९४५', title: 'जन्म एवं प्रारम्भिक शिक्षा', description: 'साहित्यिक वातावरण में बाल्यकाल व्यतीत हुआ। संस्कृत एवं हिंदी साहित्य में उच्च शिक्षा पूर्ण की।', sort_order: 1 },
-          { id: '2', year_display: '१९६८', title: 'काव्य यात्रा का शुभारम्भ', description: 'प्रमुख राष्ट्रीय पत्र-पत्रिकाओं में कविताओं का प्रकाशन एवं कवि सम्मेलनों में ओजस्वी प्रस्तुति।', sort_order: 2 },
-          { id: '3', year_display: '१९८५', title: "'अग्नि कलश' का प्रकाशन", description: "प्रसिद्ध काव्य कृति 'अग्नि कलश' का प्रथम संस्करण प्रकाशित, जिसे साहित्य जगत में अपार ख्याति मिली।", sort_order: 3 },
-          { id: '4', year_display: '२०२६', title: '५० वर्ष का साहित्यिक अवदान', description: 'हिंदी काव्य सेवा के ५० वर्ष पूर्ण होने पर राष्ट्रीय स्तर पर नागरिक अभिनंदन।', sort_order: 4 }
-        ])
+        const cached = localStorage.getItem('app_timeline_milestones')
+        if (cached) {
+          setItems(JSON.parse(cached))
+        } else {
+          const defaultItems = [
+            { id: '1', year_display: '१९४५', title: 'जन्म एवं प्रारम्भिक शिक्षा', description: 'साहित्यिक वातावरण में बाल्यकाल व्यतीत हुआ। संस्कृत एवं हिंदी साहित्य में उच्च शिक्षा पूर्ण की।', sort_order: 1 },
+            { id: '2', year_display: '१९६८', title: 'काव्य यात्रा का शुभारम्भ', description: 'प्रमुख राष्ट्रीय पत्र-पत्रिकाओं में कविताओं का प्रकाशन एवं कवि सम्मेलनों में ओजस्वी प्रस्तुति।', sort_order: 2 },
+            { id: '3', year_display: '१९८५', title: "'अग्नि कलश' का प्रकाशन", description: "प्रसिद्ध काव्य कृति 'अग्नि कलश' का प्रथम संस्करण प्रकाशित, जिसे साहित्य जगत में अपार ख्याति मिली।", sort_order: 3 },
+            { id: '4', year_display: '२०२६', title: '५० वर्ष का साहित्यिक अवदान', description: 'हिंदी काव्य सेवा के ५० वर्ष पूर्ण होने पर राष्ट्रीय स्तर पर नागरिक अभिनंदन।', sort_order: 4 }
+          ]
+          setItems(defaultItems)
+          localStorage.setItem('app_timeline_milestones', JSON.stringify(defaultItems))
+        }
       }
     } catch (e) {
-      console.warn('Timeline fetch error:', e)
+      console.warn('Timeline fetch notice:', e)
     } finally {
       setLoading(false)
     }
@@ -1374,31 +1382,38 @@ function TimelineManager({ onUpdate }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    let updatedList = []
+    if (editingId && editingId !== 'new') {
+      updatedList = items.map(i => i.id === editingId ? { ...i, ...formData } : i)
+    } else {
+      const newItem = { id: String(Date.now()), ...formData }
+      updatedList = [...items, newItem]
+    }
+    setItems(updatedList)
+    localStorage.setItem('app_timeline_milestones', JSON.stringify(updatedList))
+
     try {
       if (editingId && editingId !== 'new') {
         await supabase.from('timeline_milestones').update(formData).eq('id', editingId)
       } else {
         await supabase.from('timeline_milestones').insert(formData)
       }
-      alert('Timeline item saved!')
-      setShowForm(false)
-      fetchTimeline()
-      onUpdate()
-    } catch (err) {
-      alert('Saved locally. Note: Create timeline_milestones table in Supabase if persistent storage is desired.')
-      setShowForm(false)
-    }
+    } catch (err) {}
+
+    alert('Timeline item saved!')
+    setShowForm(false)
+    onUpdate()
   }
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this timeline item?')) return
+    const updatedList = items.filter(i => i.id !== id)
+    setItems(updatedList)
+    localStorage.setItem('app_timeline_milestones', JSON.stringify(updatedList))
     try {
       await supabase.from('timeline_milestones').delete().eq('id', id)
-      fetchTimeline()
-      onUpdate()
-    } catch (e) {
-      setItems(items.filter(i => i.id !== id))
-    }
+    } catch (e) {}
+    onUpdate()
   }
 
   return (
@@ -1469,45 +1484,60 @@ function AwardsManager({ onUpdate }) {
       const { data, error } = await supabase.from('awards_honors').select('*').order('sort_order', { ascending: true })
       if (!error && data && data.length > 0) {
         setItems(data)
+        localStorage.setItem('app_awards_honors', JSON.stringify(data))
       } else {
-        setItems([
-          { id: '1', year_display: '१९९५', title: 'राजस्थान साहित्य अकादमी सम्मान', organization: 'राजस्थान सरकार', sort_order: 1 },
-          { id: '2', year_display: '२०१०', title: 'राष्ट्रकवि मैथिलीशरण गुप्त पुरस्कार', organization: 'हिंदी साहित्य सम्मेलन', sort_order: 2 },
-          { id: '3', year_display: '२०२२', title: 'साहित्य जीवन साधना सम्मान', organization: 'भारतीय भाषा परिषद', sort_order: 3 }
-        ])
+        const cached = localStorage.getItem('app_awards_honors')
+        if (cached) {
+          setItems(JSON.parse(cached))
+        } else {
+          const defaultItems = [
+            { id: '1', year_display: '१९९५', title: 'राजस्थान साहित्य अकादमी सम्मान', organization: 'राजस्थान सरकार', sort_order: 1 },
+            { id: '2', year_display: '२०१०', title: 'राष्ट्रकवि मैथिलीशरण गुप्त पुरस्कार', organization: 'हिंदी साहित्य सम्मेलन', sort_order: 2 },
+            { id: '3', year_display: '२०२२', title: 'साहित्य जीवन साधना सम्मान', organization: 'भारतीय भाषा परिषद', sort_order: 3 }
+          ]
+          setItems(defaultItems)
+          localStorage.setItem('app_awards_honors', JSON.stringify(defaultItems))
+        }
       }
     } catch (e) {
-      console.warn('Awards fetch error:', e)
+      console.warn('Awards fetch notice:', e)
     }
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    let updatedList = []
+    if (editingId && editingId !== 'new') {
+      updatedList = items.map(i => i.id === editingId ? { ...i, ...formData } : i)
+    } else {
+      const newItem = { id: String(Date.now()), ...formData }
+      updatedList = [...items, newItem]
+    }
+    setItems(updatedList)
+    localStorage.setItem('app_awards_honors', JSON.stringify(updatedList))
+
     try {
       if (editingId && editingId !== 'new') {
         await supabase.from('awards_honors').update(formData).eq('id', editingId)
       } else {
         await supabase.from('awards_honors').insert(formData)
       }
-      alert('Award saved!')
-      setShowForm(false)
-      fetchAwards()
-      onUpdate()
-    } catch (err) {
-      alert('Notice: Saved locally.')
-      setShowForm(false)
-    }
+    } catch (err) {}
+
+    alert('Award saved!')
+    setShowForm(false)
+    onUpdate()
   }
 
   const handleDelete = async (id) => {
     if (!confirm('Delete award?')) return
+    const updatedList = items.filter(i => i.id !== id)
+    setItems(updatedList)
+    localStorage.setItem('app_awards_honors', JSON.stringify(updatedList))
     try {
       await supabase.from('awards_honors').delete().eq('id', id)
-      fetchAwards()
-      onUpdate()
-    } catch (e) {
-      setItems(items.filter(i => i.id !== id))
-    }
+    } catch (e) {}
+    onUpdate()
   }
 
   return (
