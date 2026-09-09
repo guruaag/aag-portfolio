@@ -1129,19 +1129,15 @@ function PoemsManager({ poems, onUpdate }) {
   const [editing, setEditing] = useState(null)
   const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState({
-    heading_en: '',
-    heading_hi: '',
+    heading: '',
     description: '',
-    body_text_en: '',
-    body_text_hi: '',
-    language: 'mixed',
-    sort_order: 0,
-    is_active: true
+    body_text: '',
+    sort_order: 0
   })
 
   const handleCreate = () => {
     setEditing(null)
-    setFormData({ heading_en: '', heading_hi: '', description: '', body_text_en: '', body_text_hi: '', language: 'mixed', sort_order: 0, is_active: true })
+    setFormData({ heading: '', description: '', body_text: '', sort_order: 0 })
     setShowForm(true)
   }
 
@@ -1154,10 +1150,10 @@ function PoemsManager({ poems, onUpdate }) {
     e.preventDefault()
     try {
       const dataToSave = {
-        heading: formData.heading_hi || formData.heading_en || formData.heading || '',
+        heading: formData.heading || '',
         description: formData.description || '',
-        full_text: formData.body_text_hi || formData.body_text_en || formData.full_text || '',
-        language: formData.language || 'mixed',
+        full_text: formData.body_text || '',
+        language: 'mixed',
         sort_order: parseInt(formData.sort_order) || 0
       }
       
@@ -1174,7 +1170,7 @@ function PoemsManager({ poems, onUpdate }) {
       onUpdate()
       setEditing(null)
       setShowForm(false)
-      setFormData({ heading_en: '', heading_hi: '', description: '', body_text_en: '', body_text_hi: '', language: 'mixed', sort_order: 0, is_active: true })
+      setFormData({ heading: '', description: '', body_text: '', sort_order: 0 })
       alert('✓ Poem saved successfully!')
     } catch (err) {
       console.error('Error saving poem:', err)
@@ -1186,14 +1182,10 @@ function PoemsManager({ poems, onUpdate }) {
     setEditing(poem.id)
     setShowForm(true)
     const formDataToSet = {
-      heading_en: poem.heading_en || poem.heading || '',
-      heading_hi: poem.heading_hi || '',
+      heading: poem.heading || poem.heading_hi || poem.heading_en || '',
       description: poem.description || '',
-      body_text_en: poem.body_text_en || '',
-      body_text_hi: poem.body_text_hi || poem.full_text || '',
-      language: poem.language || 'mixed',
-      sort_order: poem.sort_order || 0,
-      is_active: poem.is_active !== undefined ? poem.is_active : true
+      body_text: poem.full_text || poem.body_text_hi || poem.body_text_en || '',
+      sort_order: poem.sort_order || 0
     }
     setFormData(formDataToSet)
   }
@@ -1223,30 +1215,26 @@ function PoemsManager({ poems, onUpdate }) {
       {(showForm || editing) && (
         <form onSubmit={handleSubmit} className="admin-form-container">
           <div className="admin-form-grid">
-            <div className="admin-form-group">
-              <label>{tLabel('कविता का नाम (हिंदी) *', 'Poem Title (Hindi) *')}</label>
+            <div className="admin-form-group full-width">
+              <label>{tLabel('कविता / रचना का शीर्षक *', 'Poem Title *')}</label>
               <input
                 className="admin-input"
-                value={formData.heading_hi || ''}
-                onChange={(e) => setFormData({ ...formData, heading_hi: e.target.value })}
+                value={formData.heading || ''}
+                onChange={(e) => setFormData({ ...formData, heading: e.target.value })}
+                placeholder={tLabel('जैसे: सुबह की किरण', 'e.g. Subah Ki Kiran')}
                 required
               />
             </div>
-            <div className="admin-form-group">
-              <label>{tLabel('अंग्रेजी शीर्षक', 'English Title')}</label>
-              <input
-                className="admin-input"
-                value={formData.heading_en || ''}
-                onChange={(e) => setFormData({ ...formData, heading_en: e.target.value })}
-              />
-            </div>
             <div className="admin-form-group full-width">
-              <label>{tLabel('रचना संदर्भ / विवरण', 'Context / Description')}</label>
+              <label>{tLabel('रचना संदर्भ / संक्षिप्त विवरण (अधिकतम २ पंक्तियाँ)', 'Context / Brief Description (Max 2 lines)')}</label>
               <textarea
                 className="admin-textarea"
+                rows={2}
+                maxLength={250}
                 value={formData.description || ''}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                style={{ minHeight: '80px' }}
+                placeholder={tLabel('संक्षिप्त २ पंक्तियों में संदर्भ...', 'Brief 2-line context...')}
+                style={{ minHeight: '52px', maxHeight: '72px', resize: 'vertical' }}
               />
             </div>
             <div className="admin-form-group full-width" style={{ marginBottom: '16px' }}>
@@ -1254,16 +1242,15 @@ function PoemsManager({ poems, onUpdate }) {
                 🖋️ {tLabel('पेजमेकर कैनवस (PM5)', 'PageMaker Canvas (PM5)')}
               </label>
               <PM5WritingDesk
-                initialPages={formData.body_text_hi ? [formData.body_text_hi] : ['']}
-                initialTitle={formData.heading_hi || formData.heading_en || ''}
+                initialPages={formData.body_text ? [formData.body_text] : ['']}
+                initialTitle={formData.heading || ''}
                 onSave={(pagesArray, pageTitle) => {
                   const joinedText = pagesArray.join('\n\n');
                   setFormData(prev => ({
                     ...prev,
-                    body_text_hi: joinedText,
-                    heading_hi: pageTitle || prev.heading_hi
+                    body_text: joinedText,
+                    heading: pageTitle || prev.heading
                   }));
-                  alert('✓ PM5 PageMaker canvas saved!');
                 }}
               />
             </div>
@@ -1271,8 +1258,8 @@ function PoemsManager({ poems, onUpdate }) {
               <label>{tLabel('सम्पूर्ण कविता पंक्तियाँ *', 'Full Stanzas / Verse Text *')}</label>
               <textarea
                 className="admin-textarea"
-                value={formData.body_text_hi || ''}
-                onChange={(e) => setFormData({ ...formData, body_text_hi: e.target.value })}
+                value={formData.body_text || ''}
+                onChange={(e) => setFormData({ ...formData, body_text: e.target.value })}
                 required
                 style={{ minHeight: '220px', fontFamily: 'Tiro Devanagari Hindi, Lora, serif', fontSize: '1.05rem', lineHeight: '1.7' }}
               />
@@ -1285,16 +1272,6 @@ function PoemsManager({ poems, onUpdate }) {
                 value={formData.sort_order}
                 onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })}
               />
-            </div>
-            <div className="admin-form-group full-width">
-              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  checked={formData.is_active !== false}
-                  onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                />
-                {tLabel('वेबसाइट पर प्रकाशित रखें', 'Active on Website')}
-              </label>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
@@ -1319,13 +1296,8 @@ function PoemsManager({ poems, onUpdate }) {
             {poems.map((poem) => (
               <li key={poem.id} className="admin-item-card">
                 <div>
-                  <div className="admin-item-title">{poem.heading_hi || poem.heading_en || poem.heading || 'Untitled'}</div>
-                  <div className="admin-item-sub">English: {poem.heading_en || '(None)'} • {tLabel('क्रम:', 'Order:')} {poem.sort_order || 0}</div>
-                  {poem.is_active === false ? (
-                    <span className="admin-item-badge" style={{ background: '#FFF0ED', color: '#D95343', borderColor: '#FFC4BD' }}>{tLabel('अप्रकाशित', 'Draft')}</span>
-                  ) : (
-                    <span className="admin-item-badge" style={{ background: '#EAF8F5', color: '#2C988F', borderColor: '#B5E8E2' }}>{tLabel('प्रकाशित', 'Live')}</span>
-                  )}
+                  <div className="admin-item-title">{poem.heading || poem.heading_hi || poem.heading_en || 'Untitled'}</div>
+                  <div className="admin-item-sub">{tLabel('क्रम:', 'Order:')} {poem.sort_order || 0}</div>
                 </div>
                 <div className="admin-actions-group">
                   <button type="button" className="admin-btn-secondary" onClick={() => handleEdit(poem)}>{tLabel('संपादित करें', 'Edit')}</button>

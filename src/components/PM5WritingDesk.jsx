@@ -128,8 +128,8 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
     setPages(pageChunks);
     setActiveIdx(0);
     pushHistory(pageChunks);
-    triggerAutoSave(pageChunks);
-    alert(`✅ आपकी लम्बी कविता स्वतः ${toHindiNumerals(pageChunks.length)} पृष्ठों में विभाजित कर दी गई है!`);
+    setSaveBadgeStatus('success');
+    setSaveBadgeText(`✓ ${toHindiNumerals(pageChunks.length)} पृष्ठों में स्वतः क्रमबद्ध`);
   };
 
   const triggerAutoSave = (currentPages) => {
