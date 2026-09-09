@@ -274,30 +274,28 @@ function CategoriesManager({ categories, onUpdate }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      if (editing) {
-        const dataToSave = {
-          name_en: formData.name_en,
-          name_display: formData.name_display,
-          content_type: formData.content_type,
-          sort_order: formData.sort_order,
-          ...(formData.is_active !== undefined && { is_active: formData.is_active })
-        }
-        await supabase.from('categories').update(dataToSave).eq('id', editing)
-      } else {
-        const dataToSave = {
-          name_en: formData.name_en,
-          name_display: formData.name_display,
-          content_type: formData.content_type,
-          sort_order: formData.sort_order,
-          ...(formData.is_active !== undefined && { is_active: formData.is_active })
-        }
-        await supabase.from('categories').insert(dataToSave)
+      const dataToSave = {
+        name_en: formData.name_en || '',
+        name_display: formData.name_display || '',
+        content_type: formData.content_type || 'about',
+        sort_order: parseInt(formData.sort_order) || 0
       }
+      
+      const { error } = editing
+        ? await supabase.from('categories').update(dataToSave).eq('id', editing)
+        : await supabase.from('categories').insert(dataToSave)
+
+      if (error) {
+        console.error('Error saving category:', error)
+        alert('Error saving category: ' + error.message)
+        return
+      }
+
       onUpdate()
       setEditing(null)
       setShowForm(false)
       setFormData({ name_en: '', name_display: '', content_type: 'about', sort_order: 0, is_active: true })
-      alert('Saved!')
+      alert('✓ Category saved successfully!')
     } catch (err) {
       console.error('Error saving category:', err)
       alert('Error saving category: ' + (err.message || 'Unknown error'))
@@ -620,12 +618,37 @@ function AboutManager({ about, initialSubTab, onUpdate }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      if (about && about.id) {
-        await supabase.from('about_content').update(formData).eq('id', about.id)
-      } else {
-        await supabase.from('about_content').insert(formData)
+      // 1. Save metadata fields into settings key-value store
+      const extraSettings = [
+        { key: 'author_name', value: formData.author_name || "कवि गुरुप्रताप शर्मा 'आग'", display_label: 'Author Name' },
+        { key: 'hero_tag', value: formData.hero_tag || "साहित्यिक जीवन परिचय", display_label: 'Hero Tag' },
+        { key: 'hero_subtitle', value: formData.hero_subtitle || "राष्ट्रीय चेतना, ओज एवं मानवीय संवेदनाओं के संवाहक", display_label: 'Hero Subtitle' },
+        { key: 'badge_text', value: formData.badge_text || "वरिष्ठ हिंदी साहित्यकार", display_label: 'Badge Text' },
+        { key: 'quote_attribution', value: formData.quote_attribution || "गुरुप्रताप शर्मा 'आग'", display_label: 'Quote Attribution' }
+      ]
+      for (const s of extraSettings) {
+        await supabase.from('settings').upsert(s, { onConflict: 'key' })
       }
-      alert('कवि परिचय एवं बैनर सफलतापूर्वक सहेजा गया! (Bio & Hero Saved)')
+
+      // 2. Save bio prose fields into about_content table (only valid DB columns)
+      const aboutDataToSave = {
+        title: formData.title || 'जीवनी व साहित्यिक यात्रा',
+        body_text: formData.body_text || '',
+        truncated_preview: formData.truncated_preview || '',
+        photo_path: formData.photo_path || ''
+      }
+
+      const { error } = (about && about.id)
+        ? await supabase.from('about_content').update(aboutDataToSave).eq('id', about.id)
+        : await supabase.from('about_content').insert(aboutDataToSave)
+
+      if (error) {
+        console.error('Error saving about content:', error)
+        alert('Error saving about content: ' + error.message)
+        return
+      }
+
+      alert('✓ कवि परिचय एवं बैनर सफलतापूर्वक सहेजा गया! (Bio & Hero Saved)')
       onUpdate()
       setEditing(false)
     } catch (err) {
@@ -892,44 +915,41 @@ function PublicationsManager({ publications, onUpdate }) {
     e.preventDefault()
     try {
       const dataToSave = {
-        title: formData.title,
-        subtitle: formData.subtitle,
-        image_path: formData.image_path,
-        image_alt: formData.image_alt,
-        description: formData.description,
-        sort_order: formData.sort_order,
-        ...(formData.is_active !== undefined && { is_active: formData.is_active })
+        title: formData.title || '',
+        subtitle: formData.subtitle || '',
+        image_path: formData.image_path || '',
+        image_alt: formData.image_alt || '',
+        description: formData.description || '',
+        sort_order: parseInt(formData.sort_order) || 0
       }
       
       if (editing) {
-        await supabase.from('publications').update(dataToSave).eq('id', editing)
+        const { error } = await supabase.from('publications').update(dataToSave).eq('id', editing)
+        if (error) {
+          console.error('Error updating publication:', error)
+          alert('Error saving publication: ' + error.message)
+          return
+        }
       } else {
-        const { data: newPub } = await supabase.from('publications').insert(dataToSave).select().single()
+        const { data: newPub, error } = await supabase.from('publications').insert(dataToSave).select().single()
+        if (error) {
+          console.error('Error inserting publication:', error)
+          alert('Error saving publication: ' + error.message)
+          return
+        }
         // If image was uploaded to temp folder, move it to the actual publication folder
         if (formData.image_path && formData.image_path.includes('temp-') && newPub) {
           const oldPath = formData.image_path
-          // Replace 'temp-{timestamp}' with actual publication ID
-          // Path format: publications/temp-{timestamp}/cover.jpg -> publications/{id}/cover.jpg
           const newPath = oldPath.replace(/temp-\d+/, newPub.id)
-          
-          // Move the file in storage
           try {
-            // Copy file to new location
-            const { data: copyData, error: copyError } = await supabase.storage
-              .from('public-assets')
-              .copy(oldPath, newPath)
-            
+            const { error: copyError } = await supabase.storage.from('public-assets').copy(oldPath, newPath)
             if (!copyError) {
-              // Update path in database
               await supabase.from('publications').update({ image_path: newPath }).eq('id', newPub.id)
-              // Remove old temp file
               await supabase.storage.from('public-assets').remove([oldPath])
             } else {
-              // If copy fails, just update the path in database (file might already be in correct location)
               await supabase.from('publications').update({ image_path: newPath }).eq('id', newPub.id)
             }
           } catch (moveError) {
-            // Still update the path in database even if file move fails
             await supabase.from('publications').update({ image_path: newPath }).eq('id', newPub.id)
           }
         }
@@ -939,7 +959,7 @@ function PublicationsManager({ publications, onUpdate }) {
       setShowForm(false)
       setFormData({ title: '', subtitle: '', image_path: '', image_alt: '', description: '', sort_order: 0, is_active: true })
       setImagePreview(null)
-      alert('Saved!')
+      alert('✓ Publication saved successfully!')
     } catch (err) {
       console.error('Error saving publication:', err)
       alert('Error saving publication: ' + (err.message || 'Unknown error'))
@@ -1134,26 +1154,28 @@ function PoemsManager({ poems, onUpdate }) {
     e.preventDefault()
     try {
       const dataToSave = {
-        heading_en: formData.heading_en || '',
-        heading_hi: formData.heading_hi || '',
-        heading: formData.heading_hi || formData.heading_en || '',
+        heading: formData.heading_hi || formData.heading_en || formData.heading || '',
         description: formData.description || '',
-        full_text: formData.body_text_hi || formData.body_text_en || '',
+        full_text: formData.body_text_hi || formData.body_text_en || formData.full_text || '',
         language: formData.language || 'mixed',
-        sort_order: formData.sort_order || 0,
-        ...(formData.is_active !== undefined && { is_active: formData.is_active })
+        sort_order: parseInt(formData.sort_order) || 0
       }
       
-      if (editing) {
-        await supabase.from('poems').update(dataToSave).eq('id', editing)
-      } else {
-        await supabase.from('poems').insert(dataToSave)
+      const { error } = editing
+        ? await supabase.from('poems').update(dataToSave).eq('id', editing)
+        : await supabase.from('poems').insert(dataToSave)
+
+      if (error) {
+        console.error('Error saving poem:', error)
+        alert('Error saving poem: ' + error.message)
+        return
       }
+
       onUpdate()
       setEditing(null)
       setShowForm(false)
       setFormData({ heading_en: '', heading_hi: '', description: '', body_text_en: '', body_text_hi: '', language: 'mixed', sort_order: 0, is_active: true })
-      alert('Saved!')
+      alert('✓ Poem saved successfully!')
     } catch (err) {
       console.error('Error saving poem:', err)
       alert('Error saving poem: ' + (err.message || 'Unknown error'))
@@ -1444,15 +1466,25 @@ function SettingsManager({ settings, onUpdate }) {
     try {
       const updates = Object.entries(formData).map(([key, value]) => ({
         key,
-        value: value || '',
+        value: value !== undefined && value !== null ? String(value) : '',
         display_label: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
       }))
 
+      let hasError = false
       for (const update of updates) {
-        await supabase.from('settings').upsert(update, { onConflict: 'key' })
+        const { error } = await supabase.from('settings').upsert(update, { onConflict: 'key' })
+        if (error) {
+          console.error('Error saving setting key ' + update.key + ':', error)
+          hasError = true
+        }
+      }
+
+      if (hasError) {
+        alert('Warning: Some settings could not be saved to server.')
+      } else {
+        alert('✓ Settings saved successfully!')
       }
       
-      alert('Settings saved!')
       onUpdate()
       setShowForm(false)
     } catch (err) {
@@ -1705,15 +1737,24 @@ function TimelineManager({ onUpdate }) {
     setItems(updatedList)
     localStorage.setItem('app_timeline_milestones', JSON.stringify(updatedList))
 
+    const cleanData = {
+      year_display: formData.year_display || '',
+      title: formData.title || '',
+      description: formData.description || '',
+      sort_order: parseInt(formData.sort_order) || 0
+    }
+
     try {
       if (editingId && editingId !== 'new') {
-        await supabase.from('timeline_milestones').update(formData).eq('id', editingId)
+        await supabase.from('timeline_milestones').update(cleanData).eq('id', editingId)
       } else {
-        await supabase.from('timeline_milestones').insert(formData)
+        await supabase.from('timeline_milestones').insert(cleanData)
       }
-    } catch (err) {}
+    } catch (err) {
+      console.warn('Timeline DB save fallback:', err)
+    }
 
-    alert(tLabel('जीवन यात्रा सहेजी गई!', 'Timeline item saved!'))
+    alert('✓ ' + tLabel('जीवन यात्रा सहेजी गई!', 'Timeline item saved!'))
     setShowForm(false)
     onUpdate()
   }
@@ -1839,15 +1880,24 @@ function AwardsManager({ onUpdate }) {
     setItems(updatedList)
     localStorage.setItem('app_awards_honors', JSON.stringify(updatedList))
 
+    const cleanData = {
+      year_display: formData.year_display || '',
+      title: formData.title || '',
+      organization: formData.organization || '',
+      sort_order: parseInt(formData.sort_order) || 0
+    }
+
     try {
       if (editingId && editingId !== 'new') {
-        await supabase.from('awards_honors').update(formData).eq('id', editingId)
+        await supabase.from('awards_honors').update(cleanData).eq('id', editingId)
       } else {
-        await supabase.from('awards_honors').insert(formData)
+        await supabase.from('awards_honors').insert(cleanData)
       }
-    } catch (err) {}
+    } catch (err) {
+      console.warn('Awards DB save fallback:', err)
+    }
 
-    alert(tLabel('पुरस्कार सहेजा गया!', 'Award saved!'))
+    alert('✓ ' + tLabel('पुरस्कार सहेजा गया!', 'Award saved!'))
     setShowForm(false)
     onUpdate()
   }
