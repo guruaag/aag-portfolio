@@ -1,0 +1,26 @@
+/* ============================================
+   SCROLL REVEAL ANIMATIONS
+   Fade-in and slide-up on scroll
+   ============================================ */
+
+/* Apply to elements that should reveal on scroll */
+.phoenix-scroll-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.phoenix-scroll-reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Framer Motion will handle most animations, but this provides fallback */
+@media (prefers-reduced-motion: reduce) {
+  .phoenix-scroll-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+

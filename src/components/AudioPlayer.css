@@ -1,0 +1,113 @@
+.phoenix-audio-player {
+  margin: var(--phoenix-space-lg) 0;
+  padding: var(--phoenix-space-lg);
+  background: var(--premium-cream);
+  border-radius: 8px;
+  border: 1px solid var(--theme-border);
+}
+
+.phoenix-audio-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--phoenix-space-md);
+}
+
+.phoenix-audio-play-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--premium-burnt-orange);
+  color: var(--phoenix-white);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.phoenix-audio-play-btn:hover {
+  background: var(--premium-burnt-orange);
+  opacity: 0.9;
+  transform: scale(1.05);
+}
+
+.phoenix-audio-play-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.phoenix-audio-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: var(--phoenix-white);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.phoenix-audio-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.phoenix-audio-title {
+  font-family: var(--premium-sans-body);
+  font-size: var(--phoenix-text-sm);
+  font-weight: 600;
+  color: var(--premium-charcoal);
+  margin-bottom: 4px;
+}
+
+.phoenix-audio-time {
+  font-family: var(--premium-sans-body);
+  font-size: var(--phoenix-text-xs);
+  color: var(--phoenix-text-secondary);
+}
+
+.phoenix-audio-progress-container {
+  flex: 1;
+  height: 4px;
+  background: var(--theme-border);
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+  min-width: 100px;
+}
+
+.phoenix-audio-progress-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--theme-border);
+  border-radius: 2px;
+}
+
+.phoenix-audio-progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: var(--premium-burnt-orange);
+  border-radius: 2px;
+  transition: width 0.1s linear;
+}
+
+@media (max-width: 600px) {
+  .phoenix-audio-controls {
+    flex-direction: column;
+    gap: var(--phoenix-space-sm);
+  }
+  
+  .phoenix-audio-progress-container {
+    width: 100%;
+  }
+}
+

@@ -17,6 +17,15 @@
   color: var(--phoenix-charcoal);
   margin-bottom: var(--phoenix-space-md);
   letter-spacing: -0.02em;
+  transition: color 0.3s ease;
+}
+
+.phoenix-category-title.phoenix-section-title-link {
+  cursor: pointer;
+}
+
+.phoenix-category-title.phoenix-section-title-link:hover {
+  color: var(--premium-burnt-orange);
 }
 
 .phoenix-title-underline {

@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gurupratap Sharma 'Aag' - 100X Book Reader & PM5 Desk (Regression Tested)</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amita:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Eczar:wght@400;600;700&family=Rozha+One&family=Tiro+Devanagari+Hindi:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-color: #8B4513;
+      --primary-dark: #5C2E0B;
+      --accent-gold: #D4AF37;
+      --bg-parchment: #F7F3E9;
+      --paper-color: #FDFBF7;
+      --book-cover: #2C1609;
+      --text-main: #2A2118;
+      --text-muted: #6B5B4D;
+      --border-color: #E2D7C5;
+      
+      --font-title: 'Rozha One', 'Amita', serif;
+      --font-poem: 'Tiro Devanagari Hindi', 'Eczar', Georgia, serif;
+      --font-sans: 'Inter', sans-serif;
+    }
+
+    [data-theme="dark"] {
+      --bg-parchment: #12100E;
+      --paper-color: #1C1814;
+      --book-cover: #1A0D05;
+      --text-main: #F2E8DC;
+      --text-muted: #A89A8B;
+      --border-color: #332B23;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-parchment);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      overflow-x: hidden;
+      transition: background-color 0.3s ease;
+    }
+
+    .demo-bar {
+      background: #1A0D05;
+      color: var(--accent-gold);
+      padding: 6px 16px;
+      font-size: 0.78rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--accent-gold);
+    }
+
+    header.site-header {
+      background: var(--paper-color);
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 20px;
+      position: sticky;
+      top: 0; z-index: 100;
+      transition: all 0.3s ease;
+    }
+    header.site-header.hidden { display: none !important; }
+
+    .header-content {
+      max-width: 1320px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .author-title {
+      font-family: var(--font-title);
+      font-size: 1.4rem;
+      color: var(--primary-color);
+    }
+
+    .view-switcher {
+      max-width: 1320px;
+      margin: 12px auto 0;
+      padding: 0 16px;
+      display: flex;
+      gap: 10px;
+    }
+    .tab-btn {
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--primary-color);
+      background: transparent;
+      color: var(--primary-color);
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    /* READER STYLES */
+    .reader-wrapper { max-width: 1340px; margin: 12px auto; padding: 0 8px; }
+    .book-stage { position: relative; background: var(--book-cover); border-radius: 6px; padding: 3px; box-shadow: 0 15px 45px rgba(0,0,0,0.35); perspective: 2500px; }
+    .book-spread { position: relative; background: var(--paper-color); border-radius: 4px; min-height: 640px; display: grid; grid-template-columns: 1fr 1fr; box-shadow: inset 0 0 15px rgba(0,0,0,0.06); overflow: hidden; transform-style: preserve-3d; }
+
+    @media (max-width: 768px) {
+      .book-spread { grid-template-columns: 1fr; min-height: 520px; }
+      .page.left-page { border-right: none !important; padding: 20px !important; }
+      .page.right-page { display: none !important; }
+      .book-spine-shadow { display: none !important; }
+      .turning-sheet { display: none !important; }
+    }
+
+    .book-spine-shadow { position: absolute; top: 0; bottom: 0; left: 50%; width: 40px; transform: translateX(-50%); background: linear-gradient(90deg, rgba(0,0,0,0.14) 0%, rgba(0,0,0,0.02) 40%, rgba(0,0,0,0.20) 50%, rgba(0,0,0,0.02) 60%, rgba(0,0,0,0.14) 100%); pointer-events: none; z-index: 15; }
+
+    .page { 
+      padding: 28px 36px 16px; 
+      display: flex; flex-direction: column; justify-content: space-between; 
+      position: relative; background: var(--paper-color); 
+      background-image: radial-gradient(#E8DFC9 0.7px, transparent 0.7px); 
+      background-size: 20px 20px; user-select: none; 
+      overflow-wrap: break-word; word-break: break-word; 
+    }
+    .left-page { border-right: 1px solid rgba(0,0,0,0.05); }
+    .right-page { border-left: 1px solid rgba(0,0,0,0.05); }
+
+    .page-head { display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; color: var(--text-muted); border-bottom: 1px solid var(--border-color); padding-bottom: 6px; font-family: var(--font-poem); }
+    .page-body { margin: auto 0; padding: 10px 0; }
+    .poem-title { font-family: var(--font-title); font-size: 1.8rem; color: var(--primary-color); text-align: center; margin-bottom: 18px; }
+    
+    .poem-stanzas { 
+      font-family: var(--font-poem); 
+      font-size: 1.28rem; 
+      line-height: calc(1.85em + 2px); 
+      color: var(--text-main); 
+      white-space: pre-line; 
+      text-align: center; 
+    }
+    .page-foot { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 8px; font-size: 0.82rem; color: var(--text-muted); position: relative; }
+
+    .corner-nav-btn { background: rgba(139, 69, 19, 0.08); border: 1px solid var(--border-color); color: var(--primary-color); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; transition: all 0.2s; outline: none; }
+    .corner-nav-btn:hover:not(:disabled) { background: var(--primary-color); color: white; transform: scale(1.1); box-shadow: 0 4px 10px rgba(139, 69, 19, 0.25); }
+    .corner-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .outer-book-dock { margin-top: 10px; display: flex; justify-content: center; align-items: center; }
+    .unified-focus-dock-btn { background: var(--paper-color); border: 1px solid var(--primary-color); color: var(--primary-color); padding: 7px 20px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .unified-focus-dock-btn:hover { background: var(--primary-color); color: white; transform: translateY(-1px); }
+
+    .turning-sheet { position: absolute; top: 0; bottom: 0; right: 0; width: 50%; transform-origin: bottom right; transform-style: preserve-3d; z-index: 30; pointer-events: none; display: none; }
+    .turning-sheet-front, .turning-sheet-back { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--paper-color); backface-visibility: hidden; padding: 28px 36px; box-shadow: -15px 15px 35px rgba(0,0,0,0.3); }
+    .turning-sheet-back { transform: rotateY(180deg); }
+
+    @keyframes cornerCurlNext { 0% { transform: rotate3d(0, 0, 0, 0deg); } 50% { transform: rotate3d(-0.8, 1, 0.2, 90deg); } 100% { transform: rotate3d(-1, 1, 0, 180deg); } }
+    @keyframes cornerCurlPrev { 0% { transform: rotate3d(-1, 1, 0, 180deg); } 100% { transform: rotate3d(0, 0, 0, 0deg); } }
+    .animate-corner-next { display: block; animation: cornerCurlNext 0.65s cubic-bezier(0.4, 0.0, 0.2, 1) forwards; }
+    .animate-corner-prev { display: block; left: 0; right: auto; transform-origin: bottom left; animation: cornerCurlPrev 0.65s cubic-bezier(0.4, 0.0, 0.2, 1) forwards; }
+
+    /* PAGEMAKER (PM5) V7 REGRESSION TESTED */
+    .pm5-workspace { background: #D9D2C5; border: 2px solid #8B4513; border-radius: 8px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+    .pm5-top-toolbar { background: #FAF8F5; border: 1px solid #B8AEA0; padding: 10px 16px; border-radius: 6px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .pm5-autosave-badge { background: #E8F5E9; color: #2E7D32; border: 1px solid #A5D6A7; padding: 4px 12px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+
+    .pm5-canvas-grid { display: grid; grid-template-columns: 240px 1fr; gap: 16px; }
+    @media (max-width: 850px) { .pm5-canvas-grid { grid-template-columns: 1fr; } }
+
+    .pm5-sidebar-pages { background: #E5DFC9; border: 1px solid #B8AEA0; border-radius: 6px; padding: 14px; display: flex; flex-direction: column; gap: 10px; max-height: 600px; overflow-y: auto; }
+    .pm5-sidebar-title { font-size: 0.85rem; font-weight: 700; color: var(--primary-color); border-bottom: 1px dashed var(--primary-color); padding-bottom: 6px; }
+
+    .pm5-thumb-card {
+      background: #FFF; border: 2px solid #B8AEA0; border-radius: 6px; padding: 10px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 6px rgba(0,0,0,0.06); position: relative;
+    }
+    .pm5-thumb-card:hover, .pm5-thumb-card.active { border-color: var(--primary-color); box-shadow: 0 4px 12px rgba(139, 69, 19, 0.2); transform: translateY(-1px); }
+    .pm5-thumb-card.active { background: #FFFDF8; }
+
+    .pm5-thumb-delete {
+      position: absolute; top: 6px; right: 6px; color: #D32F2F; font-size: 0.85rem; cursor: pointer; padding: 2px 6px; border-radius: 4px; background: rgba(211, 47, 47, 0.08); transition: all 0.2s;
+    }
+    .pm5-thumb-card:hover .pm5-thumb-delete { display: block; }
+    .pm5-thumb-delete:hover { background: #D32F2F; color: white; }
+
+    .pm5-thumb-num { font-size: 0.8rem; font-weight: 700; color: var(--primary-color); margin-bottom: 4px; }
+    .pm5-thumb-preview { font-family: var(--font-poem); font-size: 0.72rem; color: var(--text-muted); line-height: 1.3; height: 44px; overflow: hidden; }
+    .pm5-sidebar-add-btn { background: var(--paper-color); border: 1.5px dashed var(--primary-color); color: var(--primary-color); padding: 8px; border-radius: 6px; font-size: 0.82rem; font-weight: 700; cursor: pointer; text-align: center; }
+    .pm5-sidebar-add-btn:hover { background: var(--primary-color); color: white; }
+
+    .pm5-canvas-area { background: #BEB4A2; padding: 30px; border-radius: 6px; display: flex; justify-content: center; align-items: center; position: relative; min-height: 560px; box-shadow: inset 0 0 20px rgba(0,0,0,0.1); }
+    .pm5-sheet { width: 100%; max-width: 440px; min-height: 540px; background: #FFFFFF; border: 1px solid #999; box-shadow: 8px 12px 25px rgba(0,0,0,0.25); position: relative; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; }
+
+    .pm5-margin-guide { position: absolute; top: 16px; left: 16px; right: 16px; bottom: 16px; border: 1.5px dashed #7B1FA2; pointer-events: none; opacity: 0.7; }
+    .pm5-editor-title { width: 100%; border: none; border-bottom: 2px solid var(--accent-gold); font-family: var(--font-title); font-size: 1.5rem; color: var(--primary-color); padding: 4px 0; outline: none; background: transparent; text-align: center; }
+
+    .pm5-editor-textarea { width: 100%; height: 350px; border: none; font-family: var(--font-poem); font-size: 1.25rem; line-height: 2.15; color: #2A2118; resize: none; outline: none; background: transparent; margin-top: 12px; text-align: center; overflow-wrap: break-word; word-break: break-word; }
+
+    footer.main-footer { background: linear-gradient(180deg, var(--paper-color) 0%, #15110E 100%); color: #E2D7C5; border-top: 3px solid var(--accent-gold); margin-top: 40px; padding: 36px 20px 20px; transition: all 0.3s ease; }
+    footer.main-footer.hidden { display: none !important; }
+    .footer-social-bar { display: flex; justify-content: center; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+    .social-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 20px; background: rgba(212, 175, 55, 0.12); border: 1px solid var(--accent-gold); color: var(--accent-gold); text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: all 0.2s; }
+    .social-btn:hover { background: var(--accent-gold); color: #15110E; transform: translateY(-2px); }
+  </style>
+</head>
+<body>
+
+  <!-- Demo Notice Bar -->
+  <div class="demo-bar">
+    <span>📌 <strong>PROTOTYPE V7 (REGRESSION TESTED):</strong> Dynamic PM5 Thumbnails, Mobile Single-Page Mode, Footer Social Links & LocalStorage Persistence</span>
+    <span>Ready for Codebase Integration</span>
+  </div>
+
+  <!-- Header -->
+  <header class="site-header" id="siteHeader">
+    <div class="header-content">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="width: 36px; height: 36px; background: radial-gradient(circle, #D4AF37 0%, #8B4513 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">🔥</div>
+        <div>
+          <div class="author-title">गुरुप्रताप शर्मा 'आग'</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- View Switcher Tabs -->
+  <div class="view-switcher">
+    <button class="tab-btn active" onclick="switchTab('book')">📖 बुक रीडर व्यू (Mobile Single Page & 3D Flip)</button>
+    <button class="tab-btn" onclick="switchTab('admin')">🖋️ पापा का PM5 राइटिंग डेस्क (Dynamic Thumbnails & Auto-Flow)</button>
+  </div>
+
+  <!-- VIEW 1: BOOK READER -->
+  <div id="view-book" class="reader-wrapper">
+    <div class="book-stage" id="bookStage">
+      <div class="book-spread" id="bookSpreadArea">
+        <div class="book-spine-shadow"></div>
+
+        <!-- LEFT PAGE -->
+        <div class="page left-page" id="leftPage">
+          <div class="page-head">
+            <span>गुरुप्रताप शर्मा 'आग'</span>
+            <span>काव्य संग्रह: अग्नि कलश</span>
+          </div>
+
+          <div class="page-body">
+            <div class="poem-title" id="leftTitle">समर अभी बाकी है</div>
+            <div class="poem-stanzas" id="leftStanza">
+              पथ में कांटे बिछे भले हों,
+              पग पीछे न हटाएंगे।
+              अंधियारे की घनी घटा में,
+              नया सवेरा लाएंगे।
+
+              हिम्मत की पतवार थामकर,
+              गहरे सागर तर जाएंगे।
+            </div>
+          </div>
+
+          <div class="page-foot">
+            <button class="corner-nav-btn" id="leftCornerBtn" onclick="turnPage(-1)" title="पिछला पृष्ठ">&larr;</button>
+            <span id="leftNum" style="font-weight: 700; color: var(--primary-color);">पृष्ठ १</span>
+            <span style="font-weight: 600; color: var(--text-muted);">अध्याय १</span>
+          </div>
+        </div>
+
+        <!-- RIGHT PAGE -->
+        <div class="page right-page" id="rightPage">
+          <div class="page-head">
+            <span>प्रकाशन वर्ष: १९८५</span>
+            <span id="pageCounterText" style="font-weight: 600;">पृष्ठ १ - २ / ३</span>
+          </div>
+
+          <div class="page-body">
+            <div class="poem-stanzas" id="rightStanza">
+              जो आंधी में दीप जलाए,
+              वही पथिक अविराम रहे।
+              जिसकी नस-नस में ओज बसे,
+              उसका ही जग में नाम रहे।
+
+              चट्टानों को चीर निकलना,
+              यह वीरों का काम रहे!
+            </div>
+          </div>
+
+          <div class="page-foot">
+            <span style="font-weight: 600; color: var(--text-muted);">भाग १</span>
+            <span id="rightNum" style="font-weight: 700; color: var(--primary-color);">पृष्ठ २</span>
+            <button class="corner-nav-btn" id="rightCornerBtn" onclick="turnPage(1)" title="अगला पृष्ठ">&rarr;</button>
+          </div>
+        </div>
+
+        <div class="turning-sheet" id="turningSheet">
+          <div class="turning-sheet-front" id="sheetFront"></div>
+          <div class="turning-sheet-back" id="sheetBack"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DOCK TOOLBAR BELOW BOOK -->
+    <div class="outer-book-dock">
+      <button class="unified-focus-dock-btn" onclick="toggleUnifiedFocusMode()" id="unifiedFocusBtn">
+        🎯 ⛶ एकाग्र मोड (Focus View)
+      </button>
+    </div>
+  </div>
+
+  <!-- VIEW 2: PAPA'S PM5 PAGEMAKER DESK -->
+  <div id="view-admin" class="reader-wrapper" style="display: none;">
+    <div class="pm5-workspace">
+      
+      <!-- PM5 Top Toolbar -->
+      <div class="pm5-top-toolbar">
+        <div>
+          <strong style="color: var(--primary-color); font-size: 1.1rem; font-family: var(--font-title);">
+            🖋️ पेजमेकर (PM5) राइटिंग कैनवस (V7 Regression Tested)
+          </strong>
+          <span style="font-size: 0.82rem; color: var(--text-muted); margin-left: 10px;">
+            (Multi-Page Paste Auto-Flow & Dynamic Sidebar)
+          </span>
+        </div>
+
+        <div class="pm5-autosave-badge" id="autoSaveBadge">
+          ✓ स्वतः सहेजा गया (Auto-saved)
+        </div>
+      </div>
+
+      <!-- PM5 Canvas Grid -->
+      <div class="pm5-canvas-grid">
+        
+        <!-- LEFT VERTICAL PAGE THUMBNAILS NAV BAR -->
+        <div class="pm5-sidebar-pages" id="sidebarPageList">
+          <!-- Dynamically populated by renderSidebarThumbnails() -->
+        </div>
+
+        <!-- CENTERED PAGEMAKER SHEET CANVAS -->
+        <div class="pm5-canvas-area">
+          <div class="pm5-sheet">
+            
+            <div class="pm5-margin-guide" title="Page Margin Bounds"></div>
+
+            <div style="font-size: 0.75rem; color: var(--primary-color); text-align: center; margin-bottom: 4px; font-weight: 600;" id="sheetPageTitle">
+              — पृष्ठ १ (PAGE 1 CANVAS) —
+            </div>
+
+            <!-- Title Input -->
+            <input type="text" class="pm5-editor-title" id="pm5TitleInput" value="समर अभी बाकी है" placeholder="यहाँ शीर्षक लिखें..." oninput="handleEditorChange()">
+
+            <!-- Textarea with Multi-Page Paste Auto-Flow -->
+            <textarea class="pm5-editor-textarea" id="pm5Textarea" placeholder="यहाँ कविता लिखें या पेस्ट करें..." oninput="handleEditorChange()" onpaste="handlePasteAutoFlow(event)"></textarea>
+
+            <!-- Bottom Line Limit Indicator -->
+            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 6px; margin-top: 10px;">
+              <span>प्रभावी पंक्तियां: <strong id="lineCountText">० / १२</strong></span>
+              <span id="limitNotice" style="color: #2E7D32; font-weight: 700;">✓ सीमा के भीतर (Safe Line Bounds)</span>
+              <span id="hindiPageFootNum">पृष्ठ १</span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="main-footer" id="siteFooter">
+    <div class="footer-social-bar">
+      <a href="#" class="social-btn">📱 व्हाट्सएप (WhatsApp)</a>
+      <a href="#" class="social-btn">📘 फ़ेसबुक (Facebook)</a>
+      <a href="#" class="social-btn">📷 इंस्टाग्राम (Instagram)</a>
+      <a href="#" class="social-btn">▶️ यूट्यूब (YouTube)</a>
+    </div>
+    <div style="text-align: center; font-size: 0.9rem; color: #B3A495;">
+      © २०२६ गुरुप्रताप शर्मा 'आग' | सर्वाधिकार सुरक्षित | Auspicious Beginning
+    </div>
+  </footer>
+
+  <script>
+    function toHindiNumerals(num) {
+      const hindiDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+      return String(num).replace(/[0-9]/g, w => hindiDigits[+w]);
+    }
+
+    const pagesData = [
+      {
+        title: "समर अभी बाकी है",
+        stanza: "पथ में कांटे बिछे भले हों,\nपग पीछे न हटाएंगे।\nअंधियारे की घनी घटा में,\nनया सवेरा लाएंगे।\n\nहिम्मत की पतवार थामकर,\nगहरे सागर तर जाएंगे।",
+        num: 1
+      },
+      {
+        title: "",
+        stanza: "जो आंधी में दीप जलाए,\nवही पथिक अविराम रहे।\nजिसकी नस-नस में ओज बसे,\nउसका ही जग में नाम रहे।\n\nचट्टानों को चीर निकलना,\nयह वीरों का काम रहे!",
+        num: 2
+      },
+      {
+        title: "अग्नि कलश - निष्कर्ष",
+        stanza: "कलम जब ओज उगलती है,\nयुग परिवर्तन आता है।\nकायरता का पर्दा हटता,\nशौर्य का सूर्य चमकता है。\n\nइतिहास गवाही देता है,\nसाहित्य अमर रह जाता है。",
+        num: 3
+      }
+    ];
+
+    let currentIdx = 0; // For desktop double page spreads, 0 means pages 1-2. On mobile, single page index.
+
+    function isMobileScreen() {
+      return window.innerWidth <= 768;
+    }
+
+    function playPaperSound() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        if (ctx.state === 'suspended') ctx.resume();
+
+        const bufferSize = ctx.sampleRate * 0.16;
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.28));
+        }
+
+        const noise = ctx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 1400; filter.Q.value = 3.0;
+
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.35, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.16);
+
+        noise.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+        noise.start();
+      } catch(e){}
+    }
+
+    function turnPage(dir) {
+      const step = isMobileScreen() ? 1 : 2;
+      const maxIdx = pagesData.length - 1;
+      const nextIdx = currentIdx + (dir * step);
+
+      if (nextIdx < 0 || nextIdx > maxIdx) return;
+
+      playPaperSound();
+
+      const sheet = document.getElementById('turningSheet');
+      sheet.className = 'turning-sheet ' + (dir > 0 ? 'animate-corner-next' : 'animate-corner-prev');
+
+      setTimeout(() => {
+        currentIdx = nextIdx;
+        renderSpread();
+        sheet.className = 'turning-sheet';
+      }, 500);
+    }
+
+    function renderSpread() {
+      const totalPages = pagesData.length;
+      if (isMobileScreen()) {
+        // Single page rendering on mobile
+        const p = pagesData[currentIdx] || { title: '', stanza: '', num: currentIdx + 1 };
+        document.getElementById('leftTitle').innerText = p.title || '';
+        document.getElementById('leftStanza').innerText = p.stanza || '';
+        document.getElementById('leftNum').innerText = `पृष्ठ ${toHindiNumerals(currentIdx + 1)}`;
+        document.getElementById('pageCounterText').innerText = `पृष्ठ ${toHindiNumerals(currentIdx + 1)} / ${toHindiNumerals(totalPages)}`;
+        
+        document.getElementById('leftCornerBtn').disabled = (currentIdx === 0);
+        document.getElementById('rightCornerBtn').disabled = (currentIdx >= totalPages - 1);
+      } else {
+        // Double page spread on desktop
+        const pLeft = pagesData[currentIdx] || { title: '', stanza: '', num: currentIdx + 1 };
+        const pRight = pagesData[currentIdx + 1];
+
+        document.getElementById('leftTitle').innerText = pLeft.title || '';
+        document.getElementById('leftStanza').innerText = pLeft.stanza || '';
+        document.getElementById('leftNum').innerText = `पृष्ठ ${toHindiNumerals(currentIdx + 1)}`;
+
+        if (pRight) {
+          document.getElementById('rightStanza').innerText = pRight.stanza || '';
+          document.getElementById('rightNum').innerText = `पृष्ठ ${toHindiNumerals(currentIdx + 2)}`;
+          document.getElementById('pageCounterText').innerText = `पृष्ठ ${toHindiNumerals(currentIdx + 1)} - ${toHindiNumerals(currentIdx + 2)} / ${toHindiNumerals(totalPages)}`;
+        } else {
+          document.getElementById('rightStanza').innerText = "\n\n— समाप्त —\n(प्रथम संस्करण)";
+          document.getElementById('rightNum').innerText = `—`;
+          document.getElementById('pageCounterText').innerText = `पृष्ठ ${toHindiNumerals(currentIdx + 1)} / ${toHindiNumerals(totalPages)}`;
+        }
+
+        document.getElementById('leftCornerBtn').disabled = (currentIdx === 0);
+        document.getElementById('rightCornerBtn').disabled = (currentIdx + 2 >= totalPages);
+      }
+    }
+
+    window.addEventListener('resize', renderSpread);
+
+    let focusActive = false;
+    function toggleUnifiedFocusMode() {
+      focusActive = !focusActive;
+      const elem = document.getElementById('bookStage');
+      if (focusActive) {
+        if (elem.requestFullscreen) elem.requestFullscreen();
+        else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+      syncFocusUI();
+    }
+
+    function syncFocusUI() {
+      document.getElementById('siteHeader').classList.toggle('hidden', focusActive);
+      document.getElementById('siteFooter').classList.toggle('hidden', focusActive);
+      document.getElementById('unifiedFocusBtn').innerHTML = focusActive ? '📖 ✖ सामान्य मोड (Exit Focus)' : '🎯 ⛶ एकाग्र मोड (Focus View)';
+    }
+
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement) {
+        focusActive = false;
+        syncFocusUI();
+      }
+    });
+
+    let touchStartX = 0;
+    const bookArea = document.getElementById('bookSpreadArea');
+    bookArea.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+    bookArea.addEventListener('touchend', (e) => {
+      let touchEndX = e.changedTouches[0].screenX;
+      if (touchEndX < touchStartX - 40) turnPage(1);
+      if (touchEndX > touchStartX + 40) turnPage(-1);
+    }, {passive: true});
+
+    /* PM5 ADMIN DESK WITH DYNAMIC THUMBNAILS & LOCALSTORAGE PERSISTENCE */
+    let autoSaveTimer = null;
+    const MAX_EFFECTIVE_LINES = 12;
+    const CHARS_PER_LINE = 36;
+
+    let adminPagesContent = [
+      "पथ में कांटे बिछे भले हों,\nपग पीछे न हटाएंगे।\nअंधियारे की घनी घटा में,\nनया सवेरा लाएंगे।\n\nहिम्मत की पतवार थामकर,\nगहरे सागर तर जाएंगे।",
+      "जो आंधी में दीप जलाए,\nवही पथिक अविराम रहे।\nजिसकी नस-नस में ओज बसे,\nउसका ही जग में नाम रहे।",
+      "कलम जब ओज उगलती है,\nयुग परिवर्तन आता है।"
+    ];
+
+    try {
+      const saved = localStorage.getItem('aag_pm5_pages');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) adminPagesContent = parsed;
+      }
+    } catch(e){}
+
+    let activeAdminPageIdx = 0; // 0-indexed internally
+
+    function handlePasteAutoFlow(e) {
+      e.preventDefault();
+      const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+      const lines = pastedText.split('\n');
+
+      let pageChunks = [];
+      let lineChunk = [];
+
+      for (let i = 0; i < lines.length; i++) {
+        lineChunk.push(lines[i]);
+        if (lineChunk.length >= MAX_EFFECTIVE_LINES || i === lines.length - 1) {
+          pageChunks.push(lineChunk.join('\n'));
+          lineChunk = [];
+        }
+      }
+
+      adminPagesContent = pageChunks;
+      activeAdminPageIdx = 0;
+      renderSidebarThumbnails();
+      selectAdminPage(0);
+      alert(`✅ आपकी लम्बी कविता स्वतः ${toHindiNumerals(adminPagesContent.length)} पृष्ठों में विभाजित कर दी गई है!`);
+    }
+
+    function renderSidebarThumbnails() {
+      const container = document.getElementById('sidebarPageList');
+      let html = `<div class="pm5-sidebar-title">📑 पृष्ठ सूची (Pages Nav)</div>`;
+
+      adminPagesContent.forEach((text, i) => {
+        const activeClass = (i === activeAdminPageIdx) ? 'active' : '';
+        const prevText = text.trim() ? text.substring(0, 28) + '...' : '(खाली पृष्ठ)';
+        html += `
+          <div class="pm5-thumb-card ${activeClass}" onclick="selectAdminPage(${i})">
+            <span class="pm5-thumb-delete" onclick="deleteAdminPage(event, ${i})" title="पृष्ठ हटाएं">🗑️</span>
+            <div class="pm5-thumb-num">📄 पृष्ठ ${toHindiNumerals(i + 1)} ${i === activeAdminPageIdx ? '(सक्रिय)' : ''}</div>
+            <div class="pm5-thumb-preview">${prevText}</div>
+          </div>
+        `;
+      });
+
+      html += `
+        <button class="pm5-sidebar-add-btn" onclick="addNewPage()">➕ नया पृष्ठ जोड़ें</button>
+        <button style="margin-top: 10px; background: #2E7D32; color: white; border: none; padding: 10px 14px; font-weight: 700; border-radius: 6px; cursor: pointer; font-size: 0.85rem;" onclick="publishAllPages()">
+          ✅ प्रकाशित करें
+        </button>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    function handleEditorChange() {
+      const textarea = document.getElementById('pm5Textarea');
+      const rawLines = textarea.value.split('\n');
+      
+      let totalEffectiveLines = 0;
+      let trimmedLines = [];
+
+      for (let line of rawLines) {
+        let visualLinesNeeded = Math.max(1, Math.ceil(line.length / CHARS_PER_LINE));
+        if (totalEffectiveLines + visualLinesNeeded <= MAX_EFFECTIVE_LINES) {
+          totalEffectiveLines += visualLinesNeeded;
+          trimmedLines.push(line);
+        } else {
+          let allowedChars = (MAX_EFFECTIVE_LINES - totalEffectiveLines) * CHARS_PER_LINE;
+          if (allowedChars > 0) {
+            trimmedLines.push(line.substring(0, allowedChars));
+            totalEffectiveLines = MAX_EFFECTIVE_LINES;
+          }
+          break;
+        }
+      }
+
+      if (rawLines.join('\n') !== trimmedLines.join('\n')) {
+        textarea.value = trimmedLines.join('\n');
+        document.getElementById('limitNotice').innerText = '⛔ पृष्ठ सीमा पूर्ण! (Max 12 lines reached)';
+        document.getElementById('limitNotice').style.color = '#D32F2F';
+      } else {
+        document.getElementById('limitNotice').innerText = '✓ सीमा के भीतर (Safe Line Bounds)';
+        document.getElementById('limitNotice').style.color = '#2E7D32';
+      }
+
+      adminPagesContent[activeAdminPageIdx] = textarea.value;
+      renderSidebarThumbnails();
+
+      document.getElementById('lineCountText').innerText = `${toHindiNumerals(totalEffectiveLines)} / ${toHindiNumerals(MAX_EFFECTIVE_LINES)}`;
+
+      const badge = document.getElementById('autoSaveBadge');
+      badge.style.background = '#FFF3E0'; badge.style.color = '#E65100'; badge.style.borderColor = '#FFE0B2';
+      badge.innerText = '✍️ सहेजा जा रहा है...';
+
+      clearTimeout(autoSaveTimer);
+      autoSaveTimer = setTimeout(() => {
+        try {
+          localStorage.setItem('aag_pm5_pages', JSON.stringify(adminPagesContent));
+        } catch(e){}
+        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        badge.style.background = '#E8F5E9'; badge.style.color = '#2E7D32'; badge.style.borderColor = '#A5D6A7';
+        badge.innerText = `✓ स्वतः सहेजा गया ${timeStr}`;
+      }, 800);
+    }
+
+    function selectAdminPage(idx) {
+      activeAdminPageIdx = idx;
+      renderSidebarThumbnails();
+      document.getElementById('sheetPageTitle').innerText = `— पृष्ठ ${toHindiNumerals(idx + 1)} (PAGE ${idx + 1} CANVAS) —`;
+      document.getElementById('hindiPageFootNum').innerText = `पृष्ठ ${toHindiNumerals(idx + 1)}`;
+
+      document.getElementById('pm5Textarea').value = adminPagesContent[idx] || '';
+      handleEditorChange();
+    }
+
+    function deleteAdminPage(event, idx) {
+      event.stopPropagation();
+      if (adminPagesContent.length <= 1) {
+        alert('कम से कम एक पृष्ठ रहना आवश्यक है!');
+        return;
+      }
+      if (confirm(`क्या आप पृष्ठ ${toHindiNumerals(idx + 1)} हटाना चाहते हैं?`)) {
+        adminPagesContent.splice(idx, 1);
+        activeAdminPageIdx = Math.max(0, idx - 1);
+        renderSidebarThumbnails();
+        selectAdminPage(activeAdminPageIdx);
+        alert('पृष्ठ हटा दिया गया!');
+      }
+    }
+
+    function publishAllPages() {
+      const validPages = adminPagesContent.filter(text => text.trim().length > 0);
+      alert(`सफलतापूर्वक ${toHindiNumerals(validPages.length)} वैध पृष्ठ प्रकाशित कर दिए गए हैं!`);
+    }
+
+    function addNewPage() {
+      adminPagesContent.push("");
+      activeAdminPageIdx = adminPagesContent.length - 1;
+      renderSidebarThumbnails();
+      selectAdminPage(activeAdminPageIdx);
+    }
+
+    function switchTab(tab) {
+      document.getElementById('view-book').style.display = (tab === 'book') ? 'block' : 'none';
+      document.getElementById('view-admin').style.display = (tab === 'admin') ? 'block' : 'none';
+      document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', (tab === 'book' && i === 0) || (tab === 'admin' && i === 1)));
+    }
+
+    // KEYBOARD INPUT LOCK (DO NOT FLIP PAGES WHILE TYPING IN TEXTAREA OR INPUT)
+    document.addEventListener('keydown', (e) => {
+      const tag = document.activeElement ? document.activeElement.tagName.toUpperCase() : '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+      if (e.key === 'ArrowRight') turnPage(1);
+      if (e.key === 'ArrowLeft') turnPage(-1);
+    });
+
+    // Initialize UI
+    renderSpread();
+    renderSidebarThumbnails();
+    selectAdminPage(0);
+  </script>
+</body>
+</html>
+nst badge = document.getElementById('autoSaveBadge');
+      badge.style.background = '#FFF3E0'; badge.style.color = '#E65100'; badge.style.borderColor = '#FFE0B2';
+      badge.innerText = '✍️ सहेजा जा रहा है... (Saving draft...)';
+
+      clearTimeout(autoSaveTimer);
+      autoSaveTimer = setTimeout(() => {
+        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        badge.style.background = '#E8F5E9'; badge.style.color = '#2E7D32'; badge.style.borderColor = '#A5D6A7';
+        badge.innerText = `✓ स्वतः सहेजा गया ${timeStr} (Auto-saved)`;
+      }, 900);
+    }
+
+    function selectAdminPage(pageNum) {
+      activeAdminPage = pageNum;
+      document.querySelectorAll('.pm5-thumb-card').forEach((t, i) => {
+        t.classList.toggle('active', i === pageNum - 1);
+      });
+      document.getElementById('sheetPageTitle').innerText = `— पृष्ठ ${toHindiNumerals(pageNum)} (PAGE ${pageNum} CANVAS) —`;
+      document.getElementById('hindiPageFootNum').innerText = `पृष्ठ ${toHindiNumerals(pageNum)}`;
+
+      document.getElementById('pm5Textarea').value = adminPagesContent[pageNum] || '';
+      handleEditorChange();
+    }
+
+    function deleteAdminPage(event, pageNum) {
+      event.stopPropagation();
+      const keys = Object.keys(adminPagesContent);
+      if (keys.length <= 1) {
+        alert('कम से कम एक पृष्ठ रहना आवश्यक है! (Cannot delete single page)');
+        return;
+      }
+      if (confirm(`क्या आप पृष्ठ ${toHindiNumerals(pageNum)} हटाना चाहते हैं?`)) {
+        delete adminPagesContent[pageNum];
+        alert(`पृष्ठ ${toHindiNumerals(pageNum)} हटा दिया गया!`);
+        selectAdminPage(1);
+      }
+    }
+
+    function publishAllPages() {
+      const validPages = Object.values(adminPagesContent).filter(text => text.trim().length > 0);
+      alert(`सफलतापूर्वक ${toHindiNumerals(validPages.length)} वैध पृष्ठ प्रकाशित कर दिए गए हैं!`);
+    }
+
+    function addNewPage() {
+      const newPageNum = Object.keys(adminPagesContent).length + 1;
+      adminPagesContent[newPageNum] = "";
+      alert(`नया पृष्ठ ${toHindiNumerals(newPageNum)} जोड़ दिया गया है!`);
+      selectAdminPage(newPageNum);
+    }
+
+    function switchTab(tab) {
+      document.getElementById('view-book').style.display = (tab === 'book') ? 'block' : 'none';
+      document.getElementById('view-admin').style.display = (tab === 'admin') ? 'block' : 'none';
+      document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', (tab === 'book' && i === 0) || (tab === 'admin' && i === 1)));
+    }
+
+    // REGRESSION FIX 3: KEYBOARD NAV INPUT LOCK (DO NOT TURN PAGES WHILE TYPING IN TEXTAREA/INPUT)
+    document.addEventListener('keydown', (e) => {
+      const tag = document.activeElement ? document.activeElement.tagName.toUpperCase() : '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return; // Ignore page flip hotkeys inside inputs!
+
+      if (e.key === 'ArrowRight') turnPage(1);
+      if (e.key === 'ArrowLeft') turnPage(-1);
+    });
+  </script>
+</body>
+</html>

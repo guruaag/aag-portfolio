@@ -1,17 +1,35 @@
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { getImageUrl } from '../lib/imageUtils'
 import './PublicationCard.css'
 
 function PublicationCard({ publication, index = 0 }) {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [isHovered, setIsHovered] = useState(false)
   
   const imageUrl = getImageUrl(publication.image_path)
 
   const handleClick = () => {
     navigate(`/publication/${publication.id}`)
+  }
+
+  const handleBuyNow = (e) => {
+    e.stopPropagation()
+    if (publication.purchase_url) {
+      window.open(publication.purchase_url, '_blank')
+    }
+  }
+
+  const handleSample = (e) => {
+    e.stopPropagation()
+    if (publication.sample_url) {
+      window.open(publication.sample_url, '_blank')
+    } else {
+      navigate(`/publication/${publication.id}`)
+    }
   }
 
   return (
@@ -74,6 +92,40 @@ function PublicationCard({ publication, index = 0 }) {
               }}
               transition={{ duration: 0.3 }}
             />
+            
+            {/* CTAs on hover */}
+            {(publication.purchase_url || publication.sample_url) && (
+              <motion.div
+                className="phoenix-publication-ctas"
+                initial={false}
+                animate={{
+                  opacity: isHovered ? 1 : 0,
+                  y: isHovered ? 0 : 10
+                }}
+                transition={{ duration: 0.3 }}
+              >
+                {publication.purchase_url && (
+                  <motion.button
+                    className="phoenix-publication-cta phoenix-publication-cta-primary"
+                    onClick={handleBuyNow}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {t('publications.buyNow') || 'Buy Now'}
+                  </motion.button>
+                )}
+                {publication.sample_url && (
+                  <motion.button
+                    className="phoenix-publication-cta phoenix-publication-cta-secondary"
+                    onClick={handleSample}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {t('publications.sampleChapter') || 'Sample Chapter'}
+                  </motion.button>
+                )}
+              </motion.div>
+            )}
           </>
         ) : (
           <div className="phoenix-publication-placeholder">

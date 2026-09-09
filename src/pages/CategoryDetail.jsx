@@ -127,7 +127,11 @@ function CategoryDetail() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h1 className="phoenix-category-title">
+              <h1 
+                className="phoenix-category-title phoenix-section-title-link"
+                onClick={() => navigate('/')}
+                style={{ cursor: 'pointer' }}
+              >
                 {categoryName}
               </h1>
               <div className="phoenix-title-underline" />

@@ -34,10 +34,14 @@ p, span, div, a, button, input, textarea, select,
   font-family: var(--phoenix-font-sans), var(--phoenix-font-hindi-sans) !important;
 }
 
-/* Poem content - Serif for readability */
+/* Poem content - Use same font as buttons for Hindi readability */
 .phoenix-poem-content,
-.phoenix-poem-heading {
-  font-family: var(--phoenix-font-serif), var(--phoenix-font-hindi-serif) !important;
+.phoenix-poem-heading,
+.phoenix-poem-title,
+.phoenix-publication-title,
+.phoenix-publication-subtitle,
+.phoenix-publication-description {
+  font-family: var(--phoenix-font-sans), var(--phoenix-font-hindi-sans) !important;
 }
 
 /* Buttons - Consistent sans */

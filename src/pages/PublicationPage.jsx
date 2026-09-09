@@ -5,6 +5,7 @@ import { Helmet } from 'react-helmet-async'
 import { getPublication } from '../lib/supabaseClient'
 import { getImageUrl } from '../lib/imageUtils'
 import SocialShare from '../components/SocialShare'
+import BookReader from '../components/BookReader'
 import './PublicationPage.css'
 
 function PublicationPage() {
@@ -58,6 +59,7 @@ function PublicationPage() {
 
   const imageUrl = getImageUrl(publication.image_path)
   const pageUrl = window.location.href
+  const pubContent = publication.pages || publication.description || publication.subtitle || 'No content available.'
 
   return (
     <>
@@ -82,63 +84,23 @@ function PublicationPage() {
         transition={{ duration: 0.5 }}
       >
         <div className="phoenix-content phoenix-focus-mode" style={{ paddingTop: 'var(--phoenix-space-lg)' }}>
-          {/* Header */}
-          <motion.header
-            className="phoenix-publication-header"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.5 }}
-          >
-            <h1 className="phoenix-publication-page-title">
-              {publication.title}
-            </h1>
-            {publication.subtitle && (
-              <p className="phoenix-publication-page-subtitle">
-                {publication.subtitle}
-              </p>
-            )}
-          </motion.header>
+          
+          {/* 100X Physical 3D Book Reader */}
+          <BookReader
+            title={publication.title}
+            content={pubContent}
+            author="गुरुप्रताप शर्मा 'आग'"
+            collection={publication.subtitle || 'प्रकाशित कृति'}
+            year={publication.publication_year ? publication.publication_year.toString() : '१९८५'}
+          />
 
-          {/* Cover Image */}
-          {imageUrl && (
-            <motion.div
-              className="phoenix-publication-cover"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-            >
-              <img
-                src={imageUrl}
-                alt={publication.image_alt || publication.title}
-                className="phoenix-publication-cover-image"
-                onError={(e) => {
-                  e.target.style.display = 'none'
-                }}
-              />
-            </motion.div>
-          )}
-
-          {/* Description */}
-          {publication.description && (
-            <motion.div
-              className="phoenix-publication-description"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-            >
-              <div
-                className="phoenix-markdown-content"
-                dangerouslySetInnerHTML={{ __html: publication.description }}
-              />
-            </motion.div>
-          )}
-
-          {/* Social Share - Desktop */}
+          {/* Social Share */}
           <motion.div
             className="phoenix-publication-share"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4, duration: 0.5 }}
+            style={{ marginTop: '24px' }}
           >
             <SocialShare
               url={pageUrl}

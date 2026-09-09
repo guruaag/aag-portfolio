@@ -17,7 +17,9 @@ export async function getCategories() {
     .order('sort_order', { ascending: true })
   
   if (error) throw error
-  return data
+  
+  // Filter by is_active if column exists, otherwise return all
+  return data?.filter(cat => cat.is_active !== false) || data || []
 }
 
 export async function getAboutContent() {
@@ -38,7 +40,9 @@ export async function getPublications() {
     .order('sort_order', { ascending: true })
   
   if (error) throw error
-  return data
+  
+  // Filter by is_active if column exists, otherwise return all
+  return data?.filter(pub => pub.is_active !== false) || data || []
 }
 
 export async function getPublication(id) {
@@ -59,7 +63,9 @@ export async function getPoems() {
     .order('sort_order', { ascending: true })
   
   if (error) throw error
-  return data
+  
+  // Filter by is_active if column exists, otherwise return all
+  return data?.filter(poem => poem.is_active !== false) || data || []
 }
 
 export async function getPoem(id) {

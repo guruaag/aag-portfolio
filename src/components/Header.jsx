@@ -30,13 +30,14 @@ function Header() {
         .eq('key', 'logo_path')
         .single()
       
-      if (data?.value) {
+      if (data?.value && data.value.trim() !== '') {
         setLogoPath(data.value)
       } else {
+        // No logo uploaded, show text only
         setLogoPath(null)
       }
     } catch (err) {
-      // Logo not set, use default
+      // Logo not set, show text only
       setLogoPath(null)
     }
   }
@@ -63,13 +64,16 @@ function Header() {
 
   const menuItems = [
     { path: '/', label: t('nav.home') },
-    { path: '/category/publications', label: t('nav.publications') },
     { path: '/category/about', label: t('nav.about') },
     { path: '/category/poems', label: t('nav.poems') },
-    { path: '/settings', label: t('nav.settings') }
+    { path: '/category/publications', label: t('nav.publications') },
+    { path: '/contact', label: t('nav.contact') }
   ]
 
-  const logoUrl = logoPath ? getImageUrl(logoPath) : null
+  // Get logo URL - if it's a public path, use it directly, otherwise get from Supabase
+  const logoUrl = logoPath 
+    ? (logoPath.startsWith('/') ? logoPath : getImageUrl(logoPath))
+    : '/logo.png' // Fallback to public logo
 
   return (
     <>
@@ -92,44 +96,42 @@ function Header() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            {/* Logo Image */}
-            {logoUrl && (
+            {/* Logo Image - Show if logo exists in settings */}
+            {logoPath && (
               <motion.img
                 src={logoUrl}
                 alt="Logo"
                 className="phoenix-header-logo-image"
                 animate={{
-                  width: isScrolled ? '32px' : '48px',
-                  height: isScrolled ? '32px' : '48px'
+                  width: isScrolled ? '36px' : '48px',
+                  height: isScrolled ? '36px' : '48px'
                 }}
                 transition={{ duration: 0.3 }}
-                onError={() => setLogoPath(null)}
+                onError={(e) => {
+                  // If logo fails to load, hide image
+                  e.target.style.display = 'none'
+                }}
               />
             )}
             
-            {/* Title */}
-            <div className="phoenix-header-title-wrapper">
-              <motion.h1
-                animate={{
-                  fontSize: isScrolled ? '0.875rem' : '1.225rem' // Reduced by 30%: 1.75rem * 0.7 = 1.225rem
-                }}
-                transition={{ duration: 0.3 }}
-                className="phoenix-header-title"
-              >
-                {i18n.language === 'hi' ? 'गुरु प्रताप शर्मा' : 'GURU PRATAP SHARMA'}
-              </motion.h1>
-              <motion.span
-                animate={{
-                  fontSize: isScrolled ? '0.75rem' : '0.875rem',
-                  opacity: isScrolled ? 0.7 : 1
-                }}
-                transition={{ duration: 0.3 }}
-                className="phoenix-header-subtitle"
-                style={{ color: '#8B0000' }} // Dark red
-              >
-                {i18n.language === 'hi' ? 'आग' : 'AAG'}
-              </motion.span>
-            </div>
+            {/* Title - Always show alongside logo */}
+            <motion.h1
+              animate={{
+                fontSize: isScrolled ? '0.875rem' : '1.225rem'
+              }}
+              transition={{ duration: 0.3 }}
+              className="phoenix-header-title phoenix-header-title-inline"
+            >
+              {i18n.language === 'hi' ? (
+                <>
+                  गुरु प्रताप शर्मा <span className="phoenix-header-aag">आग</span>
+                </>
+              ) : (
+                <>
+                  GURU PRATAP SHARMA <span className="phoenix-header-aag">AAG</span>
+                </>
+              )}
+            </motion.h1>
           </motion.div>
 
           {/* Desktop Navigation */}
@@ -149,41 +151,42 @@ function Header() {
 
           {/* Right Side Actions */}
           <div className="phoenix-header-actions">
-            {/* Language Toggle */}
-            <motion.button
-              className="phoenix-lang-toggle"
-              onClick={toggleLanguage}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <span className={i18n.language === 'en' ? 'active' : ''}>EN</span>
-              <span className="phoenix-lang-divider">|</span>
-              <span className={i18n.language === 'hi' ? 'active' : ''}>HI</span>
-            </motion.button>
+            {/* Admin Link - Visible on Desktop */}
+            {localStorage.getItem('adminAuth') === 'true' && (
+              <motion.a
+                href="/admin"
+                className="phoenix-admin-link-desktop"
+                onClick={(e) => {
+                  e.preventDefault()
+                  navigate('/admin')
+                }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Admin
+              </motion.a>
+            )}
 
-            {/* Mobile Menu Button */}
+            {/* Menu Button - Always visible */}
             <motion.button
               className="phoenix-menu-button"
               onClick={() => setMenuOpen(!menuOpen)}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               aria-label="Menu"
             >
-              <motion.span
-                animate={menuOpen ? { rotate: 45, y: 8 } : { rotate: 0, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="phoenix-menu-line"
-              />
-              <motion.span
-                animate={menuOpen ? { opacity: 0 } : { opacity: 1 }}
-                transition={{ duration: 0.3 }}
-                className="phoenix-menu-line"
-              />
-              <motion.span
-                animate={menuOpen ? { rotate: -45, y: -8 } : { rotate: 0, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="phoenix-menu-line"
-              />
+              {menuOpen ? (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              ) : (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <line x1="3" y1="6" x2="21" y2="6"/>
+                  <line x1="3" y1="12" x2="21" y2="12"/>
+                  <line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+              )}
             </motion.button>
           </div>
         </div>
@@ -201,10 +204,10 @@ function Header() {
               onClick={() => setMenuOpen(false)}
             />
             <motion.nav
-              className="phoenix-menu-offcanvas"
-              initial={{ x: '-100%' }}
+              className="phoenix-menu-offcanvas phoenix-menu-offcanvas-right"
+              initial={{ x: '100%' }}
               animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
+              exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             >
               <div className="phoenix-menu-header">
@@ -217,7 +220,7 @@ function Header() {
                 {menuItems.map((item, index) => (
                   <motion.li
                     key={item.path}
-                    initial={{ opacity: 0, x: -20 }}
+                    initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
                   >
@@ -227,15 +230,98 @@ function Header() {
                         navigate(item.path)
                         setMenuOpen(false)
                       }}
-                      whileHover={{ x: 10 }}
+                      whileHover={{ x: -10 }}
                       whileTap={{ scale: 0.95 }}
                     >
                       {item.label}
                     </motion.button>
                   </motion.li>
                 ))}
+                
+                {/* Action Buttons as Icons */}
+                <motion.li
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: menuItems.length * 0.1 }}
+                >
+                  <div className="phoenix-menu-actions">
+                    <motion.button
+                      className="phoenix-menu-action-icon"
+                      onClick={() => {
+                        navigate('/contact')
+                        setMenuOpen(false)
+                      }}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      title={t('nav.contact')}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                      </svg>
+                    </motion.button>
+                    
+                    <motion.button
+                      className="phoenix-menu-action-icon"
+                      onClick={() => {
+                        // Follow modal will be handled by Footer component
+                        setMenuOpen(false)
+                        // Trigger follow modal via custom event
+                        window.dispatchEvent(new CustomEvent('openFollowModal'))
+                      }}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      title={t('footer.follow')}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                      </svg>
+                    </motion.button>
+                    
+                    <motion.button
+                      className="phoenix-menu-action-icon"
+                      onClick={() => {
+                        setMenuOpen(false)
+                        // Trigger share modal via custom event
+                        window.dispatchEvent(new CustomEvent('openShareModal'))
+                      }}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      title={t('common.share')}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="18" cy="5" r="3"/>
+                        <circle cx="6" cy="12" r="3"/>
+                        <circle cx="18" cy="19" r="3"/>
+                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                      </svg>
+                    </motion.button>
+                  </div>
+                </motion.li>
+                
+                {/* Admin Button - Always show in menu for testing, can be hidden later */}
+                <motion.li
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: (menuItems.length + 1) * 0.1 }}
+                >
+                  <motion.button
+                    className="phoenix-menu-item phoenix-menu-admin"
+                    onClick={() => {
+                      navigate('/admin')
+                      setMenuOpen(false)
+                    }}
+                    whileHover={{ x: -10 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Admin
+                  </motion.button>
+                </motion.li>
               </ul>
               <div className="phoenix-menu-footer">
+                {/* Language Toggle Inside Menu */}
                 <button
                   className="phoenix-lang-toggle phoenix-lang-toggle-menu"
                   onClick={toggleLanguage}
@@ -244,20 +330,6 @@ function Header() {
                   <span className="phoenix-lang-divider">|</span>
                   <span className={i18n.language === 'hi' ? 'active' : ''}>HI</span>
                 </button>
-                {/* Hidden Admin Link - Only visible to admins */}
-                {localStorage.getItem('adminAuth') === 'true' && (
-                  <a
-                    href="/admin"
-                    className="phoenix-menu-admin-link"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      navigate('/admin')
-                      setMenuOpen(false)
-                    }}
-                  >
-                    Admin
-                  </a>
-                )}
               </div>
             </motion.nav>
           </>

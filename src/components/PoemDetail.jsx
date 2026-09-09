@@ -4,11 +4,14 @@ import { motion } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import SocialShare from './SocialShare'
+import AudioPlayer from './AudioPlayer'
+import BookReader from './BookReader'
+import { getImageUrl } from '../lib/imageUtils'
 import './PoemDetail.css'
 
 function PoemDetail({ poem, allPoems }) {
   const navigate = useNavigate()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [prevId, setPrevId] = useState(null)
   const [nextId, setNextId] = useState(null)
 
@@ -35,27 +38,27 @@ function PoemDetail({ poem, allPoems }) {
     if (nextId) navigate(`/poem/${nextId}`)
   }
 
-  useEffect(() => {
-    const handleKeyPress = (e) => {
-      if (e.key === 'ArrowLeft') handlePrev()
-      if (e.key === 'ArrowRight') handleNext()
-    }
-
-    window.addEventListener('keydown', handleKeyPress)
-    return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [prevId, nextId])
-
   if (!poem) return null
 
   const pageUrl = window.location.href
+  const audioUrl = poem.audio_url ? getImageUrl(poem.audio_url) : null
+  const poemImage = poem.image_path ? getImageUrl(poem.image_path) : null
+
+  const poemTitle = i18n.language === 'hi'
+    ? (poem.heading_hi || poem.heading_en || poem.heading || 'Untitled Poem')
+    : (poem.heading_en || poem.heading_hi || poem.heading || 'Untitled Poem')
+
+  const poemContent = poem.pages || poem.body_text_hi || poem.body_text_en || poem.full_text || 'No content available.'
 
   return (
     <>
       <Helmet>
-        <title>{poem.heading || 'Poem'} - Guru Pratap Sharma | AAG</title>
-        <meta name="description" content={poem.description || poem.full_text?.substring(0, 160) || ''} />
-        <meta property="og:title" content={poem.heading || 'Poem'} />
-        <meta property="og:description" content={poem.description || poem.full_text?.substring(0, 160) || ''} />
+        <title>{poemTitle} - Hindi Kavi Guru Pratap Sharma 'Aag' | Aag Poetry</title>
+        <meta name="description" content={(typeof poemContent === 'string' ? poemContent : poemContent.join(' '))?.substring(0, 160) || `Read ${poemTitle} by Hindi poet Guru Pratap Sharma 'Aag'.`} />
+        <meta name="keywords" content={`${poemTitle}, Hindi Kavi Guru Pratap Sharma, Aag Poetry, Hindi Sahitya`} />
+        {poemImage && <meta property="og:image" content={poemImage} />}
+        <meta property="og:title" content={`${poemTitle} - Guru Pratap Sharma 'Aag'`} />
+        <meta property="og:description" content={(typeof poemContent === 'string' ? poemContent : poemContent.join(' '))?.substring(0, 200) || ''} />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={pageUrl} />
       </Helmet>
@@ -67,46 +70,28 @@ function PoemDetail({ poem, allPoems }) {
         transition={{ duration: 0.5 }}
         style={{ paddingTop: 'var(--phoenix-space-lg)' }}
       >
-        {/* Header */}
-        <motion.header
-          className="phoenix-poem-header"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.5 }}
-        >
-          <h1 className="phoenix-poem-title">
-            {poem.heading || 'Untitled Poem'}
-          </h1>
-          {poem.description && (
-            <p className="phoenix-poem-subtitle">
-              {poem.description}
-            </p>
-          )}
-        </motion.header>
+        {/* 100X Physical 3D Book Reader Component */}
+        <BookReader
+          title={poemTitle}
+          content={poemContent}
+          author="गुरुप्रताप शर्मा 'आग'"
+          collection={poem.description || 'काव्य संग्रह: अग्नि कलश'}
+          year={poem.created_at ? new Date(poem.created_at).getFullYear().toString() : '१९८५'}
+          audioUrl={audioUrl}
+        />
 
-        {/* Poem Text - Focus Mode */}
-        <motion.div
-          className="phoenix-poem-text"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-        >
-          <div className="phoenix-poem-content" style={{ whiteSpace: 'pre-wrap' }}>
-            {poem.full_text}
-          </div>
-        </motion.div>
-
-        {/* Social Share - Subtle */}
+        {/* Social Share & Navigation Footer */}
         <motion.div
           className="phoenix-poem-share"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.5 }}
+          style={{ marginTop: '24px' }}
         >
           <SocialShare
             url={pageUrl}
-            title={poem.heading || 'Poem'}
-            description={poem.description || poem.full_text?.substring(0, 160)}
+            title={poemTitle}
+            description={poem.description || (typeof poemContent === 'string' ? poemContent : poemContent.join(' '))?.substring(0, 160)}
           />
         </motion.div>
 
@@ -154,3 +139,4 @@ function PoemDetail({ poem, allPoems }) {
 }
 
 export default PoemDetail
+

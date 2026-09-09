@@ -18,6 +18,8 @@ import './styles/app.css'
 import './styles/layout.css'
 import './styles/mobile-fixes.css'
 import './styles/font-standardization.css'
+import './styles/premium-theme.css'
+import './styles/scroll-reveal.css'
 
 function App() {
   useEffect(() => {
@@ -48,6 +50,7 @@ function App() {
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/admin" element={<AdminLogin />} />
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/preview" element={<iframe src="/preview.html" style={{ width: '100%', height: '100vh', border: 'none' }} title="Prototype Preview" />} />
               </Routes>
             </Suspense>
           </Layout>

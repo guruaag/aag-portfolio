@@ -1,0 +1,112 @@
+/* ============================================
+   PREMIUM WARM THEME - "Aag" Brand Identity
+   Deep Charcoal/Cream with Burnt Orange Accent
+   ============================================ */
+
+/* Premium Typography - Devanagari Fonts - MUST BE FIRST */
+@import url('https://fonts.googleapis.com/css2?family=Rozha+One&family=Martel:wght@400;600;700;800&family=Tiro+Devanagari+Hindi:wght@400;500;600&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Premium Warm Color Palette */
+  --premium-charcoal: #2C2416;
+  --premium-cream: #F5F1E8;
+  --premium-paper: #FAF9F6;
+  --premium-burnt-orange: #CC5500;
+  --premium-deep-crimson: #8B0000;
+  --premium-gold: #D4A574;
+  
+  /* Theme Override */
+  --theme-bg: var(--premium-paper);
+  --theme-surface: var(--premium-cream);
+  --theme-text: var(--premium-charcoal);
+  --theme-text-secondary: #5A5248;
+  --theme-accent: var(--premium-burnt-orange);
+  --theme-accent-light: #E66A1A;
+  --theme-border: #D4C9B8;
+  
+  /* Premium Font Stack */
+  --premium-serif-heading: 'Rozha One', 'Martel', 'Noto Serif Devanagari', serif;
+  --premium-serif-body: 'Martel', 'Tiro Devanagari Hindi', 'Noto Serif Devanagari', serif;
+  --premium-sans-body: 'Poppins', 'Tiro Devanagari Hindi', 'Noto Sans Devanagari', sans-serif;
+  
+  /* Override existing fonts */
+  --phoenix-font-serif: var(--premium-serif-heading);
+  --phoenix-font-sans: var(--premium-sans-body);
+}
+
+/* Apply Premium Theme Globally */
+body {
+  background: var(--premium-paper) !important;
+  color: var(--premium-charcoal) !important;
+  font-family: var(--premium-sans-body) !important;
+}
+
+/* Override any conflicting theme colors globally */
+:root {
+  --theme-bg: var(--premium-paper);
+  --theme-surface: var(--premium-cream);
+  --theme-text: var(--premium-charcoal);
+  --theme-text-secondary: #5A5248;
+  --theme-accent: var(--premium-burnt-orange);
+  --theme-accent-light: #E66A1A;
+  --theme-border: #D4C9B8;
+}
+
+/* Headings - Premium Serif */
+h1, h2, h3, h4, h5, h6,
+.phoenix-header-title,
+.phoenix-section-title,
+.phoenix-category-title,
+.phoenix-poem-title {
+  font-family: var(--premium-serif-heading);
+  color: var(--premium-charcoal);
+  font-weight: 700;
+}
+
+/* Body Text - Premium Sans */
+p, span, div, a, button,
+.phoenix-about-text,
+.phoenix-poem-content,
+.phoenix-markdown-content {
+  font-family: var(--premium-sans-body);
+  color: var(--premium-charcoal);
+}
+
+/* Accent Color - Burnt Orange */
+.phoenix-header-aag,
+.phoenix-btn-primary,
+.phoenix-btn-outline:hover,
+.phoenix-footer-btn:hover {
+  color: var(--premium-burnt-orange);
+}
+
+/* Ensure AAG is dark red everywhere */
+.phoenix-header-aag,
+.phoenix-hero-aag {
+  color: #8B0000 !important; /* Dark red */
+}
+
+.phoenix-btn-primary {
+  background: var(--premium-burnt-orange);
+  border-color: var(--premium-burnt-orange);
+}
+
+.phoenix-btn-primary:hover {
+  background: var(--premium-burnt-orange);
+  opacity: 0.9;
+  color: var(--phoenix-white) !important; /* Ensure text stays visible */
+}
+
+/* Premium Shadows */
+.phoenix-shadow-sm {
+  box-shadow: 0 2px 8px rgba(44, 36, 22, 0.08);
+}
+
+.phoenix-shadow-md {
+  box-shadow: 0 4px 16px rgba(44, 36, 22, 0.12);
+}
+
+.phoenix-shadow-lg {
+  box-shadow: 0 8px 32px rgba(44, 36, 22, 0.16);
+}
+

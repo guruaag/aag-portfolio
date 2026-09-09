@@ -1,0 +1,348 @@
+/* PAGEMAKER (PM5) WRITING DESK STYLES */
+
+.pm5-desk-root {
+  background: #D9D2C5;
+  border: 2px solid #8B4513;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  font-family: 'Inter', sans-serif;
+  user-select: none;
+}
+
+.pm5-top-toolbar {
+  background: #FAF8F5;
+  border: 1px solid #B8AEA0;
+  padding: 10px 16px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pm5-brand-title {
+  color: #8B4513;
+  font-size: 1.1rem;
+  font-family: 'Rozha One', 'Amita', serif;
+}
+
+.pm5-subtitle-tag {
+  font-size: 0.82rem;
+  color: #6B5B4D;
+  margin-left: 8px;
+}
+
+.pm5-undo-controls {
+  display: flex;
+  gap: 6px;
+}
+
+.pm5-undo-btn {
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid #B8AEA0;
+  background: #FFF;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pm5-undo-btn:hover:not(:disabled) {
+  background: #8B4513;
+  color: #FFF;
+  border-color: #8B4513;
+}
+
+.pm5-undo-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pm5-autosave-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pm5-autosave-badge.success {
+  background: #E8F5E9;
+  color: #2E7D32;
+  border: 1px solid #A5D6A7;
+}
+
+.pm5-autosave-badge.saving {
+  background: #FFF3E0;
+  color: #E65100;
+  border: 1px solid #FFE0B2;
+}
+
+/* DEVANAGARI SYMBOLS ACCENT TOOLBAR */
+.pm5-symbols-bar {
+  background: #E5DFC9;
+  border: 1px solid #B8AEA0;
+  padding: 8px 14px;
+  border-radius: 6px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.symbol-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #8B4513;
+}
+
+.symbol-btn {
+  background: #FAF8F5;
+  border: 1px solid #B8AEA0;
+  color: #2A2118;
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.symbol-btn:hover {
+  background: #8B4513;
+  color: #FFF;
+  border-color: #8B4513;
+  transform: translateY(-1px);
+}
+
+/* CANVAS GRID */
+.pm5-canvas-grid {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 850px) {
+  .pm5-canvas-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pm5-sidebar-pages {
+  background: #E5DFC9;
+  border: 1px solid #B8AEA0;
+  border-radius: 6px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.pm5-sidebar-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #8B4513;
+  border-bottom: 1px dashed #8B4513;
+  padding-bottom: 6px;
+}
+
+.pm5-thumb-card {
+  background: #FFF;
+  border: 2px solid #B8AEA0;
+  border-radius: 6px;
+  padding: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  position: relative;
+}
+
+.pm5-thumb-card:hover, .pm5-thumb-card.active {
+  border-color: #8B4513;
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.2);
+  transform: translateY(-1px);
+}
+
+.pm5-thumb-card.active {
+  background: #FFFDF8;
+}
+
+.pm5-thumb-actions {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 4px;
+}
+
+.pm5-action-btn {
+  font-size: 0.78rem;
+  cursor: pointer;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: rgba(0,0,0,0.05);
+  transition: all 0.2s;
+}
+
+.pm5-action-btn:hover {
+  background: #8B4513;
+  color: white;
+}
+
+.pm5-action-btn.delete:hover {
+  background: #D32F2F;
+}
+
+.pm5-thumb-num {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #8B4513;
+  margin-bottom: 4px;
+}
+
+.pm5-thumb-preview {
+  font-family: 'Tiro Devanagari Hindi', 'Eczar', serif;
+  font-size: 0.72rem;
+  color: #6B5B4D;
+  line-height: 1.3;
+  height: 44px;
+  overflow: hidden;
+}
+
+.pm5-sidebar-add-btn {
+  background: #FDFBF7;
+  border: 1.5px dashed #8B4513;
+  color: #8B4513;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.pm5-sidebar-add-btn:hover {
+  background: #8B4513;
+  color: white;
+}
+
+.pm5-publish-btn {
+  margin-top: 10px;
+  background: #2E7D32;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.pm5-publish-btn:hover {
+  background: #1B5E20;
+  box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3);
+}
+
+/* CENTERED CANVAS SHEET */
+.pm5-canvas-area {
+  background: #BEB4A2;
+  padding: 30px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  min-height: 560px;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+}
+
+.pm5-sheet {
+  width: 100%;
+  max-width: 440px;
+  min-height: 540px;
+  background: #FFFFFF;
+  border: 1px solid #999;
+  box-shadow: 8px 12px 25px rgba(0,0,0,0.25);
+  position: relative;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.pm5-margin-guide {
+  position: absolute;
+  top: 16px; left: 16px; right: 16px; bottom: 16px;
+  border: 1.5px dashed #7B1FA2;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.pm5-sheet-header {
+  font-size: 0.75rem;
+  color: #8B4513;
+  text-align: center;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.pm5-editor-title {
+  width: 100%;
+  border: none;
+  border-bottom: 2px solid #D4AF37;
+  font-family: 'Rozha One', 'Amita', serif;
+  font-size: 1.5rem;
+  color: #8B4513;
+  padding: 4px 0;
+  outline: none;
+  background: transparent;
+  text-align: center;
+}
+
+.pm5-editor-textarea {
+  width: 100%;
+  height: 350px;
+  border: none;
+  font-family: 'Tiro Devanagari Hindi', 'Eczar', serif;
+  font-size: 1.25rem;
+  line-height: 2.15;
+  color: #2A2118;
+  resize: none;
+  outline: none;
+  background: transparent;
+  margin-top: 12px;
+  text-align: center;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.pm5-sheet-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: #6B5B4D;
+  border-top: 1px solid #E2D7C5;
+  padding-top: 6px;
+  margin-top: 10px;
+}
+
+.limit-status.safe {
+  color: #2E7D32;
+  font-weight: 700;
+}
+
+.limit-status.exceeded {
+  color: #D32F2F;
+  font-weight: 700;
+}

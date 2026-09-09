@@ -1,0 +1,87 @@
+.phoenix-verse-of-day {
+  margin: var(--phoenix-space-3xl) 0;
+  padding: var(--phoenix-space-2xl);
+  background: linear-gradient(135deg, var(--premium-cream) 0%, var(--premium-paper) 100%);
+  border-radius: 12px;
+  border: 2px solid var(--premium-burnt-orange);
+  box-shadow: var(--phoenix-shadow-lg);
+}
+
+.phoenix-verse-container {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.phoenix-verse-flame {
+  font-size: 3rem;
+  margin-bottom: var(--phoenix-space-md);
+  display: inline-block;
+  filter: drop-shadow(0 0 8px rgba(204, 85, 0, 0.5));
+}
+
+.phoenix-verse-title {
+  font-family: var(--premium-serif-heading);
+  font-size: var(--phoenix-text-2xl);
+  font-weight: 700;
+  color: var(--premium-charcoal);
+  margin-bottom: var(--phoenix-space-xl);
+}
+
+.phoenix-verse-content {
+  margin: var(--phoenix-space-xl) 0;
+  padding: var(--phoenix-space-xl);
+  background: var(--phoenix-white);
+  border-radius: 8px;
+  box-shadow: var(--phoenix-shadow-sm);
+}
+
+.phoenix-verse-poem-title {
+  font-family: var(--premium-serif-heading);
+  font-size: var(--phoenix-text-xl);
+  font-weight: 600;
+  color: var(--premium-burnt-orange);
+  margin-bottom: var(--phoenix-space-lg);
+}
+
+.phoenix-verse-text {
+  font-family: var(--premium-serif-body);
+  font-size: var(--phoenix-text-lg);
+  color: var(--premium-charcoal);
+  white-space: pre-wrap;
+  text-align: center;
+  line-height: 1.8;
+  margin: 0;
+  font-style: italic;
+}
+
+.phoenix-verse-refresh {
+  margin-top: var(--phoenix-space-lg);
+  padding: var(--phoenix-space-md) var(--phoenix-space-xl);
+  background: transparent;
+  border: 2px solid var(--premium-burnt-orange);
+  border-radius: 6px;
+  color: var(--premium-burnt-orange);
+  font-family: var(--premium-sans-body);
+  font-size: var(--phoenix-text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.phoenix-verse-refresh:hover {
+  background: var(--premium-burnt-orange);
+  color: var(--phoenix-white);
+}
+
+@media (max-width: 768px) {
+  .phoenix-verse-of-day {
+    padding: var(--phoenix-space-lg);
+    margin: var(--phoenix-space-xl) 0;
+  }
+  
+  .phoenix-verse-text {
+    font-size: var(--phoenix-text-base);
+  }
+}
+

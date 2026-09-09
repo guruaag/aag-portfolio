@@ -7,15 +7,15 @@
 @media (max-width: 768px) {
   /* Main content wrapper - force padding */
   .phoenix-main {
-    padding-left: 15px !important;
-    padding-right: 15px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
     box-sizing: border-box !important;
   }
 
   /* All content containers */
   .phoenix-content {
-    padding-left: 15px !important;
-    padding-right: 15px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
     box-sizing: border-box !important;
   }
 
@@ -25,8 +25,8 @@
   .phoenix-about-section-home,
   .phoenix-poems-section-home,
   .phoenix-publications-section-home {
-    padding-left: 15px !important;
-    padding-right: 15px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
     box-sizing: border-box !important;
   }
 
@@ -35,8 +35,8 @@
   .phoenix-category-header,
   .phoenix-publications-grid-full,
   .phoenix-poems-list {
-    padding-left: 15px !important;
-    padding-right: 15px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
     box-sizing: border-box !important;
   }
 
@@ -45,8 +45,8 @@
   .phoenix-publication-header,
   .phoenix-publication-cover,
   .phoenix-publication-description {
-    padding-left: 15px !important;
-    padding-right: 15px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
     box-sizing: border-box !important;
   }
 
@@ -56,8 +56,8 @@
   .phoenix-poem-text,
   .phoenix-poem-content,
   .phoenix-poem-navigation {
-    padding-left: 15px !important;
-    padding-right: 15px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
     box-sizing: border-box !important;
   }
 
@@ -65,24 +65,24 @@
   .phoenix-about-panel,
   .phoenix-about-title,
   .phoenix-about-layout {
-    padding-left: 15px !important;
-    padding-right: 15px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
     box-sizing: border-box !important;
   }
 
   /* Settings and Contact pages */
   .phoenix-settings,
   .phoenix-contact {
-    padding-left: 15px !important;
-    padding-right: 15px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
     box-sizing: border-box !important;
   }
 
   /* Section titles */
   .phoenix-section-title,
   .phoenix-category-title {
-    padding-left: 15px !important;
-    padding-right: 15px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
     box-sizing: border-box !important;
   }
 
@@ -90,9 +90,21 @@
   .phoenix-poems-list-home,
   .phoenix-about-home-layout,
   .phoenix-publications-scroll {
-    padding-left: 15px !important;
-    padding-right: 15px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
     box-sizing: border-box !important;
+  }
+  
+  /* Menu items padding */
+  .phoenix-menu-item {
+    padding-left: var(--phoenix-padding-mobile) !important;
+    padding-right: var(--phoenix-padding-mobile) !important;
+  }
+  
+  /* Language toggle padding */
+  .phoenix-lang-toggle-menu {
+    margin-left: var(--phoenix-padding-mobile) !important;
+    margin-right: var(--phoenix-padding-mobile) !important;
   }
 
   /* Images - ensure they don't break out */

@@ -58,7 +58,7 @@
 
 .phoenix-poem-content {
   font-family: var(--phoenix-font-serif), var(--phoenix-font-hindi-serif);
-  font-size: var(--phoenix-text-xl);
+  font-size: calc(var(--phoenix-text-xl) * 0.75); /* Reduced by 25% */
   line-height: 1.6;
   color: var(--phoenix-text-primary);
   white-space: pre-wrap;

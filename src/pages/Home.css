@@ -33,6 +33,15 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.15);
   padding-left: var(--phoenix-padding-mobile);
   padding-right: var(--phoenix-padding-mobile);
+  transition: color 0.3s ease;
+}
+
+.phoenix-section-title-link {
+  cursor: pointer;
+}
+
+.phoenix-section-title-link:hover {
+  color: var(--premium-burnt-orange);
 }
 
 @media (min-width: 1025px) {
@@ -42,27 +51,50 @@
   }
 }
 
-/* About Section Home Layout */
-.phoenix-about-home-layout {
-  display: flex;
-  gap: var(--phoenix-space-xl);
-  align-items: flex-start;
+/* About Section Home Layout - Text Wrap Around Image */
+.phoenix-about-home-layout-text-wrap {
   padding-left: var(--phoenix-padding-mobile);
   padding-right: var(--phoenix-padding-mobile);
+  text-align: justify;
 }
 
 @media (min-width: 1025px) {
-  .phoenix-about-home-layout {
+  .phoenix-about-home-layout-text-wrap {
     padding-left: var(--phoenix-padding-desktop);
     padding-right: var(--phoenix-padding-desktop);
   }
 }
 
+.phoenix-about-home-image-wrap {
+  float: left;
+  margin: 0 var(--phoenix-space-lg) var(--phoenix-space-md) 0;
+  max-width: 200px;
+  width: 100%;
+}
+
 @media (max-width: 768px) {
-  .phoenix-about-home-layout {
-    flex-direction: column;
-    gap: var(--phoenix-space-lg);
+  .phoenix-about-home-image-wrap {
+    float: none;
+    margin: 0 auto var(--phoenix-space-lg);
+    max-width: 250px;
   }
+}
+
+.phoenix-about-home-img-wrap {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: var(--phoenix-shadow-md);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.phoenix-about-home-img-wrap:hover {
+  transform: scale(1.02);
+  box-shadow: var(--phoenix-shadow-lg);
+}
+
+.phoenix-about-home-text-wrap {
+  overflow: hidden;
 }
 
 .phoenix-about-home-image {
@@ -137,11 +169,25 @@
 
 .phoenix-poem-heading {
   font-family: var(--phoenix-font-serif);
-  font-size: var(--phoenix-text-xl);
+  font-size: var(--phoenix-text-lg);
   font-weight: 600;
   color: var(--theme-text);
   margin: 0;
+  text-align: left;
   transition: color 0.3s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  width: 100%;
+}
+
+.phoenix-poem-heading-ellipsis {
+  display: block;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .phoenix-poem-link:hover .phoenix-poem-heading {

@@ -3,7 +3,7 @@
    Complete UI/UX Overhaul - Modern, Elegant, Poetic
    ============================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Noto+Serif+Devanagari:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Tiro+Devanagari+Hindi:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap');
 
 :root {
   /* ============================================
@@ -47,10 +47,10 @@
      TYPOGRAPHY - Lora Serif + Inter Sans
      ============================================ */
   
-  --phoenix-font-serif: 'Lora', 'Noto Serif Devanagari', Georgia, 'Times New Roman', serif;
-  --phoenix-font-sans: 'Inter', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --phoenix-font-hindi-serif: 'Noto Serif Devanagari', serif;
-  --phoenix-font-hindi-sans: 'Noto Sans Devanagari', sans-serif;
+  --phoenix-font-serif: 'Lora', 'Tiro Devanagari Hindi', Georgia, 'Times New Roman', serif;
+  --phoenix-font-sans: 'Inter', 'Tiro Devanagari Hindi', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --phoenix-font-hindi-serif: 'Tiro Devanagari Hindi', serif;
+  --phoenix-font-hindi-sans: 'Tiro Devanagari Hindi', sans-serif;
   
   /* Font Sizes - Fluid Typography */
   --phoenix-text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
@@ -225,6 +225,7 @@ p {
 .phoenix-btn-primary:hover {
   background: var(--theme-accent-light);
   border-color: var(--theme-accent-light);
+  color: var(--phoenix-white) !important; /* Ensure text stays visible */
   transform: translateY(-2px);
   box-shadow: var(--phoenix-shadow-lg);
 }
@@ -237,7 +238,7 @@ p {
 
 .phoenix-btn-outline:hover {
   background: var(--theme-accent);
-  color: var(--phoenix-white);
+  color: var(--phoenix-white) !important; /* Ensure text stays visible */
   transform: translateY(-2px);
   border-color: var(--theme-accent);
 }

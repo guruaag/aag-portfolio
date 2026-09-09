@@ -88,7 +88,26 @@ const resources = {
       publications: {
         title: 'मेरे प्रकाशन',
         subtitle: 'साहित्यिक कृतियों का संग्रह',
-        viewDetails: 'विवरण देखें'
+        viewDetails: 'विवरण देखें',
+        buyNow: 'अभी खरीदें',
+        sampleChapter: 'नमूना अध्याय'
+      },
+      // Poems
+      poems: {
+        listen: 'कविता सुनें'
+      },
+      // Common
+      common: {
+        readMore: 'और पढ़ें',
+        readNow: 'अभी पढ़ें',
+        back: 'वापस',
+        share: 'साझा करें',
+        close: 'बंद करें',
+        menu: 'मेनू',
+        previous: 'पिछला',
+        next: 'अगला',
+        exploreLibrary: 'पुस्तकालय देखें',
+        inviteEvents: 'कार्यक्रम के लिए आमंत्रित करें'
       },
       // About
       about: {
