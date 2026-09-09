@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>कवि परिचय | गुरुप्रताप शर्मा 'आग'</title>
+
+  <!-- Google Fonts: Fanwood Text, Lora, Tiro Devanagari Hindi, Quicksand, Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fanwood+Text:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Quicksand:wght@500;600;700&family=Tiro+Devanagari+Hindi:ital@0;1&display=swap" rel="stylesheet">
+
+  <style>
+    /* ============================================
+       LEONA DESIGN SYSTEM & COLOR TOKENS
+       ============================================ */
+    :root {
+      --leona-terracotta: #F66E5E;
+      --leona-terracotta-dark: #D95343;
+      --leona-teal: #39BAAF;
+      --leona-teal-dark: #2C988F;
+      --leona-charcoal: #1E1B18;
+      --leona-charcoal-light: #2A2622;
+      --leona-ivory: #FAF7F2;
+      --leona-cream: #F4EFE6;
+      --leona-white: #FFFFFF;
+      --leona-gold: #D4AF37;
+      --leona-text-main: #2C2622;
+      --leona-text-muted: #6E665E;
+      
+      --font-serif: 'Lora', 'Tiro Devanagari Hindi', 'Fanwood Text', Georgia, serif;
+      --font-sans: 'Inter', 'Quicksand', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-hindi: 'Tiro Devanagari Hindi', serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--leona-ivory);
+      color: var(--leona-text-main);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* Container Utility */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ============================================
+       1. STICKY HEADER & DEDUPLICATED NAVIGATION
+       ============================================ */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(250, 247, 242, 0.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(226, 215, 197, 0.6);
+      transition: all 0.3s ease;
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 80px;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--leona-charcoal);
+    }
+
+    .brand-logo img {
+      width: 44px;
+      height: 44px;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+
+    .brand-title {
+      font-family: var(--font-serif);
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-title .accent {
+      color: var(--leona-terracotta);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-link {
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--leona-text-main);
+      position: relative;
+      padding: 6px 0;
+      transition: color 0.3s ease;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--leona-terracotta);
+      transition: width 0.3s ease;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      color: var(--leona-terracotta);
+    }
+
+    .nav-link:hover::after, .nav-link.active::after {
+      width: 100%;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .btn-lang {
+      padding: 6px 16px;
+      border: 1.5px solid var(--leona-charcoal);
+      border-radius: 20px;
+      background: transparent;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-lang:hover {
+      border-color: var(--leona-terracotta);
+      color: var(--leona-terracotta);
+      background: var(--leona-cream);
+    }
+
+    /* ============================================
+       2. AUTHOR HERO / HEADER SECTION
+       ============================================ */
+    .author-hero {
+      padding: 70px 0 80px;
+      background: linear-gradient(135deg, var(--leona-ivory) 0%, var(--leona-cream) 100%);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 50px;
+      align-items: center;
+    }
+
+    .author-portrait-box {
+      position: relative;
+    }
+
+    .author-portrait {
+      width: 100%;
+      height: 460px;
+      object-fit: cover;
+      border-radius: 12px;
+      box-shadow: 0 16px 40px rgba(30, 27, 24, 0.18);
+      border: 4px solid var(--leona-white);
+    }
+
+    .portrait-badge {
+      position: absolute;
+      bottom: -16px;
+      right: 20px;
+      background: var(--leona-charcoal);
+      color: var(--leona-gold);
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      border: 1px solid var(--leona-gold);
+    }
+
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(246, 110, 94, 0.12);
+      border: 1px solid var(--leona-terracotta);
+      border-radius: 20px;
+      color: var(--leona-terracotta-dark);
+      font-size: 0.88rem;
+      font-weight: 700;
+      width: fit-content;
+    }
+
+    .author-name {
+      font-family: var(--font-serif);
+      font-size: 3.4rem;
+      font-weight: 700;
+      line-height: 1.15;
+      color: var(--leona-charcoal);
+    }
+
+    .author-title-sub {
+      font-family: var(--font-serif);
+      font-size: 1.25rem;
+      color: var(--leona-terracotta-dark);
+      font-style: italic;
+    }
+
+    /* Featured Quote Block */
+    .quote-card {
+      background: var(--leona-white);
+      border-left: 4px solid var(--leona-terracotta);
+      padding: 24px 30px;
+      border-radius: 0 10px 10px 0;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+      margin-top: 10px;
+    }
+
+    .quote-text {
+      font-family: var(--font-serif);
+      font-size: 1.25rem;
+      font-style: italic;
+      color: var(--leona-text-main);
+      line-height: 1.8;
+      margin-bottom: 12px;
+    }
+
+    .quote-author {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--leona-teal-dark);
+      text-align: right;
+    }
+
+    /* ============================================
+       3. BIOGRAPHICAL SECTION & TIMELINE
+       ============================================ */
+    .bio-section {
+      padding: 90px 0;
+      background: var(--leona-white);
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .section-subtitle {
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--leona-terracotta);
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-family: var(--font-serif);
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--leona-charcoal);
+    }
+
+    .section-divider {
+      width: 60px;
+      height: 3px;
+      background: var(--leona-gold);
+      margin: 16px auto 0;
+      border-radius: 2px;
+    }
+
+    .bio-prose {
+      max-width: 900px;
+      margin: 0 auto 70px;
+      font-family: var(--font-serif);
+      font-size: 1.15rem;
+      color: var(--leona-text-main);
+      line-height: 1.95;
+    }
+
+    .bio-prose p {
+      margin-bottom: 24px;
+    }
+
+    .bio-prose strong {
+      color: var(--leona-charcoal);
+    }
+
+    /* Timeline Grid */
+    .timeline-container {
+      max-width: 960px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .timeline-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 2px;
+      background: rgba(212, 175, 55, 0.3);
+      transform: translateX(-50%);
+    }
+
+    .timeline-item {
+      display: flex;
+      justify-content: flex-end;
+      padding-right: 50px;
+      position: relative;
+      margin-bottom: 40px;
+      width: 50%;
+    }
+
+    .timeline-item:nth-child(even) {
+      align-self: flex-end;
+      justify-content: flex-start;
+      padding-right: 0;
+      padding-left: 50px;
+      margin-left: 50%;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      top: 20px;
+      right: -9px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--leona-terracotta);
+      border: 3px solid var(--leona-white);
+      box-shadow: 0 0 0 2px var(--leona-terracotta);
+      z-index: 2;
+    }
+
+    .timeline-item:nth-child(even) .timeline-dot {
+      right: auto;
+      left: -9px;
+    }
+
+    .timeline-card {
+      background: var(--leona-ivory);
+      border: 1px solid rgba(226, 215, 197, 0.8);
+      border-radius: 10px;
+      padding: 24px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+      transition: all 0.3s ease;
+    }
+
+    .timeline-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--leona-terracotta);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+    }
+
+    .timeline-year {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--leona-terracotta-dark);
+      margin-bottom: 6px;
+    }
+
+    .timeline-title {
+      font-family: var(--font-serif);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--leona-charcoal);
+      margin-bottom: 8px;
+    }
+
+    .timeline-desc {
+      font-size: 0.95rem;
+      color: var(--leona-text-muted);
+      line-height: 1.6;
+    }
+
+    /* ============================================
+       4. AWARDS & HONORS SECTION (पुरस्कार व सम्मान)
+       ============================================ */
+    .awards-section {
+      padding: 90px 0;
+      background: var(--leona-cream);
+      border-top: 1px solid rgba(226, 215, 197, 0.8);
+    }
+
+    .awards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 28px;
+    }
+
+    .award-card {
+      background: var(--leona-white);
+      border-radius: 12px;
+      padding: 30px;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      transition: all 0.35s ease;
+    }
+
+    .award-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 14px 32px rgba(0,0,0,0.09);
+      border-color: var(--leona-gold);
+    }
+
+    .award-icon-box {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      background: rgba(212, 175, 55, 0.15);
+      border: 1px solid var(--leona-gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--leona-gold);
+      flex-shrink: 0;
+    }
+
+    .award-details {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .award-year {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--leona-terracotta);
+      letter-spacing: 0.05em;
+    }
+
+    .award-title {
+      font-family: var(--font-serif);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--leona-charcoal);
+      line-height: 1.35;
+    }
+
+    .award-org {
+      font-size: 0.9rem;
+      color: var(--leona-text-muted);
+    }
+
+    /* ============================================
+       5. FOOTER STYLES
+       ============================================ */
+    .footer {
+      background: var(--leona-charcoal);
+      color: var(--leona-ivory);
+      padding: 24px 0;
+      border-top: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    .footer-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .footer-copyright {
+      font-size: 0.88rem;
+      color: rgba(250, 247, 242, 0.75);
+    }
+
+    .footer-social-icons {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .social-icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(250, 247, 242, 0.08);
+      color: var(--leona-gold);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .social-icon-btn:hover {
+      background: var(--leona-gold);
+      color: var(--leona-charcoal);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+    }
+
+    .footer-admin-link {
+      color: rgba(250, 247, 242, 0.7);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 6px 14px;
+      border: 1px solid rgba(250, 247, 242, 0.2);
+      border-radius: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .footer-admin-link:hover {
+      color: var(--leona-gold);
+      border-color: var(--leona-gold);
+      background: rgba(212, 175, 55, 0.1);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 900px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+      .author-portrait {
+        height: 360px;
+      }
+      .timeline-container::before {
+        left: 20px;
+      }
+      .timeline-item, .timeline-item:nth-child(even) {
+        width: 100%;
+        margin-left: 0;
+        padding-left: 50px;
+        padding-right: 0;
+      }
+      .timeline-dot, .timeline-item:nth-child(even) .timeline-dot {
+        left: 11px;
+        right: auto;
+      }
+      .footer-row {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. STICKY HEADER & DEDUPLICATED NAVIGATION -->
+  <header class="header">
+    <div class="container">
+      <div class="header-inner">
+        <!-- Brand Logo -->
+        <a href="leona_home_preview.html" class="brand-logo">
+          <img src="/logo.png" alt="Logo" onerror="this.src='https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=100&q=80'">
+          <span class="brand-title">गुरुप्रताप शर्मा <span class="accent">'आग'</span></span>
+        </a>
+
+        <!-- Main Navigation Links -->
+        <nav>
+          <ul class="nav-links">
+            <li><a href="leona_home_preview.html" class="nav-link">मुख्य पृष्ठ</a></li>
+            <li><a href="kavi-parichay.html" class="nav-link active">कवि परिचय</a></li>
+            <li><a href="leona_home_preview.html#poems" class="nav-link">काव्य संग्रह</a></li>
+            <li><a href="leona_home_preview.html#publications" class="nav-link">प्रकाशन</a></li>
+            <li><a href="#contact" class="nav-link">संपर्क</a></li>
+          </ul>
+        </nav>
+
+        <!-- Header Actions: Language Switcher Only -->
+        <div class="header-actions">
+          <button class="btn-lang">HI / EN</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. HERO / AUTHOR BANNER -->
+  <section class="author-hero">
+    <div class="container">
+      <div class="hero-grid">
+        
+        <!-- Author Photograph -->
+        <div class="author-portrait-box">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80" alt="कवि गुरुप्रताप शर्मा 'आग'" class="author-portrait">
+          <div class="portrait-badge">वरिष्ठ हिंदी साहित्यकार</div>
+        </div>
+
+        <!-- Author Meta & Featured Quote -->
+        <div class="hero-content">
+          <span class="hero-tag">साहित्यिक जीवन परिचय</span>
+          <h1 class="author-name">कवि गुरुप्रताप शर्मा 'आग'</h1>
+          <p class="author-title-sub">राष्ट्रीय चेतना, ओज एवं मानवीय संवेदनाओं के संवाहक</p>
+
+          <!-- Featured Quote Block -->
+          <div class="quote-card">
+            <p class="quote-text">
+              "साहित्य केवल शब्दों का संगम नहीं, बल्कि समाज की चेतना को जागृत करने वाली अनवरत अग्नि है। जब तक समाज में न्याय और सत्य की ज्योति प्रज्वलित है, तब तक काव्य स्पंदित रहेगा।"
+            </p>
+            <div class="quote-author">— गुरुप्रताप शर्मा 'आग'</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. BIOGRAPHICAL SECTION (जीवनी व साहित्यिक यात्रा) -->
+  <section class="bio-section">
+    <div class="container">
+      
+      <div class="section-header">
+        <span class="section-subtitle">जीवन वृत्तांत</span>
+        <h2 class="section-title">जीवनी व साहित्यिक यात्रा</h2>
+        <div class="section-divider"></div>
+      </div>
+
+      <!-- Prose Narrative -->
+      <div class="bio-prose">
+        <p>
+          <strong>पंडित गुरुप्रताप शर्मा 'आग'</strong> का जन्म राजस्थान की पावन साहित्यिक भूमि पर हुआ। बचपन से ही हिंदी साहित्य और महाकाव्यों के प्रति उनका गहरा लगाव रहा। उनकी कविताओं में जहाँ एक ओर राष्ट्रप्रेम और ओजस्वी चेतना की गूंज है, वहीं दूसरी ओर सामाजिक यथार्थ और मानवीय संवेदनाओं का सहज चित्रण मिलता है।
+        </p>
+        <p>
+          विगत पाँच दशकों से अधिक समय से हिंदी काव्य जगत की सेवा करते हुए उन्होंने अनगिनत काव्य संग्रहों, निबंधों एवं संपादकीय लेखों की रचना की है। उनकी प्रमुख कृति <em>'अग्नि कलश'</em> हिंदी साहित्य जगत में विशेष स्थान रखती है, जिसके लिए उन्हें अनेक राष्ट्रीय व प्रांतीय पुरस्कारों से सम्मानित किया जा चुका है।
+        </p>
+      </div>
+
+      <!-- Timeline Grid -->
+      <div class="timeline-container">
+        
+        <!-- Timeline Item 1 -->
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-card">
+            <div class="timeline-year">१९४५</div>
+            <h3 class="timeline-title">जन्म एवं प्रारम्भिक शिक्षा</h3>
+            <p class="timeline-desc">साहित्यिक वातावरण में बाल्यकाल व्यतीत हुआ। संस्कृत एवं हिंदी साहित्य में उच्च शिक्षा पूर्ण की।</p>
+          </div>
+        </div>
+
+        <!-- Timeline Item 2 -->
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-card">
+            <div class="timeline-year">१९६८</div>
+            <h3 class="timeline-title">काव्य यात्रा का शुभारम्भ</h3>
+            <p class="timeline-desc">प्रमुख राष्ट्रीय पत्र-पत्रिकाओं में कविताओं का प्रकाशन एवं कवि सम्मेलनों में ओजस्वी प्रस्तुति।</p>
+          </div>
+        </div>
+
+        <!-- Timeline Item 3 -->
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-card">
+            <div class="timeline-year">१९८५</div>
+            <h3 class="timeline-title">'अग्नि कलश' का प्रकाशन</h3>
+            <p class="timeline-desc">प्रसिद्ध काव्य कृति 'अग्नि कलश' का प्रथम संस्करण प्रकाशित, जिसे साहित्य जगत में अपार ख्याति मिली।</p>
+          </div>
+        </div>
+
+        <!-- Timeline Item 4 -->
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-card">
+            <div class="timeline-year">१९९८</div>
+            <h3 class="timeline-title">राष्ट्रीय सम्मान</h3>
+            <p class="timeline-desc">हिंदी साहित्य सम्मेलन द्वारा सर्वोच्च 'राष्ट्रीय साहित्य रत्न सम्मान' से अलंकृत।</p>
+          </div>
+        </div>
+
+        <!-- Timeline Item 5 -->
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-card">
+            <div class="timeline-year">२०१०</div>
+            <h3 class="timeline-title">'चेतना के स्वर' संकलन</h3>
+            <p class="timeline-desc">उत्तर-आधुनिक काव्य विमर्श पर आधारित नवीन संकलन 'चेतना के स्वर' का विमोचन।</p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 4. AWARDS & HONORS SECTION (पुरस्कार व सम्मान) -->
+  <section class="awards-section">
+    <div class="container">
+      
+      <div class="section-header">
+        <span class="section-subtitle">कीर्ति व प्रतिष्ठा</span>
+        <h2 class="section-title">पुरस्कार व सम्मान</h2>
+        <div class="section-divider"></div>
+      </div>
+
+      <!-- Awards Card Grid -->
+      <div class="awards-grid">
+        
+        <!-- Award 1 -->
+        <div class="award-card">
+          <div class="award-icon-box">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2l2.4 7.4h7.6l-6.2 4.5 2.4 7.4-6.2-4.5-6.2 4.5 2.4-7.4-6.2-4.5h7.6z"/>
+            </svg>
+          </div>
+          <div class="award-details">
+            <span class="award-year">१९९८</span>
+            <h3 class="award-title">राष्ट्रीय साहित्य रत्न सम्मान</h3>
+            <p class="award-org">हिंदी साहित्य सम्मेलन, प्रयागराज</p>
+          </div>
+        </div>
+
+        <!-- Award 2 -->
+        <div class="award-card">
+          <div class="award-icon-box">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2l2.4 7.4h7.6l-6.2 4.5 2.4 7.4-6.2-4.5-6.2 4.5 2.4-7.4-6.2-4.5h7.6z"/>
+            </svg>
+          </div>
+          <div class="award-details">
+            <span class="award-year">२००५</span>
+            <h3 class="award-title">हिंदी काव्य शिरोमणि पुरस्कार</h3>
+            <p class="award-org">राजस्थान साहित्य अकादमी</p>
+          </div>
+        </div>
+
+        <!-- Award 3 -->
+        <div class="award-card">
+          <div class="award-icon-box">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2l2.4 7.4h7.6l-6.2 4.5 2.4 7.4-6.2-4.5-6.2 4.5 2.4-7.4-6.2-4.5h7.6z"/>
+            </svg>
+          </div>
+          <div class="award-details">
+            <span class="award-year">२०१२</span>
+            <h3 class="award-title">अग्नि कलश शिखर सम्मान</h3>
+            <p class="award-org">केंद्रीय हिंदी संस्थान, आगरा</p>
+          </div>
+        </div>
+
+        <!-- Award 4 -->
+        <div class="award-card">
+          <div class="award-icon-box">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2l2.4 7.4h7.6l-6.2 4.5 2.4 7.4-6.2-4.5-6.2 4.5 2.4-7.4-6.2-4.5h7.6z"/>
+            </svg>
+          </div>
+          <div class="award-details">
+            <span class="award-year">२०१८</span>
+            <h3 class="award-title">महाकवि निराला स्मृति सम्मान</h3>
+            <p class="award-org">राष्ट्रीय काव्य मंच</p>
+          </div>
+        </div>
+
+        <!-- Award 5 -->
+        <div class="award-card">
+          <div class="award-icon-box">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2l2.4 7.4h7.6l-6.2 4.5 2.4 7.4-6.2-4.5-6.2 4.5 2.4-7.4-6.2-4.5h7.6z"/>
+            </svg>
+          </div>
+          <div class="award-details">
+            <span class="award-year">२०२२</span>
+            <h3 class="award-title">साहित्य जीवन साधना सम्मान</h3>
+            <p class="award-org">भारतीय भाषा परिषद</p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 5. CONSOLIDATED SINGLE-ROW DARK FOOTER WITH SVG ICONS & ADMIN ENTRY -->
+  <footer class="footer" id="contact">
+    <div class="container">
+      <div class="footer-row">
+        
+        <!-- Left: Copyright Note -->
+        <div class="footer-copyright">
+          © २०२६ गुरुप्रताप शर्मा 'आग' | सर्वाधिकार सुरक्षित | Auspicious Beginning
+        </div>
+
+        <!-- Middle: Social SVG Icon Buttons -->
+        <div class="footer-social-icons">
+          <!-- WhatsApp SVG -->
+          <a href="#" class="social-icon-btn" title="WhatsApp">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+            </svg>
+          </a>
+
+          <!-- Facebook SVG -->
+          <a href="#" class="social-icon-btn" title="Facebook">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+          </a>
+
+          <!-- Instagram SVG -->
+          <a href="#" class="social-icon-btn" title="Instagram">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+            </svg>
+          </a>
+
+          <!-- YouTube SVG -->
+          <a href="#" class="social-icon-btn" title="YouTube">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+            </svg>
+          </a>
+        </div>
+
+        <!-- Right: Relocated Admin Link -->
+        <div>
+          <a href="/admin" class="footer-admin-link">प्रशासन (Admin)</a>
+        </div>
+
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
