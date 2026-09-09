@@ -51,6 +51,7 @@ class ErrorBoundary extends Component {
 
   render() {
     if (this.state.hasError) {
+      const isEn = localStorage.getItem('siteLanguage') === 'en' || localStorage.getItem('i18nextLng') === 'en'
       return (
         <div style={{
           padding: '60px 20px',
@@ -71,11 +72,14 @@ class ErrorBoundary extends Component {
             maxWidth: '480px',
             border: '1px solid #E2D7C5'
           }}>
-            <h2 style={{ color: '#D95343', marginBottom: '12px', fontSize: '1.4rem' }}>⚠️ पृष्ठ लोड करने में त्रुटि (Page Error)</h2>
+            <h2 style={{ color: '#D95343', marginBottom: '12px', fontSize: '1.4rem' }}>
+              {isEn ? '⚠️ Page Error' : '⚠️ पृष्ठ त्रुटि'}
+            </h2>
             <p style={{ color: '#555', marginBottom: '24px', fontSize: '0.95rem', lineHeight: '1.6' }}>
-              {this.state.error?.message || 'सामग्री प्रदर्शित करने में समस्या आई है।'}
+              {this.state.error?.message || (isEn ? 'An issue occurred while loading this section.' : 'सामग्री प्रदर्शित करने में समस्या आई है।')}
             </p>
             <button
+              type="button"
               onClick={() => {
                 this.setState({ hasError: false, error: null })
                 window.location.reload()
@@ -91,7 +95,7 @@ class ErrorBoundary extends Component {
                 cursor: 'pointer'
               }}
             >
-              🔄 पुनः प्रयास करें (Reload Page)
+              {isEn ? '🔄 Reload Page' : '🔄 पुनः प्रयास करें'}
             </button>
           </div>
         </div>

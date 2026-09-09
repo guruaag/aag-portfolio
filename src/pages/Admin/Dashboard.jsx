@@ -102,7 +102,7 @@ function AdminDashboard({ tab }) {
   const loadData = async () => {
     try {
       setLoading(true)
-      // Auto-align category seed data to match website sections
+      // Auto-align category seed data titles to match website sections
       try {
         const { data: catsData } = await supabase.from('categories').select('*')
         if (catsData && catsData.length > 0) {
@@ -119,8 +119,6 @@ function AdminDashboard({ tab }) {
               if (cat.name_display !== 'काव्य संग्रह (Poetry Collection)') {
                 await supabase.from('categories').update({ name_en: 'Kavya Sangrah (Poetry Collection)', name_display: 'काव्य संग्रह (Poetry Collection)', sort_order: 3 }).eq('id', cat.id)
               }
-            } else if (cat.name_en?.includes('3 writing') || cat.name_display?.includes('3 writing') || cat.name_en?.toLowerCase().includes('test')) {
-              await supabase.from('categories').delete().eq('id', cat.id)
             }
           }
         }
@@ -1140,7 +1138,7 @@ function PublicationsManager({ publications, onUpdate }) {
 
 // Poems Manager Component
 function PoemsManager({ poems, onUpdate }) {
-  const { tLabel } = useAdminLang()
+  const { adminLang, tLabel } = useAdminLang()
   const [editing, setEditing] = useState(null)
   const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState({
