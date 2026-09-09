@@ -460,3 +460,32 @@
   box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
 }
 
+.btn-lang {
+  padding: 6px 16px;
+  border: 1.5px solid #1E1B18;
+  border-radius: 20px;
+  background: transparent;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1E1B18;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-lang:hover {
+  border-color: #F66E5E;
+  color: #F66E5E;
+  background: #F4EFE6;
+}
+
+.btn-logout-nav {
+  border-color: #D95343 !important;
+  background: #D95343 !important;
+  color: #FFFFFF !important;
+}
+
+.btn-logout-nav:hover {
+  background: #C43D2D !important;
+  border-color: #C43D2D !important;
+}
+

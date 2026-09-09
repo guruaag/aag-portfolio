@@ -131,15 +131,7 @@ function Header() {
               transition={{ duration: 0.3 }}
               className="phoenix-header-title phoenix-header-title-inline"
             >
-              {i18n.language === 'hi' ? (
-                <>
-                  गुरु प्रताप शर्मा <span className="phoenix-header-aag">आग</span>
-                </>
-              ) : (
-                <>
-                  GURU PRATAP SHARMA <span className="phoenix-header-aag">AAG</span>
-                </>
-              )}
+              गुरु प्रताप शर्मा <span className="phoenix-header-aag" style={{ color: '#F66E5E' }}>आग</span>
             </motion.h1>
           </motion.div>
 
@@ -166,45 +158,46 @@ function Header() {
 
           {/* Right Side Actions */}
           <div className="phoenix-header-actions">
-            {/* Language Switcher Button */}
+            {/* Language Switcher Button - Exact HI / EN as public site */}
             <motion.button
-              className="phoenix-lang-switch-btn"
+              className="btn-lang"
               onClick={toggleLanguage}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               title={i18n.language === 'en' ? 'Switch to Hindi' : 'Switch to English'}
+              style={{
+                padding: '6px 16px',
+                border: '1.5px solid #1E1B18',
+                borderRadius: '20px',
+                background: 'transparent',
+                fontSize: '0.85rem',
+                fontWeight: 600,
+                cursor: 'pointer'
+              }}
             >
-              🌐 {i18n.language === 'hi' ? 'HI (हिंदी)' : 'EN (English)'}
+              HI / EN
             </motion.button>
 
             {/* Logout Button when on Admin routes */}
             {isAdminRoute && location.pathname !== '/admin' && (
               <motion.button
-                className="phoenix-admin-logout-btn"
+                className="btn-lang btn-logout-nav"
                 onClick={handleLogout}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                title={i18n.language === 'en' ? 'Logout' : 'बाहर निकलें'}
+                title="Logout"
                 style={{
-                  background: 'rgba(246, 110, 94, 0.12)',
-                  color: '#D95343',
-                  border: '1.5px solid rgba(246, 110, 94, 0.4)',
-                  padding: '6px 14px',
+                  padding: '6px 16px',
+                  border: '1.5px solid #D95343',
                   borderRadius: '20px',
+                  background: '#D95343',
+                  color: '#FFFFFF',
                   fontSize: '0.85rem',
                   fontWeight: 600,
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px'
+                  cursor: 'pointer'
                 }}
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                  <polyline points="16 17 21 12 16 7"/>
-                  <line x1="21" y1="12" x2="9" y2="12"/>
-                </svg>
-                {i18n.language === 'hi' ? 'बाहर निकलें' : 'Logout'}
+                Logout
               </motion.button>
             )}
 
