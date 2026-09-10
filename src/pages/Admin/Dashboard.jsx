@@ -7,6 +7,17 @@ import PM5WritingDesk, { paginateTextIntoPages } from '../../components/PM5Writi
 import i18n from '../../i18n/config'
 import './AdminDashboard.css'
 
+export const FormStateContext = createContext({
+  isDirty: false,
+  setIsDirty: () => {},
+  markDirty: () => {},
+  markClean: () => {}
+})
+
+export function useFormState() {
+  return useContext(FormStateContext)
+}
+
 const AdminLangContext = createContext({
   adminLang: 'hi',
   setAdminLang: () => {},
@@ -227,6 +238,15 @@ function AdminDashboard({ tab }) {
   }
 
   const handleLogout = async () => {
+    if (isDirty) {
+      setPendingNavigation({ newTab: 'logout', routePath: '/admin' })
+      setShowUnsavedModal(true)
+      return
+    }
+    executeLogout()
+  }
+
+  const executeLogout = async () => {
     // Sign out from Supabase Auth
     await supabase.auth.signOut()
     // Clear local admin auth
@@ -239,8 +259,16 @@ function AdminDashboard({ tab }) {
     return <div className="loading" style={{ textAlign: 'center', padding: '60px', color: 'var(--leona-terracotta)', fontSize: '1.2rem', fontWeight: 600 }}>लोड हो रहा है... (Loading Admin...)</div>
   }
 
+  const formStateValue = {
+    isDirty,
+    setIsDirty,
+    markDirty: () => setIsDirty(true),
+    markClean: () => setIsDirty(false)
+  }
+
   return (
-    <AdminLangContext.Provider value={{ adminLang, setAdminLang: setAdminLangState, toggleAdminLang, tLabel }}>
+    <FormStateContext.Provider value={formStateValue}>
+      <AdminLangContext.Provider value={{ adminLang, setAdminLang: setAdminLangState, toggleAdminLang, tLabel }}>
       <UnsavedChangesModal
         isOpen={showUnsavedModal}
         onConfirmDiscard={handleConfirmDiscard}
@@ -470,6 +498,7 @@ function AdminDashboard({ tab }) {
 
       </div>
     </AdminLangContext.Provider>
+    </FormStateContext.Provider>
   )
 }
 
@@ -591,7 +620,7 @@ function CategoriesManager({ categories, onUpdate, setIsDirty }) {
       </div>
       
       {(showForm || editing) && (
-        <form id="admin-active-form" onSubmit={handleSubmit} className="admin-form-container">
+        <form id="admin-active-form" onSubmit={handleSubmit} onChange={() => setIsDirty && setIsDirty(true)} onInput={() => setIsDirty && setIsDirty(true)} className="admin-form-container">
           <div className="admin-form-grid">
             <div className="admin-form-group">
               <label>{tLabel('अनुभाग नाम (Slug) *', 'Section Key (Slug) *')}</label>
@@ -656,14 +685,18 @@ function CategoriesManager({ categories, onUpdate, setIsDirty }) {
       )}
 
       <div>
-        <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
-          {tLabel('सक्रिय अनुभाग सूची', 'Active Sections List')} ({itemsList.length})
-        </h3>
-        {itemsList.length === 0 ? (
-          <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई अनुभाग नहीं मिला। नया अनुभाग जोड़ने के लिए बटन दबाएं।', 'No sections found. Click button to add new section.')}</p>
-        ) : (
-          <ul className="admin-item-list">
-            {itemsList.map((cat, idx) => (
+        {(() => {
+          const displayList = itemsList.length > 0 ? itemsList : (Array.isArray(categories) ? categories : [])
+          return (
+            <>
+              <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
+                {tLabel('सक्रिय अनुभाग सूची', 'Active Sections List')} ({displayList.length})
+              </h3>
+              {displayList.length === 0 ? (
+                <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई अनुभाग नहीं मिला। नया अनुभाग जोड़ने के लिए बटन दबाएं।', 'No sections found. Click button to add new section.')}</p>
+              ) : (
+                <ul className="admin-item-list">
+                  {displayList.map((cat, idx) => (
               <li key={cat.id} className="admin-item-card">
                 <div>
                   <div className="admin-item-title">{cat.name_display || cat.name_en}</div>
@@ -676,7 +709,7 @@ function CategoriesManager({ categories, onUpdate, setIsDirty }) {
                 </div>
                 <div className="admin-actions-group">
                   <button type="button" className="admin-btn-secondary" disabled={idx === 0} onClick={() => handleMove(idx, 'up')}>⬆️ {tLabel('ऊपर', 'Up')}</button>
-                  <button type="button" className="admin-btn-secondary" disabled={idx === itemsList.length - 1} onClick={() => handleMove(idx, 'down')}>⬇️ {tLabel('नीचे', 'Down')}</button>
+                  <button type="button" className="admin-btn-secondary" disabled={idx === displayList.length - 1} onClick={() => handleMove(idx, 'down')}>⬇️ {tLabel('नीचे', 'Down')}</button>
                   <button type="button" className="admin-btn-secondary" onClick={() => handleEdit(cat)}>{tLabel('संपादित करें', 'Edit')}</button>
                   <button type="button" className="admin-btn-danger" onClick={() => handleDelete(cat.id)}>{tLabel('हटाएं', 'Delete')}</button>
                 </div>
@@ -684,6 +717,9 @@ function CategoriesManager({ categories, onUpdate, setIsDirty }) {
             ))}
           </ul>
         )}
+      </>
+    )
+  })()}
       </div>
     </div>
   )
@@ -836,7 +872,7 @@ function AboutManager({ about, initialSubTab, onUpdate, setIsDirty }) {
             <h2 className="admin-panel-title">📖 {tLabel('कवि परिचय व बैनर सम्पादन', 'Poet Biography & Hero Banner')}</h2>
           </div>
 
-          <form id="admin-active-form" onSubmit={handleSubmit} className="admin-form-container">
+          <form id="admin-active-form" onSubmit={handleSubmit} onChange={() => setIsDirty && setIsDirty(true)} onInput={() => setIsDirty && setIsDirty(true)} className="admin-form-container">
             <div style={{ background: 'var(--leona-sand-light, #FAF6F0)', padding: '16px', borderRadius: '8px', marginBottom: '20px', borderLeft: '4px solid var(--leona-terracotta)' }}>
               <h4 style={{ margin: '0 0 12px 0', fontFamily: 'Lora, serif', color: 'var(--leona-charcoal)' }}>
                 🎯 {tLabel('हीरो बैनर व मुख्य शीर्षक पाठ', 'Hero Banner & Header Text')}
@@ -1160,7 +1196,7 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
       </div>
       
       {(showForm || editing) && (
-        <form id="admin-active-form" onSubmit={handleSubmit} className="admin-form-container">
+        <form id="admin-active-form" onSubmit={handleSubmit} onChange={() => setIsDirty && setIsDirty(true)} onInput={() => setIsDirty && setIsDirty(true)} className="admin-form-container">
           <div className="admin-form-grid">
             <div className="admin-form-group">
               <label>{tLabel('पुस्तक का नाम *', 'Book Title *')}</label>
@@ -1251,17 +1287,17 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
 
       <div>
         {(() => {
-          const safePubs = Array.isArray(publications) ? publications : []
+          const displayList = itemsList.length > 0 ? itemsList : (Array.isArray(publications) ? publications : [])
           return (
             <>
               <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
-                {tLabel('प्रकाशित पुस्तकों की सूची', 'Published Books List')} ({safePubs.length})
+                {tLabel('प्रकाशित पुस्तकों की सूची', 'Published Books List')} ({displayList.length})
               </h3>
-              {safePubs.length === 0 ? (
+              {displayList.length === 0 ? (
                 <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई पुस्तक नहीं मिली। नई पुस्तक जोड़ने के लिए बटन दबाएं।', 'No books found. Click button to add new book.')}</p>
               ) : (
                 <ul className="admin-item-list">
-                  {itemsList.map((pub, idx) => (
+                  {displayList.map((pub, idx) => (
               <li key={pub.id} className="admin-item-card">
                 <div>
                   <div className="admin-item-title">{pub.title}</div>
@@ -1274,7 +1310,7 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
                 </div>
                 <div className="admin-actions-group">
                   <button type="button" className="admin-btn-secondary" disabled={idx === 0} onClick={() => handleMove(idx, 'up')}>⬆️ {tLabel('ऊपर', 'Up')}</button>
-                  <button type="button" className="admin-btn-secondary" disabled={idx === itemsList.length - 1} onClick={() => handleMove(idx, 'down')}>⬇️ {tLabel('नीचे', 'Down')}</button>
+                  <button type="button" className="admin-btn-secondary" disabled={idx === displayList.length - 1} onClick={() => handleMove(idx, 'down')}>⬇️ {tLabel('नीचे', 'Down')}</button>
                   <button type="button" className="admin-btn-secondary" onClick={() => handleEdit(pub)}>{tLabel('संपादित करें', 'Edit')}</button>
                   <button type="button" className="admin-btn-danger" onClick={() => handleDelete(pub.id)}>{tLabel('हटाएं', 'Delete')}</button>
                 </div>
@@ -1452,7 +1488,7 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
       </div>
       
       {(showForm || editing) && (
-        <form id="admin-active-form" onSubmit={handleSubmit} className="admin-form-container">
+        <form id="admin-active-form" onSubmit={handleSubmit} onChange={() => setIsDirty && setIsDirty(true)} onInput={() => setIsDirty && setIsDirty(true)} className="admin-form-container">
           <div className="admin-form-grid">
             <div className="admin-form-group full-width">
               <label>{tLabel('कविता / रचना का शीर्षक *', 'Poem Title *')}</label>
@@ -1531,17 +1567,17 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
 
       <div>
         {(() => {
-          const safePoems = Array.isArray(poems) ? poems : []
+          const displayList = itemsList.length > 0 ? itemsList : (Array.isArray(poems) ? poems : [])
           return (
             <>
               <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
-                {tLabel('कुल काव्य रचनाएं', 'Total Poems Collection')} ({safePoems.length})
+                {tLabel('कुल काव्य रचनाएं', 'Total Poems Collection')} ({displayList.length})
               </h3>
-              {safePoems.length === 0 ? (
+              {displayList.length === 0 ? (
                 <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई कविता नहीं मिली। नई रचना जोड़ने के लिए बटन दबाएं।', 'No poems found. Click button to add new poem.')}</p>
               ) : (
                 <ul className="admin-item-list">
-                  {itemsList.map((poem, idx) => (
+                  {displayList.map((poem, idx) => (
               <li key={poem.id} className="admin-item-card">
                 <div>
                   <div className="admin-item-title">{poem.heading || poem.heading_hi || poem.heading_en || 'Untitled'}</div>
@@ -1549,7 +1585,7 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
                 </div>
                 <div className="admin-actions-group">
                   <button type="button" className="admin-btn-secondary" disabled={idx === 0} onClick={() => handleMove(idx, 'up')}>⬆️ {tLabel('ऊपर', 'Up')}</button>
-                  <button type="button" className="admin-btn-secondary" disabled={idx === itemsList.length - 1} onClick={() => handleMove(idx, 'down')}>⬇️ {tLabel('नीचे', 'Down')}</button>
+                  <button type="button" className="admin-btn-secondary" disabled={idx === displayList.length - 1} onClick={() => handleMove(idx, 'down')}>⬇️ {tLabel('नीचे', 'Down')}</button>
                   <button type="button" className="admin-btn-secondary" onClick={() => handleEdit(poem)}>{tLabel('संपादित करें', 'Edit')}</button>
                   <button type="button" className="admin-btn-danger" onClick={() => handleDelete(poem.id)}>{tLabel('हटाएं', 'Delete')}</button>
                 </div>
@@ -1731,7 +1767,7 @@ function SettingsManager({ settings, onUpdate, setIsDirty }) {
       </div>
       
       {showForm && (
-        <form id="admin-active-form" onSubmit={handleSubmit} className="admin-form-container">
+        <form id="admin-active-form" onSubmit={handleSubmit} onChange={() => setIsDirty && setIsDirty(true)} onInput={() => setIsDirty && setIsDirty(true)} className="admin-form-container">
           <div className="admin-form-grid">
             <div className="admin-form-group full-width">
               <label>{tLabel('वेबसाइट लोगो चित्र', 'Website Logo Image')}</label>
@@ -2015,7 +2051,7 @@ function TimelineManager({ onUpdate, setIsDirty }) {
       </div>
 
       {showForm && (
-        <form id="admin-active-form" onSubmit={handleSubmit} className="admin-form-container">
+        <form id="admin-active-form" onSubmit={handleSubmit} onChange={() => setIsDirty && setIsDirty(true)} onInput={() => setIsDirty && setIsDirty(true)} className="admin-form-container">
           <div className="admin-form-grid">
             <div className="admin-form-group">
               <label>{tLabel('वर्ष (e.g. १९४५ / 1945)', 'Year (e.g. 1945)')}</label>
@@ -2176,7 +2212,7 @@ function AwardsManager({ onUpdate, setIsDirty }) {
       </div>
 
       {showForm && (
-        <form id="admin-active-form" onSubmit={handleSubmit} className="admin-form-container">
+        <form id="admin-active-form" onSubmit={handleSubmit} onChange={() => setIsDirty && setIsDirty(true)} onInput={() => setIsDirty && setIsDirty(true)} className="admin-form-container">
           <div className="admin-form-grid">
             <div className="admin-form-group">
               <label>{tLabel('वर्ष (e.g. १९९५ / 1995)', 'Year (e.g. 1995)')}</label>
