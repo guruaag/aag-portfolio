@@ -41,10 +41,12 @@ Whenever this skill is triggered, immediately ask the user to select one of the 
   - Ensure all routes are wrapped inside `ErrorBoundary` to gracefully handle unexpected runtime exceptions without displaying a blank white screen.
   - Fallback UI must respect the active user language selection (`localStorage.getItem('siteLanguage')`) rather than displaying mixed dual-language text.
 
-### 3. Sticky Action Header & Form Standards
+### 3. Sticky Action Header & Single Action Container Rules
 - **Standardized Form ID Binding**:
   - Every form element in manager components (`PoemsManager`, `AboutManager`, `PublicationsManager`, etc.) must use `id="admin-active-form"`.
   - The sticky top header submit button must use `<button type="submit" form="admin-active-form">` to trigger standard HTML form submission natively across all sub-views.
+- **Consolidated Action Container (No Inline Action Buttons)**:
+  - Page content bodies must NOT render duplicate inline edit or save buttons (e.g., inline `✏️ सम्पादित करें`). All forms must display input controls directly, maintaining a **single action container** located exclusively in the top-right sticky header area (`<button type="submit" form="admin-active-form">💾 सहेजें / अपडेट</button>`).
 - **Optimistic UI Resequencing**:
   - Instant `⬆️ Move Up` / `⬇️ Move Down` resequencing actions must update the React local state array immediately before background Supabase calls finish to guarantee zero visual latency.
 - **Unmount `isDirty` Cleanup**:
@@ -62,8 +64,10 @@ Whenever this skill is triggered, immediately ask the user to select one of the 
 - **Clean Two-Column Grid Shell**:
   - Fixed `260px` Left Sidebar + flexible main canvas area (`100vh`).
   - Strip public website headers (`<Header />`) from all `/admin/*` administrative routes.
-- **High-Contrast Dark Sidebar Color Tokens**:
-  - Links and buttons inside `.admin-sidebar` must explicitly override inherited body text colors with high-contrast light colors (`#e5e5e5` / `#ffffff`) against the dark `#1E1B18` background.
+- **Zero Top Margin Alignment**:
+  - The top edge of `.admin-main-canvas` and `.admin-sticky-header` must align directly at `top: 0` with the top edge of `.admin-sidebar`. Public site layout rules (`.phoenix-main`) must be overridden for admin routes (`margin-top: 0 !important; padding-top: 0 !important;`).
+- **Pure White High-Contrast Dark Sidebar Typography**:
+  - Brand title text (`.admin-sidebar-brand *`), unselected main tabs (`.admin-tab-btn`), and unselected sub-menu links (`.admin-sub-tab-btn`) inside `.admin-sidebar` must use pure bright white (`#FFFFFF`) or high-visibility cream (`#F4EFE6`) text with `font-weight: 600+` and `opacity: 1` to guarantee 100% legibility against the dark `#1E1B18` background under all font-rendering engines.
 - **Nested Sub-Category Navigation Tree**:
   - Place sub-category links (`.admin-sub-nav` & `.admin-sub-tab-btn`) directly within the primary Left Sidebar tree beneath their parent section rather than rendering duplicate horizontal pill tab rows across the top of main canvas workspace panels.
 - **Responsive Mobile Drawer**:
@@ -73,7 +77,7 @@ Whenever this skill is triggered, immediately ask the user to select one of the 
   - Display custom bilingual modal ("Discard Changes / परिवर्तन छोड़ें" vs "Keep Editing / संपादन जारी रखें") before client-side navigation when `isDirty` is true.
   - Reset `isDirty` to `false` on form submit, cancel, or module unmount.
 
-### 6. Verification & Multibyte Code Editing Protocol
+### 6. Verification Protocol
 - **Multibyte UTF-8 Code Integrity**:
   - When editing files containing Hindi/Devanagari text, avoid truncating multibyte character sequences.
 - **Mandatory Build Check**:
