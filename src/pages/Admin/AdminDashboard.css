@@ -734,3 +734,88 @@
 .pm5-canvas-page {
   font-family: var(--phoenix-font-serif, 'Lora', 'Tiro Devanagari Hindi', Georgia, serif), var(--phoenix-font-hindi-serif, 'Tiro Devanagari Hindi', serif) !important;
 }
+
+/* Phase 2.5 Contextual Top Action Toolbar & Checkbox Styling */
+.admin-contextual-toolbar {
+  position: sticky;
+  top: 65px;
+  z-index: 75;
+  background: var(--leona-cream, #F4EFE6);
+  border: 2px solid var(--leona-gold, #D4AF37);
+  border-radius: 12px;
+  padding: 12px 18px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  box-shadow: 0 6px 20px rgba(30, 27, 24, 0.12);
+  animation: adminToolbarSlide 0.2s ease-out;
+}
+
+@keyframes adminToolbarSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-toolbar-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.admin-toolbar-count {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--leona-charcoal, #1E1B18);
+  background: #FFFFFF;
+  padding: 4px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--leona-gold, #D4AF37);
+}
+
+.admin-btn-link {
+  background: transparent;
+  border: none;
+  color: var(--leona-terracotta, #F66E5E);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.admin-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-toolbar-actions button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: grayscale(1);
+}
+
+.admin-item-checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--leona-terracotta, #F66E5E);
+  flex-shrink: 0;
+}
+
+.admin-item-card.selected {
+  background: #FFFBF5 !important;
+  border-color: var(--leona-terracotta, #F66E5E) !important;
+  box-shadow: 0 4px 14px rgba(246, 110, 94, 0.12) !important;
+}

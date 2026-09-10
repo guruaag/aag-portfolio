@@ -502,13 +502,97 @@ function AdminDashboard({ tab }) {
   )
 }
 
+
+// Phase 2.5 Contextual Top Action Toolbar Component
+function ListContextualToolbar({
+  selectedIds,
+  totalItems,
+  onClearSelection,
+  onEdit,
+  onMoveTop,
+  onMoveUp,
+  onMoveDown,
+  onMoveBottom,
+  onBatchDelete,
+  tLabel
+}) {
+  const count = selectedIds.length
+  if (count === 0) return null
+
+  const isSingle = count === 1
+
+  return (
+    <div className="admin-contextual-toolbar">
+      <div className="admin-toolbar-info">
+        <span className="admin-toolbar-count">
+          ☑️ {count} {tLabel('चयनित', 'Selected')}
+        </span>
+        <button type="button" className="admin-btn-link" onClick={onClearSelection}>
+          ✖ {tLabel('चयन रद्द करें', 'Clear')}
+        </button>
+      </div>
+
+      <div className="admin-toolbar-actions">
+        <button
+          type="button"
+          className="admin-btn-secondary"
+          disabled={!isSingle}
+          onClick={onEdit}
+        >
+          ✏️ {tLabel('संपादित करें', 'Edit')}
+        </button>
+        <button
+          type="button"
+          className="admin-btn-secondary"
+          disabled={!isSingle}
+          onClick={onMoveTop}
+        >
+          🔝 {tLabel('शीर्ष पर (Top)', 'Top')}
+        </button>
+        <button
+          type="button"
+          className="admin-btn-secondary"
+          disabled={!isSingle}
+          onClick={onMoveUp}
+        >
+          ⬆️ {tLabel('ऊपर', 'Up')}
+        </button>
+        <button
+          type="button"
+          className="admin-btn-secondary"
+          disabled={!isSingle}
+          onClick={onMoveDown}
+        >
+          ⬇️ {tLabel('नीचे', 'Down')}
+        </button>
+        <button
+          type="button"
+          className="admin-btn-secondary"
+          disabled={!isSingle}
+          onClick={onMoveBottom}
+        >
+          🔚 {tLabel('सबसे नीचे (Bottom)', 'Bottom')}
+        </button>
+        <button
+          type="button"
+          className="admin-btn-danger"
+          onClick={onBatchDelete}
+        >
+          🗑️ {tLabel('हटाएं', 'Delete')} ({count})
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // Categories Manager Component
 function CategoriesManager({ categories, onUpdate, setIsDirty }) {
   const { tLabel } = useAdminLang()
   const [editing, setEditing] = useState(null)
   const [showForm, setShowForm] = useState(false)
-  const [formData, setFormData] = useState({ name_en: '', name_display: '', content_type: 'about', sort_order: 0, is_active: true })
+  const [formData, setFormData] = useState({ name_en: '', name_display: '', content_type: 'about', sort_order: 1, is_active: true })
   const [itemsList, setItemsList] = useState(Array.isArray(categories) ? categories : [])
+  const [selectedIds, setSelectedIds] = useState([])
 
   useEffect(() => {
     if (Array.isArray(categories)) {
@@ -521,27 +605,38 @@ function CategoriesManager({ categories, onUpdate, setIsDirty }) {
     if (setIsDirty) setIsDirty(true)
   }
 
+  const toggleSelection = (id) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])
+  }
+
+  const clearSelection = () => setSelectedIds([])
+
+  const displayList = itemsList.length > 0 ? itemsList : (Array.isArray(categories) ? categories : [])
+  const singleSelectedId = selectedIds.length === 1 ? selectedIds[0] : null
+  const singleIndex = singleSelectedId ? displayList.findIndex(i => i.id === singleSelectedId) : -1
+
   const handleCreate = () => {
     setEditing(null)
-    setFormData({ name_en: '', name_display: '', content_type: 'about', sort_order: 0, is_active: true })
+    setFormData({ name_en: '', name_display: '', content_type: 'about', sort_order: 1, is_active: true })
     setShowForm(true)
   }
 
   const handleCancel = () => {
     setEditing(null)
     setShowForm(false)
-    setFormData({ name_en: '', name_display: '', content_type: 'about', sort_order: 0, is_active: true })
+    setFormData({ name_en: '', name_display: '', content_type: 'about', sort_order: 1, is_active: true })
     if (setIsDirty) setIsDirty(false)
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
+      // Rule 2: New records get sort_order = 1 (top priority)
       const dataToSave = {
         name_en: formData.name_en || '',
         name_display: formData.name_display || '',
         content_type: formData.content_type || 'about',
-        sort_order: parseInt(formData.sort_order) || 0
+        sort_order: editing ? (parseInt(formData.sort_order) || 1) : 1
       }
       
       const { error } = editing
@@ -558,7 +653,7 @@ function CategoriesManager({ categories, onUpdate, setIsDirty }) {
       onUpdate()
       setEditing(null)
       setShowForm(false)
-      setFormData({ name_en: '', name_display: '', content_type: 'about', sort_order: 0, is_active: true })
+      clearSelection()
       alert('✓ Category saved successfully!')
     } catch (err) {
       console.error('Error saving category:', err)
@@ -566,7 +661,10 @@ function CategoriesManager({ categories, onUpdate, setIsDirty }) {
     }
   }
 
-  const handleEdit = (cat) => {
+  const handleEditSelected = () => {
+    if (!singleSelectedId) return
+    const cat = displayList.find(i => i.id === singleSelectedId)
+    if (!cat) return
     setEditing(cat.id)
     setShowForm(true)
     setFormData({
@@ -575,35 +673,65 @@ function CategoriesManager({ categories, onUpdate, setIsDirty }) {
     })
   }
 
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this category?')) return
-    try {
-      await supabase.from('categories').delete().eq('id', id)
-      onUpdate()
-      alert('Deleted!')
-    } catch (err) {
-      alert('Error deleting category')
-    }
-  }
-
-  const handleMove = async (index, direction) => {
-    const targetIndex = direction === 'up' ? index - 1 : index + 1
-    if (targetIndex < 0 || targetIndex >= itemsList.length) return
-
-    const updated = [...itemsList]
-    const temp = updated[index]
-    updated[index] = updated[targetIndex]
-    updated[targetIndex] = temp
-
+  const persistReorder = async (updated) => {
     updated.forEach((item, idx) => { item.sort_order = idx + 1 })
     setItemsList(updated)
-
     try {
       for (const item of updated) {
         await supabase.from('categories').update({ sort_order: item.sort_order }).eq('id', item.id)
       }
     } catch (e) {
-      console.warn('Category resequence DB update:', e)
+      console.warn('Category resequence error:', e)
+    }
+    onUpdate()
+  }
+
+  const handleMoveTop = () => {
+    if (singleIndex <= 0) return
+    const item = displayList[singleIndex]
+    const updated = [item, ...displayList.filter((_, i) => i !== singleIndex)]
+    persistReorder(updated)
+    clearSelection()
+  }
+
+  const handleMoveUp = () => {
+    if (singleIndex <= 0) return
+    const updated = [...displayList]
+    const temp = updated[singleIndex]
+    updated[singleIndex] = updated[singleIndex - 1]
+    updated[singleIndex - 1] = temp
+    persistReorder(updated)
+  }
+
+  const handleMoveDown = () => {
+    if (singleIndex < 0 || singleIndex >= displayList.length - 1) return
+    const updated = [...displayList]
+    const temp = updated[singleIndex]
+    updated[singleIndex] = updated[singleIndex + 1]
+    updated[singleIndex + 1] = temp
+    persistReorder(updated)
+  }
+
+  const handleMoveBottom = () => {
+    if (singleIndex < 0 || singleIndex >= displayList.length - 1) return
+    const item = displayList[singleIndex]
+    const updated = [...displayList.filter((_, i) => i !== singleIndex), item]
+    persistReorder(updated)
+    clearSelection()
+  }
+
+  const handleBatchDelete = async () => {
+    if (selectedIds.length === 0) return
+    if (!confirm(tLabel(`क्या आप चयनित ${selectedIds.length} अनुभाग हटाना चाहते हैं?`, `Delete ${selectedIds.length} selected sections?`))) return
+
+    const updated = displayList.filter(i => !selectedIds.includes(i.id))
+    setItemsList(updated)
+    clearSelection()
+
+    try {
+      await supabase.from('categories').delete().in('id', selectedIds)
+    } catch (e) {
+      console.warn('Batch delete categories error:', e)
     }
     onUpdate()
   }
@@ -659,7 +787,7 @@ function CategoriesManager({ categories, onUpdate, setIsDirty }) {
                 className="admin-input"
                 type="number"
                 value={formData.sort_order}
-                onChange={(e) => updateForm({ sort_order: parseInt(e.target.value) || 0 })}
+                onChange={(e) => updateForm({ sort_order: parseInt(e.target.value) || 1 })}
               />
             </div>
             <div className="admin-form-group full-width">
@@ -685,41 +813,54 @@ function CategoriesManager({ categories, onUpdate, setIsDirty }) {
       )}
 
       <div>
-        {(() => {
-          const displayList = itemsList.length > 0 ? itemsList : (Array.isArray(categories) ? categories : [])
-          return (
-            <>
-              <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
-                {tLabel('सक्रिय अनुभाग सूची', 'Active Sections List')} ({displayList.length})
-              </h3>
-              {displayList.length === 0 ? (
-                <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई अनुभाग नहीं मिला। नया अनुभाग जोड़ने के लिए बटन दबाएं।', 'No sections found. Click button to add new section.')}</p>
-              ) : (
-                <ul className="admin-item-list">
-                  {displayList.map((cat, idx) => (
-              <li key={cat.id} className="admin-item-card">
-                <div>
-                  <div className="admin-item-title">{cat.name_display || cat.name_en}</div>
-                  <div className="admin-item-sub">Key: {cat.name_en} • {tLabel('प्रकार:', 'Type:')} {cat.content_type} • {tLabel('क्रम:', 'Order:')} {cat.sort_order || 0}</div>
-                  {cat.is_active === false ? (
-                    <span className="admin-item-badge" style={{ background: '#FFF0ED', color: '#D95343', borderColor: '#FFC4BD' }}>{tLabel('निष्क्रिय', 'Inactive')}</span>
-                  ) : (
-                    <span className="admin-item-badge" style={{ background: '#EAF8F5', color: '#2C988F', borderColor: '#B5E8E2' }}>{tLabel('सक्रिय', 'Active')}</span>
-                  )}
-                </div>
-                <div className="admin-actions-group">
-                  <button type="button" className="admin-btn-secondary" disabled={idx === 0} onClick={() => handleMove(idx, 'up')}>⬆️ {tLabel('ऊपर', 'Up')}</button>
-                  <button type="button" className="admin-btn-secondary" disabled={idx === displayList.length - 1} onClick={() => handleMove(idx, 'down')}>⬇️ {tLabel('नीचे', 'Down')}</button>
-                  <button type="button" className="admin-btn-secondary" onClick={() => handleEdit(cat)}>{tLabel('संपादित करें', 'Edit')}</button>
-                  <button type="button" className="admin-btn-danger" onClick={() => handleDelete(cat.id)}>{tLabel('हटाएं', 'Delete')}</button>
-                </div>
-              </li>
-            ))}
+        <ListContextualToolbar
+          selectedIds={selectedIds}
+          totalItems={displayList.length}
+          onClearSelection={clearSelection}
+          onEdit={handleEditSelected}
+          onMoveTop={handleMoveTop}
+          onMoveUp={handleMoveUp}
+          onMoveDown={handleMoveDown}
+          onMoveBottom={handleMoveBottom}
+          onBatchDelete={handleBatchDelete}
+          tLabel={tLabel}
+        />
+
+        <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
+          {tLabel('सक्रिय अनुभाग सूची', 'Active Sections List')} ({displayList.length})
+        </h3>
+        {displayList.length === 0 ? (
+          <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई अनुभाग नहीं मिला। नया अनुभाग जोड़ने के लिए बटन दबाएं।', 'No sections found. Click button to add new section.')}</p>
+        ) : (
+          <ul className="admin-item-list">
+            {displayList.map((cat) => {
+              const isSelected = selectedIds.includes(cat.id)
+              return (
+                <li key={cat.id} className={`admin-item-card ${isSelected ? 'selected' : ''}`}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1 }}>
+                    <input
+                      type="checkbox"
+                      className="admin-item-checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleSelection(cat.id)}
+                    />
+                    <div>
+                      <div className="admin-item-title">{cat.name_display || cat.name_en}</div>
+                      <div className="admin-item-sub">Key: {cat.name_en} • {tLabel('प्रकार:', 'Type:')} {cat.content_type} • {tLabel('क्रम:', 'Order:')} {cat.sort_order || 1}</div>
+                    </div>
+                  </div>
+                  <div className="admin-actions-group">
+                    {cat.is_active === false ? (
+                      <span className="admin-item-badge" style={{ background: '#FFF0ED', color: '#D95343', borderColor: '#FFC4BD' }}>{tLabel('निष्क्रिय', 'Inactive')}</span>
+                    ) : (
+                      <span className="admin-item-badge" style={{ background: '#EAF8F5', color: '#2C988F', borderColor: '#B5E8E2' }}>{tLabel('सक्रिय', 'Active')}</span>
+                    )}
+                  </div>
+                </li>
+              )
+            })}
           </ul>
         )}
-      </>
-    )
-  })()}
       </div>
     </div>
   )
@@ -1028,11 +1169,12 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
     image_path: '',
     image_alt: '',
     description: '',
-    sort_order: 0
+    sort_order: 1
   })
   const [uploadingImage, setUploadingImage] = useState(false)
   const [imagePreview, setImagePreview] = useState(null)
   const [itemsList, setItemsList] = useState(Array.isArray(publications) ? publications : [])
+  const [selectedIds, setSelectedIds] = useState([])
 
   useEffect(() => {
     if (Array.isArray(publications)) {
@@ -1045,31 +1187,19 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
     if (setIsDirty) setIsDirty(true)
   }
 
-  const handleMove = async (index, direction) => {
-    const targetIndex = direction === 'up' ? index - 1 : index + 1
-    if (targetIndex < 0 || targetIndex >= itemsList.length) return
-
-    const updated = [...itemsList]
-    const temp = updated[index]
-    updated[index] = updated[targetIndex]
-    updated[targetIndex] = temp
-
-    updated.forEach((item, idx) => { item.sort_order = idx + 1 })
-    setItemsList(updated)
-
-    try {
-      for (const item of updated) {
-        await supabase.from('publications').update({ sort_order: item.sort_order }).eq('id', item.id)
-      }
-    } catch (e) {
-      console.warn('Publication resequence DB update error:', e)
-    }
-    onUpdate()
+  const toggleSelection = (id) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])
   }
+
+  const clearSelection = () => setSelectedIds([])
+
+  const displayList = itemsList.length > 0 ? itemsList : (Array.isArray(publications) ? publications : [])
+  const singleSelectedId = selectedIds.length === 1 ? selectedIds[0] : null
+  const singleIndex = singleSelectedId ? displayList.findIndex(i => i.id === singleSelectedId) : -1
 
   const handleCreate = () => {
     setEditing(null)
-    setFormData({ title: '', subtitle: '', image_path: '', image_alt: '', description: '', sort_order: 0, is_active: true })
+    setFormData({ title: '', subtitle: '', image_path: '', image_alt: '', description: '', sort_order: 1, is_active: true })
     setImagePreview(null)
     setShowForm(true)
   }
@@ -1078,12 +1208,12 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
     setEditing(null)
     setShowForm(false)
     setImagePreview(null)
+    if (setIsDirty) setIsDirty(false)
   }
 
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
-
     if (!file.type.startsWith('image/')) {
       alert('Please select an image file')
       return
@@ -1107,30 +1237,28 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
+      // Rule 2: New records get sort_order = 1 (top priority index)
       const dataToSave = {
         title: formData.title || '',
         subtitle: formData.subtitle || '',
         image_path: formData.image_path || '',
         image_alt: formData.image_alt || '',
         description: formData.description || '',
-        sort_order: parseInt(formData.sort_order) || 0
+        sort_order: editing ? (parseInt(formData.sort_order) || 1) : 1
       }
       
       if (editing) {
         const { error } = await supabase.from('publications').update(dataToSave).eq('id', editing)
         if (error) {
-          console.error('Error updating publication:', error)
           alert('Error saving publication: ' + error.message)
           return
         }
       } else {
         const { data: newPub, error } = await supabase.from('publications').insert(dataToSave).select().single()
         if (error) {
-          console.error('Error inserting publication:', error)
           alert('Error saving publication: ' + error.message)
           return
         }
-        // If image was uploaded to temp folder, move it to the actual publication folder
         if (formData.image_path && formData.image_path.includes('temp-') && newPub) {
           const oldPath = formData.image_path
           const newPath = oldPath.replace(/temp-\d+/, newPub.id)
@@ -1147,23 +1275,25 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
           }
         }
       }
+
       if (setIsDirty) setIsDirty(false)
       onUpdate()
       setEditing(null)
       setShowForm(false)
-      setFormData({ title: '', subtitle: '', image_path: '', image_alt: '', description: '', sort_order: 0, is_active: true })
+      clearSelection()
       setImagePreview(null)
       alert('✓ Publication saved successfully!')
     } catch (err) {
-      console.error('Error saving publication:', err)
       alert('Error saving publication: ' + (err.message || 'Unknown error'))
     }
   }
 
-  const handleEdit = (pub) => {
+  const handleEditSelected = () => {
+    if (!singleSelectedId) return
+    const pub = displayList.find(i => i.id === singleSelectedId)
+    if (!pub) return
     setEditing(pub.id)
     setShowForm(true)
-    // Ensure is_active defaults to true if not set
     setFormData({
       ...pub,
       is_active: pub.is_active !== undefined ? pub.is_active : true
@@ -1173,15 +1303,67 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
     }
   }
 
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this publication?')) return
+  const persistReorder = async (updated) => {
+    updated.forEach((item, idx) => { item.sort_order = idx + 1 })
+    setItemsList(updated)
     try {
-      await supabase.from('publications').delete().eq('id', id)
-      onUpdate()
-      alert('Deleted!')
-    } catch (err) {
-      alert('Error deleting publication')
+      for (const item of updated) {
+        await supabase.from('publications').update({ sort_order: item.sort_order }).eq('id', item.id)
+      }
+    } catch (e) {
+      console.warn('Publication resequence error:', e)
     }
+    onUpdate()
+  }
+
+  const handleMoveTop = () => {
+    if (singleIndex <= 0) return
+    const item = displayList[singleIndex]
+    const updated = [item, ...displayList.filter((_, i) => i !== singleIndex)]
+    persistReorder(updated)
+    clearSelection()
+  }
+
+  const handleMoveUp = () => {
+    if (singleIndex <= 0) return
+    const updated = [...displayList]
+    const temp = updated[singleIndex]
+    updated[singleIndex] = updated[singleIndex - 1]
+    updated[singleIndex - 1] = temp
+    persistReorder(updated)
+  }
+
+  const handleMoveDown = () => {
+    if (singleIndex < 0 || singleIndex >= displayList.length - 1) return
+    const updated = [...displayList]
+    const temp = updated[singleIndex]
+    updated[singleIndex] = updated[singleIndex + 1]
+    updated[singleIndex + 1] = temp
+    persistReorder(updated)
+  }
+
+  const handleMoveBottom = () => {
+    if (singleIndex < 0 || singleIndex >= displayList.length - 1) return
+    const item = displayList[singleIndex]
+    const updated = [...displayList.filter((_, i) => i !== singleIndex), item]
+    persistReorder(updated)
+    clearSelection()
+  }
+
+  const handleBatchDelete = async () => {
+    if (selectedIds.length === 0) return
+    if (!confirm(tLabel(`क्या आप चयनित ${selectedIds.length} पुस्तकें हटाना चाहते हैं?`, `Delete ${selectedIds.length} selected books?`))) return
+
+    const updated = displayList.filter(i => !selectedIds.includes(i.id))
+    setItemsList(updated)
+    clearSelection()
+
+    try {
+      await supabase.from('publications').delete().in('id', selectedIds)
+    } catch (e) {
+      console.warn('Batch delete publications error:', e)
+    }
+    onUpdate()
   }
 
   return (
@@ -1203,7 +1385,7 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
               <input
                 className="admin-input"
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) => updateForm({ title: e.target.value })}
                 required
               />
             </div>
@@ -1212,7 +1394,7 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
               <input
                 className="admin-input"
                 value={formData.subtitle}
-                onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
+                onChange={(e) => updateForm({ subtitle: e.target.value })}
               />
             </div>
             <div className="admin-form-group full-width">
@@ -1246,7 +1428,7 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
               <textarea
                 className="admin-textarea"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) => updateForm({ description: e.target.value })}
               />
             </div>
             <div className="admin-form-group">
@@ -1255,7 +1437,7 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
                 className="admin-input"
                 type="number"
                 value={formData.sort_order}
-                onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })}
+                onChange={(e) => updateForm({ sort_order: parseInt(e.target.value) || 1 })}
               />
             </div>
             <div className="admin-form-group full-width">
@@ -1263,7 +1445,7 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
                 <input
                   type="checkbox"
                   checked={formData.is_active !== false}
-                  onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                  onChange={(e) => updateForm({ is_active: e.target.checked })}
                 />
                 {tLabel('वेबसाइट पर प्रकाशित रखें', 'Active on Website')}
               </label>
@@ -1273,12 +1455,7 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
             <button type="submit" className="admin-btn-primary">
               {editing ? tLabel('सहेजें', 'Update') : tLabel('प्रकाशित करें', 'Publish')}
             </button>
-            <button type="button" className="admin-btn-secondary" onClick={() => {
-              setEditing(null)
-              setShowForm(false)
-              setFormData({ title: '', subtitle: '', image_path: '', image_alt: '', description: '', sort_order: 0, is_active: true })
-              setImagePreview(null)
-            }}>
+            <button type="button" className="admin-btn-secondary" onClick={handleCancel}>
               {tLabel('रद्द करें', 'Cancel')}
             </button>
           </div>
@@ -1286,45 +1463,59 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
       )}
 
       <div>
-        {(() => {
-          const displayList = itemsList.length > 0 ? itemsList : (Array.isArray(publications) ? publications : [])
-          return (
-            <>
-              <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
-                {tLabel('प्रकाशित पुस्तकों की सूची', 'Published Books List')} ({displayList.length})
-              </h3>
-              {displayList.length === 0 ? (
-                <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई पुस्तक नहीं मिली। नई पुस्तक जोड़ने के लिए बटन दबाएं।', 'No books found. Click button to add new book.')}</p>
-              ) : (
-                <ul className="admin-item-list">
-                  {displayList.map((pub, idx) => (
-              <li key={pub.id} className="admin-item-card">
-                <div>
-                  <div className="admin-item-title">{pub.title}</div>
-                  <div className="admin-item-sub">{pub.subtitle || pub.description ? (pub.subtitle || pub.description).substring(0, 80) + '...' : ''} • {tLabel('क्रम:', 'Order:')} {pub.sort_order || 0}</div>
-                  {pub.is_active === false ? (
-                    <span className="admin-item-badge" style={{ background: '#FFF0ED', color: '#D95343', borderColor: '#FFC4BD' }}>{tLabel('अप्रकाशित', 'Draft')}</span>
-                  ) : (
-                    <span className="admin-item-badge" style={{ background: '#EAF8F5', color: '#2C988F', borderColor: '#B5E8E2' }}>{tLabel('प्रकाशित', 'Live')}</span>
-                  )}
-                </div>
-                <div className="admin-actions-group">
-                  <button type="button" className="admin-btn-secondary" disabled={idx === 0} onClick={() => handleMove(idx, 'up')}>⬆️ {tLabel('ऊपर', 'Up')}</button>
-                  <button type="button" className="admin-btn-secondary" disabled={idx === displayList.length - 1} onClick={() => handleMove(idx, 'down')}>⬇️ {tLabel('नीचे', 'Down')}</button>
-                  <button type="button" className="admin-btn-secondary" onClick={() => handleEdit(pub)}>{tLabel('संपादित करें', 'Edit')}</button>
-                  <button type="button" className="admin-btn-danger" onClick={() => handleDelete(pub.id)}>{tLabel('हटाएं', 'Delete')}</button>
-                </div>
-              </li>
-            ))}
+        <ListContextualToolbar
+          selectedIds={selectedIds}
+          totalItems={displayList.length}
+          onClearSelection={clearSelection}
+          onEdit={handleEditSelected}
+          onMoveTop={handleMoveTop}
+          onMoveUp={handleMoveUp}
+          onMoveDown={handleMoveDown}
+          onMoveBottom={handleMoveBottom}
+          onBatchDelete={handleBatchDelete}
+          tLabel={tLabel}
+        />
+
+        <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
+          {tLabel('प्रकाशित पुस्तकों की सूची', 'Published Books List')} ({displayList.length})
+        </h3>
+        {displayList.length === 0 ? (
+          <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई पुस्तक नहीं मिली। नई पुस्तक जोड़ने के लिए बटन दबाएं।', 'No books found. Click button to add new book.')}</p>
+        ) : (
+          <ul className="admin-item-list">
+            {displayList.map((pub) => {
+              const isSelected = selectedIds.includes(pub.id)
+              return (
+                <li key={pub.id} className={`admin-item-card ${isSelected ? 'selected' : ''}`}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1 }}>
+                    <input
+                      type="checkbox"
+                      className="admin-item-checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleSelection(pub.id)}
+                    />
+                    <div>
+                      <div className="admin-item-title">{pub.title}</div>
+                      <div className="admin-item-sub">{pub.subtitle || pub.description ? (pub.subtitle || pub.description).substring(0, 80) + '...' : ''} • {tLabel('क्रम:', 'Order:')} {pub.sort_order || 1}</div>
+                    </div>
+                  </div>
+                  <div className="admin-actions-group">
+                    {pub.is_active === false ? (
+                      <span className="admin-item-badge" style={{ background: '#FFF0ED', color: '#D95343', borderColor: '#FFC4BD' }}>{tLabel('अप्रकाशित', 'Draft')}</span>
+                    ) : (
+                      <span className="admin-item-badge" style={{ background: '#EAF8F5', color: '#2C988F', borderColor: '#B5E8E2' }}>{tLabel('प्रकाशित', 'Live')}</span>
+                    )}
+                  </div>
+                </li>
+              )
+            })}
           </ul>
         )}
-      </>
-    )
-  })()}
       </div>
     </div>
   )
 }
+
 
 // Poems Manager Component
 
@@ -1336,9 +1527,10 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
     heading: '',
     description: '',
     body_text: '',
-    sort_order: 0
+    sort_order: 1
   })
   const [itemsList, setItemsList] = useState(Array.isArray(poems) ? poems : [])
+  const [selectedIds, setSelectedIds] = useState([])
 
   useEffect(() => {
     if (Array.isArray(poems)) {
@@ -1351,56 +1543,44 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
     if (setIsDirty) setIsDirty(true)
   }
 
-  const handleMove = async (index, direction) => {
-    const targetIndex = direction === 'up' ? index - 1 : index + 1
-    if (targetIndex < 0 || targetIndex >= itemsList.length) return
-
-    const updated = [...itemsList]
-    const temp = updated[index]
-    updated[index] = updated[targetIndex]
-    updated[targetIndex] = temp
-
-    updated.forEach((item, idx) => { item.sort_order = idx + 1 })
-    setItemsList(updated)
-
-    try {
-      for (const item of updated) {
-        await supabase.from('poems').update({ sort_order: item.sort_order }).eq('id', item.id)
-      }
-    } catch (e) {
-      console.warn('Poem resequence DB update error:', e)
-    }
-    onUpdate()
+  const toggleSelection = (id) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])
   }
+
+  const clearSelection = () => setSelectedIds([])
+
+  const displayList = itemsList.length > 0 ? itemsList : (Array.isArray(poems) ? poems : [])
+  const singleSelectedId = selectedIds.length === 1 ? selectedIds[0] : null
+  const singleIndex = singleSelectedId ? displayList.findIndex(i => i.id === singleSelectedId) : -1
 
   const handleCreate = () => {
     setEditing(null)
-    setFormData({ heading: '', description: '', body_text: '', sort_order: 0 })
+    setFormData({ heading: '', description: '', body_text: '', sort_order: 1 })
     setShowForm(true)
   }
 
   const handleCancel = () => {
     setEditing(null)
     setShowForm(false)
+    if (setIsDirty) setIsDirty(false)
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      // Primary payload aligned with exact database schema
+      // Rule 2: New records get sort_order = 1 (top priority index)
       const dataToSave = {
         heading: formData.heading || '',
         description: formData.description || '',
         full_text: formData.body_text || '',
         language: 'mixed',
-        sort_order: parseInt(formData.sort_order) || 0
+        sort_order: editing ? (parseInt(formData.sort_order) || 1) : 1
       }
       
       let res = editing
         ? await supabase.from('poems').update(dataToSave).eq('id', editing)
         : await supabase.from('poems').insert(dataToSave)
 
-      // Fallback: If standard schema returns error, try legacy schema columns
       if (res.error) {
         console.warn('Standard poem save failed, trying legacy schema:', res.error)
         const legacyPayload = {
@@ -1409,7 +1589,7 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
           body_text_hi: formData.body_text || '',
           body_text_en: formData.body_text || '',
           description: formData.description || '',
-          sort_order: parseInt(formData.sort_order) || 0
+          sort_order: editing ? (parseInt(formData.sort_order) || 1) : 1
         }
         res = editing
           ? await supabase.from('poems').update(legacyPayload).eq('id', editing)
@@ -1417,62 +1597,113 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
       }
 
       if (res.error) {
-        console.error('Poem save failed:', res.error)
         alert((adminLang === 'en' ? 'Error saving poem: ' : 'कविता सहेजने में त्रुटि: ') + res.error.message)
         return
       }
 
-      await loadData()
+      if (setIsDirty) setIsDirty(false)
+      onUpdate()
       setEditing(null)
       setShowForm(false)
-      setFormData({ heading: '', description: '', body_text: '', sort_order: 0 })
+      clearSelection()
+      setFormData({ heading: '', description: '', body_text: '', sort_order: 1 })
       alert(adminLang === 'en' ? '✓ Poem published & saved successfully!' : '✓ रचना सफलतापूर्वक प्रकाशित की गई!')
     } catch (err) {
-      console.error('Error saving poem:', err)
       alert((adminLang === 'en' ? 'Error saving poem: ' : 'कविता सहेजने में त्रुटि: ') + (err.message || 'Unknown error'))
     }
   }
 
-  const handleEdit = (poem) => {
+  const handleEditSelected = () => {
+    if (!singleSelectedId) return
+    const poem = displayList.find(i => i.id === singleSelectedId)
+    if (!poem) return
     setEditing(poem.id)
     setShowForm(true)
     const formDataToSet = {
       heading: poem.heading || poem.heading_hi || poem.heading_en || '',
       description: poem.description || '',
       body_text: poem.full_text || poem.body_text_hi || poem.body_text_en || '',
-      sort_order: poem.sort_order || 0
+      sort_order: poem.sort_order || 1
     }
     setFormData(formDataToSet)
   }
 
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this poem?')) return
+  const persistReorder = async (updated) => {
+    updated.forEach((item, idx) => { item.sort_order = idx + 1 })
+    setItemsList(updated)
     try {
-      await supabase.from('poems').delete().eq('id', id)
-      onUpdate()
-      alert('Deleted!')
-    } catch (err) {
-      alert('Error deleting poem')
+      for (const item of updated) {
+        await supabase.from('poems').update({ sort_order: item.sort_order }).eq('id', item.id)
+      }
+    } catch (e) {
+      console.warn('Poem resequence error:', e)
     }
+    onUpdate()
+  }
+
+  const handleMoveTop = () => {
+    if (singleIndex <= 0) return
+    const item = displayList[singleIndex]
+    const updated = [item, ...displayList.filter((_, i) => i !== singleIndex)]
+    persistReorder(updated)
+    clearSelection()
+  }
+
+  const handleMoveUp = () => {
+    if (singleIndex <= 0) return
+    const updated = [...displayList]
+    const temp = updated[singleIndex]
+    updated[singleIndex] = updated[singleIndex - 1]
+    updated[singleIndex - 1] = temp
+    persistReorder(updated)
+  }
+
+  const handleMoveDown = () => {
+    if (singleIndex < 0 || singleIndex >= displayList.length - 1) return
+    const updated = [...displayList]
+    const temp = updated[singleIndex]
+    updated[singleIndex] = updated[singleIndex + 1]
+    updated[singleIndex + 1] = temp
+    persistReorder(updated)
+  }
+
+  const handleMoveBottom = () => {
+    if (singleIndex < 0 || singleIndex >= displayList.length - 1) return
+    const item = displayList[singleIndex]
+    const updated = [...displayList.filter((_, i) => i !== singleIndex), item]
+    persistReorder(updated)
+    clearSelection()
+  }
+
+  const handleBatchDelete = async () => {
+    if (selectedIds.length === 0) return
+    if (!confirm(tLabel(`क्या आप चयनित ${selectedIds.length} कविताएं हटाना चाहते हैं?`, `Delete ${selectedIds.length} selected poems?`))) return
+
+    const updated = displayList.filter(i => !selectedIds.includes(i.id))
+    setItemsList(updated)
+    clearSelection()
+
+    try {
+      await supabase.from('poems').delete().in('id', selectedIds)
+    } catch (e) {
+      console.warn('Batch delete poems error:', e)
+    }
+    onUpdate()
   }
 
   const handleDescriptionChange = (e) => {
     let val = e.target.value
     let lines = val.split('\n')
-    if (lines.length > 2) {
-      lines = lines.slice(0, 2)
-    }
+    if (lines.length > 2) lines = lines.slice(0, 2)
     lines = lines.map(line => line.substring(0, 80))
     let finalVal = lines.join('\n').substring(0, 160)
-    setFormData(prev => ({ ...prev, description: finalVal }))
+    updateForm({ description: finalVal })
   }
 
   const handleDescriptionKeyDown = (e) => {
     if (e.key === 'Enter') {
       const lines = (formData.description || '').split('\n')
-      if (lines.length >= 2) {
-        e.preventDefault()
-      }
+      if (lines.length >= 2) e.preventDefault()
     }
   }
 
@@ -1495,7 +1726,7 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
               <input
                 className="admin-input"
                 value={formData.heading || ''}
-                onChange={(e) => setFormData({ ...formData, heading: e.target.value })}
+                onChange={(e) => updateForm({ heading: e.target.value })}
                 placeholder={tLabel('जैसे: सुबह की किरण', 'e.g. Subah Ki Kiran')}
                 required
               />
@@ -1526,6 +1757,7 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
                 lang={adminLang}
                 onSave={(pagesArray, pageTitle) => {
                   const joinedText = pagesArray.join('\n\n');
+                  if (setIsDirty) setIsDirty(true);
                   setFormData(prev => ({
                     ...prev,
                     body_text: joinedText,
@@ -1539,7 +1771,7 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
               <textarea
                 className="admin-textarea"
                 value={formData.body_text || ''}
-                onChange={(e) => setFormData({ ...formData, body_text: e.target.value })}
+                onChange={(e) => updateForm({ body_text: e.target.value })}
                 required
                 style={{ minHeight: '220px', fontFamily: 'Tiro Devanagari Hindi, Lora, serif', fontSize: '1.05rem', lineHeight: '1.7' }}
               />
@@ -1550,7 +1782,7 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
                 className="admin-input"
                 type="number"
                 value={formData.sort_order}
-                onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })}
+                onChange={(e) => updateForm({ sort_order: parseInt(e.target.value) || 1 })}
               />
             </div>
           </div>
@@ -1566,40 +1798,52 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
       )}
 
       <div>
-        {(() => {
-          const displayList = itemsList.length > 0 ? itemsList : (Array.isArray(poems) ? poems : [])
-          return (
-            <>
-              <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
-                {tLabel('कुल काव्य रचनाएं', 'Total Poems Collection')} ({displayList.length})
-              </h3>
-              {displayList.length === 0 ? (
-                <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई कविता नहीं मिली। नई रचना जोड़ने के लिए बटन दबाएं।', 'No poems found. Click button to add new poem.')}</p>
-              ) : (
-                <ul className="admin-item-list">
-                  {displayList.map((poem, idx) => (
-              <li key={poem.id} className="admin-item-card">
-                <div>
-                  <div className="admin-item-title">{poem.heading || poem.heading_hi || poem.heading_en || 'Untitled'}</div>
-                  <div className="admin-item-sub">{tLabel('क्रम:', 'Order:')} {poem.sort_order || 0}</div>
-                </div>
-                <div className="admin-actions-group">
-                  <button type="button" className="admin-btn-secondary" disabled={idx === 0} onClick={() => handleMove(idx, 'up')}>⬆️ {tLabel('ऊपर', 'Up')}</button>
-                  <button type="button" className="admin-btn-secondary" disabled={idx === displayList.length - 1} onClick={() => handleMove(idx, 'down')}>⬇️ {tLabel('नीचे', 'Down')}</button>
-                  <button type="button" className="admin-btn-secondary" onClick={() => handleEdit(poem)}>{tLabel('संपादित करें', 'Edit')}</button>
-                  <button type="button" className="admin-btn-danger" onClick={() => handleDelete(poem.id)}>{tLabel('हटाएं', 'Delete')}</button>
-                </div>
-              </li>
-            ))}
+        <ListContextualToolbar
+          selectedIds={selectedIds}
+          totalItems={displayList.length}
+          onClearSelection={clearSelection}
+          onEdit={handleEditSelected}
+          onMoveTop={handleMoveTop}
+          onMoveUp={handleMoveUp}
+          onMoveDown={handleMoveDown}
+          onMoveBottom={handleMoveBottom}
+          onBatchDelete={handleBatchDelete}
+          tLabel={tLabel}
+        />
+
+        <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
+          {tLabel('कुल काव्य रचनाएं', 'Total Poems Collection')} ({displayList.length})
+        </h3>
+        {displayList.length === 0 ? (
+          <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई कविता नहीं मिली। नई रचना जोड़ने के लिए बटन दबाएं।', 'No poems found. Click button to add new poem.')}</p>
+        ) : (
+          <ul className="admin-item-list">
+            {displayList.map((poem) => {
+              const isSelected = selectedIds.includes(poem.id)
+              return (
+                <li key={poem.id} className={`admin-item-card ${isSelected ? 'selected' : ''}`}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1 }}>
+                    <input
+                      type="checkbox"
+                      className="admin-item-checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleSelection(poem.id)}
+                    />
+                    <div>
+                      <div className="admin-item-title">{poem.heading || poem.heading_hi || poem.heading_en || 'Untitled'}</div>
+                      <div className="admin-item-sub">{tLabel('क्रम:', 'Order:')} {poem.sort_order || 1}</div>
+                    </div>
+                  </div>
+                </li>
+              )
+            })}
           </ul>
         )}
-      </>
-    )
-  })()}
       </div>
     </div>
   )
 }
+
 
 // Settings Manager Component
 
@@ -1914,11 +2158,27 @@ function TimelineManager({ onUpdate, setIsDirty }) {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
-  const [formData, setFormData] = useState({ year_display: '', title: '', description: '', sort_order: 0 })
+  const [formData, setFormData] = useState({ year_display: '', title: '', description: '', sort_order: 1 })
+  const [selectedIds, setSelectedIds] = useState([])
 
   useEffect(() => {
     fetchTimeline()
   }, [])
+
+  const toggleSelection = (id) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])
+  }
+
+  const clearSelection = () => setSelectedIds([])
+
+  const displayList = items
+  const singleSelectedId = selectedIds.length === 1 ? selectedIds[0] : null
+  const singleIndex = singleSelectedId ? displayList.findIndex(i => i.id === singleSelectedId) : -1
+
+  const updateForm = (fields) => {
+    setFormData(prev => ({ ...prev, ...fields }))
+    if (setIsDirty) setIsDirty(true)
+  }
 
   const fetchTimeline = async () => {
     try {
@@ -1963,41 +2223,19 @@ function TimelineManager({ onUpdate, setIsDirty }) {
     onUpdate()
   }
 
-  const handleMove = async (index, direction) => {
-    const targetIndex = direction === 'up' ? index - 1 : index + 1
-    if (targetIndex < 0 || targetIndex >= items.length) return
-
-    const updated = [...items]
-    const temp = updated[index]
-    updated[index] = updated[targetIndex]
-    updated[targetIndex] = temp
-
-    updated.forEach((item, idx) => { item.sort_order = idx + 1 })
-    setItems(updated)
-    localStorage.setItem('app_timeline_milestones', JSON.stringify(updated))
-
-    try {
-      for (const item of updated) {
-        await supabase.from('timeline_milestones').update({ sort_order: item.sort_order }).eq('id', item.id)
-      }
-    } catch (e) {}
-    onUpdate()
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
     let updatedList = []
+    const newSortOrder = editingId ? (parseInt(formData.sort_order) || 1) : 1
+
     if (editingId && editingId !== 'new') {
       updatedList = items.map(i => i.id === editingId ? { ...i, ...formData } : i)
     } else {
-      const newItem = { id: String(Date.now()), ...formData }
-      updatedList = [...items, newItem]
+      const newItem = { id: String(Date.now()), ...formData, sort_order: newSortOrder }
+      updatedList = [newItem, ...items]
     }
 
-    // Auto sort chronologically when adding/updating
-    updatedList.sort((a, b) => parseYearNumber(a.year_display) - parseYearNumber(b.year_display))
     updatedList.forEach((item, idx) => { item.sort_order = idx + 1 })
-
     setItems(updatedList)
     localStorage.setItem('app_timeline_milestones', JSON.stringify(updatedList))
 
@@ -2005,7 +2243,7 @@ function TimelineManager({ onUpdate, setIsDirty }) {
       year_display: formData.year_display || '',
       title: formData.title || '',
       description: formData.description || '',
-      sort_order: parseInt(formData.sort_order) || 0
+      sort_order: newSortOrder
     }
 
     try {
@@ -2018,18 +2256,79 @@ function TimelineManager({ onUpdate, setIsDirty }) {
       console.warn('Timeline DB save fallback:', err)
     }
 
+    if (setIsDirty) setIsDirty(false)
     alert('✓ ' + tLabel('जीवन यात्रा सहेजी गई!', 'Timeline item saved!'))
     setShowForm(false)
+    clearSelection()
     onUpdate()
   }
 
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this timeline item?')) return
-    const updatedList = items.filter(i => i.id !== id)
+  const handleEditSelected = () => {
+    if (!singleSelectedId) return
+    const item = displayList.find(i => i.id === singleSelectedId)
+    if (!item) return
+    setEditingId(item.id)
+    setFormData(item)
+    setShowForm(true)
+  }
+
+  const persistReorder = async (updated) => {
+    updated.forEach((item, idx) => { item.sort_order = idx + 1 })
+    setItems(updated)
+    localStorage.setItem('app_timeline_milestones', JSON.stringify(updated))
+    try {
+      for (const item of updated) {
+        await supabase.from('timeline_milestones').update({ sort_order: item.sort_order }).eq('id', item.id)
+      }
+    } catch (e) {}
+    onUpdate()
+  }
+
+  const handleMoveTop = () => {
+    if (singleIndex <= 0) return
+    const item = displayList[singleIndex]
+    const updated = [item, ...displayList.filter((_, i) => i !== singleIndex)]
+    persistReorder(updated)
+    clearSelection()
+  }
+
+  const handleMoveUp = () => {
+    if (singleIndex <= 0) return
+    const updated = [...displayList]
+    const temp = updated[singleIndex]
+    updated[singleIndex] = updated[singleIndex - 1]
+    updated[singleIndex - 1] = temp
+    persistReorder(updated)
+  }
+
+  const handleMoveDown = () => {
+    if (singleIndex < 0 || singleIndex >= displayList.length - 1) return
+    const updated = [...displayList]
+    const temp = updated[singleIndex]
+    updated[singleIndex] = updated[singleIndex + 1]
+    updated[singleIndex + 1] = temp
+    persistReorder(updated)
+  }
+
+  const handleMoveBottom = () => {
+    if (singleIndex < 0 || singleIndex >= displayList.length - 1) return
+    const item = displayList[singleIndex]
+    const updated = [...displayList.filter((_, i) => i !== singleIndex), item]
+    persistReorder(updated)
+    clearSelection()
+  }
+
+  const handleBatchDelete = async () => {
+    if (selectedIds.length === 0) return
+    if (!confirm(tLabel(`क्या आप चयनित ${selectedIds.length} जीवन यात्रा आइटम हटाना चाहते हैं?`, `Delete ${selectedIds.length} selected timeline items?`))) return
+
+    const updatedList = items.filter(i => !selectedIds.includes(i.id))
     setItems(updatedList)
     localStorage.setItem('app_timeline_milestones', JSON.stringify(updatedList))
+    clearSelection()
+
     try {
-      await supabase.from('timeline_milestones').delete().eq('id', id)
+      await supabase.from('timeline_milestones').delete().in('id', selectedIds)
     } catch (e) {}
     onUpdate()
   }
@@ -2043,7 +2342,7 @@ function TimelineManager({ onUpdate, setIsDirty }) {
             🔄 {tLabel('वर्षानुसार स्वचालित क्रमबद्ध करें', 'Auto-Sort by Year')}
           </button>
           {!showForm && (
-            <button className="admin-btn-primary" onClick={() => { setEditingId(null); setFormData({ year_display: '', title: '', description: '', sort_order: items.length + 1 }); setShowForm(true); }}>
+            <button className="admin-btn-primary" onClick={() => { setEditingId(null); setFormData({ year_display: '', title: '', description: '', sort_order: 1 }); setShowForm(true); }}>
               + {tLabel('नया मील का पत्थर जोड़ें', 'Add Timeline Year')}
             </button>
           )}
@@ -2055,45 +2354,64 @@ function TimelineManager({ onUpdate, setIsDirty }) {
           <div className="admin-form-grid">
             <div className="admin-form-group">
               <label>{tLabel('वर्ष (e.g. १९४५ / 1945)', 'Year (e.g. 1945)')}</label>
-              <input className="admin-input" value={formData.year_display} onChange={e => setFormData({ ...formData, year_display: e.target.value })} required />
+              <input className="admin-input" value={formData.year_display} onChange={e => updateForm({ year_display: e.target.value })} required />
             </div>
             <div className="admin-form-group">
               <label>{tLabel('शीर्षक', 'Title')}</label>
-              <input className="admin-input" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} required />
+              <input className="admin-input" value={formData.title} onChange={e => updateForm({ title: e.target.value })} required />
             </div>
             <div className="admin-form-group full-width">
               <label>{tLabel('विवरण', 'Description')}</label>
-              <textarea className="admin-textarea" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} rows={3} required />
+              <textarea className="admin-textarea" value={formData.description} onChange={e => updateForm({ description: e.target.value })} rows={3} required />
             </div>
           </div>
           <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
             <button type="submit" className="admin-btn-primary">{tLabel('सहेजें', 'Save Timeline')}</button>
-            <button type="button" className="admin-btn-secondary" onClick={() => setShowForm(false)}>{tLabel('रद्द करें', 'Cancel')}</button>
+            <button type="button" className="admin-btn-secondary" onClick={() => { setShowForm(false); if (setIsDirty) setIsDirty(false); }}>{tLabel('रद्द करें', 'Cancel')}</button>
           </div>
         </form>
       )}
 
+      <ListContextualToolbar
+        selectedIds={selectedIds}
+        totalItems={displayList.length}
+        onClearSelection={clearSelection}
+        onEdit={handleEditSelected}
+        onMoveTop={handleMoveTop}
+        onMoveUp={handleMoveUp}
+        onMoveDown={handleMoveDown}
+        onMoveBottom={handleMoveBottom}
+        onBatchDelete={handleBatchDelete}
+        tLabel={tLabel}
+      />
+
       <ul className="admin-item-list">
-        {items.map((item, idx) => (
-          <li key={item.id} className="admin-item-card">
-            <div>
-              <div className="admin-item-title">
-                <span style={{ color: 'var(--leona-terracotta)', fontWeight: 700 }}>{item.year_display}</span> — {item.title}
+        {displayList.map((item) => {
+          const isSelected = selectedIds.includes(item.id)
+          return (
+            <li key={item.id} className={`admin-item-card ${isSelected ? 'selected' : ''}`}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1 }}>
+                <input
+                  type="checkbox"
+                  className="admin-item-checkbox"
+                  checked={isSelected}
+                  onChange={() => toggleSelection(item.id)}
+                />
+                <div>
+                  <div className="admin-item-title">
+                    <span style={{ color: 'var(--leona-terracotta)', fontWeight: 700 }}>{item.year_display}</span> — {item.title}
+                  </div>
+                  <div className="admin-item-sub">{item.description}</div>
+                </div>
               </div>
-              <div className="admin-item-sub">{item.description}</div>
-            </div>
-            <div className="admin-actions-group">
-              <button type="button" className="admin-btn-secondary" disabled={idx === 0} onClick={() => handleMove(idx, 'up')}>⬆️ {tLabel('ऊपर', 'Up')}</button>
-              <button type="button" className="admin-btn-secondary" disabled={idx === items.length - 1} onClick={() => handleMove(idx, 'down')}>⬇️ {tLabel('नीचे', 'Down')}</button>
-              <button className="admin-btn-secondary" onClick={() => { setEditingId(item.id); setFormData(item); setShowForm(true); }}>{tLabel('संपादित करें', 'Edit')}</button>
-              <button className="admin-btn-danger" onClick={() => handleDelete(item.id)}>{tLabel('हटाएं', 'Delete')}</button>
-            </div>
-          </li>
-        ))}
+            </li>
+          )
+        })}
       </ul>
     </div>
   )
 }
+
 
 // Awards Manager Component
 function AwardsManager({ onUpdate, setIsDirty }) {
@@ -2101,34 +2419,27 @@ function AwardsManager({ onUpdate, setIsDirty }) {
   const [items, setItems] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
-  const [formData, setFormData] = useState({ year_display: '', title: '', organization: '', sort_order: 0 })
-
-  const handleMove = async (index, direction) => {
-    const targetIndex = direction === 'up' ? index - 1 : index + 1
-    if (targetIndex < 0 || targetIndex >= items.length) return
-
-    const updated = [...items]
-    const temp = updated[index]
-    updated[index] = updated[targetIndex]
-    updated[targetIndex] = temp
-
-    updated.forEach((item, idx) => { item.sort_order = idx + 1 })
-    setItems(updated)
-    localStorage.setItem('app_awards_honors', JSON.stringify(updated))
-
-    try {
-      for (const item of updated) {
-        await supabase.from('awards_honors').update({ sort_order: item.sort_order }).eq('id', item.id)
-      }
-    } catch (e) {
-      console.warn('Awards resequence DB update error:', e)
-    }
-    onUpdate()
-  }
+  const [formData, setFormData] = useState({ year_display: '', title: '', organization: '', sort_order: 1 })
+  const [selectedIds, setSelectedIds] = useState([])
 
   useEffect(() => {
     fetchAwards()
   }, [])
+
+  const toggleSelection = (id) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])
+  }
+
+  const clearSelection = () => setSelectedIds([])
+
+  const displayList = items
+  const singleSelectedId = selectedIds.length === 1 ? selectedIds[0] : null
+  const singleIndex = singleSelectedId ? displayList.findIndex(i => i.id === singleSelectedId) : -1
+
+  const updateForm = (fields) => {
+    setFormData(prev => ({ ...prev, ...fields }))
+    if (setIsDirty) setIsDirty(true)
+  }
 
   const fetchAwards = async () => {
     try {
@@ -2158,12 +2469,16 @@ function AwardsManager({ onUpdate, setIsDirty }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     let updatedList = []
+    const newSortOrder = editingId ? (parseInt(formData.sort_order) || 1) : 1
+
     if (editingId && editingId !== 'new') {
       updatedList = items.map(i => i.id === editingId ? { ...i, ...formData } : i)
     } else {
-      const newItem = { id: String(Date.now()), ...formData }
-      updatedList = [...items, newItem]
+      const newItem = { id: String(Date.now()), ...formData, sort_order: newSortOrder }
+      updatedList = [newItem, ...items]
     }
+
+    updatedList.forEach((item, idx) => { item.sort_order = idx + 1 })
     setItems(updatedList)
     localStorage.setItem('app_awards_honors', JSON.stringify(updatedList))
 
@@ -2171,7 +2486,7 @@ function AwardsManager({ onUpdate, setIsDirty }) {
       year_display: formData.year_display || '',
       title: formData.title || '',
       organization: formData.organization || '',
-      sort_order: parseInt(formData.sort_order) || 0
+      sort_order: newSortOrder
     }
 
     try {
@@ -2184,18 +2499,79 @@ function AwardsManager({ onUpdate, setIsDirty }) {
       console.warn('Awards DB save fallback:', err)
     }
 
+    if (setIsDirty) setIsDirty(false)
     alert('✓ ' + tLabel('पुरस्कार सहेजा गया!', 'Award saved!'))
     setShowForm(false)
+    clearSelection()
     onUpdate()
   }
 
-  const handleDelete = async (id) => {
-    if (!confirm('Delete award?')) return
-    const updatedList = items.filter(i => i.id !== id)
+  const handleEditSelected = () => {
+    if (!singleSelectedId) return
+    const item = displayList.find(i => i.id === singleSelectedId)
+    if (!item) return
+    setEditingId(item.id)
+    setFormData(item)
+    setShowForm(true)
+  }
+
+  const persistReorder = async (updated) => {
+    updated.forEach((item, idx) => { item.sort_order = idx + 1 })
+    setItems(updated)
+    localStorage.setItem('app_awards_honors', JSON.stringify(updated))
+    try {
+      for (const item of updated) {
+        await supabase.from('awards_honors').update({ sort_order: item.sort_order }).eq('id', item.id)
+      }
+    } catch (e) {}
+    onUpdate()
+  }
+
+  const handleMoveTop = () => {
+    if (singleIndex <= 0) return
+    const item = displayList[singleIndex]
+    const updated = [item, ...displayList.filter((_, i) => i !== singleIndex)]
+    persistReorder(updated)
+    clearSelection()
+  }
+
+  const handleMoveUp = () => {
+    if (singleIndex <= 0) return
+    const updated = [...displayList]
+    const temp = updated[singleIndex]
+    updated[singleIndex] = updated[singleIndex - 1]
+    updated[singleIndex - 1] = temp
+    persistReorder(updated)
+  }
+
+  const handleMoveDown = () => {
+    if (singleIndex < 0 || singleIndex >= displayList.length - 1) return
+    const updated = [...displayList]
+    const temp = updated[singleIndex]
+    updated[singleIndex] = updated[singleIndex + 1]
+    updated[singleIndex + 1] = temp
+    persistReorder(updated)
+  }
+
+  const handleMoveBottom = () => {
+    if (singleIndex < 0 || singleIndex >= displayList.length - 1) return
+    const item = displayList[singleIndex]
+    const updated = [...displayList.filter((_, i) => i !== singleIndex), item]
+    persistReorder(updated)
+    clearSelection()
+  }
+
+  const handleBatchDelete = async () => {
+    if (selectedIds.length === 0) return
+    if (!confirm(tLabel(`क्या आप चयनित ${selectedIds.length} पुरस्कार हटाना चाहते हैं?`, `Delete ${selectedIds.length} selected awards?`))) return
+
+    const updatedList = items.filter(i => !selectedIds.includes(i.id))
     setItems(updatedList)
     localStorage.setItem('app_awards_honors', JSON.stringify(updatedList))
+    clearSelection()
+
     try {
-      await supabase.from('awards_honors').delete().eq('id', id)
+      await supabase.from('awards_honors').delete().in('id', selectedIds)
     } catch (e) {}
     onUpdate()
   }
@@ -2205,7 +2581,7 @@ function AwardsManager({ onUpdate, setIsDirty }) {
       <div className="admin-panel-header">
         <h2 className="admin-panel-title">🏆 {tLabel('पुरस्कार एवं सम्मान', 'Awards & Honors')}</h2>
         {!showForm && (
-          <button className="admin-btn-primary" onClick={() => { setEditingId(null); setFormData({ year_display: '', title: '', organization: '', sort_order: items.length + 1 }); setShowForm(true); }}>
+          <button className="admin-btn-primary" onClick={() => { setEditingId(null); setFormData({ year_display: '', title: '', organization: '', sort_order: 1 }); setShowForm(true); }}>
             + {tLabel('नया सम्मान जोड़ें', 'Add Award')}
           </button>
         )}
@@ -2216,45 +2592,63 @@ function AwardsManager({ onUpdate, setIsDirty }) {
           <div className="admin-form-grid">
             <div className="admin-form-group">
               <label>{tLabel('वर्ष (e.g. १९९५ / 1995)', 'Year (e.g. 1995)')}</label>
-              <input className="admin-input" value={formData.year_display} onChange={e => setFormData({ ...formData, year_display: e.target.value })} required />
+              <input className="admin-input" value={formData.year_display} onChange={e => updateForm({ year_display: e.target.value })} required />
             </div>
             <div className="admin-form-group">
               <label>{tLabel('सम्मान का नाम', 'Award Title')}</label>
-              <input className="admin-input" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} required />
+              <input className="admin-input" value={formData.title} onChange={e => updateForm({ title: e.target.value })} required />
             </div>
             <div className="admin-form-group full-width">
               <label>{tLabel('संस्था / आयोजक', 'Organization')}</label>
-              <input className="admin-input" value={formData.organization} onChange={e => setFormData({ ...formData, organization: e.target.value })} required />
+              <input className="admin-input" value={formData.organization} onChange={e => updateForm({ organization: e.target.value })} required />
             </div>
           </div>
           <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
             <button type="submit" className="admin-btn-primary">{tLabel('सहेजें', 'Save Award')}</button>
-            <button type="button" className="admin-btn-secondary" onClick={() => setShowForm(false)}>{tLabel('रद्द करें', 'Cancel')}</button>
+            <button type="button" className="admin-btn-secondary" onClick={() => { setShowForm(false); if (setIsDirty) setIsDirty(false); }}>{tLabel('रद्द करें', 'Cancel')}</button>
           </div>
         </form>
       )}
 
+      <ListContextualToolbar
+        selectedIds={selectedIds}
+        totalItems={displayList.length}
+        onClearSelection={clearSelection}
+        onEdit={handleEditSelected}
+        onMoveTop={handleMoveTop}
+        onMoveUp={handleMoveUp}
+        onMoveDown={handleMoveDown}
+        onMoveBottom={handleMoveBottom}
+        onBatchDelete={handleBatchDelete}
+        tLabel={tLabel}
+      />
+
       <ul className="admin-item-list">
-        {items.map(item => (
-          <li key={item.id} className="admin-item-card">
-            <div>
-              <div className="admin-item-title"><span style={{ color: 'var(--leona-terracotta)', fontWeight: 700 }}>{item.year_display}</span> — {item.title}</div>
-              <div className="admin-item-sub">{tLabel('संस्था:', 'Org:')} {item.organization}</div>
-            </div>
-            <div className="admin-actions-group">
-              <button type="button" className="admin-btn-secondary" disabled={idx === 0} onClick={() => handleMove(idx, 'up')}>⬆️ {tLabel('ऊपर', 'Up')}</button>
-              <button type="button" className="admin-btn-secondary" disabled={idx === items.length - 1} onClick={() => handleMove(idx, 'down')}>⬇️ {tLabel('नीचे', 'Down')}</button>
-              <button type="button" className="admin-btn-secondary" onClick={() => { setEditingId(item.id); setFormData(item); setShowForm(true); }}>{tLabel('संपादित करें', 'Edit')}</button>
-              <button type="button" className="admin-btn-danger" onClick={() => handleDelete(item.id)}>{tLabel('हटाएं', 'Delete')}</button>
-            </div>
-          </li>
-        ))}
+        {displayList.map(item => {
+          const isSelected = selectedIds.includes(item.id)
+          return (
+            <li key={item.id} className={`admin-item-card ${isSelected ? 'selected' : ''}`}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1 }}>
+                <input
+                  type="checkbox"
+                  className="admin-item-checkbox"
+                  checked={isSelected}
+                  onChange={() => toggleSelection(item.id)}
+                />
+                <div>
+                  <div className="admin-item-title"><span style={{ color: 'var(--leona-terracotta)', fontWeight: 700 }}>{item.year_display}</span> — {item.title}</div>
+                  <div className="admin-item-sub">{tLabel('संस्था:', 'Org:')} {item.organization}</div>
+                </div>
+              </div>
+            </li>
+          )
+        })}
       </ul>
     </div>
   )
 }
 
-// Contact Inbox Manager Component
+
 function InboxManager({ onUpdate }) {
   const { tLabel } = useAdminLang()
   const [messages, setMessages] = useState([])
