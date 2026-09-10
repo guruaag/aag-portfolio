@@ -22,6 +22,7 @@ function AdminDashboard({ tab }) {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState(tab || 'categories')
   const [loading, setLoading] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
   const [adminLang, setAdminLangState] = useState(() => localStorage.getItem('siteLanguage') || (i18n.language === 'en' ? 'en' : 'hi'))
 
   useEffect(() => {
@@ -66,6 +67,7 @@ function AdminDashboard({ tab }) {
 
   const switchTab = (newTab, routePath) => {
     setActiveTab(newTab)
+    setMobileOpen(false)
     if (routePath) {
       navigate(routePath)
     }
@@ -174,15 +176,30 @@ function AdminDashboard({ tab }) {
     <AdminLangContext.Provider value={{ adminLang, setAdminLang: setAdminLangState, toggleAdminLang, tLabel }}>
       <div className="admin-layout">
         
+        {/* Mobile Top Navigation Bar (<768px) */}
+        <div className="admin-mobile-topbar">
+          <button className="admin-hamburger-btn" onClick={() => setMobileOpen(!mobileOpen)}>
+            ☰ {tLabel('नेविगेशन', 'Menu')}
+          </button>
+          <span className="admin-mobile-title">
+            📜 {tLabel("एडमिन पैनल", "Admin Panel")}
+          </span>
+        </div>
+
+        {/* Mobile Backdrop Overlay */}
+        {mobileOpen && (
+          <div className="admin-drawer-overlay" onClick={() => setMobileOpen(false)} />
+        )}
+
         {/* Phase 1 Persistent Sidebar */}
-        <aside className="admin-sidebar">
+        <aside className={`admin-sidebar ${mobileOpen ? 'open' : ''}`}>
           <div className="admin-sidebar-top">
             <div className="admin-sidebar-brand">
               <span>📜</span>
               <span>{tLabel("कवि गुरुप्रताप शर्मा 'आग'", "Gurupratap Sharma 'Aag'")}</span>
             </div>
             
-            <Link to="/" className="admin-back-btn">
+            <Link to="/" className="admin-back-btn" onClick={() => setMobileOpen(false)}>
               ← {tLabel('मुख्य साइट पर जाएं', 'Back to Main Site')}
             </Link>
 
