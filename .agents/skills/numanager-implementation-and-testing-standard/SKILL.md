@@ -62,10 +62,19 @@ Whenever this skill is triggered, immediately ask the user to select one of the 
 - **Clean Two-Column Grid Shell**:
   - Fixed `260px` Left Sidebar + flexible main canvas area (`100vh`).
   - Strip public website headers (`<Header />`) from all `/admin/*` administrative routes.
+- **High-Contrast Dark Sidebar Color Tokens**:
+  - Links and buttons inside `.admin-sidebar` must explicitly override inherited body text colors with high-contrast light colors (`#e5e5e5` / `#ffffff`) against the dark `#1E1B18` background.
+- **Nested Sub-Category Navigation Tree**:
+  - Place sub-category links (`.admin-sub-nav` & `.admin-sub-tab-btn`) directly within the primary Left Sidebar tree beneath their parent section rather than rendering duplicate horizontal pill tab rows across the top of main canvas workspace panels.
+- **Responsive Mobile Drawer**:
+  - Screen sizes `< 768px` must convert the 260px sidebar into a sliding drawer (`transform: translateX(-100%)` to `translateX(0)`), toggled via a mobile topbar hamburger button with a translucent backdrop overlay (`.admin-drawer-overlay`).
+  - Navigating to any tab in the mobile drawer must auto-close the drawer state (`setMobileOpen(false)`).
 - **Unsaved Changes Guard**:
   - Display custom bilingual modal ("Discard Changes / परिवर्तन छोड़ें" vs "Keep Editing / संपादन जारी रखें") before client-side navigation when `isDirty` is true.
   - Reset `isDirty` to `false` on form submit, cancel, or module unmount.
 
-### 6. Verification Protocol
+### 6. Verification & Multibyte Code Editing Protocol
+- **Multibyte UTF-8 Code Integrity**:
+  - When editing files containing Hindi/Devanagari text, avoid truncating multibyte character sequences.
 - **Mandatory Build Check**:
   - Always execute `npm run build` before declaring completion. Code changes are never considered complete until `npm run build` succeeds with 0 compilation errors.
