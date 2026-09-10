@@ -272,9 +272,9 @@ function AdminDashboard({ tab }) {
               <span>{tLabel("कवि गुरुप्रताप शर्मा 'आग'", "Gurupratap Sharma 'Aag'")}</span>
             </div>
             
-            <Link to="/" className="admin-back-btn" onClick={() => setMobileOpen(false)}>
+            <button type="button" className="admin-back-btn" style={{ border: 'none', background: 'transparent', cursor: 'pointer', textAlign: 'left', width: '100%' }} onClick={() => switchTab(null, '/')}>
               ← {tLabel('मुख्य साइट पर जाएं', 'Back to Main Site')}
-            </Link>
+            </button>
 
             {/* Navigation Tabs Bar in Sidebar */}
             <div className="admin-sidebar-nav" style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '12px' }}>
@@ -474,11 +474,23 @@ function AdminDashboard({ tab }) {
 }
 
 // Categories Manager Component
-function CategoriesManager({ categories, onUpdate }) {
+function CategoriesManager({ categories, onUpdate, setIsDirty }) {
   const { tLabel } = useAdminLang()
   const [editing, setEditing] = useState(null)
   const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState({ name_en: '', name_display: '', content_type: 'about', sort_order: 0, is_active: true })
+  const [itemsList, setItemsList] = useState(Array.isArray(categories) ? categories : [])
+
+  useEffect(() => {
+    if (Array.isArray(categories)) {
+      setItemsList(categories)
+    }
+  }, [categories])
+
+  const updateForm = (fields) => {
+    setFormData(prev => ({ ...prev, ...fields }))
+    if (setIsDirty) setIsDirty(true)
+  }
 
   const handleCreate = () => {
     setEditing(null)
@@ -490,6 +502,7 @@ function CategoriesManager({ categories, onUpdate }) {
     setEditing(null)
     setShowForm(false)
     setFormData({ name_en: '', name_display: '', content_type: 'about', sort_order: 0, is_active: true })
+    if (setIsDirty) setIsDirty(false)
   }
 
   const handleSubmit = async (e) => {
@@ -512,6 +525,7 @@ function CategoriesManager({ categories, onUpdate }) {
         return
       }
 
+      if (setIsDirty) setIsDirty(false)
       onUpdate()
       setEditing(null)
       setShowForm(false)
@@ -526,7 +540,6 @@ function CategoriesManager({ categories, onUpdate }) {
   const handleEdit = (cat) => {
     setEditing(cat.id)
     setShowForm(true)
-    // Ensure is_active defaults to true if not set
     setFormData({
       ...cat,
       is_active: cat.is_active !== undefined ? cat.is_active : true
@@ -544,15 +557,26 @@ function CategoriesManager({ categories, onUpdate }) {
     }
   }
 
-  // Get content type display name
-  const getContentTypeDisplay = (contentType) => {
-    const typeMap = {
-      'about': 'image + text',
-      'publications': 'cover page',
-      'writings': 'poems',
-      'hero': 'Hero Section'
+  const handleMove = async (index, direction) => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1
+    if (targetIndex < 0 || targetIndex >= itemsList.length) return
+
+    const updated = [...itemsList]
+    const temp = updated[index]
+    updated[index] = updated[targetIndex]
+    updated[targetIndex] = temp
+
+    updated.forEach((item, idx) => { item.sort_order = idx + 1 })
+    setItemsList(updated)
+
+    try {
+      for (const item of updated) {
+        await supabase.from('categories').update({ sort_order: item.sort_order }).eq('id', item.id)
+      }
+    } catch (e) {
+      console.warn('Category resequence DB update:', e)
     }
-    return typeMap[contentType] || contentType
+    onUpdate()
   }
 
   return (
@@ -574,7 +598,7 @@ function CategoriesManager({ categories, onUpdate }) {
               <input
                 className="admin-input"
                 value={formData.name_en}
-                onChange={(e) => setFormData({ ...formData, name_en: e.target.value })}
+                onChange={(e) => updateForm({ name_en: e.target.value })}
                 required
               />
             </div>
@@ -583,7 +607,7 @@ function CategoriesManager({ categories, onUpdate }) {
               <input
                 className="admin-input"
                 value={formData.name_display}
-                onChange={(e) => setFormData({ ...formData, name_display: e.target.value })}
+                onChange={(e) => updateForm({ name_display: e.target.value })}
               />
             </div>
             <div className="admin-form-group">
@@ -591,7 +615,7 @@ function CategoriesManager({ categories, onUpdate }) {
               <select
                 className="admin-select"
                 value={formData.content_type}
-                onChange={(e) => setFormData({ ...formData, content_type: e.target.value })}
+                onChange={(e) => updateForm({ content_type: e.target.value })}
                 required
               >
                 <option value="about">{tLabel('कवि परिचय', 'About')}</option>
@@ -606,7 +630,7 @@ function CategoriesManager({ categories, onUpdate }) {
                 className="admin-input"
                 type="number"
                 value={formData.sort_order}
-                onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })}
+                onChange={(e) => updateForm({ sort_order: parseInt(e.target.value) || 0 })}
               />
             </div>
             <div className="admin-form-group full-width">
@@ -614,7 +638,7 @@ function CategoriesManager({ categories, onUpdate }) {
                 <input
                   type="checkbox"
                   checked={formData.is_active !== false}
-                  onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                  onChange={(e) => updateForm({ is_active: e.target.checked })}
                 />
                 {tLabel('वेबसाइट पर सक्रिय रखें', 'Active on Website')}
               </label>
@@ -632,18 +656,14 @@ function CategoriesManager({ categories, onUpdate }) {
       )}
 
       <div>
-        {(() => {
-          const safeCats = Array.isArray(categories) ? categories : []
-          return (
-            <>
-              <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
-                {tLabel('सक्रिय अनुभाग सूची', 'Active Sections List')} ({safeCats.length})
-              </h3>
-              {safeCats.length === 0 ? (
-                <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई अनुभाग नहीं मिला। नया अनुभाग जोड़ने के लिए बटन दबाएं।', 'No sections found. Click button to add new section.')}</p>
-              ) : (
-                <ul className="admin-item-list">
-                  {safeCats.map((cat) => (
+        <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
+          {tLabel('सक्रिय अनुभाग सूची', 'Active Sections List')} ({itemsList.length})
+        </h3>
+        {itemsList.length === 0 ? (
+          <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई अनुभाग नहीं मिला। नया अनुभाग जोड़ने के लिए बटन दबाएं।', 'No sections found. Click button to add new section.')}</p>
+        ) : (
+          <ul className="admin-item-list">
+            {itemsList.map((cat, idx) => (
               <li key={cat.id} className="admin-item-card">
                 <div>
                   <div className="admin-item-title">{cat.name_display || cat.name_en}</div>
@@ -655,6 +675,8 @@ function CategoriesManager({ categories, onUpdate }) {
                   )}
                 </div>
                 <div className="admin-actions-group">
+                  <button type="button" className="admin-btn-secondary" disabled={idx === 0} onClick={() => handleMove(idx, 'up')}>⬆️ {tLabel('ऊपर', 'Up')}</button>
+                  <button type="button" className="admin-btn-secondary" disabled={idx === itemsList.length - 1} onClick={() => handleMove(idx, 'down')}>⬇️ {tLabel('नीचे', 'Down')}</button>
                   <button type="button" className="admin-btn-secondary" onClick={() => handleEdit(cat)}>{tLabel('संपादित करें', 'Edit')}</button>
                   <button type="button" className="admin-btn-danger" onClick={() => handleDelete(cat.id)}>{tLabel('हटाएं', 'Delete')}</button>
                 </div>
@@ -662,9 +684,6 @@ function CategoriesManager({ categories, onUpdate }) {
             ))}
           </ul>
         )}
-      </>
-    )
-  })()}
       </div>
     </div>
   )
@@ -685,7 +704,7 @@ function HomeManager({ publications, about, settings, onUpdate }) {
 }
 
 // 2. Contact Section Manager Component (Contact Details + Inbox)
-function ContactSectionManager({ settings, initialSubTab, onUpdate }) {
+function ContactSectionManager({ settings, initialSubTab, onUpdate, setIsDirty }) {
   const { tLabel } = useAdminLang()
   const [subTab, setSubTab] = useState(initialSubTab || 'info') // 'info' | 'inbox'
 
@@ -703,7 +722,7 @@ function ContactSectionManager({ settings, initialSubTab, onUpdate }) {
   )
 }
 
-function AboutManager({ about, initialSubTab, onUpdate }) {
+function AboutManager({ about, initialSubTab, onUpdate, setIsDirty }) {
   const { tLabel } = useAdminLang()
   const [subTab, setSubTab] = useState(initialSubTab || 'bio') // 'bio' | 'timeline' | 'awards'
 
@@ -977,6 +996,40 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
   })
   const [uploadingImage, setUploadingImage] = useState(false)
   const [imagePreview, setImagePreview] = useState(null)
+  const [itemsList, setItemsList] = useState(Array.isArray(publications) ? publications : [])
+
+  useEffect(() => {
+    if (Array.isArray(publications)) {
+      setItemsList(publications)
+    }
+  }, [publications])
+
+  const updateForm = (fields) => {
+    setFormData(prev => ({ ...prev, ...fields }))
+    if (setIsDirty) setIsDirty(true)
+  }
+
+  const handleMove = async (index, direction) => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1
+    if (targetIndex < 0 || targetIndex >= itemsList.length) return
+
+    const updated = [...itemsList]
+    const temp = updated[index]
+    updated[index] = updated[targetIndex]
+    updated[targetIndex] = temp
+
+    updated.forEach((item, idx) => { item.sort_order = idx + 1 })
+    setItemsList(updated)
+
+    try {
+      for (const item of updated) {
+        await supabase.from('publications').update({ sort_order: item.sort_order }).eq('id', item.id)
+      }
+    } catch (e) {
+      console.warn('Publication resequence DB update error:', e)
+    }
+    onUpdate()
+  }
 
   const handleCreate = () => {
     setEditing(null)
@@ -1058,6 +1111,7 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
           }
         }
       }
+      if (setIsDirty) setIsDirty(false)
       onUpdate()
       setEditing(null)
       setShowForm(false)
@@ -1207,7 +1261,7 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
                 <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई पुस्तक नहीं मिली। नई पुस्तक जोड़ने के लिए बटन दबाएं।', 'No books found. Click button to add new book.')}</p>
               ) : (
                 <ul className="admin-item-list">
-                  {safePubs.map((pub) => (
+                  {itemsList.map((pub, idx) => (
               <li key={pub.id} className="admin-item-card">
                 <div>
                   <div className="admin-item-title">{pub.title}</div>
@@ -1219,6 +1273,8 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
                   )}
                 </div>
                 <div className="admin-actions-group">
+                  <button type="button" className="admin-btn-secondary" disabled={idx === 0} onClick={() => handleMove(idx, 'up')}>⬆️ {tLabel('ऊपर', 'Up')}</button>
+                  <button type="button" className="admin-btn-secondary" disabled={idx === itemsList.length - 1} onClick={() => handleMove(idx, 'down')}>⬇️ {tLabel('नीचे', 'Down')}</button>
                   <button type="button" className="admin-btn-secondary" onClick={() => handleEdit(pub)}>{tLabel('संपादित करें', 'Edit')}</button>
                   <button type="button" className="admin-btn-danger" onClick={() => handleDelete(pub.id)}>{tLabel('हटाएं', 'Delete')}</button>
                 </div>
@@ -1246,6 +1302,40 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
     body_text: '',
     sort_order: 0
   })
+  const [itemsList, setItemsList] = useState(Array.isArray(poems) ? poems : [])
+
+  useEffect(() => {
+    if (Array.isArray(poems)) {
+      setItemsList(poems)
+    }
+  }, [poems])
+
+  const updateForm = (fields) => {
+    setFormData(prev => ({ ...prev, ...fields }))
+    if (setIsDirty) setIsDirty(true)
+  }
+
+  const handleMove = async (index, direction) => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1
+    if (targetIndex < 0 || targetIndex >= itemsList.length) return
+
+    const updated = [...itemsList]
+    const temp = updated[index]
+    updated[index] = updated[targetIndex]
+    updated[targetIndex] = temp
+
+    updated.forEach((item, idx) => { item.sort_order = idx + 1 })
+    setItemsList(updated)
+
+    try {
+      for (const item of updated) {
+        await supabase.from('poems').update({ sort_order: item.sort_order }).eq('id', item.id)
+      }
+    } catch (e) {
+      console.warn('Poem resequence DB update error:', e)
+    }
+    onUpdate()
+  }
 
   const handleCreate = () => {
     setEditing(null)
@@ -1451,13 +1541,15 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
                 <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई कविता नहीं मिली। नई रचना जोड़ने के लिए बटन दबाएं।', 'No poems found. Click button to add new poem.')}</p>
               ) : (
                 <ul className="admin-item-list">
-                  {safePoems.map((poem) => (
+                  {itemsList.map((poem, idx) => (
               <li key={poem.id} className="admin-item-card">
                 <div>
                   <div className="admin-item-title">{poem.heading || poem.heading_hi || poem.heading_en || 'Untitled'}</div>
                   <div className="admin-item-sub">{tLabel('क्रम:', 'Order:')} {poem.sort_order || 0}</div>
                 </div>
                 <div className="admin-actions-group">
+                  <button type="button" className="admin-btn-secondary" disabled={idx === 0} onClick={() => handleMove(idx, 'up')}>⬆️ {tLabel('ऊपर', 'Up')}</button>
+                  <button type="button" className="admin-btn-secondary" disabled={idx === itemsList.length - 1} onClick={() => handleMove(idx, 'down')}>⬇️ {tLabel('नीचे', 'Down')}</button>
                   <button type="button" className="admin-btn-secondary" onClick={() => handleEdit(poem)}>{tLabel('संपादित करें', 'Edit')}</button>
                   <button type="button" className="admin-btn-danger" onClick={() => handleDelete(poem.id)}>{tLabel('हटाएं', 'Delete')}</button>
                 </div>
@@ -1780,7 +1872,7 @@ function parseYearNumber(yearStr) {
 
 // Timeline Manager Component
 
-function TimelineManager({ onUpdate }) {
+function TimelineManager({ onUpdate, setIsDirty }) {
   const { tLabel } = useAdminLang()
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
@@ -1955,8 +2047,8 @@ function TimelineManager({ onUpdate }) {
               <div className="admin-item-sub">{item.description}</div>
             </div>
             <div className="admin-actions-group">
-              <button type="button" className="admin-btn-secondary" disabled={idx === 0} onClick={() => handleMove(idx, 'up')}>{tLabel('▲ ऊपर', '▲ Up')}</button>
-              <button type="button" className="admin-btn-secondary" disabled={idx === items.length - 1} onClick={() => handleMove(idx, 'down')}>{tLabel('▼ नीचे', '▼ Down')}</button>
+              <button type="button" className="admin-btn-secondary" disabled={idx === 0} onClick={() => handleMove(idx, 'up')}>⬆️ {tLabel('ऊपर', 'Up')}</button>
+              <button type="button" className="admin-btn-secondary" disabled={idx === items.length - 1} onClick={() => handleMove(idx, 'down')}>⬇️ {tLabel('नीचे', 'Down')}</button>
               <button className="admin-btn-secondary" onClick={() => { setEditingId(item.id); setFormData(item); setShowForm(true); }}>{tLabel('संपादित करें', 'Edit')}</button>
               <button className="admin-btn-danger" onClick={() => handleDelete(item.id)}>{tLabel('हटाएं', 'Delete')}</button>
             </div>
@@ -1968,12 +2060,35 @@ function TimelineManager({ onUpdate }) {
 }
 
 // Awards Manager Component
-function AwardsManager({ onUpdate }) {
+function AwardsManager({ onUpdate, setIsDirty }) {
   const { tLabel } = useAdminLang()
   const [items, setItems] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [formData, setFormData] = useState({ year_display: '', title: '', organization: '', sort_order: 0 })
+
+  const handleMove = async (index, direction) => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1
+    if (targetIndex < 0 || targetIndex >= items.length) return
+
+    const updated = [...items]
+    const temp = updated[index]
+    updated[index] = updated[targetIndex]
+    updated[targetIndex] = temp
+
+    updated.forEach((item, idx) => { item.sort_order = idx + 1 })
+    setItems(updated)
+    localStorage.setItem('app_awards_honors', JSON.stringify(updated))
+
+    try {
+      for (const item of updated) {
+        await supabase.from('awards_honors').update({ sort_order: item.sort_order }).eq('id', item.id)
+      }
+    } catch (e) {
+      console.warn('Awards resequence DB update error:', e)
+    }
+    onUpdate()
+  }
 
   useEffect(() => {
     fetchAwards()
@@ -2091,8 +2206,10 @@ function AwardsManager({ onUpdate }) {
               <div className="admin-item-sub">{tLabel('संस्था:', 'Org:')} {item.organization}</div>
             </div>
             <div className="admin-actions-group">
-              <button className="admin-btn-secondary" onClick={() => { setEditingId(item.id); setFormData(item); setShowForm(true); }}>{tLabel('संपादित करें', 'Edit')}</button>
-              <button className="admin-btn-danger" onClick={() => handleDelete(item.id)}>{tLabel('हटाएं', 'Delete')}</button>
+              <button type="button" className="admin-btn-secondary" disabled={idx === 0} onClick={() => handleMove(idx, 'up')}>⬆️ {tLabel('ऊपर', 'Up')}</button>
+              <button type="button" className="admin-btn-secondary" disabled={idx === items.length - 1} onClick={() => handleMove(idx, 'down')}>⬇️ {tLabel('नीचे', 'Down')}</button>
+              <button type="button" className="admin-btn-secondary" onClick={() => { setEditingId(item.id); setFormData(item); setShowForm(true); }}>{tLabel('संपादित करें', 'Edit')}</button>
+              <button type="button" className="admin-btn-danger" onClick={() => handleDelete(item.id)}>{tLabel('हटाएं', 'Delete')}</button>
             </div>
           </li>
         ))}
