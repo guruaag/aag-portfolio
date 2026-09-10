@@ -16,23 +16,95 @@
   --font-hindi: 'Tiro Devanagari Hindi', 'Noto Serif Devanagari', serif;
 }
 
-.admin-dashboard-container {
-  min-height: 100vh;
+/* Phase 1 Layout Shell & Two-Column Grid */
+.admin-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  grid-template-rows: 1fr;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
   background-color: var(--leona-ivory, #FAF7F2);
   color: var(--leona-charcoal, #1E1B18);
   font-family: var(--font-serif);
-  padding-bottom: 60px;
 }
 
-.admin-header-bar {
+.admin-sidebar {
+  grid-column: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
   background: var(--leona-charcoal, #1E1B18);
   color: var(--leona-ivory, #FAF7F2);
-  padding: 16px 32px;
+  border-right: 2px solid var(--leona-gold, #D4AF37);
+  box-sizing: border-box;
+  padding: 20px 16px;
+  z-index: 90;
+}
+
+.admin-sidebar-top {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.admin-sidebar-brand {
+  display: flex;
   align-items: center;
-  border-bottom: 3px solid var(--leona-gold, #D4AF37);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  gap: 10px;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--leona-ivory, #FAF7F2);
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(226, 215, 197, 0.2);
+}
+
+.admin-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--leona-ivory, #FAF7F2);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-back-btn:hover {
+  background: rgba(246, 110, 94, 0.2);
+  border-color: var(--leona-terracotta);
+  color: #FFF;
+}
+
+.admin-sidebar-bottom {
+  padding-top: 16px;
+  border-top: 1px solid rgba(226, 215, 197, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-main-canvas {
+  grid-column: 2;
+  overflow-y: auto;
+  height: 100vh;
+  background: var(--leona-ivory, #FAF7F2);
+  box-sizing: border-box;
+}
+
+.admin-dashboard-container {
+  min-height: 100%;
+  padding-bottom: 40px;
 }
 
 .admin-header-title {

@@ -172,80 +172,114 @@ function AdminDashboard({ tab }) {
 
   return (
     <AdminLangContext.Provider value={{ adminLang, setAdminLang: setAdminLangState, toggleAdminLang, tLabel }}>
-      <div className="admin-dashboard-container">
-        <div className="admin-main-wrapper">
-          {/* Navigation Tabs aligned 1-to-1 with User Site Page Categories */}
-          <div className="admin-tabs-bar">
-            <button
-              className={`admin-tab-btn ${activeTab === 'home' ? 'active' : ''}`}
-              onClick={() => switchTab('home', '/admin/home')}
-            >
-              🏠 {tLabel('मुख्य पृष्ठ', 'Home Page')}
-            </button>
-            <button
-              className={`admin-tab-btn ${activeTab === 'about' || activeTab === 'timeline' || activeTab === 'awards' ? 'active' : ''}`}
-              onClick={() => switchTab('about', '/admin/parichay')}
-            >
-              📖 {tLabel('कवि परिचय', 'About Bio')}
-            </button>
-            <button
-              className={`admin-tab-btn ${activeTab === 'poems' || activeTab === 'categories' ? 'active' : ''}`}
-              onClick={() => switchTab('poems', '/admin/kavya-sangrah')}
-            >
-              ✍️ {tLabel('काव्य संग्रह', 'Poetry Archive')}
-            </button>
-            <button
-              className={`admin-tab-btn ${activeTab === 'publications' ? 'active' : ''}`}
-              onClick={() => switchTab('publications', '/admin/prakashan')}
-            >
-              📚 {tLabel('प्रकाशन', 'Publications')}
-            </button>
-            <button
-              className={`admin-tab-btn ${activeTab === 'contact' || activeTab === 'inbox' ? 'active' : ''}`}
-              onClick={() => switchTab('contact', '/admin/sampark')}
-            >
-              📞 {tLabel('संपर्क व इनबॉक्स', 'Contact & Inbox')}
-            </button>
-            <button
-              className={`admin-tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
-              onClick={() => switchTab('settings', '/admin/settings')}
-            >
-              ⚙️ {tLabel('सेटिंग्स', 'Site Settings')}
-            </button>
+      <div className="admin-layout">
+        
+        {/* Phase 1 Persistent Sidebar */}
+        <aside className="admin-sidebar">
+          <div className="admin-sidebar-top">
+            <div className="admin-sidebar-brand">
+              <span>📜</span>
+              <span>{tLabel("कवि गुरुप्रताप शर्मा 'आग'", "Gurupratap Sharma 'Aag'")}</span>
+            </div>
+            
+            <Link to="/" className="admin-back-btn">
+              ← {tLabel('मुख्य साइट पर जाएं', 'Back to Main Site')}
+            </Link>
+
+            {/* Navigation Tabs Bar in Sidebar */}
+            <div className="admin-sidebar-nav" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
+              <button
+                className={`admin-tab-btn ${activeTab === 'home' ? 'active' : ''}`}
+                onClick={() => switchTab('home', '/admin/home')}
+                style={{ width: '100%', justifyContent: 'flex-start' }}
+              >
+                🏠 {tLabel('मुख्य पृष्ठ', 'Home Page')}
+              </button>
+              <button
+                className={`admin-tab-btn ${activeTab === 'about' || activeTab === 'timeline' || activeTab === 'awards' ? 'active' : ''}`}
+                onClick={() => switchTab('about', '/admin/parichay')}
+                style={{ width: '100%', justifyContent: 'flex-start' }}
+              >
+                📖 {tLabel('कवि परिचय', 'About Bio')}
+              </button>
+              <button
+                className={`admin-tab-btn ${activeTab === 'poems' || activeTab === 'categories' ? 'active' : ''}`}
+                onClick={() => switchTab('poems', '/admin/kavya-sangrah')}
+                style={{ width: '100%', justifyContent: 'flex-start' }}
+              >
+                ✍️ {tLabel('काव्य संग्रह', 'Poetry Archive')}
+              </button>
+              <button
+                className={`admin-tab-btn ${activeTab === 'publications' ? 'active' : ''}`}
+                onClick={() => switchTab('publications', '/admin/prakashan')}
+                style={{ width: '100%', justifyContent: 'flex-start' }}
+              >
+                📚 {tLabel('प्रकाशन', 'Publications')}
+              </button>
+              <button
+                className={`admin-tab-btn ${activeTab === 'contact' || activeTab === 'inbox' ? 'active' : ''}`}
+                onClick={() => switchTab('contact', '/admin/sampark')}
+                style={{ width: '100%', justifyContent: 'flex-start' }}
+              >
+                📞 {tLabel('संपर्क व इनबॉक्स', 'Contact & Inbox')}
+              </button>
+              <button
+                className={`admin-tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
+                onClick={() => switchTab('settings', '/admin/settings')}
+                style={{ width: '100%', justifyContent: 'flex-start' }}
+              >
+                ⚙️ {tLabel('सेटिंग्स', 'Site Settings')}
+              </button>
+            </div>
           </div>
 
-          {activeTab === 'home' && (
-            <HomeManager publications={data.publications} about={data.about} settings={data.settings} onUpdate={loadData} />
-          )}
-          {(activeTab === 'about' || activeTab === 'timeline' || activeTab === 'awards') && (
-            <AboutManager
-              about={data.about}
-              initialSubTab={activeTab === 'timeline' ? 'timeline' : (activeTab === 'awards' ? 'awards' : 'bio')}
-              onUpdate={loadData}
-            />
-          )}
-          {(activeTab === 'poems' || activeTab === 'categories') && (
-            <PoemsArchiveManager
-              poems={data.poems}
-              categories={data.categories}
-              initialSubTab={activeTab === 'categories' ? 'categories' : 'poems'}
-              onUpdate={loadData}
-            />
-          )}
-          {activeTab === 'publications' && (
-            <PublicationsManager publications={data.publications} onUpdate={loadData} />
-          )}
-          {(activeTab === 'contact' || activeTab === 'inbox') && (
-            <ContactSectionManager
-              settings={data.settings}
-              initialSubTab={activeTab === 'inbox' ? 'inbox' : 'info'}
-              onUpdate={loadData}
-            />
-          )}
-          {activeTab === 'settings' && (
-            <SettingsManager settings={data.settings} onUpdate={loadData} />
-          )}
-        </div>
+          <div className="admin-sidebar-bottom">
+            <button className="admin-lang-toggle-btn" onClick={toggleAdminLang} style={{ width: '100%', justifyContent: 'center' }}>
+              🌐 {adminLang === 'hi' ? 'English' : 'हिंदी'}
+            </button>
+            <button className="admin-btn-logout" onClick={handleLogout} style={{ width: '100%', justifyContent: 'center' }}>
+              🚪 {tLabel('लॉगआउट', 'Logout')}
+            </button>
+          </div>
+        </aside>
+
+        {/* Flexible Main Canvas Area */}
+        <main className="admin-main-canvas">
+          <div className="admin-dashboard-container" style={{ padding: '24px' }}>
+            {activeTab === 'home' && (
+              <HomeManager publications={data.publications} about={data.about} settings={data.settings} onUpdate={loadData} />
+            )}
+            {(activeTab === 'about' || activeTab === 'timeline' || activeTab === 'awards') && (
+              <AboutManager
+                about={data.about}
+                initialSubTab={activeTab === 'timeline' ? 'timeline' : (activeTab === 'awards' ? 'awards' : 'bio')}
+                onUpdate={loadData}
+              />
+            )}
+            {(activeTab === 'poems' || activeTab === 'categories') && (
+              <PoemsArchiveManager
+                poems={data.poems}
+                categories={data.categories}
+                initialSubTab={activeTab === 'categories' ? 'categories' : 'poems'}
+                onUpdate={loadData}
+              />
+            )}
+            {activeTab === 'publications' && (
+              <PublicationsManager publications={data.publications} onUpdate={loadData} />
+            )}
+            {(activeTab === 'contact' || activeTab === 'inbox') && (
+              <ContactSectionManager
+                settings={data.settings}
+                initialSubTab={activeTab === 'inbox' ? 'inbox' : 'info'}
+                onUpdate={loadData}
+              />
+            )}
+            {activeTab === 'settings' && (
+              <SettingsManager settings={data.settings} onUpdate={loadData} />
+            )}
+          </div>
+        </main>
+
       </div>
     </AdminLangContext.Provider>
   )

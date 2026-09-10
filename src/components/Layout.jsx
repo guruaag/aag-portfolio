@@ -14,7 +14,7 @@ function Layout({ children }) {
 
   return (
     <div className={`phoenix-app ${isAdmin ? 'admin-app-layout' : ''}`}>
-      <Header />
+      {!isAdmin && <Header />}
       <main className={`phoenix-main ${isAdmin ? 'admin-main-container' : ''}`}>
         {children}
       </main>
