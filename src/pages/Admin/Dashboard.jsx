@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabaseClient'
 import { getCategories, getAboutContent, getPublications, getPoems, getSetting } from '../../lib/supabaseClient'
 import { uploadImage, getImageUrl, deleteImage } from '../../lib/imageUtils'
-import PM5WritingDesk from '../../components/PM5WritingDesk'
+import PM5WritingDesk, { paginateTextIntoPages } from '../../components/PM5WritingDesk'
 import i18n from '../../i18n/config'
 import './AdminDashboard.css'
 
@@ -1162,21 +1162,57 @@ function PoemsManager({ poems, onUpdate }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
+      // Primary payload with all field variants for complete schema compatibility
       const dataToSave = {
         heading: formData.heading || '',
+        heading_hi: formData.heading || '',
+        heading_en: formData.heading || '',
         description: formData.description || '',
         full_text: formData.body_text || '',
+        body_text_hi: formData.body_text || '',
+        body_text_en: formData.body_text || '',
         language: 'mixed',
         sort_order: parseInt(formData.sort_order) || 0
       }
       
-      const { error } = editing
+      let res = editing
         ? await supabase.from('poems').update(dataToSave).eq('id', editing)
         : await supabase.from('poems').insert(dataToSave)
 
-      if (error) {
-        console.error('Error saving poem:', error)
-        alert('Error saving poem: ' + error.message)
+      // Fallback 1: If full schema fails due to missing legacy columns, try standard columns
+      if (res.error) {
+        console.warn('Primary save failed, trying fallback standard schema:', res.error)
+        const fallback1 = {
+          heading: formData.heading || '',
+          description: formData.description || '',
+          full_text: formData.body_text || '',
+          language: 'mixed',
+          sort_order: parseInt(formData.sort_order) || 0
+        }
+        res = editing
+          ? await supabase.from('poems').update(fallback1).eq('id', editing)
+          : await supabase.from('poems').insert(fallback1)
+      }
+
+      // Fallback 2: If standard fails, try legacy schema
+      if (res.error) {
+        console.warn('Fallback 1 failed, trying legacy schema:', res.error)
+        const fallback2 = {
+          heading_hi: formData.heading || '',
+          heading_en: formData.heading || '',
+          body_text_hi: formData.body_text || '',
+          body_text_en: formData.body_text || '',
+          description: formData.description || '',
+          sort_order: parseInt(formData.sort_order) || 0
+        }
+        res = editing
+          ? await supabase.from('poems').update(fallback2).eq('id', editing)
+          : await supabase.from('poems').insert(fallback2)
+      }
+
+      if (res.error) {
+        console.error('All poem save attempts failed:', res.error)
+        alert((adminLang === 'en' ? 'Error saving poem: ' : 'कविता सहेजने में त्रुटि: ') + res.error.message)
         return
       }
 
@@ -1184,10 +1220,10 @@ function PoemsManager({ poems, onUpdate }) {
       setEditing(null)
       setShowForm(false)
       setFormData({ heading: '', description: '', body_text: '', sort_order: 0 })
-      alert('✓ Poem saved successfully!')
+      alert(adminLang === 'en' ? '✓ Poem published & saved successfully!' : '✓ रचना सफलतापूर्वक प्रकाशित की गई!')
     } catch (err) {
       console.error('Error saving poem:', err)
-      alert('Error saving poem: ' + (err.message || 'Unknown error'))
+      alert((adminLang === 'en' ? 'Error saving poem: ' : 'कविता सहेजने में त्रुटि: ') + (err.message || 'Unknown error'))
     }
   }
 
@@ -1279,7 +1315,7 @@ function PoemsManager({ poems, onUpdate }) {
                 🖋️ {tLabel('पेजमेकर कैनवस (PM5)', 'PageMaker Canvas (PM5)')}
               </label>
               <PM5WritingDesk
-                initialPages={formData.body_text ? [formData.body_text] : ['']}
+                initialPages={paginateTextIntoPages(formData.body_text || '')}
                 initialTitle={formData.heading || ''}
                 lang={adminLang}
                 onSave={(pagesArray, pageTitle) => {

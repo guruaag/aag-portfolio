@@ -1,6 +1,48 @@
 import React, { useState, useEffect } from 'react';
 import './PM5WritingDesk.css';
 
+export function paginateTextIntoPages(fullText, maxEffectiveLines = 12, charsPerLine = 36) {
+  if (!fullText || !fullText.trim()) return [''];
+  const rawLines = fullText.split('\n');
+  const pages = [];
+  let currentPageLines = [];
+  let currentEffectiveCount = 0;
+
+  for (let line of rawLines) {
+    let visualLinesNeeded = Math.max(1, Math.ceil((line.length || 1) / charsPerLine));
+
+    if (currentEffectiveCount + visualLinesNeeded > maxEffectiveLines && currentPageLines.length > 0) {
+      pages.push(currentPageLines.join('\n'));
+      currentPageLines = [];
+      currentEffectiveCount = 0;
+    }
+
+    if (visualLinesNeeded > maxEffectiveLines) {
+      let remaining = line;
+      while (remaining.length > 0) {
+        let maxChars = maxEffectiveLines * charsPerLine;
+        let chunk = remaining.substring(0, maxChars);
+        remaining = remaining.substring(maxChars);
+        if (currentPageLines.length > 0) {
+          pages.push(currentPageLines.join('\n'));
+          currentPageLines = [];
+          currentEffectiveCount = 0;
+        }
+        pages.push(chunk);
+      }
+    } else {
+      currentPageLines.push(line);
+      currentEffectiveCount += visualLinesNeeded;
+    }
+  }
+
+  if (currentPageLines.length > 0) {
+    pages.push(currentPageLines.join('\n'));
+  }
+
+  return pages.length > 0 ? pages : [''];
+}
+
 export default function PM5WritingDesk({ initialPages = [''], onSave = null, initialTitle = '', lang = 'hi' }) {
   const MAX_EFFECTIVE_LINES = 12;
   const CHARS_PER_LINE = 36;
@@ -14,12 +56,30 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
 
   const [pages, setPages] = useState(() => {
     if (Array.isArray(initialPages) && initialPages.length > 0) return initialPages;
-    if (typeof initialPages === 'string' && initialPages.trim()) return [initialPages];
+    if (typeof initialPages === 'string' && initialPages.trim()) return paginateTextIntoPages(initialPages);
     return [''];
   });
 
   const [activeIdx, setActiveIdx] = useState(0);
   const [title, setTitle] = useState(initialTitle);
+
+  // Sync with prop changes when parent updates full text
+  useEffect(() => {
+    if (Array.isArray(initialPages) && initialPages.length > 0) {
+      if (initialPages.join('\n\n') !== pages.join('\n\n')) {
+        setPages(initialPages);
+      }
+    } else if (typeof initialPages === 'string' && initialPages.trim()) {
+      const paginated = paginateTextIntoPages(initialPages);
+      if (paginated.join('\n\n') !== pages.join('\n\n')) {
+        setPages(paginated);
+      }
+    }
+  }, [JSON.stringify(initialPages)]);
+
+  useEffect(() => {
+    setTitle(initialTitle);
+  }, [initialTitle]);
 
   // Undo / Redo History Stack
   const [history, setHistory] = useState([pages]);
@@ -38,6 +98,7 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
       setHistoryPointer(historyPointer - 1);
       setPages(prevPages);
       setActiveIdx(Math.min(activeIdx, prevPages.length - 1));
+      if (onSave) onSave(prevPages, title);
     }
   };
 
@@ -46,6 +107,7 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
       const nextPages = history[historyPointer + 1];
       setHistoryPointer(historyPointer + 1);
       setPages(nextPages);
+      if (onSave) onSave(nextPages, title);
     }
   };
 
@@ -87,27 +149,32 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
 
     setPages(updatedPages);
     pushHistory(updatedPages);
+    if (onSave) onSave(updatedPages, title);
   };
 
   const handlePasteAutoFlow = (e) => {
-    e.preventDefault();
-    const pastedText = (e.clipboardData || window.clipboardData).getData('text');
-    const lines = pastedText.split('\n');
+    const pastedText = (e.clipboardData || window.clipboardData)?.getData('text') || '';
+    if (!pastedText) return;
 
-    let pageChunks = [];
-    let lineChunk = [];
-
-    for (let i = 0; i < lines.length; i++) {
-      lineChunk.push(lines[i]);
-      if (lineChunk.length >= MAX_EFFECTIVE_LINES || i === lines.length - 1) {
-        pageChunks.push(lineChunk.join('\n'));
-        lineChunk = [];
-      }
+    const rawLines = pastedText.split('\n');
+    let visualLinesNeeded = 0;
+    for (let l of rawLines) {
+      visualLinesNeeded += Math.max(1, Math.ceil(l.length / CHARS_PER_LINE));
     }
 
-    setPages(pageChunks);
-    setActiveIdx(0);
-    pushHistory(pageChunks);
+    // If pasted content exceeds single page bounds (more than 12 lines), auto-paginate across multiple pages
+    if (visualLinesNeeded > MAX_EFFECTIVE_LINES || rawLines.length > MAX_EFFECTIVE_LINES) {
+      e.preventDefault();
+      const paginatedPastedPages = paginateTextIntoPages(pastedText, MAX_EFFECTIVE_LINES, CHARS_PER_LINE);
+      
+      const newPages = [...pages];
+      newPages.splice(activeIdx, 1, ...paginatedPastedPages);
+      
+      setPages(newPages);
+      pushHistory(newPages);
+      if (onSave) onSave(newPages, title);
+    }
+    // Short paste operates natively via onChange
   };
 
   const addNewPage = () => {
@@ -115,6 +182,7 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
     setPages(updated);
     setActiveIdx(updated.length - 1);
     pushHistory(updated);
+    if (onSave) onSave(updated, title);
   };
 
   const deletePage = (e, idx) => {
@@ -127,8 +195,10 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
     if (window.confirm(confirmMsg)) {
       const updated = pages.filter((_, i) => i !== idx);
       setPages(updated);
-      setActiveIdx(Math.max(0, idx - 1));
+      const newActive = Math.max(0, idx - 1);
+      setActiveIdx(newActive);
       pushHistory(updated);
+      if (onSave) onSave(updated, title);
     }
   };
 
@@ -145,6 +215,7 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
     setPages(updated);
     setActiveIdx(targetIdx);
     pushHistory(updated);
+    if (onSave) onSave(updated, title);
   };
 
   const currentText = pages[activeIdx] || '';
@@ -153,14 +224,19 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
   return (
     <div className="pm5-desk-root">
       
-      {/* Top Bar with Undo / Redo (Type="button" explicitly set to prevent form submission) */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '12px', gap: '10px' }}>
-        <button type="button" className="pm5-undo-btn" onClick={handleUndo} disabled={historyPointer === 0} title={isEn ? 'Undo (Ctrl+Z)' : 'पूर्ववत करें (Ctrl+Z)'}>
-          ↩️ {isEn ? 'Undo' : 'पूर्ववत (Undo)'}
-        </button>
-        <button type="button" className="pm5-undo-btn" onClick={handleRedo} disabled={historyPointer === history.length - 1} title={isEn ? 'Redo (Ctrl+Y)' : 'पुनः करें (Ctrl+Y)'}>
-          ↪️ {isEn ? 'Redo' : 'पुनः (Redo)'}
-        </button>
+      {/* Top Bar with Undo / Redo */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+        <div style={{ fontSize: '0.85rem', color: '#666' }}>
+          📐 {isEn ? 'Format: Max 12 lines per page • Max 36 chars per line' : 'प्रारूप: अधिकतम १२ पंक्तियाँ प्रति पृष्ठ • ३६ अक्षर प्रति पंक्ति'}
+        </div>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button type="button" className="pm5-undo-btn" onClick={handleUndo} disabled={historyPointer === 0} title={isEn ? 'Undo (Ctrl+Z)' : 'पूर्ववत करें (Ctrl+Z)'}>
+            ↩️ {isEn ? 'Undo' : 'पूर्ववत'}
+          </button>
+          <button type="button" className="pm5-undo-btn" onClick={handleRedo} disabled={historyPointer === history.length - 1} title={isEn ? 'Redo (Ctrl+Y)' : 'पुनः करें (Ctrl+Y)'}>
+            ↪️ {isEn ? 'Redo' : 'पुनः'}
+          </button>
+        </div>
       </div>
 
       {/* CANVAS GRID */}
@@ -195,7 +271,14 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
           </button>
 
           {onSave && (
-            <button type="button" className="pm5-publish-btn" onClick={() => onSave(pages, title)}>
+            <button
+              type="button"
+              className="pm5-publish-btn"
+              onClick={() => {
+                onSave(pages, title);
+                alert(isEn ? '✓ Canvas saved & applied to full verse text!' : '✓ कैनवस सफलतापूर्वक सहेजा गया!');
+              }}
+            >
               ✓ {isEn ? 'Save & Apply Canvas' : 'सहेजें और लागू करें'}
             </button>
           )}
@@ -215,7 +298,11 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
               type="text"
               className="pm5-editor-title"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                const newTitle = e.target.value;
+                setTitle(newTitle);
+                if (onSave) onSave(pages, newTitle);
+              }}
               placeholder={isEn ? 'Enter title here...' : 'यहाँ शीर्षक लिखें...'}
             />
 
