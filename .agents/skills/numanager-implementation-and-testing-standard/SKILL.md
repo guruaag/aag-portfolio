@@ -35,6 +35,7 @@ Whenever this skill is triggered, immediately ask the user to select one of the 
 ### 2. Defensive UI & React Component Rules
 - **Import Verification & Component Definitions**:
   - Ensure all JSX components used in render functions (e.g. `<Link>`, `<NavLink>`, `<PM5WritingDesk>`, `<PoemsArchiveManager>`, `<PublicationsManager>`, `<SettingsManager>`) are explicitly imported or defined at the top level of the module to prevent `ReferenceError` crashes.
+  - Maintain all 13 core manager components (`AdminDashboard`, `CategoriesManager`, `HomeManager`, `ContactSectionManager`, `AboutManager`, `PoemsArchiveManager`, `PublicationsManager`, `PoemsManager`, `SettingsManager`, `TimelineManager`, `AwardsManager`, `InboxManager`, `parseYearNumber`) in `Dashboard.jsx`.
 - **Array Safeguards**:
   - Never evaluate `.length` or `.map()` directly on prop or state arrays without defensive guards (`const safeItems = Array.isArray(items) ? items : []`).
 - **Global Error Boundaries**:
@@ -78,9 +79,9 @@ Whenever this skill is triggered, immediately ask the user to select one of the 
   - Reset `isDirty` to `false` on form submit, cancel, or module unmount.
 
 ### 6. Verification & Pre-Commit Import Protocol
-- **Static Import & Definition Audit**:
-  - Before pushing any route or layout changes, run a full static import and component definition audit across `src/pages/Admin/Dashboard.jsx` and `src/App.jsx`. Never register or render a manager component without verifying its explicit import or top-level function definition in the file.
+- **Static Import & AST Tag Audit**:
+  - Before pushing any route or layout changes, run a static component scanner across all JS/JSX files in `src/` to verify every uppercase JSX tag is imported or defined in module scope. Never register or render a manager component without verifying its explicit import or top-level function definition.
+- **Mandatory Local Build & Remote Push Verification**:
+  - Always execute `npm run build` AND verify that code changes are committed and pushed to `origin/main`. Code fixes are never considered complete or confirmed to the user until `npm run build` succeeds with 0 errors AND `git push origin main` completes cleanly.
 - **Multibyte UTF-8 Code Integrity**:
   - When editing files containing Hindi/Devanagari text, avoid truncating multibyte character sequences.
-- **Mandatory Build Check**:
-  - Always execute `npm run build` before declaring completion. Code changes are never considered complete until `npm run build` succeeds with 0 compilation errors.
