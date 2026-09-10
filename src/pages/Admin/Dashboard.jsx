@@ -944,6 +944,842 @@ function AboutManager({ about, initialSubTab, onUpdate }) {
   )
 }
 
+function PoemsArchiveManager({ poems, categories, initialSubTab, onUpdate, setIsDirty }) {
+  const { tLabel } = useAdminLang()
+  const [subTab, setSubTab] = useState(initialSubTab || 'poems') // 'poems' | 'categories'
+
+  useEffect(() => {
+    if (initialSubTab) {
+      setSubTab(initialSubTab)
+    }
+  }, [initialSubTab])
+
+  return (
+    <div>
+      {subTab === 'poems' && <PoemsManager poems={poems} onUpdate={onUpdate} setIsDirty={setIsDirty} />}
+      {subTab === 'categories' && <CategoriesManager categories={categories} onUpdate={onUpdate} setIsDirty={setIsDirty} />}
+    </div>
+  )
+}
+
+
+function PublicationsManager({ publications, onUpdate, setIsDirty }) {
+  const { tLabel } = useAdminLang()
+  const [editing, setEditing] = useState(null)
+  const [showForm, setShowForm] = useState(false)
+  const [formData, setFormData] = useState({
+    title: '',
+    subtitle: '',
+    image_path: '',
+    image_alt: '',
+    description: '',
+    sort_order: 0
+  })
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [imagePreview, setImagePreview] = useState(null)
+
+  const handleCreate = () => {
+    setEditing(null)
+    setFormData({ title: '', subtitle: '', image_path: '', image_alt: '', description: '', sort_order: 0, is_active: true })
+    setImagePreview(null)
+    setShowForm(true)
+  }
+
+  const handleCancel = () => {
+    setEditing(null)
+    setShowForm(false)
+    setImagePreview(null)
+  }
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file')
+      return
+    }
+
+    try {
+      setUploadingImage(true)
+      const pubId = editing || `temp-${Date.now()}`
+      const fileName = `cover.${file.name.split('.').pop()}`
+      const path = await uploadImage(file, `publications/${pubId}`, fileName)
+      setFormData({ ...formData, image_path: path })
+      setImagePreview(URL.createObjectURL(file))
+      alert('Image uploaded!')
+    } catch (err) {
+      alert('Error uploading image: ' + err.message)
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const dataToSave = {
+        title: formData.title || '',
+        subtitle: formData.subtitle || '',
+        image_path: formData.image_path || '',
+        image_alt: formData.image_alt || '',
+        description: formData.description || '',
+        sort_order: parseInt(formData.sort_order) || 0
+      }
+      
+      if (editing) {
+        const { error } = await supabase.from('publications').update(dataToSave).eq('id', editing)
+        if (error) {
+          console.error('Error updating publication:', error)
+          alert('Error saving publication: ' + error.message)
+          return
+        }
+      } else {
+        const { data: newPub, error } = await supabase.from('publications').insert(dataToSave).select().single()
+        if (error) {
+          console.error('Error inserting publication:', error)
+          alert('Error saving publication: ' + error.message)
+          return
+        }
+        // If image was uploaded to temp folder, move it to the actual publication folder
+        if (formData.image_path && formData.image_path.includes('temp-') && newPub) {
+          const oldPath = formData.image_path
+          const newPath = oldPath.replace(/temp-\d+/, newPub.id)
+          try {
+            const { error: copyError } = await supabase.storage.from('public-assets').copy(oldPath, newPath)
+            if (!copyError) {
+              await supabase.from('publications').update({ image_path: newPath }).eq('id', newPub.id)
+              await supabase.storage.from('public-assets').remove([oldPath])
+            } else {
+              await supabase.from('publications').update({ image_path: newPath }).eq('id', newPub.id)
+            }
+          } catch (moveError) {
+            await supabase.from('publications').update({ image_path: newPath }).eq('id', newPub.id)
+          }
+        }
+      }
+      onUpdate()
+      setEditing(null)
+      setShowForm(false)
+      setFormData({ title: '', subtitle: '', image_path: '', image_alt: '', description: '', sort_order: 0, is_active: true })
+      setImagePreview(null)
+      alert('✓ Publication saved successfully!')
+    } catch (err) {
+      console.error('Error saving publication:', err)
+      alert('Error saving publication: ' + (err.message || 'Unknown error'))
+    }
+  }
+
+  const handleEdit = (pub) => {
+    setEditing(pub.id)
+    setShowForm(true)
+    // Ensure is_active defaults to true if not set
+    setFormData({
+      ...pub,
+      is_active: pub.is_active !== undefined ? pub.is_active : true
+    })
+    if (pub.image_path) {
+      setImagePreview(getImageUrl(pub.image_path))
+    }
+  }
+
+  const handleDelete = async (id) => {
+    if (!confirm('Delete this publication?')) return
+    try {
+      await supabase.from('publications').delete().eq('id', id)
+      onUpdate()
+      alert('Deleted!')
+    } catch (err) {
+      alert('Error deleting publication')
+    }
+  }
+
+  return (
+    <div className="admin-card-panel">
+      <div className="admin-panel-header">
+        <h2 className="admin-panel-title">📚 {tLabel('प्रकाशन एवं पुस्तकें', 'Publications & Books')}</h2>
+        {!showForm && (
+          <button type="button" className="admin-btn-primary" onClick={handleCreate}>
+            + {tLabel('नई पुस्तक जोड़ें', 'Add Book')}
+          </button>
+        )}
+      </div>
+      
+      {(showForm || editing) && (
+        <form id="admin-active-form" onSubmit={handleSubmit} className="admin-form-container">
+          <div className="admin-form-grid">
+            <div className="admin-form-group">
+              <label>{tLabel('पुस्तक का नाम *', 'Book Title *')}</label>
+              <input
+                className="admin-input"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                required
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>{tLabel('उप-शीर्षक', 'Subtitle')}</label>
+              <input
+                className="admin-input"
+                value={formData.subtitle}
+                onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
+              />
+            </div>
+            <div className="admin-form-group full-width">
+              <label>{tLabel('कवर चित्र', 'Book Cover Image')}</label>
+              {imagePreview && (
+                <div style={{ marginBottom: '12px' }}>
+                  <img 
+                    src={imagePreview} 
+                    alt="Cover Preview" 
+                    style={{ 
+                      width: '120px', 
+                      height: '170px', 
+                      objectFit: 'cover', 
+                      border: '2px solid var(--leona-gold)',
+                      borderRadius: '8px'
+                    }} 
+                  />
+                </div>
+              )}
+              <input
+                className="admin-input"
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                disabled={uploadingImage}
+              />
+              {uploadingImage && <div style={{ marginTop: '6px', color: 'var(--leona-terracotta)', fontSize: '0.85rem' }}>कवर फोटो अपलोड हो रही है...</div>}
+            </div>
+            <div className="admin-form-group full-width">
+              <label>{tLabel('पुस्तक विवरण', 'Book Description')}</label>
+              <textarea
+                className="admin-textarea"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>{tLabel('क्रम संख्या', 'Sort Order')}</label>
+              <input
+                className="admin-input"
+                type="number"
+                value={formData.sort_order}
+                onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })}
+              />
+            </div>
+            <div className="admin-form-group full-width">
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={formData.is_active !== false}
+                  onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                />
+                {tLabel('वेबसाइट पर प्रकाशित रखें', 'Active on Website')}
+              </label>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+            <button type="submit" className="admin-btn-primary">
+              {editing ? tLabel('सहेजें', 'Update') : tLabel('प्रकाशित करें', 'Publish')}
+            </button>
+            <button type="button" className="admin-btn-secondary" onClick={() => {
+              setEditing(null)
+              setShowForm(false)
+              setFormData({ title: '', subtitle: '', image_path: '', image_alt: '', description: '', sort_order: 0, is_active: true })
+              setImagePreview(null)
+            }}>
+              {tLabel('रद्द करें', 'Cancel')}
+            </button>
+          </div>
+        </form>
+      )}
+
+      <div>
+        {(() => {
+          const safePubs = Array.isArray(publications) ? publications : []
+          return (
+            <>
+              <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
+                {tLabel('प्रकाशित पुस्तकों की सूची', 'Published Books List')} ({safePubs.length})
+              </h3>
+              {safePubs.length === 0 ? (
+                <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई पुस्तक नहीं मिली। नई पुस्तक जोड़ने के लिए बटन दबाएं।', 'No books found. Click button to add new book.')}</p>
+              ) : (
+                <ul className="admin-item-list">
+                  {safePubs.map((pub) => (
+              <li key={pub.id} className="admin-item-card">
+                <div>
+                  <div className="admin-item-title">{pub.title}</div>
+                  <div className="admin-item-sub">{pub.subtitle || pub.description ? (pub.subtitle || pub.description).substring(0, 80) + '...' : ''} • {tLabel('क्रम:', 'Order:')} {pub.sort_order || 0}</div>
+                  {pub.is_active === false ? (
+                    <span className="admin-item-badge" style={{ background: '#FFF0ED', color: '#D95343', borderColor: '#FFC4BD' }}>{tLabel('अप्रकाशित', 'Draft')}</span>
+                  ) : (
+                    <span className="admin-item-badge" style={{ background: '#EAF8F5', color: '#2C988F', borderColor: '#B5E8E2' }}>{tLabel('प्रकाशित', 'Live')}</span>
+                  )}
+                </div>
+                <div className="admin-actions-group">
+                  <button type="button" className="admin-btn-secondary" onClick={() => handleEdit(pub)}>{tLabel('संपादित करें', 'Edit')}</button>
+                  <button type="button" className="admin-btn-danger" onClick={() => handleDelete(pub.id)}>{tLabel('हटाएं', 'Delete')}</button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </>
+    )
+  })()}
+      </div>
+    </div>
+  )
+}
+
+// Poems Manager Component
+
+function PoemsManager({ poems, onUpdate, setIsDirty }) {
+  const { adminLang, tLabel } = useAdminLang()
+  const [editing, setEditing] = useState(null)
+  const [showForm, setShowForm] = useState(false)
+  const [formData, setFormData] = useState({
+    heading: '',
+    description: '',
+    body_text: '',
+    sort_order: 0
+  })
+
+  const handleCreate = () => {
+    setEditing(null)
+    setFormData({ heading: '', description: '', body_text: '', sort_order: 0 })
+    setShowForm(true)
+  }
+
+  const handleCancel = () => {
+    setEditing(null)
+    setShowForm(false)
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      // Primary payload aligned with exact database schema
+      const dataToSave = {
+        heading: formData.heading || '',
+        description: formData.description || '',
+        full_text: formData.body_text || '',
+        language: 'mixed',
+        sort_order: parseInt(formData.sort_order) || 0
+      }
+      
+      let res = editing
+        ? await supabase.from('poems').update(dataToSave).eq('id', editing)
+        : await supabase.from('poems').insert(dataToSave)
+
+      // Fallback: If standard schema returns error, try legacy schema columns
+      if (res.error) {
+        console.warn('Standard poem save failed, trying legacy schema:', res.error)
+        const legacyPayload = {
+          heading_hi: formData.heading || '',
+          heading_en: formData.heading || '',
+          body_text_hi: formData.body_text || '',
+          body_text_en: formData.body_text || '',
+          description: formData.description || '',
+          sort_order: parseInt(formData.sort_order) || 0
+        }
+        res = editing
+          ? await supabase.from('poems').update(legacyPayload).eq('id', editing)
+          : await supabase.from('poems').insert(legacyPayload)
+      }
+
+      if (res.error) {
+        console.error('Poem save failed:', res.error)
+        alert((adminLang === 'en' ? 'Error saving poem: ' : 'कविता सहेजने में त्रुटि: ') + res.error.message)
+        return
+      }
+
+      await loadData()
+      setEditing(null)
+      setShowForm(false)
+      setFormData({ heading: '', description: '', body_text: '', sort_order: 0 })
+      alert(adminLang === 'en' ? '✓ Poem published & saved successfully!' : '✓ रचना सफलतापूर्वक प्रकाशित की गई!')
+    } catch (err) {
+      console.error('Error saving poem:', err)
+      alert((adminLang === 'en' ? 'Error saving poem: ' : 'कविता सहेजने में त्रुटि: ') + (err.message || 'Unknown error'))
+    }
+  }
+
+  const handleEdit = (poem) => {
+    setEditing(poem.id)
+    setShowForm(true)
+    const formDataToSet = {
+      heading: poem.heading || poem.heading_hi || poem.heading_en || '',
+      description: poem.description || '',
+      body_text: poem.full_text || poem.body_text_hi || poem.body_text_en || '',
+      sort_order: poem.sort_order || 0
+    }
+    setFormData(formDataToSet)
+  }
+
+  const handleDelete = async (id) => {
+    if (!confirm('Delete this poem?')) return
+    try {
+      await supabase.from('poems').delete().eq('id', id)
+      onUpdate()
+      alert('Deleted!')
+    } catch (err) {
+      alert('Error deleting poem')
+    }
+  }
+
+  const handleDescriptionChange = (e) => {
+    let val = e.target.value
+    let lines = val.split('\n')
+    if (lines.length > 2) {
+      lines = lines.slice(0, 2)
+    }
+    lines = lines.map(line => line.substring(0, 80))
+    let finalVal = lines.join('\n').substring(0, 160)
+    setFormData(prev => ({ ...prev, description: finalVal }))
+  }
+
+  const handleDescriptionKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      const lines = (formData.description || '').split('\n')
+      if (lines.length >= 2) {
+        e.preventDefault()
+      }
+    }
+  }
+
+  return (
+    <div className="admin-card-panel">
+      <div className="admin-panel-header">
+        <h2 className="admin-panel-title">✍️ {tLabel('काव्य रचनाएं एवं पद', 'Poems & Verse Collection')}</h2>
+        {!showForm && (
+          <button type="button" className="admin-btn-primary" onClick={handleCreate}>
+            + {tLabel('नई रचना जोड़ें', 'Add New Poem')}
+          </button>
+        )}
+      </div>
+      
+      {(showForm || editing) && (
+        <form id="admin-active-form" onSubmit={handleSubmit} className="admin-form-container">
+          <div className="admin-form-grid">
+            <div className="admin-form-group full-width">
+              <label>{tLabel('कविता / रचना का शीर्षक *', 'Poem Title *')}</label>
+              <input
+                className="admin-input"
+                value={formData.heading || ''}
+                onChange={(e) => setFormData({ ...formData, heading: e.target.value })}
+                placeholder={tLabel('जैसे: सुबह की किरण', 'e.g. Subah Ki Kiran')}
+                required
+              />
+            </div>
+            <div className="admin-form-group full-width">
+              <label>{tLabel('रचना संदर्भ / संक्षिप्त विवरण (अधिकतम २ पंक्तियाँ, १६० अक्षर)', 'Context / Brief Description (Max 2 lines, 160 chars)')}</label>
+              <textarea
+                className="admin-textarea"
+                rows={2}
+                maxLength={160}
+                value={formData.description || ''}
+                onChange={handleDescriptionChange}
+                onKeyDown={handleDescriptionKeyDown}
+                placeholder={tLabel('संक्षिप्त २ पंक्तियों में संदर्भ (अधिकतम ८० अक्षर प्रति पंक्ति)...', 'Brief 2-line context (max 80 chars per line)...')}
+                style={{ minHeight: '52px', maxHeight: '72px', resize: 'none' }}
+              />
+              <span style={{ fontSize: '0.78rem', color: '#888', display: 'block', marginTop: '4px' }}>
+                {(formData.description || '').split('\n').length} / 2 {tLabel('पंक्तियां', 'lines')} | {(formData.description || '').length} / 160 {tLabel('अक्षर', 'chars')}
+              </span>
+            </div>
+            <div className="admin-form-group full-width" style={{ marginBottom: '16px' }}>
+              <label style={{ fontWeight: 'bold', fontSize: '1.02rem', color: 'var(--leona-terracotta)', marginBottom: '8px', display: 'block' }}>
+                🖋️ {tLabel('पेजमेकर कैनवस (PM5)', 'PageMaker Canvas (PM5)')}
+              </label>
+              <PM5WritingDesk
+                initialPages={paginateTextIntoPages(formData.body_text || '')}
+                initialTitle={formData.heading || ''}
+                lang={adminLang}
+                onSave={(pagesArray, pageTitle) => {
+                  const joinedText = pagesArray.join('\n\n');
+                  setFormData(prev => ({
+                    ...prev,
+                    body_text: joinedText,
+                    heading: pageTitle || prev.heading
+                  }));
+                }}
+              />
+            </div>
+            <div className="admin-form-group full-width">
+              <label>{tLabel('सम्पूर्ण कविता पंक्तियाँ *', 'Full Stanzas / Verse Text *')}</label>
+              <textarea
+                className="admin-textarea"
+                value={formData.body_text || ''}
+                onChange={(e) => setFormData({ ...formData, body_text: e.target.value })}
+                required
+                style={{ minHeight: '220px', fontFamily: 'Tiro Devanagari Hindi, Lora, serif', fontSize: '1.05rem', lineHeight: '1.7' }}
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>{tLabel('क्रम संख्या', 'Sort Order')}</label>
+              <input
+                className="admin-input"
+                type="number"
+                value={formData.sort_order}
+                onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })}
+              />
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+            <button type="submit" className="admin-btn-primary">
+              {editing ? tLabel('सहेजें', 'Save Poem') : tLabel('प्रकाशित करें', 'Publish Poem')}
+            </button>
+            <button type="button" className="admin-btn-secondary" onClick={handleCancel}>
+              {tLabel('रद्द करें', 'Cancel')}
+            </button>
+          </div>
+        </form>
+      )}
+
+      <div>
+        {(() => {
+          const safePoems = Array.isArray(poems) ? poems : []
+          return (
+            <>
+              <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
+                {tLabel('कुल काव्य रचनाएं', 'Total Poems Collection')} ({safePoems.length})
+              </h3>
+              {safePoems.length === 0 ? (
+                <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई कविता नहीं मिली। नई रचना जोड़ने के लिए बटन दबाएं।', 'No poems found. Click button to add new poem.')}</p>
+              ) : (
+                <ul className="admin-item-list">
+                  {safePoems.map((poem) => (
+              <li key={poem.id} className="admin-item-card">
+                <div>
+                  <div className="admin-item-title">{poem.heading || poem.heading_hi || poem.heading_en || 'Untitled'}</div>
+                  <div className="admin-item-sub">{tLabel('क्रम:', 'Order:')} {poem.sort_order || 0}</div>
+                </div>
+                <div className="admin-actions-group">
+                  <button type="button" className="admin-btn-secondary" onClick={() => handleEdit(poem)}>{tLabel('संपादित करें', 'Edit')}</button>
+                  <button type="button" className="admin-btn-danger" onClick={() => handleDelete(poem.id)}>{tLabel('हटाएं', 'Delete')}</button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </>
+    )
+  })()}
+      </div>
+    </div>
+  )
+}
+
+// Settings Manager Component
+
+function SettingsManager({ settings, onUpdate, setIsDirty }) {
+  const { tLabel } = useAdminLang()
+  const [showForm, setShowForm] = useState(false)
+  const [formData, setFormData] = useState({
+    phone: '',
+    phone_text: '',
+    whatsapp: '',
+    whatsapp_text: '',
+    email: '',
+    email_text: '',
+    address: '',
+    facebook: '',
+    instagram: '',
+    twitter: '',
+    linkedin: '',
+    youtube: '',
+    logo_path: '',
+    thank_you_message: '',
+    thank_you_title: '',
+    thank_you_heading: '',
+    thank_you_description: '',
+    thank_you_button_text: '',
+    hero_tagline_en: '',
+    hero_tagline_hi: '',
+    default_accent: '#964B00'
+  })
+  const [uploadingLogo, setUploadingLogo] = useState(false)
+  const [logoPreview, setLogoPreview] = useState(null)
+
+  useEffect(() => {
+    if (settings) {
+      setFormData({
+        phone: settings.phone || '',
+        phone_text: settings.phone_text || '',
+        whatsapp: settings.whatsapp || '',
+        whatsapp_text: settings.whatsapp_text || '',
+        email: settings.email || '',
+        email_text: settings.email_text || '',
+        address: settings.address || '',
+        facebook: settings.facebook || '',
+        instagram: settings.instagram || '',
+        twitter: settings.twitter || '',
+        linkedin: settings.linkedin || '',
+        youtube: settings.youtube || '',
+        logo_path: settings.logo_path || '',
+        thank_you_message: settings.thank_you_message || '',
+        thank_you_title: settings.thank_you_title || '',
+        thank_you_heading: settings.thank_you_heading || '',
+        thank_you_description: settings.thank_you_description || '',
+        thank_you_button_text: settings.thank_you_button_text || '',
+        hero_tagline_en: settings.hero_tagline_en || '',
+        hero_tagline_hi: settings.hero_tagline_hi || '',
+        default_accent: settings.default_accent || '#964B00'
+      })
+      if (settings.logo_path) {
+        setLogoPreview(getImageUrl(settings.logo_path))
+      }
+    }
+  }, [settings])
+
+  const handleEdit = () => {
+    setShowForm(true)
+  }
+
+  const handleCancel = () => {
+    setShowForm(false)
+    // Reset form data to current settings
+    setFormData({
+      phone: settings.phone || '+91 98290 12345',
+      phone_text: settings.phone_text || 'Call me',
+      whatsapp: settings.whatsapp || 'https://wa.me/919829012345',
+      whatsapp_text: settings.whatsapp_text || 'Whatsapp me',
+      email: settings.email || 'contact@gurupratapsharma.com',
+      email_text: settings.email_text || 'Email me',
+      address: settings.address || 'साहित्य सदन, सिविल लाइन्स, जयपुर (राजस्थान), भारत - 302006',
+      facebook: settings.facebook || '',
+      instagram: settings.instagram || '',
+      twitter: settings.twitter || '',
+      linkedin: settings.linkedin || '',
+      youtube: settings.youtube || '',
+      logo_path: settings.logo_path || '',
+      thank_you_message: settings.thank_you_message || 'Thank you!',
+      thank_you_title: settings.thank_you_title || '',
+      thank_you_heading: settings.thank_you_heading || '',
+      thank_you_description: settings.thank_you_description || '',
+      thank_you_button_text: settings.thank_you_button_text || '',
+      hero_tagline_en: settings.hero_tagline_en || 'Renowned for his fiery literary works',
+      hero_tagline_hi: settings.hero_tagline_hi || 'साहित्य जगत में अपनी तेजस्वी रचनाओं से प्रसिद्ध',
+      default_accent: settings.default_accent || '#964B00'
+    })
+    if (settings.logo_path) {
+      setLogoPreview(getImageUrl(settings.logo_path))
+    } else {
+      setLogoPreview(null)
+    }
+  }
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file')
+      return
+    }
+
+    try {
+      setUploadingLogo(true)
+      const fileName = `logo-${Date.now()}.${file.name.split('.').pop()}`
+      const path = await uploadImage(file, 'logos', fileName)
+      setFormData({ ...formData, logo_path: path })
+      setLogoPreview(URL.createObjectURL(file))
+      alert('Logo uploaded!')
+    } catch (err) {
+      alert('Error uploading logo: ' + err.message)
+    } finally {
+      setUploadingLogo(false)
+    }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const updates = Object.entries(formData).map(([key, value]) => ({
+        key,
+        value: value !== undefined && value !== null ? String(value) : '',
+        display_label: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+      }))
+
+      let hasError = false
+      for (const update of updates) {
+        const { error } = await supabase.from('settings').upsert(update, { onConflict: 'key' })
+        if (error) {
+          console.error('Error saving setting key ' + update.key + ':', error)
+          hasError = true
+        }
+      }
+
+      if (hasError) {
+        alert('Warning: Some settings could not be saved to server.')
+      } else {
+        alert('✓ Settings saved successfully!')
+      }
+      
+      onUpdate()
+      setShowForm(false)
+    } catch (err) {
+      console.error('Error saving settings:', err)
+      alert('Error saving settings: ' + (err.message || 'Unknown error'))
+    }
+  }
+
+  return (
+    <div className="admin-card-panel">
+      <div className="admin-panel-header">
+        <h2 className="admin-panel-title">⚙️ {tLabel('वेबसाइट सेटिंग्स व सोशल लिंक', 'Website Settings & Social Links')}</h2>
+        {!showForm && (
+          <button type="button" className="admin-btn-primary" onClick={handleEdit}>
+            ✏️ {tLabel('संपादित करें', 'Edit Settings')}
+          </button>
+        )}
+      </div>
+      
+      {showForm && (
+        <form id="admin-active-form" onSubmit={handleSubmit} className="admin-form-container">
+          <div className="admin-form-grid">
+            <div className="admin-form-group full-width">
+              <label>{tLabel('वेबसाइट लोगो चित्र', 'Website Logo Image')}</label>
+              {logoPreview && (
+                <div style={{ marginBottom: '12px' }}>
+                  <img 
+                    src={logoPreview} 
+                    alt="Logo Preview" 
+                    style={{ 
+                      width: '90px', 
+                      height: '90px', 
+                      objectFit: 'contain', 
+                      borderRadius: '8px',
+                      border: '1px solid rgba(226, 215, 197, 0.8)',
+                      background: '#FFFFFF'
+                    }} 
+                  />
+                </div>
+              )}
+              <input
+                className="admin-input"
+                type="file"
+                accept="image/*"
+                onChange={handleLogoUpload}
+                disabled={uploadingLogo}
+              />
+              {uploadingLogo && <div style={{ marginTop: '6px', color: 'var(--leona-terracotta)', fontSize: '0.85rem' }}>{tLabel('लोगो अपलोड हो रहा है...', 'Uploading logo...')}</div>}
+            </div>
+
+            <div className="admin-form-group">
+              <label>{tLabel('फोन नंबर', 'Phone Number')}</label>
+              <input
+                className="admin-input"
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                placeholder="+917676885989"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>{tLabel('व्हाट्सएप लिंक', 'WhatsApp Link')}</label>
+              <input
+                className="admin-input"
+                value={formData.whatsapp}
+                onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
+                placeholder="https://wa.me/917676885989"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>{tLabel('ईमेल पता', 'Email Address')}</label>
+              <input
+                className="admin-input"
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                placeholder="info@gurupratapsharma.com"
+              />
+            </div>
+            <div className="admin-form-group full-width">
+              <label>{tLabel('संपर्क पता', 'Location Address')}</label>
+              <input
+                className="admin-input"
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                placeholder="साहित्य सदन, सिविल लाइन्स, जयपुर (राजस्थान), भारत - 302006"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>{tLabel('फेसबुक प्रोफाइल', 'Facebook Profile Link')}</label>
+              <input
+                className="admin-input"
+                value={formData.facebook}
+                onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
+                placeholder="https://facebook.com/gurupratap"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>{tLabel('इंस्टाग्राम प्रोफाइल', 'Instagram Profile Link')}</label>
+              <input
+                className="admin-input"
+                value={formData.instagram}
+                onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
+                placeholder="https://instagram.com/gurupratap"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>{tLabel('यूट्यूब चैनल', 'YouTube Channel Link')}</label>
+              <input
+                className="admin-input"
+                value={formData.youtube}
+                onChange={(e) => setFormData({ ...formData, youtube: e.target.value })}
+                placeholder="https://youtube.com/@gurupratap"
+              />
+            </div>
+
+            <div className="admin-form-group full-width">
+              <label>{tLabel('मुख्य पृष्ठ टैगलाइन', 'Homepage Tagline')}</label>
+              <input
+                className="admin-input"
+                value={formData.hero_tagline_hi}
+                onChange={(e) => setFormData({ ...formData, hero_tagline_hi: e.target.value })}
+                placeholder="साहित्य जगत में अपनी तेजस्वी रचनाओं से प्रसिद्ध"
+              />
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+            <button type="submit" className="admin-btn-primary">{tLabel('सहेजें', 'Save Settings')}</button>
+            <button type="button" className="admin-btn-secondary" onClick={handleCancel}>{tLabel('रद्द करें', 'Cancel')}</button>
+          </div>
+        </form>
+      )}
+
+      {!showForm && (
+        <div style={{ background: '#FFFFFF', padding: '20px', borderRadius: '12px', border: '1px solid rgba(226, 215, 197, 0.8)' }}>
+          <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.15rem', color: 'var(--leona-charcoal)', marginBottom: '12px' }}>
+            {tLabel('वर्तमान वेबसाइट सेटिंग्स', 'Current Website Settings')}
+          </h3>
+          <div style={{ fontSize: '0.92rem', color: 'var(--leona-text-main)', lineHeight: '1.8' }}>
+            <p><strong>{tLabel('फोन:', 'Phone:')}</strong> {settings.phone || '+91 76768 85989'}</p>
+            <p><strong>{tLabel('ईमेल:', 'Email:')}</strong> {settings.email || '(N/A)'}</p>
+            <p><strong>{tLabel('टैगलाइन:', 'Tagline:')}</strong> {settings.hero_tagline_hi || 'साहित्य जगत में अपनी तेजस्वी रचनाओं से प्रसिद्ध'}</p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Helper to extract numeric year from string (supports Hindi Devanagari १९४५ -> 1945)
+
+function parseYearNumber(yearStr) {
+  if (!yearStr) return 0
+  const devanagariMap = { '०':0,'१':1,'२':2,'३':3,'४':4,'५':5,'६':6,'७':7,'८':8,'९':9 }
+  const asciiStr = String(yearStr).replace(/[०-९]/g, match => devanagariMap[match])
+  const match = asciiStr.match(/\d+/)
+  return match ? parseInt(match[0], 10) : 0
+}
+
+// Timeline Manager Component
+
 function TimelineManager({ onUpdate }) {
   const { tLabel } = useAdminLang()
   const [items, setItems] = useState([])

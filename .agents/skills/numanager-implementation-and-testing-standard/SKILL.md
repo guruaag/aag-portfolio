@@ -33,8 +33,8 @@ Whenever this skill is triggered, immediately ask the user to select one of the 
   - Provide safe fallback handling so missing legacy columns never crash the application or prevent data saves.
 
 ### 2. Defensive UI & React Component Rules
-- **Import Verification**:
-  - Ensure all JSX components used in render functions (e.g. `<Link>`, `<NavLink>`, `<PM5WritingDesk>`) are explicitly imported at the top of the module to prevent `ReferenceError` crashes.
+- **Import Verification & Component Definitions**:
+  - Ensure all JSX components used in render functions (e.g. `<Link>`, `<NavLink>`, `<PM5WritingDesk>`, `<PoemsArchiveManager>`, `<PublicationsManager>`, `<SettingsManager>`) are explicitly imported or defined at the top level of the module to prevent `ReferenceError` crashes.
 - **Array Safeguards**:
   - Never evaluate `.length` or `.map()` directly on prop or state arrays without defensive guards (`const safeItems = Array.isArray(items) ? items : []`).
 - **Global Error Boundaries**:
@@ -77,7 +77,9 @@ Whenever this skill is triggered, immediately ask the user to select one of the 
   - Display custom bilingual modal ("Discard Changes / परिवर्तन छोड़ें" vs "Keep Editing / संपादन जारी रखें") before client-side navigation when `isDirty` is true.
   - Reset `isDirty` to `false` on form submit, cancel, or module unmount.
 
-### 6. Verification Protocol
+### 6. Verification & Pre-Commit Import Protocol
+- **Static Import & Definition Audit**:
+  - Before pushing any route or layout changes, run a full static import and component definition audit across `src/pages/Admin/Dashboard.jsx` and `src/App.jsx`. Never register or render a manager component without verifying its explicit import or top-level function definition in the file.
 - **Multibyte UTF-8 Code Integrity**:
   - When editing files containing Hindi/Devanagari text, avoid truncating multibyte character sequences.
 - **Mandatory Build Check**:
