@@ -312,7 +312,7 @@
 
 .pm5-editor-textarea {
   width: 100%;
-  height: 350px;
+  height: 380px;
   border: none;
   font-family: 'Tiro Devanagari Hindi', 'Eczar', serif;
   font-size: 1.25rem;
@@ -323,6 +323,8 @@
   background: transparent;
   margin-top: 12px;
   text-align: center;
+  overflow-y: auto;
+  overflow-x: hidden;
   overflow-wrap: break-word;
   word-break: break-word;
 }

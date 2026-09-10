@@ -1,38 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import './PM5WritingDesk.css';
 
-export function paginateTextIntoPages(fullText, maxEffectiveLines = 12, charsPerLine = 36) {
+export function paginateTextIntoPages(fullText, linesPerPage = 14) {
   if (!fullText || !fullText.trim()) return [''];
   const rawLines = fullText.split('\n');
   const pages = [];
   let currentPageLines = [];
-  let currentEffectiveCount = 0;
 
   for (let line of rawLines) {
-    let visualLinesNeeded = Math.max(1, Math.ceil((line.length || 1) / charsPerLine));
-
-    if (currentEffectiveCount + visualLinesNeeded > maxEffectiveLines && currentPageLines.length > 0) {
+    currentPageLines.push(line);
+    if (currentPageLines.length >= linesPerPage) {
       pages.push(currentPageLines.join('\n'));
       currentPageLines = [];
-      currentEffectiveCount = 0;
-    }
-
-    if (visualLinesNeeded > maxEffectiveLines) {
-      let remaining = line;
-      while (remaining.length > 0) {
-        let maxChars = maxEffectiveLines * charsPerLine;
-        let chunk = remaining.substring(0, maxChars);
-        remaining = remaining.substring(maxChars);
-        if (currentPageLines.length > 0) {
-          pages.push(currentPageLines.join('\n'));
-          currentPageLines = [];
-          currentEffectiveCount = 0;
-        }
-        pages.push(chunk);
-      }
-    } else {
-      currentPageLines.push(line);
-      currentEffectiveCount += visualLinesNeeded;
     }
   }
 
@@ -44,8 +23,6 @@ export function paginateTextIntoPages(fullText, maxEffectiveLines = 12, charsPer
 }
 
 export default function PM5WritingDesk({ initialPages = [''], onSave = null, initialTitle = '', lang = 'hi' }) {
-  const MAX_EFFECTIVE_LINES = 12;
-  const CHARS_PER_LINE = 36;
   const isEn = lang === 'en' || lang === 'EN';
 
   const toHindiNumerals = (num) => {
@@ -125,27 +102,8 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
   }, [historyPointer, history, activeIdx]);
 
   const updatePageContent = (text) => {
-    const rawLines = text.split('\n');
-    let totalEffectiveLines = 0;
-    let trimmedLines = [];
-
-    for (let line of rawLines) {
-      let visualLinesNeeded = Math.max(1, Math.ceil(line.length / CHARS_PER_LINE));
-      if (totalEffectiveLines + visualLinesNeeded <= MAX_EFFECTIVE_LINES) {
-        totalEffectiveLines += visualLinesNeeded;
-        trimmedLines.push(line);
-      } else {
-        let allowedChars = (MAX_EFFECTIVE_LINES - totalEffectiveLines) * CHARS_PER_LINE;
-        if (allowedChars > 0) {
-          trimmedLines.push(line.substring(0, allowedChars));
-        }
-        break;
-      }
-    }
-
-    const finalString = trimmedLines.join('\n');
     const updatedPages = [...pages];
-    updatedPages[activeIdx] = finalString;
+    updatedPages[activeIdx] = text;
 
     setPages(updatedPages);
     pushHistory(updatedPages);
@@ -157,15 +115,11 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
     if (!pastedText) return;
 
     const rawLines = pastedText.split('\n');
-    let visualLinesNeeded = 0;
-    for (let l of rawLines) {
-      visualLinesNeeded += Math.max(1, Math.ceil(l.length / CHARS_PER_LINE));
-    }
 
-    // If pasted content exceeds single page bounds (more than 12 lines), auto-paginate across multiple pages
-    if (visualLinesNeeded > MAX_EFFECTIVE_LINES || rawLines.length > MAX_EFFECTIVE_LINES) {
+    // If pasted content exceeds single page bounds (more than 16 lines), auto-paginate across multiple pages
+    if (rawLines.length > 16) {
       e.preventDefault();
-      const paginatedPastedPages = paginateTextIntoPages(pastedText, MAX_EFFECTIVE_LINES, CHARS_PER_LINE);
+      const paginatedPastedPages = paginateTextIntoPages(pastedText, 14);
       
       const newPages = [...pages];
       newPages.splice(activeIdx, 1, ...paginatedPastedPages);
@@ -174,7 +128,7 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
       pushHistory(newPages);
       if (onSave) onSave(newPages, title);
     }
-    // Short paste operates natively via onChange
+    // Short paste operates natively via onChange without breaking cursor
   };
 
   const addNewPage = () => {
@@ -227,7 +181,7 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
       {/* Top Bar with Undo / Redo */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
         <div style={{ fontSize: '0.85rem', color: '#666' }}>
-          📐 {isEn ? 'Format: Max 12 lines per page • Max 36 chars per line' : 'प्रारूप: अधिकतम १२ पंक्तियाँ प्रति पृष्ठ • ३६ अक्षर प्रति पंक्ति'}
+          📐 {isEn ? 'Format: Standard Font Size • Natural Line Wrap & Flexible Page Bounds' : 'प्रारूप: मानक फॉन्ट आकार • स्वाभाविक पंक्ति प्रवाह एवं लचीला पृष्ठ आकार'}
         </div>
         <div style={{ display: 'flex', gap: '10px' }}>
           <button type="button" className="pm5-undo-btn" onClick={handleUndo} disabled={historyPointer === 0} title={isEn ? 'Undo (Ctrl+Z)' : 'पूर्ववत करें (Ctrl+Z)'}>
@@ -318,12 +272,8 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
 
             {/* Bottom Status Bar */}
             <div className="pm5-sheet-footer">
-              <span>{isEn ? 'Effective lines:' : 'प्रभावी पंक्तियां:'} <strong>{toHindiNumerals(currentLinesCount)} / {toHindiNumerals(MAX_EFFECTIVE_LINES)}</strong></span>
-              <span className={`limit-status ${currentLinesCount > MAX_EFFECTIVE_LINES ? 'exceeded' : 'safe'}`}>
-                {currentLinesCount > MAX_EFFECTIVE_LINES 
-                  ? (isEn ? '⛔ Page limit reached' : '⛔ पृष्ठ सीमा पूर्ण!') 
-                  : (isEn ? '✓ Safe bounds' : '✓ सीमा के भीतर')}
-              </span>
+              <span>{isEn ? 'Page lines:' : 'कुल पंक्तियाँ:'} <strong>{toHindiNumerals(currentLinesCount)}</strong></span>
+              <span>{isEn ? 'Characters:' : 'कुल अक्षर:'} <strong>{toHindiNumerals(currentText.length)}</strong></span>
               <span>{isEn ? `Page ${activeIdx + 1}` : `पृष्ठ ${toHindiNumerals(activeIdx + 1)}`}</span>
             </div>
           </div>
