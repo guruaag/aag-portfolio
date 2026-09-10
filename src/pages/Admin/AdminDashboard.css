@@ -405,6 +405,80 @@
   gap: 14px;
 }
 
+/* Custom Bilingual Unsaved Changes Modal */
+.admin-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(30, 27, 24, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.admin-modal-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  padding: 32px;
+  max-width: 460px;
+  width: 100%;
+  text-align: center;
+  border: 2px solid var(--leona-terracotta, #F66E5E);
+  animation: adminModalPop 0.25s ease-out;
+}
+
+@keyframes adminModalPop {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.admin-modal-icon {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.admin-modal-title {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--leona-charcoal, #1E1B18);
+  margin-bottom: 10px;
+}
+
+.admin-modal-body {
+  font-size: 0.95rem;
+  color: #555555;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.admin-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.admin-modal-actions button {
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
 .admin-dirty-badge {
   background: #FFF0ED;
   color: #D95343;

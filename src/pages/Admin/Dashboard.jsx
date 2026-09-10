@@ -18,11 +18,44 @@ export function useAdminLang() {
   return useContext(AdminLangContext)
 }
 
+// Custom Bilingual Unsaved Changes Confirmation Modal Component
+function UnsavedChangesModal({ isOpen, onConfirmDiscard, onKeepEditing, tLabel }) {
+  if (!isOpen) return null
+
+  return (
+    <div className="admin-modal-overlay">
+      <div className="admin-modal-card">
+        <div className="admin-modal-icon">⚠️</div>
+        <h3 className="admin-modal-title">
+          {tLabel('असुरक्षित बदलाव मौजूद हैं', 'Unsaved Changes Detected')}
+        </h3>
+        <p className="admin-modal-body">
+          {tLabel(
+            'आपके द्वारा किए गए परिवर्तन अभी तक सहेजे नहीं गए हैं। यदि आप आगे बढ़ते हैं, तो आपके बदलाव नष्ट हो जाएंगे।',
+            'You have unsaved changes on this form. Leaving this page will discard your recent updates.'
+          )}
+        </p>
+        <div className="admin-modal-actions">
+          <button type="button" className="admin-btn-secondary" onClick={onKeepEditing}>
+            ✏️ {tLabel('संपादन जारी रखें', 'Keep Editing')}
+          </button>
+          <button type="button" className="admin-btn-danger" onClick={onConfirmDiscard}>
+            🗑️ {tLabel('परिवर्तन छोड़ें', 'Discard Changes')}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function AdminDashboard({ tab }) {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState(tab || 'categories')
   const [loading, setLoading] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [isDirty, setIsDirty] = useState(false)
+  const [showUnsavedModal, setShowUnsavedModal] = useState(false)
+  const [pendingNavigation, setPendingNavigation] = useState(null)
   const [adminLang, setAdminLangState] = useState(() => localStorage.getItem('siteLanguage') || (i18n.language === 'en' ? 'en' : 'hi'))
 
   useEffect(() => {
@@ -65,12 +98,46 @@ function AdminDashboard({ tab }) {
     }
   }, [tab])
 
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (isDirty) {
+        e.preventDefault()
+        e.returnValue = ''
+      }
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [isDirty])
+
   const switchTab = (newTab, routePath) => {
+    if (isDirty) {
+      setPendingNavigation({ newTab, routePath })
+      setShowUnsavedModal(true)
+      return
+    }
+    executeTabSwitch(newTab, routePath)
+  }
+
+  const executeTabSwitch = (newTab, routePath) => {
+    setIsDirty(false)
     setActiveTab(newTab)
     setMobileOpen(false)
     if (routePath) {
       navigate(routePath)
     }
+  }
+
+  const handleConfirmDiscard = () => {
+    setShowUnsavedModal(false)
+    if (pendingNavigation) {
+      executeTabSwitch(pendingNavigation.newTab, pendingNavigation.routePath)
+      setPendingNavigation(null)
+    }
+  }
+
+  const handleCancelNavigation = () => {
+    setShowUnsavedModal(false)
+    setPendingNavigation(null)
   }
   const [data, setData] = useState({
     categories: [],
@@ -174,6 +241,12 @@ function AdminDashboard({ tab }) {
 
   return (
     <AdminLangContext.Provider value={{ adminLang, setAdminLang: setAdminLangState, toggleAdminLang, tLabel }}>
+      <UnsavedChangesModal
+        isOpen={showUnsavedModal}
+        onConfirmDiscard={handleConfirmDiscard}
+        onKeepEditing={handleCancelNavigation}
+        tLabel={tLabel}
+      />
       <div className="admin-layout">
         
         {/* Mobile Top Navigation Bar (<768px) */}
@@ -341,6 +414,11 @@ function AdminDashboard({ tab }) {
             </div>
 
             <div className="admin-sticky-header-right">
+              {isDirty && (
+                <span className="admin-dirty-badge">
+                  ⚠️ {tLabel('असुरक्षित बदलाव', 'Unsaved Changes')}
+                </span>
+              )}
               <button
                 type="submit"
                 form="admin-active-form"
@@ -354,13 +432,14 @@ function AdminDashboard({ tab }) {
 
           <div className="admin-dashboard-container" style={{ padding: '24px' }}>
             {activeTab === 'home' && (
-              <HomeManager publications={data.publications} about={data.about} settings={data.settings} onUpdate={loadData} />
+              <HomeManager publications={data.publications} about={data.about} settings={data.settings} onUpdate={loadData} setIsDirty={setIsDirty} />
             )}
             {(activeTab === 'about' || activeTab === 'timeline' || activeTab === 'awards') && (
               <AboutManager
                 about={data.about}
                 initialSubTab={activeTab === 'timeline' ? 'timeline' : (activeTab === 'awards' ? 'awards' : 'bio')}
                 onUpdate={loadData}
+                setIsDirty={setIsDirty}
               />
             )}
             {(activeTab === 'poems' || activeTab === 'categories') && (
@@ -369,20 +448,22 @@ function AdminDashboard({ tab }) {
                 categories={data.categories}
                 initialSubTab={activeTab === 'categories' ? 'categories' : 'poems'}
                 onUpdate={loadData}
+                setIsDirty={setIsDirty}
               />
             )}
             {activeTab === 'publications' && (
-              <PublicationsManager publications={data.publications} onUpdate={loadData} />
+              <PublicationsManager publications={data.publications} onUpdate={loadData} setIsDirty={setIsDirty} />
             )}
             {(activeTab === 'contact' || activeTab === 'inbox') && (
               <ContactSectionManager
                 settings={data.settings}
                 initialSubTab={activeTab === 'inbox' ? 'inbox' : 'info'}
                 onUpdate={loadData}
+                setIsDirty={setIsDirty}
               />
             )}
             {activeTab === 'settings' && (
-              <SettingsManager settings={data.settings} onUpdate={loadData} />
+              <SettingsManager settings={data.settings} onUpdate={loadData} setIsDirty={setIsDirty} />
             )}
           </div>
         </main>
