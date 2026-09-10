@@ -893,8 +893,211 @@ function ContactSectionManager({ settings, initialSubTab, onUpdate, setIsDirty }
 
   return (
     <div>
-      {subTab === 'info' && <SettingsManager settings={settings} onUpdate={onUpdate} />}
+      {subTab === 'info' && <ContactInfoForm settings={settings} onUpdate={onUpdate} setIsDirty={setIsDirty} />}
       {subTab === 'inbox' && <InboxManager onUpdate={onUpdate} />}
+    </div>
+  )
+}
+
+function ContactInfoForm({ settings, onUpdate, setIsDirty }) {
+  const { tLabel } = useAdminLang()
+  const [formData, setFormData] = useState({
+    phone: '',
+    phone_text: '',
+    whatsapp: '',
+    whatsapp_text: '',
+    email: '',
+    email_text: '',
+    address: '',
+    facebook: '',
+    instagram: '',
+    twitter: '',
+    linkedin: '',
+    youtube: ''
+  })
+
+  useEffect(() => {
+    if (settings) {
+      setFormData({
+        phone: settings.phone || '+91 76768 85989',
+        phone_text: settings.phone_text || 'कॉल करें',
+        whatsapp: settings.whatsapp || 'https://wa.me/917676885989',
+        whatsapp_text: settings.whatsapp_text || 'व्हाट्सएप करें',
+        email: settings.email || 'contact@gurupratapsharma.com',
+        email_text: settings.email_text || 'ईमेल भेजें',
+        address: settings.address || 'साहित्य सदन, सिविल लाइन्स, जयपुर (राजस्थान), भारत - 302006',
+        facebook: settings.facebook || '',
+        instagram: settings.instagram || '',
+        twitter: settings.twitter || '',
+        linkedin: settings.linkedin || '',
+        youtube: settings.youtube || ''
+      })
+    }
+  }, [settings])
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const updates = Object.entries(formData).map(([key, value]) => ({
+        key,
+        value: value !== undefined && value !== null ? String(value) : '',
+        display_label: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+      }))
+
+      let hasError = false
+      for (const update of updates) {
+        const { error } = await supabase.from('settings').upsert(update, { onConflict: 'key' })
+        if (error) {
+          console.error('Error saving contact key ' + update.key + ':', error)
+          hasError = true
+        }
+      }
+
+      if (hasError) {
+        alert(tLabel('चेतावनी: कुछ संपर्क विवरण सहेजे नहीं जा सके।', 'Warning: Some contact details could not be saved.'))
+      } else {
+        alert(tLabel('✓ संपर्क विवरण सफलतापूर्वक सहेजे गए!', '✓ Contact details saved successfully!'))
+      }
+
+      if (setIsDirty) setIsDirty(false)
+      if (onUpdate) onUpdate()
+    } catch (err) {
+      console.error('Error saving contact details:', err)
+      alert(tLabel('त्रुटि: ' + (err.message || 'अज्ञात त्रुटि'), 'Error saving contact details: ' + (err.message || 'Unknown error')))
+    }
+  }
+
+  return (
+    <div className="admin-card-panel">
+      <div className="admin-panel-header">
+        <h2 className="admin-panel-title">📍 {tLabel('सार्वजनिक संपर्क जानकारी', 'Public Contact Details')}</h2>
+      </div>
+
+      <form
+        id="admin-active-form"
+        onSubmit={handleSubmit}
+        onChange={() => setIsDirty && setIsDirty(true)}
+        onInput={() => setIsDirty && setIsDirty(true)}
+        className="admin-form-container"
+      >
+        <div className="admin-form-grid">
+          <div className="admin-form-group">
+            <label>{tLabel('फोन नंबर', 'Phone Number')}</label>
+            <input
+              className="admin-input"
+              type="tel"
+              value={formData.phone}
+              onChange={e => setFormData({ ...formData, phone: e.target.value })}
+              placeholder="+91 76768 85989"
+            />
+          </div>
+          <div className="admin-form-group">
+            <label>{tLabel('फोन बटन टेक्स्ट', 'Phone Button Text')}</label>
+            <input
+              className="admin-input"
+              value={formData.phone_text}
+              onChange={e => setFormData({ ...formData, phone_text: e.target.value })}
+              placeholder="Call me"
+            />
+          </div>
+          <div className="admin-form-group">
+            <label>{tLabel('व्हाट्सएप लिंक', 'WhatsApp Link')}</label>
+            <input
+              className="admin-input"
+              value={formData.whatsapp}
+              onChange={e => setFormData({ ...formData, whatsapp: e.target.value })}
+              placeholder="https://wa.me/917676885989"
+            />
+          </div>
+          <div className="admin-form-group">
+            <label>{tLabel('व्हाट्सएप बटन टेक्स्ट', 'WhatsApp Button Text')}</label>
+            <input
+              className="admin-input"
+              value={formData.whatsapp_text}
+              onChange={e => setFormData({ ...formData, whatsapp_text: e.target.value })}
+              placeholder="Whatsapp me"
+            />
+          </div>
+          <div className="admin-form-group">
+            <label>{tLabel('ईमेल पता', 'Email Address')}</label>
+            <input
+              className="admin-input"
+              type="email"
+              value={formData.email}
+              onChange={e => setFormData({ ...formData, email: e.target.value })}
+              placeholder="contact@gurupratapsharma.com"
+            />
+          </div>
+          <div className="admin-form-group">
+            <label>{tLabel('ईमेल बटन टेक्स्ट', 'Email Button Text')}</label>
+            <input
+              className="admin-input"
+              value={formData.email_text}
+              onChange={e => setFormData({ ...formData, email_text: e.target.value })}
+              placeholder="Email me"
+            />
+          </div>
+          <div className="admin-form-group full-width">
+            <label>{tLabel('संपर्क पता (स्थान)', 'Location Address')}</label>
+            <input
+              className="admin-input"
+              value={formData.address}
+              onChange={e => setFormData({ ...formData, address: e.target.value })}
+              placeholder="साहित्य सदन, सिविल लाइन्स, जयपुर (राजस्थान), भारत - 302006"
+            />
+          </div>
+          <div className="admin-form-group">
+            <label>{tLabel('फेसबुक प्रोफाइल लिंक', 'Facebook Profile Link')}</label>
+            <input
+              className="admin-input"
+              value={formData.facebook}
+              onChange={e => setFormData({ ...formData, facebook: e.target.value })}
+              placeholder="https://facebook.com/gurupratap"
+            />
+          </div>
+          <div className="admin-form-group">
+            <label>{tLabel('इंस्टाग्राम प्रोफाइल लिंक', 'Instagram Profile Link')}</label>
+            <input
+              className="admin-input"
+              value={formData.instagram}
+              onChange={e => setFormData({ ...formData, instagram: e.target.value })}
+              placeholder="https://instagram.com/gurupratap"
+            />
+          </div>
+          <div className="admin-form-group">
+            <label>{tLabel('ट्विटर / एक्स प्रोफाइल लिंक', 'Twitter/X Profile Link')}</label>
+            <input
+              className="admin-input"
+              value={formData.twitter}
+              onChange={e => setFormData({ ...formData, twitter: e.target.value })}
+              placeholder="https://twitter.com/gurupratap"
+            />
+          </div>
+          <div className="admin-form-group">
+            <label>{tLabel('लिंक्डइन प्रोफाइल लिंक', 'LinkedIn Profile Link')}</label>
+            <input
+              className="admin-input"
+              value={formData.linkedin}
+              onChange={e => setFormData({ ...formData, linkedin: e.target.value })}
+              placeholder="https://linkedin.com/in/gurupratap"
+            />
+          </div>
+          <div className="admin-form-group">
+            <label>{tLabel('यूट्यूब चैनल लिंक', 'YouTube Channel Link')}</label>
+            <input
+              className="admin-input"
+              value={formData.youtube}
+              onChange={e => setFormData({ ...formData, youtube: e.target.value })}
+              placeholder="https://youtube.com/@gurupratap"
+            />
+          </div>
+        </div>
+        <div style={{ marginTop: '20px' }}>
+          <button type="submit" className="admin-btn-primary">
+            💾 {tLabel('संपर्क विवरण सहेजें', 'Save Contact Details')}
+          </button>
+        </div>
+      </form>
     </div>
   )
 }
@@ -1849,121 +2052,70 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
 
 function SettingsManager({ settings, onUpdate, setIsDirty }) {
   const { tLabel } = useAdminLang()
-  const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState({
-    phone: '',
-    phone_text: '',
-    whatsapp: '',
-    whatsapp_text: '',
-    email: '',
-    email_text: '',
-    address: '',
-    facebook: '',
-    instagram: '',
-    twitter: '',
-    linkedin: '',
-    youtube: '',
+    site_title: '',
+    meta_description: '',
+    meta_keywords: '',
+    social_share_image: '',
     logo_path: '',
-    thank_you_message: '',
+    default_accent: '#964B00',
+    copyright_text: '',
     thank_you_title: '',
+    thank_you_message: '',
     thank_you_heading: '',
     thank_you_description: '',
     thank_you_button_text: '',
-    hero_tagline_en: '',
     hero_tagline_hi: '',
-    default_accent: '#964B00'
+    hero_tagline_en: ''
   })
-  const [uploadingLogo, setUploadingLogo] = useState(false)
-  const [logoPreview, setLogoPreview] = useState(null)
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [shareImagePreview, setShareImagePreview] = useState(null)
 
   useEffect(() => {
     if (settings) {
       setFormData({
-        phone: settings.phone || '',
-        phone_text: settings.phone_text || '',
-        whatsapp: settings.whatsapp || '',
-        whatsapp_text: settings.whatsapp_text || '',
-        email: settings.email || '',
-        email_text: settings.email_text || '',
-        address: settings.address || '',
-        facebook: settings.facebook || '',
-        instagram: settings.instagram || '',
-        twitter: settings.twitter || '',
-        linkedin: settings.linkedin || '',
-        youtube: settings.youtube || '',
+        site_title: settings.site_title || 'कवि गुरुप्रताप शर्मा "आग" | आधिकारिक वेबसाइट',
+        meta_description: settings.meta_description || 'कवि गुरुप्रताप शर्मा "आग" की हिंदी काव्य संग्रह, कविताएं एवं साहित्यिक कृतियों का आधिकारिक डिजिटल संग्रह।',
+        meta_keywords: settings.meta_keywords || 'कवि, गुरुप्रताप शर्मा, आग, हिंदी काव्य, हिंदी साहित्य, ओजस्वी कविताएं, कविताएं, राजस्थान',
+        social_share_image: settings.social_share_image || settings.logo_path || '',
         logo_path: settings.logo_path || '',
-        thank_you_message: settings.thank_you_message || '',
-        thank_you_title: settings.thank_you_title || '',
+        default_accent: settings.default_accent || '#964B00',
+        copyright_text: settings.copyright_text || '© सर्वाधिकार सुरक्षित - कवि गुरुप्रताप शर्मा "आग"',
+        thank_you_title: settings.thank_you_title || 'धन्यवाद!',
+        thank_you_message: settings.thank_you_message || 'आपका संदेश सफलतापूर्वक प्राप्त हो गया है।',
         thank_you_heading: settings.thank_you_heading || '',
         thank_you_description: settings.thank_you_description || '',
-        thank_you_button_text: settings.thank_you_button_text || '',
-        hero_tagline_en: settings.hero_tagline_en || '',
-        hero_tagline_hi: settings.hero_tagline_hi || '',
-        default_accent: settings.default_accent || '#964B00'
+        thank_you_button_text: settings.thank_you_button_text || 'ठीक है',
+        hero_tagline_hi: settings.hero_tagline_hi || 'साहित्य जगत में अपनी तेजस्वी रचनाओं से प्रसिद्ध',
+        hero_tagline_en: settings.hero_tagline_en || 'Renowned for his fiery literary works'
       })
-      if (settings.logo_path) {
-        setLogoPreview(getImageUrl(settings.logo_path))
+      if (settings.social_share_image || settings.logo_path) {
+        setShareImagePreview(getImageUrl(settings.social_share_image || settings.logo_path))
       }
     }
   }, [settings])
 
-  const handleEdit = () => {
-    setShowForm(true)
-  }
-
-  const handleCancel = () => {
-    setShowForm(false)
-    // Reset form data to current settings
-    setFormData({
-      phone: settings.phone || '+91 98290 12345',
-      phone_text: settings.phone_text || 'Call me',
-      whatsapp: settings.whatsapp || 'https://wa.me/919829012345',
-      whatsapp_text: settings.whatsapp_text || 'Whatsapp me',
-      email: settings.email || 'contact@gurupratapsharma.com',
-      email_text: settings.email_text || 'Email me',
-      address: settings.address || 'साहित्य सदन, सिविल लाइन्स, जयपुर (राजस्थान), भारत - 302006',
-      facebook: settings.facebook || '',
-      instagram: settings.instagram || '',
-      twitter: settings.twitter || '',
-      linkedin: settings.linkedin || '',
-      youtube: settings.youtube || '',
-      logo_path: settings.logo_path || '',
-      thank_you_message: settings.thank_you_message || 'Thank you!',
-      thank_you_title: settings.thank_you_title || '',
-      thank_you_heading: settings.thank_you_heading || '',
-      thank_you_description: settings.thank_you_description || '',
-      thank_you_button_text: settings.thank_you_button_text || '',
-      hero_tagline_en: settings.hero_tagline_en || 'Renowned for his fiery literary works',
-      hero_tagline_hi: settings.hero_tagline_hi || 'साहित्य जगत में अपनी तेजस्वी रचनाओं से प्रसिद्ध',
-      default_accent: settings.default_accent || '#964B00'
-    })
-    if (settings.logo_path) {
-      setLogoPreview(getImageUrl(settings.logo_path))
-    } else {
-      setLogoPreview(null)
-    }
-  }
-
-  const handleLogoUpload = async (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
 
     if (!file.type.startsWith('image/')) {
-      alert('Please select an image file')
+      alert(tLabel('कृपया एक फोटो फाइल चुनें।', 'Please select an image file'))
       return
     }
 
     try {
-      setUploadingLogo(true)
-      const fileName = `logo-${Date.now()}.${file.name.split('.').pop()}`
+      setUploadingImage(true)
+      const fileName = `share-preview-${Date.now()}.${file.name.split('.').pop()}`
       const path = await uploadImage(file, 'logos', fileName)
-      setFormData({ ...formData, logo_path: path })
-      setLogoPreview(URL.createObjectURL(file))
-      alert('Logo uploaded!')
+      setFormData(prev => ({ ...prev, social_share_image: path, logo_path: path }))
+      setShareImagePreview(URL.createObjectURL(file))
+      if (setIsDirty) setIsDirty(true)
+      alert(tLabel('सोशल शेयर फोटो अपलोड हो गई!', 'Share preview image uploaded!'))
     } catch (err) {
-      alert('Error uploading logo: ' + err.message)
+      alert(tLabel('अपलोड त्रुटि: ', 'Upload error: ') + err.message)
     } finally {
-      setUploadingLogo(false)
+      setUploadingImage(false)
     }
   }
 
@@ -1986,156 +2138,177 @@ function SettingsManager({ settings, onUpdate, setIsDirty }) {
       }
 
       if (hasError) {
-        alert('Warning: Some settings could not be saved to server.')
+        alert(tLabel('चेतावनी: कुछ सेटिंग्स सहेजी नहीं जा सकीं।', 'Warning: Some settings could not be saved.'))
       } else {
-        alert('✓ Settings saved successfully!')
+        alert(tLabel('✓ वेबसाइट व एसईओ सेटिंग्स सफलतापूर्वक सहेजी गईं!', '✓ Website & SEO settings saved successfully!'))
       }
-      
-      onUpdate()
-      setShowForm(false)
+
+      if (setIsDirty) setIsDirty(false)
+      if (onUpdate) onUpdate()
     } catch (err) {
       console.error('Error saving settings:', err)
-      alert('Error saving settings: ' + (err.message || 'Unknown error'))
+      alert(tLabel('त्रुटि: ', 'Error saving settings: ') + (err.message || 'Unknown error'))
     }
   }
 
   return (
     <div className="admin-card-panel">
       <div className="admin-panel-header">
-        <h2 className="admin-panel-title">⚙️ {tLabel('वेबसाइट सेटिंग्स व सोशल लिंक', 'Website Settings & Social Links')}</h2>
-        {!showForm && (
-          <button type="button" className="admin-btn-primary" onClick={handleEdit}>
-            ✏️ {tLabel('संपादित करें', 'Edit Settings')}
-          </button>
-        )}
+        <h2 className="admin-panel-title">⚙️ {tLabel('वेबसाइट सेटिंग्स व एसईओ (SEO)', 'Site Settings & SEO Manager')}</h2>
       </div>
-      
-      {showForm && (
-        <form id="admin-active-form" onSubmit={handleSubmit} onChange={() => setIsDirty && setIsDirty(true)} onInput={() => setIsDirty && setIsDirty(true)} className="admin-form-container">
-          <div className="admin-form-grid">
-            <div className="admin-form-group full-width">
-              <label>{tLabel('वेबसाइट लोगो चित्र', 'Website Logo Image')}</label>
-              {logoPreview && (
-                <div style={{ marginBottom: '12px' }}>
-                  <img 
-                    src={logoPreview} 
-                    alt="Logo Preview" 
-                    style={{ 
-                      width: '90px', 
-                      height: '90px', 
-                      objectFit: 'contain', 
-                      borderRadius: '8px',
-                      border: '1px solid rgba(226, 215, 197, 0.8)',
-                      background: '#FFFFFF'
-                    }} 
-                  />
-                </div>
-              )}
-              <input
-                className="admin-input"
-                type="file"
-                accept="image/*"
-                onChange={handleLogoUpload}
-                disabled={uploadingLogo}
-              />
-              {uploadingLogo && <div style={{ marginTop: '6px', color: 'var(--leona-terracotta)', fontSize: '0.85rem' }}>{tLabel('लोगो अपलोड हो रहा है...', 'Uploading logo...')}</div>}
-            </div>
 
-            <div className="admin-form-group">
-              <label>{tLabel('फोन नंबर', 'Phone Number')}</label>
-              <input
-                className="admin-input"
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                placeholder="+917676885989"
-              />
-            </div>
-            <div className="admin-form-group">
-              <label>{tLabel('व्हाट्सएप लिंक', 'WhatsApp Link')}</label>
-              <input
-                className="admin-input"
-                value={formData.whatsapp}
-                onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-                placeholder="https://wa.me/917676885989"
-              />
-            </div>
-            <div className="admin-form-group">
-              <label>{tLabel('ईमेल पता', 'Email Address')}</label>
-              <input
-                className="admin-input"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="info@gurupratapsharma.com"
-              />
-            </div>
-            <div className="admin-form-group full-width">
-              <label>{tLabel('संपर्क पता', 'Location Address')}</label>
-              <input
-                className="admin-input"
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                placeholder="साहित्य सदन, सिविल लाइन्स, जयपुर (राजस्थान), भारत - 302006"
-              />
-            </div>
-            <div className="admin-form-group">
-              <label>{tLabel('फेसबुक प्रोफाइल', 'Facebook Profile Link')}</label>
-              <input
-                className="admin-input"
-                value={formData.facebook}
-                onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
-                placeholder="https://facebook.com/gurupratap"
-              />
-            </div>
-            <div className="admin-form-group">
-              <label>{tLabel('इंस्टाग्राम प्रोफाइल', 'Instagram Profile Link')}</label>
-              <input
-                className="admin-input"
-                value={formData.instagram}
-                onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
-                placeholder="https://instagram.com/gurupratap"
-              />
-            </div>
-            <div className="admin-form-group">
-              <label>{tLabel('यूट्यूब चैनल', 'YouTube Channel Link')}</label>
-              <input
-                className="admin-input"
-                value={formData.youtube}
-                onChange={(e) => setFormData({ ...formData, youtube: e.target.value })}
-                placeholder="https://youtube.com/@gurupratap"
-              />
-            </div>
+      <form
+        id="admin-active-form"
+        onSubmit={handleSubmit}
+        onChange={() => setIsDirty && setIsDirty(true)}
+        onInput={() => setIsDirty && setIsDirty(true)}
+        className="admin-form-container"
+      >
+        <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', color: 'var(--leona-charcoal)', marginBottom: '16px', borderBottom: '1px solid rgba(226, 215, 197, 0.6)', paddingBottom: '8px' }}>
+          🔍 {tLabel('1. खोज इंजन अनुकूलन (SEO & Metadata)', '1. Search Engine Optimization (SEO & Meta)')}
+        </h3>
 
-            <div className="admin-form-group full-width">
-              <label>{tLabel('मुख्य पृष्ठ टैगलाइन', 'Homepage Tagline')}</label>
-              <input
-                className="admin-input"
-                value={formData.hero_tagline_hi}
-                onChange={(e) => setFormData({ ...formData, hero_tagline_hi: e.target.value })}
-                placeholder="साहित्य जगत में अपनी तेजस्वी रचनाओं से प्रसिद्ध"
-              />
-            </div>
+        <div className="admin-form-grid" style={{ marginBottom: '24px' }}>
+          <div className="admin-form-group full-width">
+            <label>{tLabel('वेबसाइट मुख्य शीर्षक (SEO Title)', 'Site Title (SEO Title)')}</label>
+            <input
+              className="admin-input"
+              value={formData.site_title}
+              onChange={e => setFormData({ ...formData, site_title: e.target.value })}
+              placeholder='कवि गुरुप्रताप शर्मा "आग" | आधिकारिक वेबसाइट'
+            />
           </div>
-          <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-            <button type="submit" className="admin-btn-primary">{tLabel('सहेजें', 'Save Settings')}</button>
-            <button type="button" className="admin-btn-secondary" onClick={handleCancel}>{tLabel('रद्द करें', 'Cancel')}</button>
-          </div>
-        </form>
-      )}
 
-      {!showForm && (
-        <div style={{ background: '#FFFFFF', padding: '20px', borderRadius: '12px', border: '1px solid rgba(226, 215, 197, 0.8)' }}>
-          <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.15rem', color: 'var(--leona-charcoal)', marginBottom: '12px' }}>
-            {tLabel('वर्तमान वेबसाइट सेटिंग्स', 'Current Website Settings')}
-          </h3>
-          <div style={{ fontSize: '0.92rem', color: 'var(--leona-text-main)', lineHeight: '1.8' }}>
-            <p><strong>{tLabel('फोन:', 'Phone:')}</strong> {settings.phone || '+91 76768 85989'}</p>
-            <p><strong>{tLabel('ईमेल:', 'Email:')}</strong> {settings.email || '(N/A)'}</p>
-            <p><strong>{tLabel('टैगलाइन:', 'Tagline:')}</strong> {settings.hero_tagline_hi || 'साहित्य जगत में अपनी तेजस्वी रचनाओं से प्रसिद्ध'}</p>
+          <div className="admin-form-group full-width">
+            <label>{tLabel('एसईओ विवरण (Meta Description)', 'Meta Description')}</label>
+            <textarea
+              className="admin-input"
+              rows={3}
+              value={formData.meta_description}
+              onChange={e => setFormData({ ...formData, meta_description: e.target.value })}
+              placeholder="कवि गुरुप्रताप शर्मा की काव्य रचनाओं का आधिकारिक संकलन..."
+            />
+          </div>
+
+          <div className="admin-form-group full-width">
+            <label>{tLabel('खोज कीवर्ड्स (Meta Keywords)', 'Meta Keywords (Comma separated)')}</label>
+            <input
+              className="admin-input"
+              value={formData.meta_keywords}
+              onChange={e => setFormData({ ...formData, meta_keywords: e.target.value })}
+              placeholder="कवि, गुरुप्रताप शर्मा, आग, हिंदी काव्य, कविताएं"
+            />
+          </div>
+
+          <div className="admin-form-group full-width">
+            <label>{tLabel('सोशल मीडिया शेयर फोटो (OpenGraph Image)', 'Social Share Preview Image (OG Image)')}</label>
+            {shareImagePreview && (
+              <div style={{ marginBottom: '12px' }}>
+                <img
+                  src={shareImagePreview}
+                  alt="Social Share Preview"
+                  style={{
+                    maxHeight: '120px',
+                    objectFit: 'contain',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(226, 215, 197, 0.8)',
+                    background: '#FFFFFF',
+                    padding: '4px'
+                  }}
+                />
+              </div>
+            )}
+            <input
+              className="admin-input"
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              disabled={uploadingImage}
+            />
+            {uploadingImage && (
+              <div style={{ marginTop: '6px', color: 'var(--leona-terracotta)', fontSize: '0.85rem' }}>
+                {tLabel('फोटो अपलोड हो रही है...', 'Uploading preview image...')}
+              </div>
+            )}
           </div>
         </div>
-      )}
+
+        <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', color: 'var(--leona-charcoal)', marginBottom: '16px', borderBottom: '1px solid rgba(226, 215, 197, 0.6)', paddingBottom: '8px' }}>
+          🎨 {tLabel('2. थीम एवं सर्वाधिकार (Appearance & Copyright)', '2. Appearance & Copyright')}
+        </h3>
+
+        <div className="admin-form-grid" style={{ marginBottom: '24px' }}>
+          <div className="admin-form-group">
+            <label>{tLabel('डिफ़ॉल्ट थीम रंग (Default Accent)', 'Default Accent Color')}</label>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <input
+                type="color"
+                value={formData.default_accent}
+                onChange={e => setFormData({ ...formData, default_accent: e.target.value })}
+                style={{ width: '48px', height: '40px', padding: '2px', borderRadius: '6px', cursor: 'pointer' }}
+              />
+              <input
+                className="admin-input"
+                value={formData.default_accent}
+                onChange={e => setFormData({ ...formData, default_accent: e.target.value })}
+                style={{ flex: 1 }}
+              />
+            </div>
+          </div>
+
+          <div className="admin-form-group full-width">
+            <label>{tLabel('सर्वाधिकार संदेश (Copyright Notice)', 'Copyright Notice')}</label>
+            <input
+              className="admin-input"
+              value={formData.copyright_text}
+              onChange={e => setFormData({ ...formData, copyright_text: e.target.value })}
+              placeholder='© सर्वाधिकार सुरक्षित - कवि गुरुप्रताप शर्मा "आग"'
+            />
+          </div>
+
+          <div className="admin-form-group full-width">
+            <label>{tLabel('मुख्य पृष्ठ टैगलाइन (हिंदी)', 'Homepage Tagline (Hindi)')}</label>
+            <input
+              className="admin-input"
+              value={formData.hero_tagline_hi}
+              onChange={e => setFormData({ ...formData, hero_tagline_hi: e.target.value })}
+              placeholder="साहित्य जगत में अपनी तेजस्वी रचनाओं से प्रसिद्ध"
+            />
+          </div>
+        </div>
+
+        <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', color: 'var(--leona-charcoal)', marginBottom: '16px', borderBottom: '1px solid rgba(226, 215, 197, 0.6)', paddingBottom: '8px' }}>
+          💬 {tLabel('3. पॉप-अप व संदेश (Thank You Popup Configuration)', '3. Thank You Popup Configuration')}
+        </h3>
+
+        <div className="admin-form-grid">
+          <div className="admin-form-group">
+            <label>{tLabel('धन्यवाद पॉप-अप शीर्षक', 'Thank You Title')}</label>
+            <input
+              className="admin-input"
+              value={formData.thank_you_title}
+              onChange={e => setFormData({ ...formData, thank_you_title: e.target.value })}
+              placeholder="धन्यवाद!"
+            />
+          </div>
+
+          <div className="admin-form-group full-width">
+            <label>{tLabel('धन्यवाद संदेश', 'Thank You Message')}</label>
+            <input
+              className="admin-input"
+              value={formData.thank_you_message}
+              onChange={e => setFormData({ ...formData, thank_you_message: e.target.value })}
+              placeholder="आपका संदेश सफलतापूर्वक प्राप्त हो गया है।"
+            />
+          </div>
+        </div>
+
+        <div style={{ marginTop: '24px' }}>
+          <button type="submit" className="admin-btn-primary">
+            💾 {tLabel('सेटिंग्स सहेजें', 'Save All Settings')}
+          </button>
+        </div>
+      </form>
     </div>
   )
 }
@@ -2652,6 +2825,9 @@ function AwardsManager({ onUpdate, setIsDirty }) {
 function InboxManager({ onUpdate }) {
   const { tLabel } = useAdminLang()
   const [messages, setMessages] = useState([])
+  const [selectedIds, setSelectedIds] = useState([])
+  const [expandedId, setExpandedId] = useState(null)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     fetchInbox()
@@ -2659,59 +2835,240 @@ function InboxManager({ onUpdate }) {
 
   const fetchInbox = async () => {
     try {
-      const { data, error } = await supabase.from('contact_submissions').select('*').order('created_at', { ascending: false })
+      setLoading(true)
+      const { data, error } = await supabase
+        .from('contact_submissions')
+        .select('*')
+        .order('created_at', { ascending: false })
+
       if (!error && data && data.length > 0) {
         setMessages(data)
       } else {
+        // Fallback seed demo data
         setMessages([
-          { id: '1', name: 'राजेश कुमार', email: 'rajesh@example.com', subject: 'काव्य सम्मेलन आमंत्रण', message: 'आदरणीय कवि जी, हम आपको जयपुर साहित्य उत्सव में काव्य पाठ हेतु आमंत्रित करना चाहते हैं।', created_at: new Date().toISOString() }
+          {
+            id: 'demo-1',
+            name: 'राजेश कुमार',
+            email: 'rajesh@example.com',
+            subject: 'काव्य सम्मेलन आमंत्रण',
+            message: 'आदरणीय कवि जी, हम आपको जयपुर साहित्य उत्सव में काव्य पाठ हेतु आमंत्रित करना चाहते हैं। कृपया अपनी स्वीकृति प्रदान करें।',
+            is_read: false,
+            created_at: new Date().toISOString()
+          },
+          {
+            id: 'demo-2',
+            name: 'डॉ. अनीता शर्मा',
+            email: 'anita@literature.org',
+            subject: 'पुस्तकों का संकलन',
+            message: 'नमस्ते गुरुप्रताप जी, आपकी हालिया प्रकाशित पुस्तक "अंगारे" का समीक्षा पत्र तैयार है।',
+            is_read: true,
+            created_at: new Date(Date.now() - 86400000 * 2).toISOString()
+          }
         ])
       }
     } catch (e) {
       console.warn('Inbox fetch error:', e)
+    } finally {
+      setLoading(false)
     }
   }
 
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this message?')) return
-    try {
-      await supabase.from('contact_submissions').delete().eq('id', id)
-      fetchInbox()
-    } catch (e) {
-      setMessages(messages.filter(m => m.id !== id))
+  const toggleSelection = (id) => {
+    setSelectedIds(prev =>
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    )
+  }
+
+  const clearSelection = () => {
+    setSelectedIds([])
+  }
+
+  const selectAll = () => {
+    const safeMsgs = Array.isArray(messages) ? messages : []
+    if (selectedIds.length === safeMsgs.length) {
+      setSelectedIds([])
+    } else {
+      setSelectedIds(safeMsgs.map(m => m.id))
     }
   }
+
+  const handleBatchMarkRead = async (targetReadStatus) => {
+    if (selectedIds.length === 0) return
+    try {
+      // Background Supabase update
+      await supabase
+        .from('contact_submissions')
+        .update({ is_read: targetReadStatus })
+        .in('id', selectedIds)
+    } catch (e) {
+      console.warn('Supabase mark read error:', e)
+    }
+
+    // Optimistic UI update
+    setMessages(prev =>
+      prev.map(m => (selectedIds.includes(m.id) ? { ...m, is_read: targetReadStatus } : m))
+    )
+    setSelectedIds([])
+  }
+
+  const handleBatchDelete = async () => {
+    if (selectedIds.length === 0) return
+    if (!confirm(tLabel(`क्या आप चयनित ${selectedIds.length} संदेश हटाना चाहते हैं?`, `Delete selected ${selectedIds.length} message(s)?`))) {
+      return
+    }
+
+    try {
+      // Background Supabase batch deletion
+      await supabase
+        .from('contact_submissions')
+        .delete()
+        .in('id', selectedIds)
+    } catch (e) {
+      console.warn('Supabase batch delete error:', e)
+    }
+
+    // Optimistic UI update
+    setMessages(prev => prev.filter(m => !selectedIds.includes(m.id)))
+    setSelectedIds([])
+  }
+
+  const safeMsgs = Array.isArray(messages) ? messages : []
+  const hasUnreadSelected = safeMsgs.some(m => selectedIds.includes(m.id) && !m.is_read)
+  const hasReadSelected = safeMsgs.some(m => selectedIds.includes(m.id) && m.is_read)
 
   return (
     <div className="admin-card-panel">
       <div className="admin-panel-header">
         <h2 className="admin-panel-title">📬 {tLabel('प्राप्त संदेश इनबॉक्स', 'Messages Inbox')}</h2>
+        {safeMsgs.length > 0 && (
+          <button type="button" className="admin-btn-secondary" onClick={selectAll}>
+            {selectedIds.length === safeMsgs.length
+              ? tLabel('चयन हटाएं', 'Deselect All')
+              : tLabel('सभी चुनें', 'Select All')}
+          </button>
+        )}
       </div>
 
-      {(() => {
-        const safeMsgs = Array.isArray(messages) ? messages : []
-        return safeMsgs.length === 0 ? (
-          <p style={{ color: '#666', fontStyle: 'italic', padding: '20px' }}>{tLabel('कोई नया संदेश नहीं मिला।', 'No new messages found.')}</p>
-        ) : (
-          <ul className="admin-item-list">
-            {safeMsgs.map(msg => (
-            <li key={msg.id} className="admin-item-card" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '8px' }}>
-              <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--leona-charcoal)' }}>{msg.name} ({msg.email})</span>
-                <span style={{ fontSize: '0.8rem', color: '#888' }}>{new Date(msg.created_at || Date.now()).toLocaleDateString()}</span>
-              </div>
-              <div style={{ fontWeight: 600, color: 'var(--leona-terracotta)' }}>{tLabel('विषय:', 'Subject:')} {msg.subject}</div>
-              <div style={{ background: '#FDFBF7', padding: '12px', borderRadius: '8px', border: '1px solid rgba(226, 215, 197, 0.6)', width: '100%', fontSize: '0.95rem', color: 'var(--leona-text-main)' }}>
-                "{msg.message}"
-              </div>
-              <div style={{ marginTop: '6px', alignSelf: 'flex-end' }}>
-                <button className="admin-btn-danger" onClick={() => handleDelete(msg.id)}>{tLabel('हटाएं', 'Delete')}</button>
-              </div>
-            </li>
-          ))}
+      {/* Phase 2.5 Contextual Top Action Bar for Inbox */}
+      {selectedIds.length > 0 && (
+        <div className="admin-contextual-toolbar">
+          <div className="admin-toolbar-info">
+            <span className="admin-toolbar-count">
+              {selectedIds.length} {tLabel('संदेश चयनित', 'messages selected')}
+            </span>
+            <button type="button" className="admin-btn-link" onClick={clearSelection}>
+              {tLabel('रद्द करें', 'Clear selection')}
+            </button>
+          </div>
+          <div className="admin-toolbar-actions">
+            <button
+              type="button"
+              className="admin-btn-secondary"
+              disabled={!hasUnreadSelected}
+              onClick={() => handleBatchMarkRead(true)}
+            >
+              ✉️ {tLabel('पठित चिन्हित करें', 'Mark as Read')}
+            </button>
+            <button
+              type="button"
+              className="admin-btn-secondary"
+              disabled={!hasReadSelected}
+              onClick={() => handleBatchMarkRead(false)}
+            >
+              📩 {tLabel('अपठित चिन्हित करें', 'Mark as Unread')}
+            </button>
+            <button
+              type="button"
+              className="admin-btn-danger"
+              onClick={handleBatchDelete}
+            >
+              🗑️ {tLabel(`हटाएं (${selectedIds.length})`, `Delete Selected (${selectedIds.length})`)}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {loading ? (
+        <p style={{ color: '#888', fontStyle: 'italic', padding: '20px' }}>{tLabel('संदेश लोड हो रहे हैं...', 'Loading messages...')}</p>
+      ) : safeMsgs.length === 0 ? (
+        <p style={{ color: '#666', fontStyle: 'italic', padding: '20px' }}>{tLabel('कोई संदेश नहीं मिला।', 'No messages found.')}</p>
+      ) : (
+        <ul className="admin-item-list">
+          {safeMsgs.map(msg => {
+            const isSelected = selectedIds.includes(msg.id)
+            const isExpanded = expandedId === msg.id
+            const isRead = msg.is_read === true || msg.status === 'read'
+
+            return (
+              <li
+                key={msg.id}
+                className={`admin-item-card ${isSelected ? 'selected' : ''}`}
+                style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '10px' }}
+              >
+                <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <input
+                      type="checkbox"
+                      className="admin-item-checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleSelection(msg.id)}
+                    />
+                    <div>
+                      <span style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--leona-charcoal)' }}>
+                        {msg.name}
+                      </span>
+                      {msg.email && (
+                        <span style={{ fontSize: '0.88rem', color: '#666', marginLeft: '8px' }}>
+                          ({msg.email})
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span className={isRead ? 'admin-badge-read' : 'admin-badge-unread'}>
+                      {isRead ? `✅ ${tLabel('पठित', 'Read')}` : `📩 ${tLabel('अपठित', 'Unread')}`}
+                    </span>
+                    <span style={{ fontSize: '0.8rem', color: '#888' }}>
+                      {new Date(msg.created_at || Date.now()).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+
+                <div style={{ fontWeight: 600, color: 'var(--leona-terracotta)', width: '100%' }}>
+                  {tLabel('विषय:', 'Subject:')} {msg.subject || tLabel('(कोई विषय नहीं)', '(No Subject)')}
+                </div>
+
+                <div
+                  style={{
+                    background: '#FDFBF7',
+                    padding: '14px',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(226, 215, 197, 0.7)',
+                    width: '100%',
+                    fontSize: '0.95rem',
+                    color: 'var(--leona-text-main)',
+                    lineHeight: '1.6',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => setExpandedId(isExpanded ? null : msg.id)}
+                >
+                  {isExpanded
+                    ? msg.message
+                    : msg.message && msg.message.length > 120
+                    ? `${msg.message.substring(0, 120)}...`
+                    : msg.message}
+                  {msg.message && msg.message.length > 120 && (
+                    <span style={{ color: 'var(--leona-terracotta)', fontWeight: 600, marginLeft: '8px', fontSize: '0.85rem' }}>
+                      {isExpanded ? tLabel('[कम दिखाएं]', '[Show Less]') : tLabel('[पूरा पढ़ें]', '[Read More]')}
+                    </span>
+                  )}
+                </div>
+              </li>
+            )
+          })}
         </ul>
-      )
-    })()}
+      )}
     </div>
   )
 }

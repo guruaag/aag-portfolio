@@ -819,3 +819,31 @@
   border-color: var(--leona-terracotta, #F66E5E) !important;
   box-shadow: 0 4px 14px rgba(246, 110, 94, 0.12) !important;
 }
+
+/* Read/Unread Status Badges */
+.admin-badge-unread {
+  background: #FFF0ED;
+  color: #D95343;
+  border: 1px solid #FFC4BD;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.admin-badge-read {
+  background: #E8F5E9;
+  color: #2E7D32;
+  border: 1px solid #C8E6C9;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
