@@ -90,3 +90,12 @@ export async function getSetting(key) {
   return data?.value
 }
 
+export async function getAllSettings() {
+  const { data, error } = await supabase
+    .from('settings')
+    .select('*')
+  
+  if (error) throw error
+  return data || []
+}
+

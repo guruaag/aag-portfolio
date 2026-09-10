@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabaseClient'
-import { getCategories, getAboutContent, getPublications, getPoems, getSetting } from '../../lib/supabaseClient'
+import { getCategories, getAboutContent, getPublications, getPoems, getSetting, getAllSettings } from '../../lib/supabaseClient'
 import { uploadImage, getImageUrl, deleteImage } from '../../lib/imageUtils'
 import PM5WritingDesk, { paginateTextIntoPages } from '../../components/PM5WritingDesk'
 import i18n from '../../i18n/config'
@@ -126,17 +126,17 @@ function AdminDashboard({ tab }) {
         console.warn('Category seed alignment check:', e)
       }
 
-      const [cats, about, pubs, poems, settingsResult] = await Promise.all([
+      const [cats, about, pubs, poems, settingsList] = await Promise.all([
         getCategories().catch(err => { console.error('Error fetching categories:', err); return [] }),
         getAboutContent().catch(err => { console.error('Error fetching about content:', err); return null }),
         getPublications().catch(err => { console.error('Error fetching publications:', err); return [] }),
         getPoems().catch(err => { console.error('Error fetching poems:', err); return [] }),
-        supabase.from('settings').select('*').catch(err => { console.error('Error fetching settings:', err); return { data: [] } })
+        getAllSettings().catch(err => { console.error('Error fetching settings:', err); return [] })
       ])
       
       const settingsMap = {}
-      if (settingsResult && settingsResult.data && Array.isArray(settingsResult.data)) {
-        settingsResult.data.forEach(s => {
+      if (Array.isArray(settingsList)) {
+        settingsList.forEach(s => {
           if (s && s.key) {
             settingsMap[s.key] = s.value
           }
@@ -1162,15 +1162,11 @@ function PoemsManager({ poems, onUpdate }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      // Primary payload with all field variants for complete schema compatibility
+      // Primary payload aligned with exact database schema
       const dataToSave = {
         heading: formData.heading || '',
-        heading_hi: formData.heading || '',
-        heading_en: formData.heading || '',
         description: formData.description || '',
         full_text: formData.body_text || '',
-        body_text_hi: formData.body_text || '',
-        body_text_en: formData.body_text || '',
         language: 'mixed',
         sort_order: parseInt(formData.sort_order) || 0
       }
@@ -1179,25 +1175,10 @@ function PoemsManager({ poems, onUpdate }) {
         ? await supabase.from('poems').update(dataToSave).eq('id', editing)
         : await supabase.from('poems').insert(dataToSave)
 
-      // Fallback 1: If full schema fails due to missing legacy columns, try standard columns
+      // Fallback: If standard schema returns error, try legacy schema columns
       if (res.error) {
-        console.warn('Primary save failed, trying fallback standard schema:', res.error)
-        const fallback1 = {
-          heading: formData.heading || '',
-          description: formData.description || '',
-          full_text: formData.body_text || '',
-          language: 'mixed',
-          sort_order: parseInt(formData.sort_order) || 0
-        }
-        res = editing
-          ? await supabase.from('poems').update(fallback1).eq('id', editing)
-          : await supabase.from('poems').insert(fallback1)
-      }
-
-      // Fallback 2: If standard fails, try legacy schema
-      if (res.error) {
-        console.warn('Fallback 1 failed, trying legacy schema:', res.error)
-        const fallback2 = {
+        console.warn('Standard poem save failed, trying legacy schema:', res.error)
+        const legacyPayload = {
           heading_hi: formData.heading || '',
           heading_en: formData.heading || '',
           body_text_hi: formData.body_text || '',
@@ -1206,17 +1187,17 @@ function PoemsManager({ poems, onUpdate }) {
           sort_order: parseInt(formData.sort_order) || 0
         }
         res = editing
-          ? await supabase.from('poems').update(fallback2).eq('id', editing)
-          : await supabase.from('poems').insert(fallback2)
+          ? await supabase.from('poems').update(legacyPayload).eq('id', editing)
+          : await supabase.from('poems').insert(legacyPayload)
       }
 
       if (res.error) {
-        console.error('All poem save attempts failed:', res.error)
+        console.error('Poem save failed:', res.error)
         alert((adminLang === 'en' ? 'Error saving poem: ' : 'कविता सहेजने में त्रुटि: ') + res.error.message)
         return
       }
 
-      onUpdate()
+      await loadData()
       setEditing(null)
       setShowForm(false)
       setFormData({ heading: '', description: '', body_text: '', sort_order: 0 })
