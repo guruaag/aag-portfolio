@@ -278,32 +278,83 @@
   border-radius: 3px;
 }
 
-.admin-tab-btn {
+/* High-Contrast Left Sidebar Buttons & Nav Links */
+.admin-sidebar a,
+.admin-sidebar button {
+  color: #e5e5e5 !important; /* High-contrast light text against dark background */
+}
+
+.admin-sidebar .admin-tab-btn {
   background: transparent;
   border: none;
-  color: var(--leona-text-main, #2C2622);
+  color: #e5e5e5 !important;
   font-family: var(--font-serif);
-  font-size: 0.98rem;
+  font-size: 0.96rem;
   font-weight: 600;
-  padding: 10px 22px;
-  border-radius: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.25s ease;
-  display: inline-flex;
+  transition: all 0.2s ease;
+  display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
+  justify-content: flex-start;
 }
 
-.admin-tab-btn:hover {
-  background: rgba(246, 110, 94, 0.1);
-  color: var(--leona-terracotta, #F66E5E);
+.admin-sidebar .admin-tab-btn:hover {
+  background: rgba(246, 110, 94, 0.18) !important;
+  color: #ffffff !important;
 }
 
-.admin-tab-btn.active {
-  background: var(--leona-terracotta, #F66E5E);
-  color: #FFFFFF;
-  box-shadow: 0 4px 14px rgba(246, 110, 94, 0.35);
+.admin-sidebar .admin-tab-btn.active {
+  background-color: var(--leona-terracotta, #F66E5E) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(246, 110, 94, 0.4);
+}
+
+/* Nested Sub-Categories inside Left Sidebar */
+.admin-sub-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 24px;
+  margin-top: 2px;
+  margin-bottom: 6px;
+  border-left: 2px solid rgba(212, 175, 55, 0.25);
+  margin-left: 14px;
+}
+
+.admin-sub-tab-btn {
+  background: transparent;
+  border: none;
+  color: #cccccc !important;
+  font-family: var(--font-serif);
+  font-size: 0.88rem;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.admin-sub-tab-btn:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.admin-sub-tab-btn.active {
+  color: #ffffff !important;
+  background: rgba(246, 110, 94, 0.3) !important;
+  font-weight: 700;
+  border-left: 3px solid var(--leona-terracotta, #F66E5E);
+  padding-left: 8px;
 }
 
 /* Manager Card Panels */

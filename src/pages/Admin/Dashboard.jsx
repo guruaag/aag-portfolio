@@ -204,46 +204,106 @@ function AdminDashboard({ tab }) {
             </Link>
 
             {/* Navigation Tabs Bar in Sidebar */}
-            <div className="admin-sidebar-nav" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
+            <div className="admin-sidebar-nav" style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '12px' }}>
+              
+              {/* Home Page */}
               <button
                 className={`admin-tab-btn ${activeTab === 'home' ? 'active' : ''}`}
                 onClick={() => switchTab('home', '/admin/home')}
-                style={{ width: '100%', justifyContent: 'flex-start' }}
               >
                 🏠 {tLabel('मुख्य पृष्ठ', 'Home Page')}
               </button>
+
+              {/* About Bio Section */}
               <button
                 className={`admin-tab-btn ${activeTab === 'about' || activeTab === 'timeline' || activeTab === 'awards' ? 'active' : ''}`}
                 onClick={() => switchTab('about', '/admin/parichay')}
-                style={{ width: '100%', justifyContent: 'flex-start' }}
               >
                 📖 {tLabel('कवि परिचय', 'About Bio')}
               </button>
+              
+              {/* Nested Sub-categories for About Bio */}
+              <div className="admin-sub-nav">
+                <button
+                  className={`admin-sub-tab-btn ${activeTab === 'about' ? 'active' : ''}`}
+                  onClick={() => switchTab('about', '/admin/parichay')}
+                >
+                  ▫️ 1. {tLabel('कवि परिचय व बैनर', 'Overview & Hero')}
+                </button>
+                <button
+                  className={`admin-sub-tab-btn ${activeTab === 'timeline' ? 'active' : ''}`}
+                  onClick={() => switchTab('timeline', '/admin/timeline')}
+                >
+                  ▫️ 2. {tLabel('जीवन यात्रा (टाइमलाइन)', 'Timeline')}
+                </button>
+                <button
+                  className={`admin-sub-tab-btn ${activeTab === 'awards' ? 'active' : ''}`}
+                  onClick={() => switchTab('awards', '/admin/awards')}
+                >
+                  ▫️ 3. {tLabel('पुरस्कार व सम्मान', 'Awards & Honors')}
+                </button>
+              </div>
+
+              {/* Poetry Archive Section */}
               <button
                 className={`admin-tab-btn ${activeTab === 'poems' || activeTab === 'categories' ? 'active' : ''}`}
                 onClick={() => switchTab('poems', '/admin/kavya-sangrah')}
-                style={{ width: '100%', justifyContent: 'flex-start' }}
               >
                 ✍️ {tLabel('काव्य संग्रह', 'Poetry Archive')}
               </button>
+
+              {/* Nested Sub-categories for Poetry Archive */}
+              <div className="admin-sub-nav">
+                <button
+                  className={`admin-sub-tab-btn ${activeTab === 'poems' ? 'active' : ''}`}
+                  onClick={() => switchTab('poems', '/admin/kavya-sangrah')}
+                >
+                  ▫️ 1. {tLabel('काव्य सूची', 'Poetry List')}
+                </button>
+                <button
+                  className={`admin-sub-tab-btn ${activeTab === 'categories' ? 'active' : ''}`}
+                  onClick={() => switchTab('categories', '/admin/categories')}
+                >
+                  ▫️ 2. {tLabel('काव्य श्रेणियां', 'Poetry Categories')}
+                </button>
+              </div>
+
+              {/* Publications Section */}
               <button
                 className={`admin-tab-btn ${activeTab === 'publications' ? 'active' : ''}`}
                 onClick={() => switchTab('publications', '/admin/prakashan')}
-                style={{ width: '100%', justifyContent: 'flex-start' }}
               >
                 📚 {tLabel('प्रकाशन', 'Publications')}
               </button>
+
+              {/* Contact & Inbox Section */}
               <button
                 className={`admin-tab-btn ${activeTab === 'contact' || activeTab === 'inbox' ? 'active' : ''}`}
                 onClick={() => switchTab('contact', '/admin/sampark')}
-                style={{ width: '100%', justifyContent: 'flex-start' }}
               >
                 📞 {tLabel('संपर्क व इनबॉक्स', 'Contact & Inbox')}
               </button>
+
+              {/* Nested Sub-categories for Contact */}
+              <div className="admin-sub-nav">
+                <button
+                  className={`admin-sub-tab-btn ${activeTab === 'contact' ? 'active' : ''}`}
+                  onClick={() => switchTab('contact', '/admin/sampark')}
+                >
+                  ▫️ 1. {tLabel('संपर्क विवरण', 'Contact Info')}
+                </button>
+                <button
+                  className={`admin-sub-tab-btn ${activeTab === 'inbox' ? 'active' : ''}`}
+                  onClick={() => switchTab('inbox', '/admin/inbox')}
+                >
+                  ▫️ 2. {tLabel('प्राप्त संदेश', 'Received Inbox')}
+                </button>
+              </div>
+
+              {/* Site Settings */}
               <button
                 className={`admin-tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
                 onClick={() => switchTab('settings', '/admin/settings')}
-                style={{ width: '100%', justifyContent: 'flex-start' }}
               >
                 ⚙️ {tLabel('सेटिंग्स', 'Site Settings')}
               </button>
@@ -502,74 +562,18 @@ function CategoriesManager({ categories, onUpdate }) {
 // 1. Home Manager Component (Homepage Sections)
 function HomeManager({ publications, about, settings, onUpdate }) {
   const { tLabel } = useAdminLang()
-  const [subTab, setSubTab] = useState('hero') // 'hero' | 'summary'
 
   return (
     <div>
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '2px solid rgba(226, 215, 197, 0.6)', paddingBottom: '12px' }}>
-        <button
-          type="button"
-          className={subTab === 'hero' ? 'admin-btn-primary' : 'admin-btn-secondary'}
-          onClick={() => setSubTab('hero')}
-          style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'hero' ? 700 : 500 }}
-        >
-          🔥 1. {tLabel('प्रमुख काव्य कृति', 'Hero Featured Showcase')}
-        </button>
-        <button
-          type="button"
-          className={subTab === 'summary' ? 'admin-btn-primary' : 'admin-btn-secondary'}
-          onClick={() => setSubTab('summary')}
-          style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'summary' ? 700 : 500 }}
-        >
-          📖 2. {tLabel('मुख्य पृष्ठ कवि संक्षेप', 'Homepage Author Bio Preview')}
-        </button>
+      <PublicationsManager publications={publications} onUpdate={onUpdate} />
+      <div style={{ marginTop: '30px' }}>
+        <AboutManager about={about} onUpdate={onUpdate} />
       </div>
-
-      {subTab === 'hero' && <PublicationsManager publications={publications} onUpdate={onUpdate} />}
-      {subTab === 'summary' && <AboutManager about={about} onUpdate={onUpdate} />}
     </div>
   )
 }
 
-// 2. Poems Archive Manager Component (Poems + Categories)
-function PoemsArchiveManager({ poems, categories, initialSubTab, onUpdate }) {
-  const { tLabel } = useAdminLang()
-  const [subTab, setSubTab] = useState(initialSubTab || 'poems') // 'poems' | 'categories'
-
-  useEffect(() => {
-    if (initialSubTab) {
-      setSubTab(initialSubTab)
-    }
-  }, [initialSubTab])
-
-  return (
-    <div>
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '2px solid rgba(226, 215, 197, 0.6)', paddingBottom: '12px' }}>
-        <button
-          type="button"
-          className={subTab === 'poems' ? 'admin-btn-primary' : 'admin-btn-secondary'}
-          onClick={() => setSubTab('poems')}
-          style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'poems' ? 700 : 500 }}
-        >
-          ✍️ 1. {tLabel('काव्य रचनाएं', 'Poetry List')}
-        </button>
-        <button
-          type="button"
-          className={subTab === 'categories' ? 'admin-btn-primary' : 'admin-btn-secondary'}
-          onClick={() => setSubTab('categories')}
-          style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'categories' ? 700 : 500 }}
-        >
-          🌐 2. {tLabel('काव्य श्रेणियां', 'Poetry Categories')}
-        </button>
-      </div>
-
-      {subTab === 'poems' && <PoemsManager poems={poems} onUpdate={onUpdate} />}
-      {subTab === 'categories' && <CategoriesManager categories={categories} onUpdate={onUpdate} />}
-    </div>
-  )
-}
-
-// 3. Contact Section Manager Component (Contact Details + Inbox)
+// 2. Contact Section Manager Component (Contact Details + Inbox)
 function ContactSectionManager({ settings, initialSubTab, onUpdate }) {
   const { tLabel } = useAdminLang()
   const [subTab, setSubTab] = useState(initialSubTab || 'info') // 'info' | 'inbox'
@@ -582,32 +586,12 @@ function ContactSectionManager({ settings, initialSubTab, onUpdate }) {
 
   return (
     <div>
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '2px solid rgba(226, 215, 197, 0.6)', paddingBottom: '12px' }}>
-        <button
-          type="button"
-          className={subTab === 'info' ? 'admin-btn-primary' : 'admin-btn-secondary'}
-          onClick={() => setSubTab('info')}
-          style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'info' ? 700 : 500 }}
-        >
-          📍 1. {tLabel('संपर्क विवरण', 'Contact Info & Location')}
-        </button>
-        <button
-          type="button"
-          className={subTab === 'inbox' ? 'admin-btn-primary' : 'admin-btn-secondary'}
-          onClick={() => setSubTab('inbox')}
-          style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'inbox' ? 700 : 500 }}
-        >
-          📬 2. {tLabel('प्राप्त संदेश', 'Received Inbox')}
-        </button>
-      </div>
-
       {subTab === 'info' && <SettingsManager settings={settings} onUpdate={onUpdate} />}
       {subTab === 'inbox' && <InboxManager onUpdate={onUpdate} />}
     </div>
   )
 }
 
-// About Manager Component (Includes Poet Hero Banner, Bio Prose, Timeline & Awards Sub-sections)
 function AboutManager({ about, initialSubTab, onUpdate }) {
   const { tLabel } = useAdminLang()
   const [subTab, setSubTab] = useState(initialSubTab || 'bio') // 'bio' | 'timeline' | 'awards'
@@ -716,34 +700,6 @@ function AboutManager({ about, initialSubTab, onUpdate }) {
 
   return (
     <div>
-      {/* Sub-tab Switcher Header */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '2px solid rgba(226, 215, 197, 0.6)', paddingBottom: '12px' }}>
-        <button
-          type="button"
-          className={subTab === 'bio' ? 'admin-btn-primary' : 'admin-btn-secondary'}
-          onClick={() => setSubTab('bio')}
-          style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'bio' ? 700 : 500 }}
-        >
-          📖 1. {tLabel('कवि परिचय व बैनर', 'Overview & Hero')}
-        </button>
-        <button
-          type="button"
-          className={subTab === 'timeline' ? 'admin-btn-primary' : 'admin-btn-secondary'}
-          onClick={() => setSubTab('timeline')}
-          style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'timeline' ? 700 : 500 }}
-        >
-          ⏳ 2. {tLabel('जीवन यात्रा (टाइमलाइन)', 'Timeline Milestones')}
-        </button>
-        <button
-          type="button"
-          className={subTab === 'awards' ? 'admin-btn-primary' : 'admin-btn-secondary'}
-          onClick={() => setSubTab('awards')}
-          style={{ borderRadius: '24px', padding: '8px 20px', fontWeight: subTab === 'awards' ? 700 : 500 }}
-        >
-          🏆 3. {tLabel('पुरस्कार व सम्मान', 'Awards & Honors')}
-        </button>
-      </div>
-
       {subTab === 'timeline' && <TimelineManager onUpdate={onUpdate} />}
       {subTab === 'awards' && <AwardsManager onUpdate={onUpdate} />}
 
