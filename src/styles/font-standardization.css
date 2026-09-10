@@ -17,7 +17,10 @@ h1, h2, h3, h4, h5, h6,
 .phoenix-about-title,
 .phoenix-contact-title,
 .phoenix-settings-title,
-.phoenix-modal-title {
+.phoenix-modal-title,
+.admin-panel-title,
+.admin-sidebar-brand,
+.admin-breadcrumb-title {
   font-family: var(--phoenix-font-serif), var(--phoenix-font-hindi-serif) !important;
 }
 

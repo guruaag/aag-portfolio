@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Hindi:ital@0;1&family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Tiro+Devanagari+Hindi:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap');
 
 :root {
   --leona-terracotta: #F66E5E;
@@ -11,9 +11,11 @@
   --leona-cream: #F4EFE6;
   --leona-white: #FFFFFF;
   --leona-gold: #D4AF37;
-  --font-serif: 'Tiro Devanagari Hindi', 'Noto Serif Devanagari', 'Lora', Georgia, serif;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-hindi: 'Tiro Devanagari Hindi', 'Noto Serif Devanagari', serif;
+  
+  /* Synchronized Public Site Font Tokens */
+  --font-serif: var(--phoenix-font-serif, 'Lora', 'Tiro Devanagari Hindi', Georgia, 'Times New Roman', serif);
+  --font-sans: var(--phoenix-font-sans, 'Inter', 'Tiro Devanagari Hindi', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  --font-hindi: var(--phoenix-font-hindi-serif, 'Tiro Devanagari Hindi', serif);
 }
 
 /* Phase 1 Layout Shell & Two-Column Grid */
@@ -26,7 +28,7 @@
   overflow: hidden;
   background-color: var(--leona-ivory, #FAF7F2);
   color: var(--leona-charcoal, #1E1B18);
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
 }
 
 .admin-sidebar {
@@ -56,7 +58,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-weight: 700;
   font-size: 1.15rem;
   color: var(--leona-ivory, #FAF7F2);
@@ -178,7 +180,7 @@
 }
 
 .admin-header-title {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 1.35rem;
   font-weight: 700;
   display: flex;
@@ -298,7 +300,7 @@
   background: transparent;
   border: none;
   color: #FFFFFF !important; /* Pure bright white */
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 0.98rem;
   font-weight: 600;
   padding: 10px 14px;
@@ -343,7 +345,7 @@
   background: transparent;
   border: none;
   color: #F4EFE6 !important; /* Pure bright cream/white for unselected sub-links */
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 0.92rem;
   font-weight: 600 !important;
   padding: 7px 10px;
@@ -390,7 +392,7 @@
 }
 
 .admin-breadcrumb-title {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 1.15rem;
   font-weight: 700;
   color: var(--leona-charcoal, #1E1B18);
@@ -450,7 +452,7 @@
 }
 
 .admin-modal-title {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 1.35rem;
   font-weight: 700;
   color: var(--leona-charcoal, #1E1B18);
@@ -508,7 +510,7 @@
 }
 
 .admin-panel-title {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 1.4rem;
   font-weight: 700;
   color: var(--leona-charcoal, #1E1B18);
@@ -600,7 +602,7 @@
 }
 
 .admin-form-group label {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 0.95rem;
   font-weight: 700;
   color: var(--leona-charcoal, #1E1B18);
@@ -688,4 +690,47 @@
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+
+/* ============================================
+   SYNCHRONIZED PUBLIC SITE FONT FORMATTING
+   ============================================ */
+
+/* Headings & Section Titles - Serif Font (Lora + Tiro Devanagari Hindi) */
+.admin-panel-title,
+.admin-sidebar-brand,
+.admin-breadcrumb-title,
+.admin-header-title,
+.admin-modal-title,
+.admin-card-panel h2,
+.admin-card-panel h3,
+.admin-card-panel h4 {
+  font-family: var(--phoenix-font-serif, 'Lora', 'Tiro Devanagari Hindi', Georgia, serif), var(--phoenix-font-hindi-serif, 'Tiro Devanagari Hindi', serif) !important;
+}
+
+/* UI Controls, Navigation, Labels, Inputs, Badges - Sans Font (Inter + Noto Sans Devanagari) */
+.admin-tab-btn,
+.admin-sub-tab-btn,
+.admin-btn-primary,
+.admin-btn-secondary,
+.admin-btn-danger,
+.admin-btn-logout,
+.admin-lang-toggle-btn,
+.admin-back-btn,
+.admin-input,
+.admin-select,
+.admin-item-title,
+.admin-item-sub,
+.admin-item-badge,
+.admin-form-group label,
+.admin-modal-body {
+  font-family: var(--phoenix-font-sans, 'Inter', 'Tiro Devanagari Hindi', sans-serif), var(--phoenix-font-hindi-sans, 'Tiro Devanagari Hindi', sans-serif) !important;
+}
+
+/* Poem Stanzas & Hindi Poetry Textarea - Matching Public Poem Detail Formatting */
+.admin-textarea,
+.poem-stanza-preview,
+.pm5-canvas-page {
+  font-family: var(--phoenix-font-serif, 'Lora', 'Tiro Devanagari Hindi', Georgia, serif), var(--phoenix-font-hindi-serif, 'Tiro Devanagari Hindi', serif) !important;
 }
