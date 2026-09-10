@@ -322,6 +322,36 @@ function AdminDashboard({ tab }) {
 
         {/* Flexible Main Canvas Area */}
         <main className="admin-main-canvas">
+          
+          {/* Persistent Sticky Top Action Header */}
+          <header className="admin-sticky-header">
+            <div className="admin-sticky-header-left">
+              <span className="admin-breadcrumb-title">
+                {activeTab === 'home' && `🏠 ${tLabel('मुख्य पृष्ठ', 'Home Page')}`}
+                {activeTab === 'about' && `📖 ${tLabel('कवि परिचय व बैनर', 'Poet Bio & Hero Banner')}`}
+                {activeTab === 'timeline' && `⏳ ${tLabel('जीवन यात्रा (टाइमलाइन)', 'Timeline Milestones')}`}
+                {activeTab === 'awards' && `🏆 ${tLabel('पुरस्कार व सम्मान', 'Awards & Honors')}`}
+                {activeTab === 'poems' && `✍️ ${tLabel('काव्य रचनाएं', 'Poetry List')}`}
+                {activeTab === 'categories' && `🌐 ${tLabel('काव्य श्रेणियां', 'Poetry Categories')}`}
+                {activeTab === 'publications' && `📚 ${tLabel('प्रकाशन संग्रह', 'Publications List')}`}
+                {activeTab === 'contact' && `📍 ${tLabel('संपर्क विवरण', 'Contact Info')}`}
+                {activeTab === 'inbox' && `📬 ${tLabel('प्राप्त संदेश (इनबॉक्स)', 'Inbox Messages')}`}
+                {activeTab === 'settings' && `⚙️ ${tLabel('वेबसाइट सेटिंग्स', 'Site Settings')}`}
+              </span>
+            </div>
+
+            <div className="admin-sticky-header-right">
+              <button
+                type="submit"
+                form="admin-active-form"
+                className="admin-btn-primary admin-header-save-btn"
+                style={{ padding: '8px 20px', borderRadius: '20px', fontWeight: 700 }}
+              >
+                💾 {tLabel('सहेजें / अपडेट', 'Save / Update')}
+              </button>
+            </div>
+          </header>
+
           <div className="admin-dashboard-container" style={{ padding: '24px' }}>
             {activeTab === 'home' && (
               <HomeManager publications={data.publications} about={data.about} settings={data.settings} onUpdate={loadData} />
@@ -456,7 +486,7 @@ function CategoriesManager({ categories, onUpdate }) {
       </div>
       
       {(showForm || editing) && (
-        <form onSubmit={handleSubmit} className="admin-form-container">
+        <form id="admin-active-form" onSubmit={handleSubmit} className="admin-form-container">
           <div className="admin-form-grid">
             <div className="admin-form-group">
               <label>{tLabel('अनुभाग नाम (Slug) *', 'Section Key (Slug) *')}</label>
@@ -715,7 +745,7 @@ function AboutManager({ about, initialSubTab, onUpdate }) {
           </div>
 
           {editing ? (
-            <form onSubmit={handleSubmit} className="admin-form-container">
+            <form id="admin-active-form" onSubmit={handleSubmit} className="admin-form-container">
               <div style={{ background: 'var(--leona-sand-light, #FAF6F0)', padding: '16px', borderRadius: '8px', marginBottom: '20px', borderLeft: '4px solid var(--leona-terracotta)' }}>
                 <h4 style={{ margin: '0 0 12px 0', fontFamily: 'Lora, serif', color: 'var(--leona-charcoal)' }}>
                   🎯 {tLabel('हीरो बैनर व मुख्य शीर्षक पाठ', 'Hero Banner & Header Text')}
@@ -1015,7 +1045,7 @@ function PublicationsManager({ publications, onUpdate }) {
       </div>
       
       {(showForm || editing) && (
-        <form onSubmit={handleSubmit} className="admin-form-container">
+        <form id="admin-active-form" onSubmit={handleSubmit} className="admin-form-container">
           <div className="admin-form-grid">
             <div className="admin-form-group">
               <label>{tLabel('पुस्तक का नाम *', 'Book Title *')}</label>
@@ -1270,7 +1300,7 @@ function PoemsManager({ poems, onUpdate }) {
       </div>
       
       {(showForm || editing) && (
-        <form onSubmit={handleSubmit} className="admin-form-container">
+        <form id="admin-active-form" onSubmit={handleSubmit} className="admin-form-container">
           <div className="admin-form-grid">
             <div className="admin-form-group full-width">
               <label>{tLabel('कविता / रचना का शीर्षक *', 'Poem Title *')}</label>
@@ -1546,7 +1576,7 @@ function SettingsManager({ settings, onUpdate }) {
       </div>
       
       {showForm && (
-        <form onSubmit={handleSubmit} className="admin-form-container">
+        <form id="admin-active-form" onSubmit={handleSubmit} className="admin-form-container">
           <div className="admin-form-grid">
             <div className="admin-form-group full-width">
               <label>{tLabel('वेबसाइट लोगो चित्र', 'Website Logo Image')}</label>
@@ -1828,7 +1858,7 @@ function TimelineManager({ onUpdate }) {
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="admin-form-container">
+        <form id="admin-active-form" onSubmit={handleSubmit} className="admin-form-container">
           <div className="admin-form-grid">
             <div className="admin-form-group">
               <label>{tLabel('वर्ष (e.g. १९४५ / 1945)', 'Year (e.g. 1945)')}</label>
@@ -1966,7 +1996,7 @@ function AwardsManager({ onUpdate }) {
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="admin-form-container">
+        <form id="admin-active-form" onSubmit={handleSubmit} className="admin-form-container">
           <div className="admin-form-grid">
             <div className="admin-form-group">
               <label>{tLabel('वर्ष (e.g. १९९५ / 1995)', 'Year (e.g. 1995)')}</label>
