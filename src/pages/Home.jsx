@@ -7,6 +7,7 @@ import { getCategories, getAboutContent, getPublications, getPoems, getAllSettin
 import { getImageUrl } from '../lib/imageUtils'
 import { sanitizeText, sanitizePoem, sanitizePublication } from '../lib/dataSanitizer'
 import PublicationCard from '../components/PublicationCard'
+import PoemCard from '../components/PoemCard'
 import HeroSection from '../components/HeroSection'
 import ImageModal from '../components/ImageModal'
 import './Home.css'
@@ -119,7 +120,7 @@ function Home() {
 
       const cleanCategories = (catsData || []).map(c => ({
         ...c,
-        name_display: sanitizeText(c.name_display || c.name_en || c.name),
+        name_display: sanitizeText(c.name_display || c.name_hi || c.name),
         name_hi: sanitizeText(c.name_hi || c.name),
         name_en: sanitizeText(c.name_en || c.name)
       }))
@@ -165,7 +166,6 @@ function Home() {
     )
   }
 
-  // Find categories - only get the first active one of each type
   const aboutCategory = categories.find(c => c.content_type === 'about' && c.is_active !== false)
   const publicationsCategory = categories.find(c => c.content_type === 'publications' && c.is_active !== false)
   const poemsCategory = categories.find(c => c.content_type === 'writings' && c.is_active !== false)
@@ -175,26 +175,25 @@ function Home() {
   return (
     <>
       <Helmet>
-        <title>Hindi Kavi Guru Pratap Sharma 'Aag' | Hindi Sahitya | Aag Poetry</title>
-        <meta name="description" content={aboutContent?.truncated_preview || 'Renowned Hindi poet Guru Pratap Sharma, known by pen name Aag. Explore his literary works, poems, and publications in Hindi Sahitya.'} />
-        <meta name="keywords" content="Hindi Kavi Guru Pratap Sharma, Aag Poetry, Hindi Sahitya, Hindi Poems, Guru Pratap Sharma Aag, Hindi Literature, Kavita, Hindi Writer" />
+        <title>कवि गुरुप्रताप शर्मा 'आग' | हिंदी साहित्य</title>
+        <meta name="description" content={aboutContent?.truncated_preview || 'कवि गुरुप्रताप शर्मा \'आग\' की रचनाएं व काव्य संग्रह।'} />
+        <meta name="keywords" content="Guru Pratap Sharma Aag, Hindi Poetry, Hindi Sahitya, Kavita" />
         <meta name="author" content="Guru Pratap Sharma 'Aag'" />
         
         {/* OpenGraph Tags */}
-        <meta property="og:title" content="Hindi Kavi Guru Pratap Sharma 'Aag' | Hindi Sahitya" />
-        <meta property="og:description" content={aboutContent?.truncated_preview || 'Renowned Hindi poet and writer. Explore his literary works, poems, and publications.'} />
+        <meta property="og:title" content="कवि गुरुप्रताप शर्मा 'आग' | हिंदी साहित्य" />
+        <meta property="og:description" content={aboutContent?.truncated_preview || 'कवि गुरुप्रताप शर्मा \'आग\' की रचनाएं व काव्य संग्रह।'} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={window.location.href} />
         {aboutImageUrl && <meta property="og:image" content={aboutImageUrl} />}
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:locale" content="hi_IN" />
-        <meta property="og:locale:alternate" content="en_US" />
         
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Hindi Kavi Guru Pratap Sharma 'Aag'" />
-        <meta name="twitter:description" content={aboutContent?.truncated_preview || 'Renowned Hindi poet and writer'} />
+        <meta name="twitter:title" content="कवि गुरुप्रताप शर्मा 'आग'" />
+        <meta name="twitter:description" content={aboutContent?.truncated_preview || 'कवि गुरुप्रताप शर्मा \'आग\''} />
         {aboutImageUrl && <meta name="twitter:image" content={aboutImageUrl} />}
         
         {/* Additional SEO */}
@@ -203,10 +202,10 @@ function Home() {
       </Helmet>
 
       <div className="phoenix-home">
-        {/* ISSUE 1 FIX: Top Hero Banner mounted unconditionally */}
+        {/* Top Hero Banner */}
         <HeroSection />
 
-        {/* 1. About Section with Box Background */}
+        {/* 1. About Section */}
         {aboutContent && (
           <motion.section
             className="phoenix-section phoenix-section-box phoenix-about-section-home"
@@ -223,7 +222,7 @@ function Home() {
                 onClick={() => navigate('/parichay')}
                 style={{ cursor: 'pointer' }}
               >
-                {aboutCategory ? (aboutCategory.name_display || aboutCategory.name_hi || t('nav.about')) : (aboutContent.title || t('nav.about'))}
+                कवि परिचय
               </motion.h2>
               
               <div className="phoenix-about-home-layout-text-wrap">
@@ -261,7 +260,7 @@ function Home() {
                     className="phoenix-highlights-more-btn"
                     onClick={() => navigate('/parichay')}
                   >
-                    {isHi ? 'पूरा परिचय पढ़ें →' : 'Read Full Biography →'}
+                    पूरा परिचय पढ़ें →
                   </button>
                 </motion.div>
               </div>
@@ -277,7 +276,7 @@ function Home() {
           </motion.section>
         )}
 
-        {/* 2. Poems Section with Box Background */}
+        {/* 2. Poems Section */}
         {poems.length > 0 && (
           <motion.section
             className="phoenix-section phoenix-section-box phoenix-poems-section-home"
@@ -294,37 +293,23 @@ function Home() {
                 onClick={() => poemsCategory ? navigate(`/category/${poemsCategory.id}`) : navigate('/kavya-sangrah')}
                 style={{ cursor: 'pointer' }}
               >
-                {poemsCategory ? (poemsCategory.name_display || poemsCategory.name_hi || t('nav.poems')) : t('nav.poems')}
+                काव्य संग्रह
               </motion.h2>
               
               <div className="phoenix-poems-list-home">
                 {poems.map((poem, index) => (
-                  <motion.div
+                  <PoemCard
                     key={poem.id}
-                    className="phoenix-poem-item-home"
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.05, duration: 0.3 }}
-                  >
-                    <button
-                      className="phoenix-poem-link"
-                      onClick={() => navigate(`/poem/${poem.id}`)}
-                    >
-                      <h3 className="phoenix-poem-heading phoenix-poem-heading-ellipsis">
-                        {i18n.language === 'hi' 
-                          ? (poem.heading_hi || poem.heading_en || poem.heading || poem.title || 'Untitled')
-                          : (poem.heading_en || poem.heading_hi || poem.heading || poem.title || 'Untitled')}
-                      </h3>
-                    </button>
-                  </motion.div>
+                    poem={poem}
+                    index={index}
+                  />
                 ))}
               </div>
             </div>
           </motion.section>
         )}
 
-        {/* 3. Publications Section with Box Background */}
+        {/* 3. Publications Section */}
         {publications.length > 0 && (
           <motion.section
             className="phoenix-section phoenix-section-box phoenix-publications-section-home"
@@ -341,7 +326,7 @@ function Home() {
                 onClick={() => publicationsCategory ? navigate(`/category/${publicationsCategory.id}`) : navigate('/prakashan')}
                 style={{ cursor: 'pointer' }}
               >
-                {publicationsCategory ? (publicationsCategory.name_display || publicationsCategory.name_hi || t('publications.title')) : t('publications.title')}
+                प्रकाशन
               </motion.h2>
               
               <div className="phoenix-publications-scroll">
@@ -357,7 +342,7 @@ function Home() {
           </motion.section>
         )}
 
-        {/* ISSUE 3 FIX: Highlights Section (Timeline & Awards) */}
+        {/* 4. Highlights Section (Timeline & Awards) */}
         {(timelineHighlights.length > 0 || awardsHighlights.length > 0) && (
           <motion.section
             className="phoenix-section phoenix-section-box phoenix-highlights-section-home"
@@ -367,7 +352,7 @@ function Home() {
           >
             <div className="phoenix-content">
               <h2 className="phoenix-section-title">
-                {isHi ? 'मुख्य उपलब्धियां (जीवन यात्रा व सम्मान)' : 'Highlights & Honors'}
+                मुख्य उपलब्धियां
               </h2>
 
               <div className="phoenix-highlights-grid">
@@ -375,7 +360,7 @@ function Home() {
                 {timelineHighlights.length > 0 && (
                   <div className="phoenix-highlight-col">
                     <h3 className="phoenix-highlight-col-title">
-                      ⏳ {isHi ? 'जीवन यात्रा (मील के पत्थर)' : 'Life Timeline'}
+                      ⏳ जीवन यात्रा (मील के पत्थर)
                     </h3>
                     {timelineHighlights.map((item) => (
                       <div key={item.id} className="phoenix-highlight-card">
@@ -396,7 +381,7 @@ function Home() {
                       className="phoenix-highlights-more-btn"
                       onClick={() => navigate('/parichay')}
                     >
-                      {isHi ? 'और देखें →' : 'View Full Timeline →'}
+                      और देखें →
                     </button>
                   </div>
                 )}
@@ -405,7 +390,7 @@ function Home() {
                 {awardsHighlights.length > 0 && (
                   <div className="phoenix-highlight-col">
                     <h3 className="phoenix-highlight-col-title">
-                      🏆 {isHi ? 'पुरस्कार व सम्मान' : 'Awards & Honors'}
+                      🏆 पुरस्कार व सम्मान
                     </h3>
                     {awardsHighlights.map((award) => (
                       <div key={award.id} className="phoenix-highlight-card">
@@ -426,7 +411,7 @@ function Home() {
                       className="phoenix-highlights-more-btn"
                       onClick={() => navigate('/parichay')}
                     >
-                      {isHi ? 'और देखें →' : 'View All Awards →'}
+                      और देखें →
                     </button>
                   </div>
                 )}

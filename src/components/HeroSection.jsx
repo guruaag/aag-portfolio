@@ -43,6 +43,7 @@ function HeroSection() {
       setHeroConfig({
         title: sMap.home_hero_title || 'अग्नि कलश',
         subtitle: sMap.home_hero_subtitle || '"हिंदी काव्य और ओजस्वी चेतना की अमर गाथा"',
+        description: sMap.home_hero_description || '',
         imageUrl: sMap.home_hero_image_url || '',
         ctaPrimaryLabel: sMap.home_cta_primary_label || 'रचनाएं पढ़ें',
         ctaPrimaryUrl: sMap.home_cta_primary_url || '/kavya-sangrah',
@@ -56,8 +57,11 @@ function HeroSection() {
     }
   }
 
+  const isValidHeroImg = heroConfig.imageUrl && 
+    !heroConfig.imageUrl.toLowerCase().includes('screenshot') && 
+    !heroConfig.imageUrl.includes('media_')
 
-  const authorImageUrl = heroConfig.imageUrl
+  const authorImageUrl = isValidHeroImg
     ? getImageUrl(heroConfig.imageUrl)
     : (aboutContent?.photo_path ? getImageUrl(aboutContent.photo_path) : '/logo.png')
 
@@ -96,7 +100,8 @@ function HeroSection() {
                 alt={heroConfig.title}
                 className="leona-book-cover-3d"
                 onError={(e) => {
-                  e.target.src = '/logo.png'
+                  e.target.onerror = null
+                  e.target.src = aboutContent?.photo_path ? getImageUrl(aboutContent.photo_path) : '/logo.png'
                 }}
               />
             </div>
@@ -117,34 +122,40 @@ function HeroSection() {
               {heroConfig.title}
             </h1>
 
-            <div className="leona-hero-subtitle">
-              {heroConfig.subtitle}
-            </div>
+            {heroConfig.subtitle && (
+              <div className="leona-hero-subtitle">
+                {heroConfig.subtitle}
+              </div>
+            )}
 
-            <p className="leona-hero-description">
-              {isHi
-                ? "कवि गुरुप्रताप शर्मा 'आग' का कालजयी काव्य संग्रह 'अग्नि कलश' राष्ट्रभक्ति, मानवीय संवेदनाओं और ओजस्वी छंदों का अनूठा संगम है।"
-                : "Renowned poet Guru Pratap Sharma 'Aag' presents a masterwork of fiery patriotic verse, human emotion, and timeless poetic rhythm."}
-            </p>
+            {heroConfig.description && (
+              <p className="leona-hero-description">
+                {heroConfig.description}
+              </p>
+            )}
 
             <div className="leona-hero-actions">
-              <motion.button
-                className="btn-primary-terracotta"
-                onClick={() => handleCtaClick(heroConfig.ctaPrimaryUrl)}
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.96 }}
-              >
-                🛒 {heroConfig.ctaPrimaryLabel}
-              </motion.button>
+              {heroConfig.ctaPrimaryLabel && (
+                <motion.button
+                  className="btn-primary-terracotta"
+                  onClick={() => handleCtaClick(heroConfig.ctaPrimaryUrl)}
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.96 }}
+                >
+                  🛒 {heroConfig.ctaPrimaryLabel}
+                </motion.button>
+              )}
 
-              <motion.button
-                className="btn-secondary-teal"
-                onClick={() => handleCtaClick(heroConfig.ctaSecondaryUrl)}
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.96 }}
-              >
-                📖 {heroConfig.ctaSecondaryLabel}
-              </motion.button>
+              {heroConfig.ctaSecondaryLabel && (
+                <motion.button
+                  className="btn-secondary-teal"
+                  onClick={() => handleCtaClick(heroConfig.ctaSecondaryUrl)}
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.96 }}
+                >
+                  📖 {heroConfig.ctaSecondaryLabel}
+                </motion.button>
+              )}
             </div>
           </motion.div>
 
@@ -155,3 +166,4 @@ function HeroSection() {
 }
 
 export default HeroSection
+

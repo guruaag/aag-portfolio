@@ -1132,43 +1132,8 @@ function HomeManager({ initialSubTab = 'hero', poems = [], publications = [], ab
         <h2 className="admin-panel-title">🏠 {tLabel('मुख्य पृष्ठ प्रबंधन', 'Home Page Management Dashboard')}</h2>
       </div>
 
-      {/* 4-Tab Horizontal Navigation Pills */}
-      <div className="admin-sub-tab-pill-bar" style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
-        <button
-          type="button"
-          className={`admin-sub-tab-btn ${activeTab === 'hero' ? 'active' : ''}`}
-          onClick={() => setActiveTab('hero')}
-          style={{ padding: '8px 16px', borderRadius: '20px' }}
-        >
-          🖼️ {tLabel('1. हीरो बैनर', '1. Hero & Banner')}
-        </button>
-        <button
-          type="button"
-          className={`admin-sub-tab-btn ${activeTab === 'about' ? 'active' : ''}`}
-          onClick={() => setActiveTab('about')}
-          style={{ padding: '8px 16px', borderRadius: '20px' }}
-        >
-          👤 {tLabel('2. परिचय सारांश', '2. Bio Excerpt')}
-        </button>
-        <button
-          type="button"
-          className={`admin-sub-tab-btn ${activeTab === 'featured' ? 'active' : ''}`}
-          onClick={() => setActiveTab('featured')}
-          style={{ padding: '8px 16px', borderRadius: '20px' }}
-        >
-          📚 {tLabel('3. प्रमुख रचनाएं व पुस्तकें', '3. Featured Works')}
-        </button>
-        <button
-          type="button"
-          className={`admin-sub-tab-btn ${activeTab === 'highlights' ? 'active' : ''}`}
-          onClick={() => setActiveTab('highlights')}
-          style={{ padding: '8px 16px', borderRadius: '20px' }}
-        >
-          🏆 {tLabel('4. मुख्य उपलब्धियां', '4. Highlights & Awards')}
-        </button>
-      </div>
-
       {/* Single Form Container (Bound to sticky top header Save) */}
+
       <form
         id="admin-active-form"
         onSubmit={handleSubmit}
