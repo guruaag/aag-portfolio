@@ -78,7 +78,22 @@ Whenever this skill is triggered, immediately ask the user to select one of the 
   - Display custom bilingual modal ("Discard Changes / परिवर्तन छोड़ें" vs "Keep Editing / संपादन जारी रखें") before client-side navigation when `isDirty` is true.
   - Reset `isDirty` to `false` on form submit, cancel, or module unmount.
 
-### 6. Verification & Pre-Commit Import Protocol
+### 6. Public Home Page (`/`) Data Sync & UI Refinement Rules
+- **Unconditional Hero Section Mounting**:
+  - `<HeroSection />` must be mounted unconditionally at the top of the home page. Do not wrap it in conditional category checks that unmount it if a category record is missing or inactive.
+  - `HeroSection` must never return `null` or unmount while loading; initialize with default state fallbacks (`home_hero_title`, `home_hero_subtitle`) so the hero renders immediately.
+  - Remove hardcoded paragraph text in `HeroSection`. Render dynamic descriptions only when present (`heroConfig.description`), hiding empty `<p>` elements cleanly.
+  - Filter out invalid/screenshot image URLs (containing `screenshot` or `media_`) in `HeroSection` and provide safe fallback to `aboutContent?.photo_path` or `/logo.png`, with an `onError` image handler.
+- **Data Sanitizer Integrity**:
+  - `sanitizePoem` and `sanitizePublication` in `dataSanitizer.js` must filter dirty test substrings without injecting static dummy text (e.g. `'अग्नि कलश काव्य'`, `'Aag Poetry'`).
+- **Section Heading Typography & Devanagari Strings**:
+  - All public home page section headings must use pure Devanagari strings (**`कवि परिचय`**, **`काव्य संग्रह`**, **`प्रकाशन`**, **`मुख्य उपलब्धियां`**), eliminating mixed bilingual parenthetical text.
+  - Section titles must not render heavy `border-bottom` lines or `::after` accent lines (`border-bottom: none;`).
+- **Card Component Grid Layout**:
+  - Render featured poem items using the dedicated `PoemCard` component within a responsive grid container (`display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;`).
+  - `PoemCard` styling must maintain `1.25rem` padding, `1px solid #e2e8f0` border, `12px` rounded corners, `0 2px 8px rgba(0, 0, 0, 0.04)` soft shadow, category tag badge, 3-line truncated description, and smooth `transform: translateY(-3px)` hover elevation.
+
+### 7. Verification & Pre-Commit Import Protocol
 - **Static Import & AST Tag Audit**:
   - Before pushing any route or layout changes, run a static component scanner across all JS/JSX files in `src/` to verify every uppercase JSX tag is imported or defined in module scope. Never register or render a manager component without verifying its explicit import or top-level function definition.
 - **Mandatory Local Build & Remote Push Verification**:
