@@ -14,18 +14,22 @@ function PoemCard({ poem, index = 0 }) {
       : (poem.heading_en || poem.heading || poem.heading_hi || `Poem ${poem.sort_order || ''}`)
   )
   
-  const description = sanitizeText(poem.description)
+  const description = sanitizeText(poem.description || poem.body_text_hi || poem.body_text_en)
+  const categoryTag = poem.category_name || (isHi ? 'कविता' : 'Poetry')
 
   return (
     <motion.article
       className="phoenix-poem-card"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1, duration: 0.5 }}
-      whileHover={{ x: 8, transition: { duration: 0.2 } }}
+      transition={{ delay: index * 0.05, duration: 0.4 }}
+      whileHover={{ y: -3, transition: { duration: 0.2 } }}
     >
       <Link to={`/poem/${poem.id}`} className="phoenix-poem-link">
         <div className="phoenix-poem-header">
+          {categoryTag && (
+            <span className="phoenix-poem-category-tag">{categoryTag}</span>
+          )}
           <h3 className="phoenix-poem-heading">
             {title}
           </h3>

@@ -29,12 +29,18 @@
   color: var(--theme-text);
   text-align: left;
   margin-bottom: var(--phoenix-space-lg);
-  padding-bottom: var(--phoenix-space-sm);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+  padding-bottom: var(--phoenix-space-xs, 4px);
+  border-bottom: none;
   padding-left: var(--phoenix-padding-mobile);
   padding-right: var(--phoenix-padding-mobile);
   transition: color 0.3s ease;
 }
+
+.phoenix-section-title::after {
+  content: none !important;
+  display: none !important;
+}
+
 
 .phoenix-section-title-link {
   cursor: pointer;
@@ -132,12 +138,13 @@
 /* Poems List Home Grid */
 .phoenix-poems-list-home {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--phoenix-space-lg);
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
   margin-bottom: var(--phoenix-space-md);
   padding-left: var(--phoenix-padding-mobile);
   padding-right: var(--phoenix-padding-mobile);
 }
+
 
 
 @media (min-width: 1025px) {
@@ -303,9 +310,10 @@
   font-size: var(--phoenix-text-xl);
   color: var(--theme-accent, #B23B23);
   margin-bottom: var(--phoenix-space-sm);
-  border-bottom: 2px solid var(--theme-accent, #B23B23);
+  border-bottom: none;
   padding-bottom: 4px;
 }
+
 
 .phoenix-highlight-card {
   background: #FFFFFF;

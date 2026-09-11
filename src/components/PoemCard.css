@@ -1,68 +1,95 @@
-/* Phoenix Poem Card - Elegant List Item */
+/* Phoenix Poem Card - Modern Grid Item Redesign */
 
 .phoenix-poem-card {
-  background: var(--phoenix-white);
-  border-radius: var(--phoenix-radius-lg);
-  box-shadow: var(--phoenix-shadow-sm);
-  transition: all var(--phoenix-transition-base);
-  border: none;
+  background: #FFFFFF;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
   overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .phoenix-poem-card:hover {
-  box-shadow: var(--phoenix-shadow-md);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border-color: rgba(178, 59, 35, 0.3);
 }
 
 .phoenix-poem-link {
-  display: block;
-  padding: var(--phoenix-space-lg);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: 1.25rem;
   text-decoration: none;
   color: inherit;
-  transition: all var(--phoenix-transition-base);
-}
-
-.phoenix-poem-link:hover {
-  color: var(--phoenix-sienna);
+  box-sizing: border-box;
 }
 
 .phoenix-poem-header {
-  margin-bottom: var(--phoenix-space-md);
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.75rem;
+}
+
+.phoenix-poem-category-tag {
+  align-self: flex-start;
+  font-family: var(--phoenix-font-sans, system-ui, sans-serif);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--theme-accent, #B23B23);
+  background: rgba(178, 59, 35, 0.08);
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .phoenix-poem-heading {
-  font-family: var(--phoenix-font-serif), var(--phoenix-font-hindi-serif);
-  font-size: var(--phoenix-text-xl);
+  font-family: var(--phoenix-font-serif, serif), var(--phoenix-font-hindi-serif, serif);
+  font-size: 1.15rem;
   font-weight: 600;
-  color: var(--phoenix-charcoal);
-  margin: 0 0 var(--phoenix-space-sm) 0;
-  line-height: 1.6;
-  text-align: center;
+  color: var(--phoenix-charcoal, #2D2727);
+  margin: 0 0 0.5rem 0;
+  line-height: 1.4;
+  text-align: left;
 }
 
 .phoenix-poem-description {
-  font-family: var(--phoenix-font-sans);
-  font-size: var(--phoenix-text-base);
-  color: var(--phoenix-text-secondary);
-  line-height: 1.6;
+  font-family: var(--phoenix-font-sans, system-ui, sans-serif);
+  font-size: 0.925rem;
+  color: var(--phoenix-text-secondary, #64748b);
+  line-height: 1.5;
   margin: 0;
+  text-align: left;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .phoenix-poem-footer {
   display: flex;
   justify-content: flex-end;
-  padding-top: var(--phoenix-space-md);
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  padding-top: 0.75rem;
+  margin-top: auto;
+  border-top: 1px solid rgba(226, 232, 240, 0.7);
 }
 
 .phoenix-poem-read-more {
-  font-family: var(--phoenix-font-sans);
-  font-size: var(--phoenix-text-sm);
-  font-weight: 500;
-  color: var(--phoenix-sienna);
-  transition: all var(--phoenix-transition-base);
+  font-family: var(--phoenix-font-sans, system-ui, sans-serif);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--theme-accent, #B23B23);
+  transition: transform 0.2s ease, color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
 }
 
 .phoenix-poem-link:hover .phoenix-poem-read-more {
   transform: translateX(4px);
 }
-
