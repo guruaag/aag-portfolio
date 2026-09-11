@@ -1,18 +1,29 @@
 /* ============================================
-   FONT STANDARDIZATION - Site-wide Consistency
+   FONT STANDARDIZATION - Global Devanagari & Inter Stack
    ============================================ */
 
-/* Force consistent font families across all elements */
-* {
-  font-family: var(--phoenix-font-sans) !important;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Tiro+Devanagari+Hindi&display=swap');
+
+:root {
+  --font-sans: 'Noto Sans Devanagari', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Tiro Devanagari Hindi', serif;
+  --phoenix-font-sans: var(--font-sans);
+  --phoenix-font-serif: var(--font-serif);
 }
 
-/* Headings - Serif font */
+body, input, button, select, textarea {
+  font-family: var(--font-sans) !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings, Brand Logo & Titles */
 h1, h2, h3, h4, h5, h6,
+.brand-logo,
+.navbar-title,
 .phoenix-header-title,
 .phoenix-section-title,
 .phoenix-category-title,
-.phoenix-poem-title,
 .phoenix-publication-page-title,
 .phoenix-about-title,
 .phoenix-contact-title,
@@ -21,54 +32,26 @@ h1, h2, h3, h4, h5, h6,
 .admin-panel-title,
 .admin-sidebar-brand,
 .admin-breadcrumb-title {
-  font-family: var(--phoenix-font-serif), var(--phoenix-font-hindi-serif) !important;
+  font-family: var(--font-sans) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em;
 }
 
-/* Body text - Sans font */
-p, span, div, a, button, input, textarea, select,
-.phoenix-about-preview,
+/* Poetry & Excerpts Only */
+.poem-content,
+.poem-excerpt,
 .phoenix-poem-content,
-.phoenix-markdown-content,
-.phoenix-about-text,
-.phoenix-contact-subtitle,
-.phoenix-footer-btn,
-.phoenix-btn,
-.phoenix-nav-link {
-  font-family: var(--phoenix-font-sans), var(--phoenix-font-hindi-sans) !important;
+.phoenix-poem-card-excerpt,
+.phoenix-poem-excerpt {
+  font-family: var(--font-serif) !important;
+  line-height: 1.8;
 }
 
-/* Poem content - Use same font as buttons for Hindi readability */
-.phoenix-poem-content,
-.phoenix-poem-heading,
-.phoenix-poem-title,
-.phoenix-publication-title,
-.phoenix-publication-subtitle,
-.phoenix-publication-description {
-  font-family: var(--phoenix-font-sans), var(--phoenix-font-hindi-sans) !important;
-}
-
-/* Buttons - Consistent sans */
+/* Navigation & Buttons */
 button,
-.phoenix-btn,
-.phoenix-footer-btn,
-.phoenix-modal-close-button,
-.phoenix-share-modal-btn,
-.phoenix-poem-nav-btn {
-  font-family: var(--phoenix-font-sans), var(--phoenix-font-hindi-sans) !important;
-  font-weight: 500 !important;
-  font-size: var(--phoenix-text-sm) !important;
-}
-
-/* Navigation - Consistent sans */
 nav,
+.phoenix-btn,
 .phoenix-nav-link,
 .phoenix-menu-item {
-  font-family: var(--phoenix-font-sans), var(--phoenix-font-hindi-sans) !important;
+  font-family: var(--font-sans) !important;
 }
-
-/* Ensure Hindi fonts are available */
-[lang="hi"],
-:lang(hi) {
-  font-family: var(--phoenix-font-hindi-serif), var(--phoenix-font-hindi-sans) !important;
-}
-

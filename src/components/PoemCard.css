@@ -1,95 +1,86 @@
-/* Phoenix Poem Card - Modern Grid Item Redesign */
+/* Phoenix Poem Card - Refactored Design */
 
 .phoenix-poem-card {
-  background: #FFFFFF;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-  overflow: hidden;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.phoenix-poem-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  border-color: rgba(178, 59, 35, 0.3);
-}
-
-.phoenix-poem-link {
+  background: #ffffff;
+  border: 1px solid #e5e7eb; /* Subtle slate border */
+  border-radius: 16px;
+  padding: 1.75rem; /* Generous internal breathing room */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  transition: all 0.25s ease-in-out;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   height: 100%;
-  padding: 1.25rem;
+  box-sizing: border-border-box;
+}
+
+.phoenix-poem-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.1);
+  border-color: #cbd5e1;
+}
+
+.phoenix-poem-link {
   text-decoration: none;
   color: inherit;
-  box-sizing: border-box;
-}
-
-.phoenix-poem-header {
   display: flex;
   flex-direction: column;
-  margin-bottom: 0.75rem;
+  height: 100%;
+  justify-content: space-between;
 }
 
+/* Tag Badge */
 .phoenix-poem-category-tag {
-  align-self: flex-start;
-  font-family: var(--phoenix-font-sans, system-ui, sans-serif);
+  display: inline-block;
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--theme-accent, #B23B23);
-  background: rgba(178, 59, 35, 0.08);
-  padding: 2px 8px;
-  border-radius: 4px;
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  color: #9a3412; /* Warm accent */
+  background: #fff7ed;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  margin-bottom: 0.75rem;
+  width: fit-content;
 }
 
-.phoenix-poem-heading {
-  font-family: var(--phoenix-font-serif, serif), var(--phoenix-font-hindi-serif, serif);
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: var(--phoenix-charcoal, #2D2727);
-  margin: 0 0 0.5rem 0;
+/* Title */
+.phoenix-poem-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.75rem;
   line-height: 1.4;
-  text-align: left;
 }
 
-.phoenix-poem-description {
-  font-family: var(--phoenix-font-sans, system-ui, sans-serif);
-  font-size: 0.925rem;
-  color: var(--phoenix-text-secondary, #64748b);
-  line-height: 1.5;
-  margin: 0;
-  text-align: left;
+/* Excerpt Paragraph */
+.phoenix-poem-card-excerpt {
+  font-family: var(--font-serif, 'Tiro Devanagari Hindi', serif) !important;
+  font-size: 0.95rem;
+  color: #475569;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.phoenix-poem-footer {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 0.75rem;
+/* Action Footer */
+.phoenix-poem-card-footer {
+  border-top: 1px solid #f1f5f9;
+  padding-top: 1rem;
   margin-top: auto;
-  border-top: 1px solid rgba(226, 232, 240, 0.7);
-}
-
-.phoenix-poem-read-more {
-  font-family: var(--phoenix-font-sans, system-ui, sans-serif);
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--theme-accent, #B23B23);
-  transition: transform 0.2s ease, color 0.2s ease;
-  display: inline-flex;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
 }
 
-.phoenix-poem-link:hover .phoenix-poem-read-more {
+.phoenix-poem-read-more {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #9a3412;
+  transition: transform 0.2s ease;
+}
+
+.phoenix-poem-card:hover .phoenix-poem-read-more {
   transform: translateX(4px);
 }

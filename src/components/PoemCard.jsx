@@ -14,7 +14,7 @@ function PoemCard({ poem, index = 0 }) {
       : (poem.heading_en || poem.heading || poem.heading_hi || `Poem ${poem.sort_order || ''}`)
   )
   
-  const description = sanitizeText(poem.description || poem.body_text_hi || poem.body_text_en)
+  const excerpt = sanitizeText(poem.description || poem.body_text_hi || poem.body_text_en)
   const categoryTag = poem.category_name || (isHi ? 'कविता' : 'Poetry')
 
   return (
@@ -23,23 +23,23 @@ function PoemCard({ poem, index = 0 }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05, duration: 0.4 }}
-      whileHover={{ y: -3, transition: { duration: 0.2 } }}
+      whileHover={{ y: -4, transition: { duration: 0.2 } }}
     >
       <Link to={`/poem/${poem.id}`} className="phoenix-poem-link">
-        <div className="phoenix-poem-header">
+        <div>
           {categoryTag && (
             <span className="phoenix-poem-category-tag">{categoryTag}</span>
           )}
-          <h3 className="phoenix-poem-heading">
+          <h3 className="phoenix-poem-card-title">
             {title}
           </h3>
-          {description && (
-            <p className="phoenix-poem-description">
-              {description}
+          {excerpt && (
+            <p className="phoenix-poem-card-excerpt">
+              {excerpt}
             </p>
           )}
         </div>
-        <div className="phoenix-poem-footer">
+        <div className="phoenix-poem-card-footer">
           <span className="phoenix-poem-read-more">
             {isHi ? 'पढ़ें →' : 'Read →'}
           </span>

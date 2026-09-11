@@ -7,26 +7,28 @@
 
 /* Box-Shaped Sections */
 .phoenix-section-box {
-  background: #F5F5F0;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  padding: var(--phoenix-space-lg);
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  padding: 4rem 1.5rem;
   margin: var(--phoenix-space-md) 0;
+  color: #0f172a;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .phoenix-section-box {
-    padding: var(--phoenix-space-lg);
+    padding: 2.5rem 1rem;
     margin: var(--phoenix-space-md) 0;
   }
 }
 
 /* Section Title */
 .phoenix-section-title {
-  font-family: var(--phoenix-font-serif);
+  font-family: var(--font-sans);
   font-size: var(--phoenix-text-2xl);
-  font-weight: 600;
-  color: var(--theme-text);
+  font-weight: 700;
+  color: #0f172a;
   text-align: left;
   margin-bottom: var(--phoenix-space-lg);
   padding-bottom: var(--phoenix-space-xs, 4px);
@@ -40,7 +42,6 @@
   content: none !important;
   display: none !important;
 }
-
 
 .phoenix-section-title-link {
   cursor: pointer;
@@ -127,10 +128,10 @@
 }
 
 .phoenix-about-preview {
-  font-family: var(--phoenix-font-serif);
+  font-family: var(--font-sans);
   font-size: var(--phoenix-text-lg);
   line-height: 1.6;
-  color: var(--theme-text-secondary);
+  color: #475569;
   margin-bottom: var(--phoenix-space-lg);
   text-align: left;
 }
@@ -138,12 +139,14 @@
 /* Poems List Home Grid */
 .phoenix-poems-list-home {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-top: 1.5rem;
   margin-bottom: var(--phoenix-space-md);
   padding-left: var(--phoenix-padding-mobile);
   padding-right: var(--phoenix-padding-mobile);
 }
+
 
 
 

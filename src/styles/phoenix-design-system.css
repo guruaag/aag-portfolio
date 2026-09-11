@@ -3,65 +3,16 @@
    Complete UI/UX Overhaul - Modern, Elegant, Poetic
    ============================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Tiro+Devanagari+Hindi:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Tiro+Devanagari+Hindi&display=swap');
 
 :root {
-  /* ============================================
-     THEME SYSTEM - Dynamic Colors
-     ============================================ */
-  
-  /* Default Theme Variables (Ivory & Charcoal - Leona Palette) */
-  --theme-bg: #FAF7F2;
-  --theme-surface: #F4EFE6;
-  --theme-text: #1E1B18;
-  --theme-text-secondary: #6E665E;
-  --theme-accent: #F66E5E;
-  --theme-accent-light: #FF8677;
-  --theme-border: #E2D7C5;
-  
-  /* Leona Signature Palette */
-  --leona-terracotta: #F66E5E;
-  --leona-terracotta-dark: #D95343;
-  --leona-teal: #39BAAF;
-  --leona-teal-dark: #2C988F;
-  --leona-charcoal: #1E1B18;
-  --leona-ivory: #FAF7F2;
-  --leona-cream: #F4EFE6;
-  --leona-white: #FFFFFF;
-  --leona-gold: #D4AF37;
-  
-  /* Legacy Colors (for backward compatibility) */
-  --phoenix-sienna: #F66E5E;
-  --phoenix-sienna-light: #FF8677;
-  --phoenix-sienna-dark: #D95343;
-  --phoenix-charcoal: #1E1B18;
-  --phoenix-charcoal-light: #2A2622;
-  --phoenix-charcoal-dark: #12100E;
-  
-  /* Neutral Palette */
-  --phoenix-ivory: var(--theme-bg);
-  --phoenix-cream: var(--theme-surface);
-  --phoenix-white: #FFFFFF;
-  --phoenix-off-white: #FEFEFE;
-  
-  /* Text Colors */
-  --phoenix-text-primary: var(--theme-text);
-  --phoenix-text-secondary: var(--theme-text-secondary);
-  --phoenix-text-muted: #8A8A8A;
-  --phoenix-text-light: #B0B0B0;
-  
-  /* Accent Colors */
-  --phoenix-gold: #D4AF37;
-  --phoenix-slate-blue: #5F7A8A;
-  
-  /* ============================================
-     TYPOGRAPHY - Lora Serif + Inter Sans
-     ============================================ */
-  
-  --phoenix-font-serif: 'Lora', 'Tiro Devanagari Hindi', Georgia, 'Times New Roman', serif;
-  --phoenix-font-sans: 'Inter', 'Tiro Devanagari Hindi', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-sans: 'Noto Sans Devanagari', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Tiro Devanagari Hindi', serif;
+  --phoenix-font-serif: var(--font-serif);
+  --phoenix-font-sans: var(--font-sans);
   --phoenix-font-hindi-serif: 'Tiro Devanagari Hindi', serif;
-  --phoenix-font-hindi-sans: 'Tiro Devanagari Hindi', sans-serif;
+  --phoenix-font-hindi-sans: 'Noto Sans Devanagari', sans-serif;
+
   
   /* Font Sizes - Fluid Typography */
   --phoenix-text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
