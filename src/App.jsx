@@ -127,7 +127,7 @@ function App() {
           }}>Loading...</div>}>
             <Routes>
               {/* Leona Theme Primary Homepage & Standalone HTML Prototype routes */}
-              <Route path="/" element={<iframe src="/preview.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Gurupratap Sharma 'Aag'" />} />
+              
               <Route path="/preview" element={<iframe src="/preview.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Prototype Preview" />} />
               <Route path="/preview.html" element={<iframe src="/preview.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Prototype Preview" />} />
               <Route path="/kavi-parichay.html" element={<iframe src="/kavi-parichay.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Kavi Parichay" />} />
@@ -154,7 +154,11 @@ function App() {
                     <Route path="/settings" element={<Settings />} />
                     <Route path="/admin" element={<AdminLogin />} />
                     <Route path="/admin/dashboard" element={<AdminDashboard tab="about" />} />
-                    <Route path="/admin/home" element={<AdminDashboard tab="home" />} />
+                    <Route path="/admin/home" element={<AdminDashboard tab="home" initialSubTab="hero" />} />
+                    <Route path="/admin/home/hero" element={<AdminDashboard tab="home" initialSubTab="hero" />} />
+                    <Route path="/admin/home/intro" element={<AdminDashboard tab="home" initialSubTab="about" />} />
+                    <Route path="/admin/home/featured" element={<AdminDashboard tab="home" initialSubTab="featured" />} />
+                    <Route path="/admin/home/highlights" element={<AdminDashboard tab="home" initialSubTab="highlights" />} />
                     <Route path="/admin/parichay" element={<AdminDashboard tab="about" />} />
                     <Route path="/admin/about" element={<AdminDashboard tab="about" />} />
                     <Route path="/admin/timeline" element={<AdminDashboard tab="timeline" />} />

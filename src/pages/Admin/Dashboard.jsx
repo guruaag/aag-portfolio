@@ -59,9 +59,16 @@ function UnsavedChangesModal({ isOpen, onConfirmDiscard, onKeepEditing, tLabel }
   )
 }
 
-function AdminDashboard({ tab }) {
+function AdminDashboard({ tab, initialSubTab }) {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState(tab || 'categories')
+  const [homeSubTab, setHomeSubTab] = useState(initialSubTab || 'hero')
+
+  useEffect(() => {
+    if (initialSubTab) {
+      setHomeSubTab(initialSubTab)
+    }
+  }, [initialSubTab])
   const [loading, setLoading] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [isDirty, setIsDirty] = useState(false)
@@ -120,7 +127,8 @@ function AdminDashboard({ tab }) {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
   }, [isDirty])
 
-  const switchTab = (newTab, routePath) => {
+  const switchTab = (newTab, routePath, subTab) => {
+    if (subTab) setHomeSubTab(subTab)
     if (isDirty) {
       setPendingNavigation({ newTab, routePath })
       setShowUnsavedModal(true)
@@ -325,13 +333,41 @@ function AdminDashboard({ tab }) {
           <div className="admin-sidebar-nav-scroll">
             <div className="admin-sidebar-nav" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               
-              {/* Home Page */}
+              {/* Home Page Section */}
               <button
                 className={`admin-tab-btn ${activeTab === 'home' ? 'active' : ''}`}
-                onClick={() => switchTab('home', '/admin/home')}
+                onClick={() => switchTab('home', '/admin/home/hero', 'hero')}
               >
                 🏠 {tLabel('मुख्य पृष्ठ', 'Home Page')}
               </button>
+
+              {/* Nested Sub-categories for Home Page */}
+              <div className="admin-sub-nav">
+                <button
+                  className={`admin-sub-tab-btn ${activeTab === 'home' && homeSubTab === 'hero' ? 'active' : ''}`}
+                  onClick={() => switchTab('home', '/admin/home/hero', 'hero')}
+                >
+                  ▫️ 1. {tLabel('हीरो बैनर', 'Hero Banner')}
+                </button>
+                <button
+                  className={`admin-sub-tab-btn ${activeTab === 'home' && (homeSubTab === 'about' || homeSubTab === 'intro') ? 'active' : ''}`}
+                  onClick={() => switchTab('home', '/admin/home/intro', 'about')}
+                >
+                  ▫️ 2. {tLabel('परिचय सारांश', 'Bio Excerpt')}
+                </button>
+                <button
+                  className={`admin-sub-tab-btn ${activeTab === 'home' && homeSubTab === 'featured' ? 'active' : ''}`}
+                  onClick={() => switchTab('home', '/admin/home/featured', 'featured')}
+                >
+                  ▫️ 3. {tLabel('प्रमुख रचनाएं व पुस्तकें', 'Featured Works')}
+                </button>
+                <button
+                  className={`admin-sub-tab-btn ${activeTab === 'home' && homeSubTab === 'highlights' ? 'active' : ''}`}
+                  onClick={() => switchTab('home', '/admin/home/highlights', 'highlights')}
+                >
+                  ▫️ 4. {tLabel('मुख्य उपलब्धियां', 'Highlights & Awards')}
+                </button>
+              </div>
 
               {/* About Bio Section */}
               <button
@@ -476,7 +512,7 @@ function AdminDashboard({ tab }) {
 
           <div className="admin-dashboard-container" style={{ padding: '24px' }}>
             {activeTab === 'home' && (
-              <HomeManager poems={data.poems} publications={data.publications} about={data.about} settings={data.settings} onUpdate={loadData} setIsDirty={setIsDirty} />
+              <HomeManager initialSubTab={homeSubTab} poems={data.poems} publications={data.publications} about={data.about} settings={data.settings} onUpdate={loadData} setIsDirty={setIsDirty} />
             )}
             {(activeTab === 'about' || activeTab === 'timeline' || activeTab === 'awards') && (
               <AboutManager
@@ -875,9 +911,15 @@ function CategoriesManager({ categories, onUpdate, setIsDirty }) {
 }
 
 // 1. Home Manager Component (4-Module Hybrid Dashboard for Home Page Re-Architecture)
-function HomeManager({ poems = [], publications = [], about, settings = {}, onUpdate, setIsDirty }) {
+function HomeManager({ initialSubTab = 'hero', poems = [], publications = [], about, settings = {}, onUpdate, setIsDirty }) {
   const { tLabel } = useAdminLang()
-  const [activeTab, setActiveTab] = useState('hero') // 'hero' | 'about' | 'featured' | 'highlights'
+  const [activeTab, setActiveTab] = useState(initialSubTab || 'hero')
+
+  useEffect(() => {
+    if (initialSubTab) {
+      setActiveTab(initialSubTab)
+    }
+  }, [initialSubTab]) // 'hero' | 'about' | 'featured' | 'highlights'
 
   // Additional data for timeline and awards
   const [timelineItems, setTimelineItems] = useState([])
