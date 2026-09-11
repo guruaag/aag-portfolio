@@ -321,8 +321,8 @@ function AdminDashboard({ tab }) {
             </div>
           </div>
 
-          {/* Scrollable Navigation Tree & Bottom Controls */}
-          <div className="admin-sidebar-scroll-body">
+          {/* Independently Scrollable Navigation Container */}
+          <div className="admin-sidebar-nav-scroll">
             <div className="admin-sidebar-nav" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               
               {/* Home Page */}
@@ -427,12 +427,13 @@ function AdminDashboard({ tab }) {
                 ⚙️ {tLabel('सेटिंग्स', 'Site Settings')}
               </button>
             </div>
+          </div>
 
-            <div className="admin-sidebar-bottom">
-              <button className="admin-btn-logout" onClick={handleLogout} style={{ width: '100%', justifyContent: 'center' }}>
-                🚪 {tLabel('लॉगआउट', 'Logout')}
-              </button>
-            </div>
+          {/* Static / Fixed Bottom Footer Block */}
+          <div className="admin-sidebar-footer-fixed">
+            <button className="admin-btn-logout" onClick={handleLogout} style={{ width: '100%', justifyContent: 'center' }}>
+              🚪 {tLabel('लॉगआउट', 'Logout')}
+            </button>
           </div>
         </aside>
 
