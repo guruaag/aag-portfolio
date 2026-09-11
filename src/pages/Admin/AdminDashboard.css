@@ -35,23 +35,28 @@
   grid-column: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   height: 100vh;
   position: sticky;
   top: 0;
-  overflow-y: auto;
+  overflow: hidden;
   background: var(--leona-charcoal, #1E1B18);
   color: var(--leona-ivory, #FAF7F2);
   border-right: 2px solid var(--leona-gold, #D4AF37);
   box-sizing: border-box;
-  padding: 20px 16px;
   z-index: 90;
 }
 
-.admin-sidebar-top {
+.admin-sidebar-header-fixed {
+  position: sticky;
+  top: 0;
+  background: var(--leona-charcoal, #1E1B18);
+  z-index: 10;
+  padding: 18px 16px 14px 16px;
+  border-bottom: 1px solid rgba(226, 215, 197, 0.2);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .admin-sidebar-brand {
@@ -60,10 +65,47 @@
   gap: 10px;
   font-family: var(--font-sans);
   font-weight: 700;
-  font-size: 1.15rem;
-  color: var(--leona-ivory, #FAF7F2);
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(226, 215, 197, 0.2);
+  font-size: 1.2rem;
+  color: #FFFFFF !important;
+}
+
+.admin-sidebar-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-sidebar-action-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.84rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.admin-sidebar-action-btn:hover {
+  background: rgba(246, 110, 94, 0.3);
+  border-color: var(--leona-terracotta, #F66E5E);
+  color: #FFFFFF !important;
+}
+
+.admin-sidebar-scroll-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px 20px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .admin-back-btn {

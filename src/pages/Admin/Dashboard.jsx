@@ -294,18 +294,36 @@ function AdminDashboard({ tab }) {
 
         {/* Phase 1 Persistent Sidebar */}
         <aside className={`admin-sidebar ${mobileOpen ? 'open' : ''}`}>
-          <div className="admin-sidebar-top">
+          {/* Static / Fixed Top Header Block */}
+          <div className="admin-sidebar-header-fixed">
             <div className="admin-sidebar-brand">
-              <span>📜</span>
-              <span>{tLabel("कवि गुरुप्रताप शर्मा 'आग'", "Gurupratap Sharma 'Aag'")}</span>
+              <span>👑</span>
+              <span>{tLabel("एडमिन पैनल", "Admin Panel")}</span>
             </div>
             
-            <button type="button" className="admin-back-btn" style={{ border: 'none', background: 'transparent', cursor: 'pointer', textAlign: 'left', width: '100%' }} onClick={() => switchTab(null, '/')}>
-              ← {tLabel('मुख्य साइट पर जाएं', 'Back to Main Site')}
-            </button>
+            <div className="admin-sidebar-top-actions">
+              <button
+                type="button"
+                className="admin-sidebar-action-btn"
+                onClick={() => switchTab(null, '/')}
+                title={tLabel('मुख्य साइट पर जाएं', 'Back to Main Site')}
+              >
+                🌐 {tLabel('मुख्य साइट', 'Main Site')}
+              </button>
+              <button
+                type="button"
+                className="admin-sidebar-action-btn"
+                onClick={toggleAdminLang}
+                title={tLabel('भाषा बदलें', 'Switch Language')}
+              >
+                🌐 {adminLang === 'hi' ? 'English' : 'हिंदी'}
+              </button>
+            </div>
+          </div>
 
-            {/* Navigation Tabs Bar in Sidebar */}
-            <div className="admin-sidebar-nav" style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '12px' }}>
+          {/* Scrollable Navigation Tree & Bottom Controls */}
+          <div className="admin-sidebar-scroll-body">
+            <div className="admin-sidebar-nav" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               
               {/* Home Page */}
               <button
@@ -409,15 +427,12 @@ function AdminDashboard({ tab }) {
                 ⚙️ {tLabel('सेटिंग्स', 'Site Settings')}
               </button>
             </div>
-          </div>
 
-          <div className="admin-sidebar-bottom">
-            <button className="admin-lang-toggle-btn" onClick={toggleAdminLang} style={{ width: '100%', justifyContent: 'center' }}>
-              🌐 {adminLang === 'hi' ? 'English' : 'हिंदी'}
-            </button>
-            <button className="admin-btn-logout" onClick={handleLogout} style={{ width: '100%', justifyContent: 'center' }}>
-              🚪 {tLabel('लॉगआउट', 'Logout')}
-            </button>
+            <div className="admin-sidebar-bottom">
+              <button className="admin-btn-logout" onClick={handleLogout} style={{ width: '100%', justifyContent: 'center' }}>
+                🚪 {tLabel('लॉगआउट', 'Logout')}
+              </button>
+            </div>
           </div>
         </aside>
 
