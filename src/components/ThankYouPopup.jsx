@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { getSetting } from '../lib/supabaseClient'
 
 function ThankYouPopup({ onClose }) {
-  const [message, setMessage] = useState('Thank you!')
+  const [message, setMessage] = useState('आपके संदेश के लिए धन्यवाद!')
 
   useEffect(() => {
     loadMessage()

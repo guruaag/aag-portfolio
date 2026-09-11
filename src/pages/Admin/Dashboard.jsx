@@ -801,14 +801,6 @@ function CategoriesManager({ categories, onUpdate, setIsDirty }) {
               </label>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-            <button type="submit" className="admin-btn-primary">
-              {editing ? tLabel('सहेजें', 'Update') : tLabel('जोड़ें', 'Create')}
-            </button>
-            <button type="button" className="admin-btn-secondary" onClick={handleCancel}>
-              {tLabel('रद्द करें', 'Cancel')}
-            </button>
-          </div>
         </form>
       )}
 
@@ -1091,11 +1083,6 @@ function ContactInfoForm({ settings, onUpdate, setIsDirty }) {
               placeholder="https://youtube.com/@gurupratap"
             />
           </div>
-        </div>
-        <div style={{ marginTop: '20px' }}>
-          <button type="submit" className="admin-btn-primary">
-            💾 {tLabel('संपर्क विवरण सहेजें', 'Save Contact Details')}
-          </button>
         </div>
       </form>
     </div>
@@ -1654,14 +1641,6 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
               </label>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-            <button type="submit" className="admin-btn-primary">
-              {editing ? tLabel('सहेजें', 'Update') : tLabel('प्रकाशित करें', 'Publish')}
-            </button>
-            <button type="button" className="admin-btn-secondary" onClick={handleCancel}>
-              {tLabel('रद्द करें', 'Cancel')}
-            </button>
-          </div>
         </form>
       )}
 
@@ -1989,14 +1968,6 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
               />
             </div>
           </div>
-          <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-            <button type="submit" className="admin-btn-primary">
-              {editing ? tLabel('सहेजें', 'Save Poem') : tLabel('प्रकाशित करें', 'Publish Poem')}
-            </button>
-            <button type="button" className="admin-btn-secondary" onClick={handleCancel}>
-              {tLabel('रद्द करें', 'Cancel')}
-            </button>
-          </div>
         </form>
       )}
 
@@ -2082,7 +2053,7 @@ function SettingsManager({ settings, onUpdate, setIsDirty }) {
         default_accent: settings.default_accent || '#964B00',
         copyright_text: settings.copyright_text || '© सर्वाधिकार सुरक्षित - कवि गुरुप्रताप शर्मा "आग"',
         thank_you_title: settings.thank_you_title || 'धन्यवाद!',
-        thank_you_message: settings.thank_you_message || 'आपका संदेश सफलतापूर्वक प्राप्त हो गया है।',
+        thank_you_message: settings.thank_you_message || 'आपके संदेश के लिए धन्यवाद!',
         thank_you_heading: settings.thank_you_heading || '',
         thank_you_description: settings.thank_you_description || '',
         thank_you_button_text: settings.thank_you_button_text || 'ठीक है',
@@ -2301,12 +2272,6 @@ function SettingsManager({ settings, onUpdate, setIsDirty }) {
               placeholder="आपका संदेश सफलतापूर्वक प्राप्त हो गया है।"
             />
           </div>
-        </div>
-
-        <div style={{ marginTop: '24px' }}>
-          <button type="submit" className="admin-btn-primary">
-            💾 {tLabel('सेटिंग्स सहेजें', 'Save All Settings')}
-          </button>
         </div>
       </form>
     </div>
@@ -2537,10 +2502,6 @@ function TimelineManager({ onUpdate, setIsDirty }) {
               <label>{tLabel('विवरण', 'Description')}</label>
               <textarea className="admin-textarea" value={formData.description} onChange={e => updateForm({ description: e.target.value })} rows={3} required />
             </div>
-          </div>
-          <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-            <button type="submit" className="admin-btn-primary">{tLabel('सहेजें', 'Save Timeline')}</button>
-            <button type="button" className="admin-btn-secondary" onClick={() => { setShowForm(false); if (setIsDirty) setIsDirty(false); }}>{tLabel('रद्द करें', 'Cancel')}</button>
           </div>
         </form>
       )}
@@ -2775,10 +2736,6 @@ function AwardsManager({ onUpdate, setIsDirty }) {
               <label>{tLabel('संस्था / आयोजक', 'Organization')}</label>
               <input className="admin-input" value={formData.organization} onChange={e => updateForm({ organization: e.target.value })} required />
             </div>
-          </div>
-          <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-            <button type="submit" className="admin-btn-primary">{tLabel('सहेजें', 'Save Award')}</button>
-            <button type="button" className="admin-btn-secondary" onClick={() => { setShowForm(false); if (setIsDirty) setIsDirty(false); }}>{tLabel('रद्द करें', 'Cancel')}</button>
           </div>
         </form>
       )}
