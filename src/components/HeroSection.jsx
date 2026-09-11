@@ -56,7 +56,6 @@ function HeroSection() {
     }
   }
 
-  if (loading) return null
 
   const authorImageUrl = heroConfig.imageUrl
     ? getImageUrl(heroConfig.imageUrl)

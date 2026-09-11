@@ -3,12 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
-import { getCategories, getAboutContent, getPublications, getPoems, getAllSettings } from '../lib/supabaseClient'
+import { getCategories, getAboutContent, getPublications, getPoems, getAllSettings, getTimeline, getAwards } from '../lib/supabaseClient'
 import { getImageUrl } from '../lib/imageUtils'
 import { sanitizeText, sanitizePoem, sanitizePublication } from '../lib/dataSanitizer'
 import PublicationCard from '../components/PublicationCard'
 import HeroSection from '../components/HeroSection'
-// VerseOfTheDay component removed - was showing random poem verses on homepage
 import ImageModal from '../components/ImageModal'
 import './Home.css'
 
@@ -19,6 +18,8 @@ function Home() {
   const [aboutContent, setAboutContent] = useState(null)
   const [publications, setPublications] = useState([])
   const [poems, setPoems] = useState([])
+  const [timelineHighlights, setTimelineHighlights] = useState([])
+  const [awardsHighlights, setAwardsHighlights] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [imageModal, setImageModal] = useState({ isOpen: false, url: null, alt: '' })
@@ -32,12 +33,14 @@ function Home() {
       setLoading(true)
       setError(null)
       
-      const [catsData, aboutData, pubsData, poemsData, settingsList] = await Promise.all([
+      const [catsData, aboutData, pubsData, poemsData, settingsList, timelineData, awardsData] = await Promise.all([
         getCategories().catch(() => []),
         getAboutContent().catch(() => null),
         getPublications().catch(() => []),
         getPoems().catch(() => []),
-        getAllSettings().catch(() => [])
+        getAllSettings().catch(() => []),
+        getTimeline().catch(() => []),
+        getAwards().catch(() => [])
       ])
 
       const sMap = {}
@@ -52,32 +55,66 @@ function Home() {
       // Process featured items based on selected sequence
       let featPoemIds = []
       let featPubIds = []
+      let featTimelineIds = []
+      let featAwardIds = []
 
       try {
-        if (sMap.home_featured_poems) featPoemIds = JSON.parse(sMap.home_featured_poems)
+        if (sMap.home_featured_poems) {
+          featPoemIds = typeof sMap.home_featured_poems === 'string' ? JSON.parse(sMap.home_featured_poems) : sMap.home_featured_poems
+        }
       } catch (e) {}
 
       try {
-        if (sMap.home_featured_publications) featPubIds = JSON.parse(sMap.home_featured_publications)
+        if (sMap.home_featured_publications) {
+          featPubIds = typeof sMap.home_featured_publications === 'string' ? JSON.parse(sMap.home_featured_publications) : sMap.home_featured_publications
+        }
+      } catch (e) {}
+
+      try {
+        if (sMap.home_featured_timeline) {
+          featTimelineIds = typeof sMap.home_featured_timeline === 'string' ? JSON.parse(sMap.home_featured_timeline) : sMap.home_featured_timeline
+        }
+      } catch (e) {}
+
+      try {
+        if (sMap.home_featured_awards) {
+          featAwardIds = typeof sMap.home_featured_awards === 'string' ? JSON.parse(sMap.home_featured_awards) : sMap.home_featured_awards
+        }
       } catch (e) {}
 
       const allCleanPoems = (poemsData || []).map(sanitizePoem).filter(Boolean)
       const allCleanPubs = (pubsData || []).map(sanitizePublication).filter(Boolean)
 
       let orderedPoems = []
-      if (featPoemIds.length > 0) {
-        orderedPoems = featPoemIds.map(id => allCleanPoems.find(p => p.id === id)).filter(Boolean)
+      if (Array.isArray(featPoemIds) && featPoemIds.length > 0) {
+        orderedPoems = featPoemIds.map(id => allCleanPoems.find(p => String(p.id) === String(id))).filter(Boolean)
       }
       if (orderedPoems.length === 0) {
-        orderedPoems = allCleanPoems.slice(0, 5)
+        orderedPoems = allCleanPoems.slice(0, 6)
       }
 
       let orderedPubs = []
-      if (featPubIds.length > 0) {
-        orderedPubs = featPubIds.map(id => allCleanPubs.find(p => p.id === id)).filter(Boolean)
+      if (Array.isArray(featPubIds) && featPubIds.length > 0) {
+        orderedPubs = featPubIds.map(id => allCleanPubs.find(p => String(p.id) === String(id))).filter(Boolean)
       }
       if (orderedPubs.length === 0) {
-        orderedPubs = allCleanPubs.slice(0, 5)
+        orderedPubs = allCleanPubs.slice(0, 6)
+      }
+
+      let orderedTimeline = []
+      if (Array.isArray(featTimelineIds) && featTimelineIds.length > 0) {
+        orderedTimeline = featTimelineIds.map(id => (timelineData || []).find(t => String(t.id) === String(id))).filter(Boolean)
+      }
+      if (orderedTimeline.length === 0) {
+        orderedTimeline = (timelineData || []).slice(0, 4)
+      }
+
+      let orderedAwards = []
+      if (Array.isArray(featAwardIds) && featAwardIds.length > 0) {
+        orderedAwards = featAwardIds.map(id => (awardsData || []).find(a => String(a.id) === String(id))).filter(Boolean)
+      }
+      if (orderedAwards.length === 0) {
+        orderedAwards = (awardsData || []).slice(0, 4)
       }
 
       const cleanCategories = (catsData || []).map(c => ({
@@ -94,6 +131,8 @@ function Home() {
       } : null)
       setPublications(orderedPubs)
       setPoems(orderedPoems)
+      setTimelineHighlights(orderedTimeline)
+      setAwardsHighlights(orderedAwards)
     } catch (err) {
       console.error('Error loading data:', err)
       setError('Content not available')
@@ -131,6 +170,7 @@ function Home() {
   const publicationsCategory = categories.find(c => c.content_type === 'publications' && c.is_active !== false)
   const poemsCategory = categories.find(c => c.content_type === 'writings' && c.is_active !== false)
   const aboutImageUrl = aboutContent?.photo_path ? getImageUrl(aboutContent.photo_path) : null
+  const isHi = i18n.language === 'hi'
 
   return (
     <>
@@ -163,12 +203,8 @@ function Home() {
       </Helmet>
 
       <div className="phoenix-home">
-        {/* Hero Section with Parallax - Only show if hero category is active */}
-        {categories.find(c => c.content_type === 'hero' && c.is_active !== false) && (
-          <HeroSection />
-        )}
-
-        {/* Verse of the Day - Removed as per user request */}
+        {/* ISSUE 1 FIX: Top Hero Banner mounted unconditionally */}
+        <HeroSection />
 
         {/* 1. About Section with Box Background */}
         {aboutContent && (
@@ -184,10 +220,10 @@ function Home() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1, duration: 0.3 }}
-                onClick={() => aboutCategory && navigate(`/category/${aboutCategory.id}`)}
-                style={{ cursor: aboutCategory ? 'pointer' : 'default' }}
+                onClick={() => navigate('/parichay')}
+                style={{ cursor: 'pointer' }}
               >
-                {aboutCategory ? t('nav.about') : (aboutContent.title || t('nav.about'))}
+                {aboutCategory ? (aboutCategory.name_display || aboutCategory.name_hi || t('nav.about')) : (aboutContent.title || t('nav.about'))}
               </motion.h2>
               
               <div className="phoenix-about-home-layout-text-wrap">
@@ -221,6 +257,12 @@ function Home() {
                       {aboutContent.truncated_preview}
                     </p>
                   )}
+                  <button
+                    className="phoenix-highlights-more-btn"
+                    onClick={() => navigate('/parichay')}
+                  >
+                    {isHi ? 'पूरा परिचय पढ़ें →' : 'Read Full Biography →'}
+                  </button>
                 </motion.div>
               </div>
               
@@ -249,10 +291,10 @@ function Home() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.3 }}
-                onClick={() => poemsCategory && navigate(`/category/${poemsCategory.id}`)}
-                style={{ cursor: poemsCategory ? 'pointer' : 'default' }}
+                onClick={() => poemsCategory ? navigate(`/category/${poemsCategory.id}`) : navigate('/kavya-sangrah')}
+                style={{ cursor: 'pointer' }}
               >
-                {poemsCategory ? (poemsCategory.name_display || poemsCategory.name_en || t('nav.poems')) : t('nav.poems')}
+                {poemsCategory ? (poemsCategory.name_display || poemsCategory.name_hi || t('nav.poems')) : t('nav.poems')}
               </motion.h2>
               
               <div className="phoenix-poems-list-home">
@@ -271,8 +313,8 @@ function Home() {
                     >
                       <h3 className="phoenix-poem-heading phoenix-poem-heading-ellipsis">
                         {i18n.language === 'hi' 
-                          ? (poem.heading_hi || poem.heading_en || poem.heading || 'Untitled')
-                          : (poem.heading_en || poem.heading_hi || poem.heading || 'Untitled')}
+                          ? (poem.heading_hi || poem.heading_en || poem.heading || poem.title || 'Untitled')
+                          : (poem.heading_en || poem.heading_hi || poem.heading || poem.title || 'Untitled')}
                       </h3>
                     </button>
                   </motion.div>
@@ -296,25 +338,103 @@ function Home() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.3 }}
-                onClick={() => publicationsCategory && navigate(`/category/${publicationsCategory.id}`)}
-                style={{ cursor: publicationsCategory ? 'pointer' : 'default' }}
+                onClick={() => publicationsCategory ? navigate(`/category/${publicationsCategory.id}`) : navigate('/prakashan')}
+                style={{ cursor: 'pointer' }}
               >
-                {publicationsCategory ? (publicationsCategory.name_display || publicationsCategory.name_en || t('publications.title')) : t('publications.title')}
+                {publicationsCategory ? (publicationsCategory.name_display || publicationsCategory.name_hi || t('publications.title')) : t('publications.title')}
               </motion.h2>
               
               <div className="phoenix-publications-scroll">
                 {publications.map((pub, index) => (
-              <PublicationCard
-                key={pub.id}
-                publication={pub}
+                  <PublicationCard
+                    key={pub.id}
+                    publication={pub}
                     index={index}
-              />
-            ))}
-          </div>
-          </div>
+                  />
+                ))}
+              </div>
+            </div>
           </motion.section>
-      )}
-    </div>
+        )}
+
+        {/* ISSUE 3 FIX: Highlights Section (Timeline & Awards) */}
+        {(timelineHighlights.length > 0 || awardsHighlights.length > 0) && (
+          <motion.section
+            className="phoenix-section phoenix-section-box phoenix-highlights-section-home"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.3 }}
+          >
+            <div className="phoenix-content">
+              <h2 className="phoenix-section-title">
+                {isHi ? 'मुख्य उपलब्धियां (जीवन यात्रा व सम्मान)' : 'Highlights & Honors'}
+              </h2>
+
+              <div className="phoenix-highlights-grid">
+                {/* Left Col: Timeline */}
+                {timelineHighlights.length > 0 && (
+                  <div className="phoenix-highlight-col">
+                    <h3 className="phoenix-highlight-col-title">
+                      ⏳ {isHi ? 'जीवन यात्रा (मील के पत्थर)' : 'Life Timeline'}
+                    </h3>
+                    {timelineHighlights.map((item) => (
+                      <div key={item.id} className="phoenix-highlight-card">
+                        {(item.year || item.year_period) && (
+                          <span className="phoenix-highlight-year-badge">{item.year || item.year_period}</span>
+                        )}
+                        <h4 className="phoenix-highlight-item-title">
+                          {item.title_hi || item.title || item.event_title}
+                        </h4>
+                        {(item.description_hi || item.description) && (
+                          <p className="phoenix-highlight-item-desc">
+                            {item.description_hi || item.description}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                    <button
+                      className="phoenix-highlights-more-btn"
+                      onClick={() => navigate('/parichay')}
+                    >
+                      {isHi ? 'और देखें →' : 'View Full Timeline →'}
+                    </button>
+                  </div>
+                )}
+
+                {/* Right Col: Awards */}
+                {awardsHighlights.length > 0 && (
+                  <div className="phoenix-highlight-col">
+                    <h3 className="phoenix-highlight-col-title">
+                      🏆 {isHi ? 'पुरस्कार व सम्मान' : 'Awards & Honors'}
+                    </h3>
+                    {awardsHighlights.map((award) => (
+                      <div key={award.id} className="phoenix-highlight-card">
+                        {(award.year || award.year_awarded) && (
+                          <span className="phoenix-highlight-year-badge">{award.year || award.year_awarded}</span>
+                        )}
+                        <h4 className="phoenix-highlight-item-title">
+                          {award.title_hi || award.title || award.award_name}
+                        </h4>
+                        {(award.description_hi || award.description || award.conferred_by || award.given_by) && (
+                          <p className="phoenix-highlight-item-desc">
+                            {award.description_hi || award.description || (award.conferred_by ? `प्रदाता: ${award.conferred_by}` : (award.given_by ? `Conferred by: ${award.given_by}` : ''))}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                    <button
+                      className="phoenix-highlights-more-btn"
+                      onClick={() => navigate('/parichay')}
+                    >
+                      {isHi ? 'और देखें →' : 'View All Awards →'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.section>
+        )}
+      </div>
     </>
   )
 }

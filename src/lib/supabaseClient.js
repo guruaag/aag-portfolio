@@ -99,3 +99,54 @@ export async function getAllSettings() {
   return data || []
 }
 
+export async function getTimeline() {
+  try {
+    const { data, error } = await supabase
+      .from('timeline')
+      .select('*')
+      .order('sort_order', { ascending: true })
+    if (!error && data && data.length > 0) return data
+  } catch (e) {}
+
+  try {
+    const { data, error } = await supabase
+      .from('timeline_milestones')
+      .select('*')
+      .order('sort_order', { ascending: true })
+    if (!error && data && data.length > 0) return data
+  } catch (e) {}
+
+  try {
+    const cached = localStorage.getItem('app_timeline_milestones')
+    if (cached) return JSON.parse(cached)
+  } catch (e) {}
+
+  return []
+}
+
+export async function getAwards() {
+  try {
+    const { data, error } = await supabase
+      .from('awards')
+      .select('*')
+      .order('sort_order', { ascending: true })
+    if (!error && data && data.length > 0) return data
+  } catch (e) {}
+
+  try {
+    const { data, error } = await supabase
+      .from('awards_honors')
+      .select('*')
+      .order('sort_order', { ascending: true })
+    if (!error && data && data.length > 0) return data
+  } catch (e) {}
+
+  try {
+    const cached = localStorage.getItem('app_awards_honors')
+    if (cached) return JSON.parse(cached)
+  } catch (e) {}
+
+  return []
+}
+
+

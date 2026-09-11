@@ -19,23 +19,29 @@ export function sanitizeText(text) {
 export function sanitizePoem(poem) {
   if (!poem) return null;
 
+  const rawHi = poem.heading_hi || poem.heading || poem.title || '';
+  const rawEn = poem.heading_en || poem.heading || poem.title_en || poem.title || '';
+
   return {
     ...poem,
-    heading_hi: sanitizeText(poem.heading_hi || poem.heading) || 'अग्नि कलश काव्य',
-    heading_en: sanitizeText(poem.heading_en || poem.heading) || 'Aag Poetry',
-    description: sanitizeText(poem.description),
-    body_text_hi: sanitizeText(poem.body_text_hi || poem.full_text),
-    body_text_en: sanitizeText(poem.body_text_en || poem.full_text)
+    heading_hi: sanitizeText(rawHi) || rawHi,
+    heading_en: sanitizeText(rawEn) || rawEn,
+    description: sanitizeText(poem.description || ''),
+    body_text_hi: sanitizeText(poem.body_text_hi || poem.full_text || ''),
+    body_text_en: sanitizeText(poem.body_text_en || poem.full_text || '')
   };
 }
 
 export function sanitizePublication(pub) {
   if (!pub) return null;
 
+  const rawTitle = pub.title || pub.heading_hi || pub.name || '';
+
   return {
     ...pub,
-    title: sanitizeText(pub.title) || 'अग्नि कलश',
-    subtitle: sanitizeText(pub.subtitle),
-    description: sanitizeText(pub.description)
+    title: sanitizeText(rawTitle) || rawTitle,
+    subtitle: sanitizeText(pub.subtitle || ''),
+    description: sanitizeText(pub.description || '')
   };
 }
+

@@ -270,3 +270,98 @@
   border-top-color: var(--theme-accent);
   border-radius: 50%;
 }
+
+/* Highlights (Timeline & Awards) Section */
+.phoenix-highlights-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--phoenix-space-xl);
+  padding: 0 var(--phoenix-padding-mobile);
+}
+
+@media (min-width: 1025px) {
+  .phoenix-highlights-grid {
+    padding: 0 var(--phoenix-padding-desktop);
+  }
+}
+
+@media (max-width: 768px) {
+  .phoenix-highlights-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.phoenix-highlight-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--phoenix-space-md);
+}
+
+.phoenix-highlight-col-title {
+  font-family: var(--phoenix-font-serif);
+  font-size: var(--phoenix-text-xl);
+  color: var(--theme-accent, #B23B23);
+  margin-bottom: var(--phoenix-space-sm);
+  border-bottom: 2px solid var(--theme-accent, #B23B23);
+  padding-bottom: 4px;
+}
+
+.phoenix-highlight-card {
+  background: #FFFFFF;
+  border-radius: 6px;
+  padding: var(--phoenix-space-md);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.phoenix-highlight-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.phoenix-highlight-year-badge {
+  display: inline-block;
+  background: var(--theme-accent, #B23B23);
+  color: #FFF;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+
+.phoenix-highlight-item-title {
+  font-family: var(--phoenix-font-serif);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--theme-text);
+  margin: 0 0 6px 0;
+}
+
+.phoenix-highlight-item-desc {
+  font-size: 0.95rem;
+  color: var(--theme-text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.phoenix-highlights-more-btn {
+  margin-top: var(--phoenix-space-md);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--theme-accent, #B23B23);
+  font-weight: 600;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 0.95rem;
+  padding: 0;
+  text-decoration: none;
+}
+
+.phoenix-highlights-more-btn:hover {
+  text-decoration: underline;
+}
+
