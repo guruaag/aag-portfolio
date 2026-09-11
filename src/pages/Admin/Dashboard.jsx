@@ -476,7 +476,7 @@ function AdminDashboard({ tab }) {
 
           <div className="admin-dashboard-container" style={{ padding: '24px' }}>
             {activeTab === 'home' && (
-              <HomeManager publications={data.publications} about={data.about} settings={data.settings} onUpdate={loadData} setIsDirty={setIsDirty} />
+              <HomeManager poems={data.poems} publications={data.publications} about={data.about} settings={data.settings} onUpdate={loadData} setIsDirty={setIsDirty} />
             )}
             {(activeTab === 'about' || activeTab === 'timeline' || activeTab === 'awards') && (
               <AboutManager
@@ -874,16 +874,723 @@ function CategoriesManager({ categories, onUpdate, setIsDirty }) {
   )
 }
 
-// 1. Home Manager Component (Homepage Sections)
-function HomeManager({ publications, about, settings, onUpdate }) {
+// 1. Home Manager Component (4-Module Hybrid Dashboard for Home Page Re-Architecture)
+function HomeManager({ poems = [], publications = [], about, settings = {}, onUpdate, setIsDirty }) {
   const { tLabel } = useAdminLang()
+  const [activeTab, setActiveTab] = useState('hero') // 'hero' | 'about' | 'featured' | 'highlights'
+
+  // Additional data for timeline and awards
+  const [timelineItems, setTimelineItems] = useState([])
+  const [awardsItems, setAwardsItems] = useState([])
+
+  useEffect(() => {
+    fetchAuxiliaryData()
+  }, [])
+
+  const fetchAuxiliaryData = async () => {
+    try {
+      const [{ data: tmData }, { data: awData }] = await Promise.all([
+        supabase.from('timeline').select('*').order('sort_order', { ascending: true }),
+        supabase.from('awards').select('*').order('sort_order', { ascending: true })
+      ])
+      if (tmData) setTimelineItems(tmData)
+      if (awData) setAwardsItems(awData)
+    } catch (e) {
+      console.warn('Error fetching timeline/awards for HomeManager:', e)
+    }
+  }
+
+  // Module 1: Hero State
+  const [heroForm, setHeroForm] = useState({
+    hero_title: '',
+    hero_subtitle: '',
+    hero_image_url: '',
+    cta_primary_label: 'रचनाएं पढ़ें',
+    cta_primary_url: '/kavya-sangrah',
+    cta_secondary_label: 'परिचय',
+    cta_secondary_url: '/parichay'
+  })
+  const [uploadingHeroImg, setUploadingHeroImg] = useState(false)
+  const [heroImgPreview, setHeroImgPreview] = useState(null)
+
+  // Module 2: Kavi Parichay Excerpt State
+  const [aboutConfig, setAboutConfig] = useState({
+    use_custom_excerpt: false,
+    custom_excerpt: ''
+  })
+
+  // Module 3: Featured Works State (Selected ID Arrays in 1st, 2nd, 3rd sequence)
+  const [featuredPoems, setFeaturedPoems] = useState([])
+  const [featuredPubs, setFeaturedPubs] = useState([])
+
+  // Module 4: Highlights State (Selected ID Arrays in sequence)
+  const [featuredTimeline, setFeaturedTimeline] = useState([])
+  const [featuredAwards, setFeaturedAwards] = useState([])
+
+  // Search filter states for dropdown pickers
+  const [poemSearch, setPoemSearch] = useState('')
+  const [pubSearch, setPubSearch] = useState('')
+  const [timelineSearch, setTimelineSearch] = useState('')
+  const [awardSearch, setAwardSearch] = useState('')
+
+  // Load existing configuration from settings
+  useEffect(() => {
+    if (settings) {
+      setHeroForm({
+        hero_title: settings.home_hero_title || 'अग्नि कलश',
+        hero_subtitle: settings.home_hero_subtitle || '"हिंदी काव्य और ओजस्वी चेतना की अमर गाथा"',
+        hero_image_url: settings.home_hero_image_url || '',
+        cta_primary_label: settings.home_cta_primary_label || 'रचनाएं पढ़ें',
+        cta_primary_url: settings.home_cta_primary_url || '/kavya-sangrah',
+        cta_secondary_label: settings.home_cta_secondary_label || 'परिचय',
+        cta_secondary_url: settings.home_cta_secondary_url || '/parichay'
+      })
+      if (settings.home_hero_image_url) {
+        setHeroImgPreview(getImageUrl(settings.home_hero_image_url))
+      }
+
+      setAboutConfig({
+        use_custom_excerpt: settings.home_use_custom_excerpt === 'true',
+        custom_excerpt: settings.home_custom_excerpt || ''
+      })
+
+      try {
+        if (settings.home_featured_poems) {
+          setFeaturedPoems(JSON.parse(settings.home_featured_poems))
+        } else if (Array.isArray(poems)) {
+          setFeaturedPoems(poems.slice(0, 4).map(p => p.id))
+        }
+      } catch (e) {
+        setFeaturedPoems(Array.isArray(poems) ? poems.slice(0, 4).map(p => p.id) : [])
+      }
+
+      try {
+        if (settings.home_featured_publications) {
+          setFeaturedPubs(JSON.parse(settings.home_featured_publications))
+        } else if (Array.isArray(publications)) {
+          setFeaturedPubs(publications.slice(0, 4).map(p => p.id))
+        }
+      } catch (e) {
+        setFeaturedPubs(Array.isArray(publications) ? publications.slice(0, 4).map(p => p.id) : [])
+      }
+
+      try {
+        if (settings.home_featured_timeline) {
+          setFeaturedTimeline(JSON.parse(settings.home_featured_timeline))
+        }
+      } catch (e) {}
+
+      try {
+        if (settings.home_featured_awards) {
+          setFeaturedAwards(JSON.parse(settings.home_featured_awards))
+        }
+      } catch (e) {}
+    }
+  }, [settings, poems.length, publications.length])
+
+  // Hero Image Upload Handler
+  const handleHeroImageUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith('image/')) {
+      alert(tLabel('कृपया फोटो फाइल चुनें।', 'Please select an image file'))
+      return
+    }
+    try {
+      setUploadingHeroImg(true)
+      const fileName = `home-hero-${Date.now()}.${file.name.split('.').pop()}`
+      const path = await uploadImage(file, 'logos', fileName)
+      setHeroForm(prev => ({ ...prev, hero_image_url: path }))
+      setHeroImgPreview(URL.createObjectURL(file))
+      if (setIsDirty) setIsDirty(true)
+    } catch (err) {
+      alert('Upload error: ' + err.message)
+    } finally {
+      setUploadingHeroImg(false)
+    }
+  }
+
+  // Resequence Handlers (Move Up / Move Down) for Selected Featured Items
+  const moveItemInArray = (arr, index, direction) => {
+    const nextArr = [...arr]
+    const targetIdx = direction === 'up' ? index - 1 : index + 1
+    if (targetIdx < 0 || targetIdx >= nextArr.length) return nextArr
+    const temp = nextArr[index]
+    nextArr[index] = nextArr[targetIdx]
+    nextArr[targetIdx] = temp
+    return nextArr
+  }
+
+  // Submit Handler for entire Home Manager view (Bound to form="admin-active-form")
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const updates = [
+        { key: 'home_hero_title', value: heroForm.hero_title, display_label: 'Hero Title' },
+        { key: 'home_hero_subtitle', value: heroForm.hero_subtitle, display_label: 'Hero Subtitle' },
+        { key: 'home_hero_image_url', value: heroForm.hero_image_url, display_label: 'Hero Image' },
+        { key: 'home_cta_primary_label', value: heroForm.cta_primary_label, display_label: 'CTA Primary Label' },
+        { key: 'home_cta_primary_url', value: heroForm.cta_primary_url, display_label: 'CTA Primary URL' },
+        { key: 'home_cta_secondary_label', value: heroForm.cta_secondary_label, display_label: 'CTA Secondary Label' },
+        { key: 'home_cta_secondary_url', value: heroForm.cta_secondary_url, display_label: 'CTA Secondary URL' },
+        { key: 'home_use_custom_excerpt', value: String(aboutConfig.use_custom_excerpt), display_label: 'Use Custom Excerpt' },
+        { key: 'home_custom_excerpt', value: aboutConfig.custom_excerpt, display_label: 'Custom Excerpt' },
+        { key: 'home_featured_poems', value: JSON.stringify(featuredPoems), display_label: 'Featured Poems' },
+        { key: 'home_featured_publications', value: JSON.stringify(featuredPubs), display_label: 'Featured Publications' },
+        { key: 'home_featured_timeline', value: JSON.stringify(featuredTimeline), display_label: 'Featured Timeline' },
+        { key: 'home_featured_awards', value: JSON.stringify(featuredAwards), display_label: 'Featured Awards' }
+      ]
+
+      let hasError = false
+      for (const update of updates) {
+        const { error } = await supabase.from('settings').upsert(update, { onConflict: 'key' })
+        if (error) {
+          console.error('Error saving home setting ' + update.key + ':', error)
+          hasError = true
+        }
+      }
+
+      // Background attempt to update table columns if present
+      try {
+        if (featuredPoems.length > 0) {
+          await supabase.from('poems').update({ is_featured_home: false }).neq('id', '0')
+          await supabase.from('poems').update({ is_featured_home: true }).in('id', featuredPoems)
+        }
+        if (featuredPubs.length > 0) {
+          await supabase.from('publications').update({ is_featured_home: false }).neq('id', '0')
+          await supabase.from('publications').update({ is_featured_home: true }).in('id', featuredPubs)
+        }
+      } catch (e) {
+        console.warn('Table flag sync warning (non-fatal):', e)
+      }
+
+      if (hasError) {
+        alert(tLabel('चेतावनी: मुख्य पृष्ठ की कुछ सेटिंग्स सहेजी नहीं जा सकीं।', 'Warning: Some Home page settings could not be saved.'))
+      } else {
+        alert(tLabel('✓ मुख्य पृष्ठ की समस्त सेटिंग्स सफलतापूर्वक सहेजी गईं!', '✓ Home page configurations saved successfully!'))
+      }
+
+      if (setIsDirty) setIsDirty(false)
+      if (onUpdate) onUpdate()
+    } catch (err) {
+      console.error('Error saving home page configurations:', err)
+      alert(tLabel('त्रुटि: ', 'Error saving settings: ') + (err.message || 'Unknown error'))
+    }
+  }
+
+  // Safe arrays
+  const safePoems = Array.isArray(poems) ? poems : []
+  const safePubs = Array.isArray(publications) ? publications : []
+  const safeTimeline = Array.isArray(timelineItems) ? timelineItems : []
+  const safeAwards = Array.isArray(awardsItems) ? awardsItems : []
 
   return (
-    <div>
-      <PublicationsManager publications={publications} onUpdate={onUpdate} />
-      <div style={{ marginTop: '30px' }}>
-        <AboutManager about={about} onUpdate={onUpdate} />
+    <div className="admin-card-panel">
+      <div className="admin-panel-header">
+        <h2 className="admin-panel-title">🏠 {tLabel('मुख्य पृष्ठ प्रबंधन', 'Home Page Management Dashboard')}</h2>
       </div>
+
+      {/* 4-Tab Horizontal Navigation Pills */}
+      <div className="admin-sub-tab-pill-bar" style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
+        <button
+          type="button"
+          className={`admin-sub-tab-btn ${activeTab === 'hero' ? 'active' : ''}`}
+          onClick={() => setActiveTab('hero')}
+          style={{ padding: '8px 16px', borderRadius: '20px' }}
+        >
+          🖼️ {tLabel('1. हीरो बैनर', '1. Hero & Banner')}
+        </button>
+        <button
+          type="button"
+          className={`admin-sub-tab-btn ${activeTab === 'about' ? 'active' : ''}`}
+          onClick={() => setActiveTab('about')}
+          style={{ padding: '8px 16px', borderRadius: '20px' }}
+        >
+          👤 {tLabel('2. परिचय सारांश', '2. Bio Excerpt')}
+        </button>
+        <button
+          type="button"
+          className={`admin-sub-tab-btn ${activeTab === 'featured' ? 'active' : ''}`}
+          onClick={() => setActiveTab('featured')}
+          style={{ padding: '8px 16px', borderRadius: '20px' }}
+        >
+          📚 {tLabel('3. प्रमुख रचनाएं व पुस्तकें', '3. Featured Works')}
+        </button>
+        <button
+          type="button"
+          className={`admin-sub-tab-btn ${activeTab === 'highlights' ? 'active' : ''}`}
+          onClick={() => setActiveTab('highlights')}
+          style={{ padding: '8px 16px', borderRadius: '20px' }}
+        >
+          🏆 {tLabel('4. मुख्य उपलब्धियां', '4. Highlights & Awards')}
+        </button>
+      </div>
+
+      {/* Single Form Container (Bound to sticky top header Save) */}
+      <form
+        id="admin-active-form"
+        onSubmit={handleSubmit}
+        onChange={() => setIsDirty && setIsDirty(true)}
+        onInput={() => setIsDirty && setIsDirty(true)}
+        className="admin-form-container"
+      >
+        {/* MODULE 1: HERO & BANNER */}
+        {activeTab === 'hero' && (
+          <div>
+            <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', color: 'var(--leona-charcoal)', marginBottom: '16px' }}>
+              🖼️ {tLabel('हीरो बैनर एवं मुख्य शीर्षक सेटिंग्स', 'Hero Banner & Title Configurations')}
+            </h3>
+
+            <div className="admin-form-grid">
+              <div className="admin-form-group full-width">
+                <label>{tLabel('मुख्य पुस्तक / बैनर शीर्षक (Devanagari Heading)', 'Primary Hero Heading')}</label>
+                <input
+                  className="admin-input"
+                  value={heroForm.hero_title}
+                  onChange={e => setHeroForm({ ...heroForm, hero_title: e.target.value })}
+                  placeholder="अग्नि कलश"
+                  required
+                />
+              </div>
+
+              <div className="admin-form-group full-width">
+                <label>{tLabel('उप-शीर्षक / टैगलाइन (Tagline Description)', 'Hero Subtitle / Tagline')}</label>
+                <input
+                  className="admin-input"
+                  value={heroForm.hero_subtitle}
+                  onChange={e => setHeroForm({ ...heroForm, hero_subtitle: e.target.value })}
+                  placeholder='"हिंदी काव्य और ओजस्वी चेतना की अमर गाथा"'
+                  required
+                />
+              </div>
+
+              <div className="admin-form-group full-width">
+                <label>{tLabel('हीरो बैनर / पुस्तक कवर फोटो (Banner Image)', 'Hero Banner Image')}</label>
+                {heroImgPreview && (
+                  <div style={{ marginBottom: '12px' }}>
+                    <img
+                      src={heroImgPreview}
+                      alt="Hero Preview"
+                      style={{ maxHeight: '110px', borderRadius: '8px', border: '1px solid rgba(226, 215, 197, 0.8)', background: '#FFF' }}
+                    />
+                  </div>
+                )}
+                <input
+                  className="admin-input"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleHeroImageUpload}
+                  disabled={uploadingHeroImg}
+                />
+                {uploadingHeroImg && <div style={{ color: 'var(--leona-terracotta)', fontSize: '0.85rem' }}>{tLabel('अपलोड हो रहा है...', 'Uploading image...')}</div>}
+              </div>
+
+              <div className="admin-form-group">
+                <label>{tLabel('प्राथमिक बटन टेक्स्ट (Primary CTA Label)', 'Primary Button Label')}</label>
+                <input
+                  className="admin-input"
+                  value={heroForm.cta_primary_label}
+                  onChange={e => setHeroForm({ ...heroForm, cta_primary_label: e.target.value })}
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label>{tLabel('प्राथमिक बटन यूआरएल (Primary CTA URL)', 'Primary Button URL')}</label>
+                <input
+                  className="admin-input"
+                  value={heroForm.cta_primary_url}
+                  onChange={e => setHeroForm({ ...heroForm, cta_primary_url: e.target.value })}
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label>{tLabel('द्वितीयक बटन टेक्स्ट (Secondary CTA Label)', 'Secondary Button Label')}</label>
+                <input
+                  className="admin-input"
+                  value={heroForm.cta_secondary_label}
+                  onChange={e => setHeroForm({ ...heroForm, cta_secondary_label: e.target.value })}
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label>{tLabel('द्वितीयक बटन यूआरएल (Secondary CTA URL)', 'Secondary Button URL')}</label>
+                <input
+                  className="admin-input"
+                  value={heroForm.cta_secondary_url}
+                  onChange={e => setHeroForm({ ...heroForm, cta_secondary_url: e.target.value })}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* MODULE 2: KAVI PARICHAY PREVIEW */}
+        {activeTab === 'about' && (
+          <div>
+            <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', color: 'var(--leona-charcoal)', marginBottom: '16px' }}>
+              👤 {tLabel('मुख्य पृष्ठ परिचय सारांश (Kavi Parichay Preview)', 'Poet Biography Excerpt')}
+            </h3>
+
+            <div style={{ background: '#FFF', padding: '16px', borderRadius: '8px', border: '1px solid rgba(226, 215, 197, 0.8)', marginBottom: '20px' }}>
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '1.02rem', color: 'var(--leona-charcoal)' }}>
+                <input
+                  type="checkbox"
+                  className="admin-item-checkbox"
+                  checked={aboutConfig.use_custom_excerpt}
+                  onChange={e => setAboutConfig({ ...aboutConfig, use_custom_excerpt: e.target.checked })}
+                />
+                {tLabel('मुख्य पृष्ठ हेतु विशेष सारांश दर्ज करें (Use Custom Short Intro)', 'Use Custom Short Intro for Home Page')}
+              </label>
+              <p style={{ margin: '6px 0 0 30px', fontSize: '0.88rem', color: '#666' }}>
+                {tLabel(
+                  'यदि यह चेक किया गया है, तो मुख्य पृष्ठ पर मुख्य बायोग्राफी के स्थान पर नीचे दिया गया विशेष संक्षेप प्रदर्शित होगा।',
+                  'When checked, the home page displays the custom excerpt below instead of the auto-preview from the main biography page.'
+                )}
+              </p>
+            </div>
+
+            {aboutConfig.use_custom_excerpt ? (
+              <div className="admin-form-group full-width">
+                <label>{tLabel('विशेष मुख्य पृष्ठ परिचय पाठ (Custom Excerpt Text)', 'Custom Home Page Excerpt Text')}</label>
+                <textarea
+                  className="admin-textarea"
+                  rows={4}
+                  value={aboutConfig.custom_excerpt}
+                  onChange={e => setAboutConfig({ ...aboutConfig, custom_excerpt: e.target.value })}
+                  placeholder="कवि गुरुप्रताप शर्मा 'आग' का संक्षिप्त परिचय यहाँ लिखें..."
+                />
+              </div>
+            ) : (
+              <div style={{ background: '#FDFBF7', padding: '16px', borderRadius: '8px', border: '1px solid rgba(226, 215, 197, 0.6)' }}>
+                <div style={{ fontWeight: 600, color: 'var(--leona-terracotta)', marginBottom: '6px' }}>
+                  ℹ️ {tLabel('स्वचालित परिचय पूर्वावलोकन (Auto Biography Preview)', 'Auto Biography Preview from /parichay')}
+                </div>
+                <p style={{ fontSize: '0.94rem', color: 'var(--leona-text-main)', lineHeight: '1.6', margin: 0 }}>
+                  "{about?.truncated_preview || (about?.body_text ? about.body_text.substring(0, 180) + '...' : tLabel('कोई परिचय उपलब्ध नहीं है।', 'No biography available.'))}"
+                </p>
+              </div>
+            )}
+
+            <div style={{ marginTop: '16px', padding: '12px', background: '#EAF8F5', borderRadius: '8px', border: '1px solid #B5E8E2', fontSize: '0.88rem', color: '#2C988F' }}>
+              ✓ {tLabel('मुख्य पृष्ठ पर हमेशा "पूरा परिचय पढ़ें →" लिंक बटन प्रदर्शित रहेगा जो पाठक को विस्तृत बायोग्राफी (/parichay) पर ले जाएगा।', 'The "Read Full Bio →" button will always render on the home page linking to /parichay.')}
+            </div>
+          </div>
+        )}
+
+        {/* MODULE 3: FEATURED WORKS SHOWCASE */}
+        {activeTab === 'featured' && (
+          <div>
+            <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', color: 'var(--leona-charcoal)', marginBottom: '16px' }}>
+              📚 {tLabel('प्रमुख रचनाएं एवं पुस्तकें (Featured Works Showcase)', 'Featured Poems & Books Showcase')}
+            </h3>
+
+            {/* Featured Poems Sub-Section */}
+            <div style={{ background: '#FFF', padding: '18px', borderRadius: '10px', border: '1px solid rgba(226, 215, 197, 0.8)', marginBottom: '24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                <h4 style={{ margin: 0, fontFamily: 'Lora, serif', fontSize: '1.05rem', color: 'var(--leona-charcoal)' }}>
+                  ✍️ {tLabel('1. मुख्य पृष्ठ काव्य रचनाएं (Featured Poems)', '1. Featured Poems')}
+                </h4>
+                <span className="admin-toolbar-count">
+                  📌 {featuredPoems.length}/6 {tLabel('रचनाएं चयनित', 'Poems Selected')}
+                </span>
+              </div>
+
+              {/* Search Picker for Adding Poems */}
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
+                <select
+                  className="admin-input"
+                  style={{ flex: 1 }}
+                  value=""
+                  onChange={(e) => {
+                    const id = e.target.value
+                    if (id && !featuredPoems.includes(id)) {
+                      if (featuredPoems.length >= 6) {
+                        alert(tLabel('अधिकतम 6 रचनाएं ही चुनी जा सकती हैं।', 'Maximum 6 poems allowed.'))
+                        return
+                      }
+                      setFeaturedPoems([...featuredPoems, id])
+                      if (setIsDirty) setIsDirty(true)
+                    }
+                  }}
+                >
+                  <option value="">-- {tLabel('काव्य संग्रह से रचना चुनें व जोड़ें...', 'Select poem to add to featured list...')} --</option>
+                  {safePoems
+                    .filter(p => !featuredPoems.includes(p.id))
+                    .map(p => (
+                      <option key={p.id} value={p.id}>
+                        {p.heading_hi || p.heading_en || p.heading || 'Untitled'}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              {/* Selected Featured Poems Ordered List */}
+              {featuredPoems.length === 0 ? (
+                <p style={{ fontStyle: 'italic', color: '#888', margin: 0 }}>{tLabel('कोई रचना चयनित नहीं है।', 'No featured poems selected.')}</p>
+              ) : (
+                <ul className="admin-item-list">
+                  {featuredPoems.map((id, index) => {
+                    const poemObj = safePoems.find(p => p.id === id)
+                    return (
+                      <li key={id} className="admin-item-card" style={{ justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <span style={{ fontWeight: 700, width: '24px', height: '24px', background: 'var(--leona-terracotta)', color: '#FFF', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>
+                            {index + 1}
+                          </span>
+                          <span style={{ fontWeight: 600, color: 'var(--leona-charcoal)' }}>
+                            {poemObj ? (poemObj.heading_hi || poemObj.heading_en || poemObj.heading) : `Poem ID: ${id}`}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <button type="button" className="admin-btn-secondary" onClick={() => setFeaturedPoems(moveItemInArray(featuredPoems, index, 'up'))} disabled={index === 0}>
+                            ⬆️
+                          </button>
+                          <button type="button" className="admin-btn-secondary" onClick={() => setFeaturedPoems(moveItemInArray(featuredPoems, index, 'down'))} disabled={index === featuredPoems.length - 1}>
+                            ⬇️
+                          </button>
+                          <button type="button" className="admin-btn-danger" onClick={() => { setFeaturedPoems(featuredPoems.filter(item => item !== id)); if (setIsDirty) setIsDirty(true); }}>
+                            ✕
+                          </button>
+                        </div>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+            </div>
+
+            {/* Featured Publications Sub-Section */}
+            <div style={{ background: '#FFF', padding: '18px', borderRadius: '10px', border: '1px solid rgba(226, 215, 197, 0.8)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                <h4 style={{ margin: 0, fontFamily: 'Lora, serif', fontSize: '1.05rem', color: 'var(--leona-charcoal)' }}>
+                  📚 {tLabel('2. मुख्य पृष्ठ पुस्तकें (Featured Books)', '2. Featured Publications')}
+                </h4>
+                <span className="admin-toolbar-count">
+                  📚 {featuredPubs.length}/6 {tLabel('पुस्तकें चयनित', 'Books Selected')}
+                </span>
+              </div>
+
+              {/* Search Picker for Adding Publications */}
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
+                <select
+                  className="admin-input"
+                  style={{ flex: 1 }}
+                  value=""
+                  onChange={(e) => {
+                    const id = e.target.value
+                    if (id && !featuredPubs.includes(id)) {
+                      if (featuredPubs.length >= 6) {
+                        alert(tLabel('अधिकतम 6 पुस्तकें ही चुनी जा सकती हैं।', 'Maximum 6 publications allowed.'))
+                        return
+                      }
+                      setFeaturedPubs([...featuredPubs, id])
+                      if (setIsDirty) setIsDirty(true)
+                    }
+                  }}
+                >
+                  <option value="">-- {tLabel('प्रकाशन सूची से पुस्तक चुनें व जोड़ें...', 'Select publication to add to featured list...')} --</option>
+                  {safePubs
+                    .filter(p => !featuredPubs.includes(p.id))
+                    .map(p => (
+                      <option key={p.id} value={p.id}>
+                        {p.title_hi || p.title_en || p.title || 'Untitled'}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              {/* Selected Featured Publications Ordered List */}
+              {featuredPubs.length === 0 ? (
+                <p style={{ fontStyle: 'italic', color: '#888', margin: 0 }}>{tLabel('कोई पुस्तक चयनित नहीं है।', 'No featured publications selected.')}</p>
+              ) : (
+                <ul className="admin-item-list">
+                  {featuredPubs.map((id, index) => {
+                    const pubObj = safePubs.find(p => p.id === id)
+                    return (
+                      <li key={id} className="admin-item-card" style={{ justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <span style={{ fontWeight: 700, width: '24px', height: '24px', background: 'var(--leona-terracotta)', color: '#FFF', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>
+                            {index + 1}
+                          </span>
+                          <span style={{ fontWeight: 600, color: 'var(--leona-charcoal)' }}>
+                            {pubObj ? (pubObj.title_hi || pubObj.title_en || pubObj.title) : `Publication ID: ${id}`}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <button type="button" className="admin-btn-secondary" onClick={() => setFeaturedPubs(moveItemInArray(featuredPubs, index, 'up'))} disabled={index === 0}>
+                            ⬆️
+                          </button>
+                          <button type="button" className="admin-btn-secondary" onClick={() => setFeaturedPubs(moveItemInArray(featuredPubs, index, 'down'))} disabled={index === featuredPubs.length - 1}>
+                            ⬇️
+                          </button>
+                          <button type="button" className="admin-btn-danger" onClick={() => { setFeaturedPubs(featuredPubs.filter(item => item !== id)); if (setIsDirty) setIsDirty(true); }}>
+                            ✕
+                          </button>
+                        </div>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* MODULE 4: HIGHLIGHTS & AWARDS */}
+        {activeTab === 'highlights' && (
+          <div>
+            <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', color: 'var(--leona-charcoal)', marginBottom: '16px' }}>
+              🏆 {tLabel('मुख्य उपलब्धियां — टाइमलाइन व पुरस्कार', 'Highlights — Timeline & Awards Preview')}
+            </h3>
+
+            {/* Featured Timeline Sub-Section */}
+            <div style={{ background: '#FFF', padding: '18px', borderRadius: '10px', border: '1px solid rgba(226, 215, 197, 0.8)', marginBottom: '24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                <h4 style={{ margin: 0, fontFamily: 'Lora, serif', fontSize: '1.05rem', color: 'var(--leona-charcoal)' }}>
+                  ⏳ {tLabel('1. जीवन यात्रा मील का पत्थर (Featured Timeline)', '1. Featured Timeline Milestones')}
+                </h4>
+                <span className="admin-toolbar-count">
+                  ⏳ {featuredTimeline.length}/4 {tLabel('मील के पत्थर चयनित', 'Milestones Selected')}
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
+                <select
+                  className="admin-input"
+                  style={{ flex: 1 }}
+                  value=""
+                  onChange={(e) => {
+                    const id = e.target.value
+                    if (id && !featuredTimeline.includes(id)) {
+                      if (featuredTimeline.length >= 4) {
+                        alert(tLabel('अधिकतम 4 मील के पत्थर ही चुने जा सकते हैं।', 'Maximum 4 timeline items allowed.'))
+                        return
+                      }
+                      setFeaturedTimeline([...featuredTimeline, id])
+                      if (setIsDirty) setIsDirty(true)
+                    }
+                  }}
+                >
+                  <option value="">-- {tLabel('टाइमलाइन से घटना चुनें व जोड़ें...', 'Select timeline milestone to add...')} --</option>
+                  {safeTimeline
+                    .filter(t => !featuredTimeline.includes(t.id))
+                    .map(t => (
+                      <option key={t.id} value={t.id}>
+                        {t.year_display ? `[${t.year_display}] ` : ''}{t.title}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              {featuredTimeline.length === 0 ? (
+                <p style={{ fontStyle: 'italic', color: '#888', margin: 0 }}>{tLabel('कोई मील का पत्थर चयनित नहीं है।', 'No timeline milestones selected.')}</p>
+              ) : (
+                <ul className="admin-item-list">
+                  {featuredTimeline.map((id, index) => {
+                    const tmObj = safeTimeline.find(t => t.id === id)
+                    return (
+                      <li key={id} className="admin-item-card" style={{ justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <span style={{ fontWeight: 700, width: '24px', height: '24px', background: 'var(--leona-terracotta)', color: '#FFF', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>
+                            {index + 1}
+                          </span>
+                          <span style={{ fontWeight: 600, color: 'var(--leona-charcoal)' }}>
+                            {tmObj ? `${tmObj.year_display ? `[${tmObj.year_display}] ` : ''}${tmObj.title}` : `Timeline ID: ${id}`}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <button type="button" className="admin-btn-secondary" onClick={() => setFeaturedTimeline(moveItemInArray(featuredTimeline, index, 'up'))} disabled={index === 0}>
+                            ⬆️
+                          </button>
+                          <button type="button" className="admin-btn-secondary" onClick={() => setFeaturedTimeline(moveItemInArray(featuredTimeline, index, 'down'))} disabled={index === featuredTimeline.length - 1}>
+                            ⬇️
+                          </button>
+                          <button type="button" className="admin-btn-danger" onClick={() => { setFeaturedTimeline(featuredTimeline.filter(item => item !== id)); if (setIsDirty) setIsDirty(true); }}>
+                            ✕
+                          </button>
+                        </div>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+            </div>
+
+            {/* Featured Awards Sub-Section */}
+            <div style={{ background: '#FFF', padding: '18px', borderRadius: '10px', border: '1px solid rgba(226, 215, 197, 0.8)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                <h4 style={{ margin: 0, fontFamily: 'Lora, serif', fontSize: '1.05rem', color: 'var(--leona-charcoal)' }}>
+                  🏆 {tLabel('2. मुख्य पुरस्कार व सम्मान (Featured Awards)', '2. Featured Awards & Honors')}
+                </h4>
+                <span className="admin-toolbar-count">
+                  🏆 {featuredAwards.length}/4 {tLabel('पुरस्कार चयनित', 'Awards Selected')}
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
+                <select
+                  className="admin-input"
+                  style={{ flex: 1 }}
+                  value=""
+                  onChange={(e) => {
+                    const id = e.target.value
+                    if (id && !featuredAwards.includes(id)) {
+                      if (featuredAwards.length >= 4) {
+                        alert(tLabel('अधिकतम 4 पुरस्कार ही चुने जा सकते हैं।', 'Maximum 4 awards allowed.'))
+                        return
+                      }
+                      setFeaturedAwards([...featuredAwards, id])
+                      if (setIsDirty) setIsDirty(true)
+                    }
+                  }}
+                >
+                  <option value="">-- {tLabel('पुरस्कार सूची से सम्मान चुनें व जोड़ें...', 'Select award to add...')} --</option>
+                  {safeAwards
+                    .filter(a => !featuredAwards.includes(a.id))
+                    .map(a => (
+                      <option key={a.id} value={a.id}>
+                        {a.year_display ? `[${a.year_display}] ` : ''}{a.title}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              {featuredAwards.length === 0 ? (
+                <p style={{ fontStyle: 'italic', color: '#888', margin: 0 }}>{tLabel('कोई सम्मान चयनित नहीं है।', 'No featured awards selected.')}</p>
+              ) : (
+                <ul className="admin-item-list">
+                  {featuredAwards.map((id, index) => {
+                    const awObj = safeAwards.find(a => a.id === id)
+                    return (
+                      <li key={id} className="admin-item-card" style={{ justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <span style={{ fontWeight: 700, width: '24px', height: '24px', background: 'var(--leona-terracotta)', color: '#FFF', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>
+                            {index + 1}
+                          </span>
+                          <span style={{ fontWeight: 600, color: 'var(--leona-charcoal)' }}>
+                            {awObj ? `${awObj.year_display ? `[${awObj.year_display}] ` : ''}${awObj.title}` : `Award ID: ${id}`}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <button type="button" className="admin-btn-secondary" onClick={() => setFeaturedAwards(moveItemInArray(featuredAwards, index, 'up'))} disabled={index === 0}>
+                            ⬆️
+                          </button>
+                          <button type="button" className="admin-btn-secondary" onClick={() => setFeaturedAwards(moveItemInArray(featuredAwards, index, 'down'))} disabled={index === featuredAwards.length - 1}>
+                            ⬇️
+                          </button>
+                          <button type="button" className="admin-btn-danger" onClick={() => { setFeaturedAwards(featuredAwards.filter(item => item !== id)); if (setIsDirty) setIsDirty(true); }}>
+                            ✕
+                          </button>
+                        </div>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+            </div>
+          </div>
+        )}
+      </form>
     </div>
   )
 }

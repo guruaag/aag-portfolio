@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
-import { getCategories, getAboutContent, getPublications, getPoems } from '../lib/supabaseClient'
+import { getCategories, getAboutContent, getPublications, getPoems, getAllSettings } from '../lib/supabaseClient'
 import { getImageUrl } from '../lib/imageUtils'
 import { sanitizeText, sanitizePoem, sanitizePublication } from '../lib/dataSanitizer'
 import PublicationCard from '../components/PublicationCard'
@@ -32,12 +32,53 @@ function Home() {
       setLoading(true)
       setError(null)
       
-      const [catsData, aboutData, pubsData, poemsData] = await Promise.all([
-        getCategories(),
-        getAboutContent(),
-        getPublications(),
-        getPoems()
+      const [catsData, aboutData, pubsData, poemsData, settingsList] = await Promise.all([
+        getCategories().catch(() => []),
+        getAboutContent().catch(() => null),
+        getPublications().catch(() => []),
+        getPoems().catch(() => []),
+        getAllSettings().catch(() => [])
       ])
+
+      const sMap = {}
+      if (Array.isArray(settingsList)) {
+        settingsList.forEach(s => { if (s && s.key) sMap[s.key] = s.value })
+      }
+
+      // Check custom intro excerpt setting
+      const useCustomExcerpt = sMap.home_use_custom_excerpt === 'true'
+      const customExcerpt = sMap.home_custom_excerpt || ''
+
+      // Process featured items based on selected sequence
+      let featPoemIds = []
+      let featPubIds = []
+
+      try {
+        if (sMap.home_featured_poems) featPoemIds = JSON.parse(sMap.home_featured_poems)
+      } catch (e) {}
+
+      try {
+        if (sMap.home_featured_publications) featPubIds = JSON.parse(sMap.home_featured_publications)
+      } catch (e) {}
+
+      const allCleanPoems = (poemsData || []).map(sanitizePoem).filter(Boolean)
+      const allCleanPubs = (pubsData || []).map(sanitizePublication).filter(Boolean)
+
+      let orderedPoems = []
+      if (featPoemIds.length > 0) {
+        orderedPoems = featPoemIds.map(id => allCleanPoems.find(p => p.id === id)).filter(Boolean)
+      }
+      if (orderedPoems.length === 0) {
+        orderedPoems = allCleanPoems.slice(0, 5)
+      }
+
+      let orderedPubs = []
+      if (featPubIds.length > 0) {
+        orderedPubs = featPubIds.map(id => allCleanPubs.find(p => p.id === id)).filter(Boolean)
+      }
+      if (orderedPubs.length === 0) {
+        orderedPubs = allCleanPubs.slice(0, 5)
+      }
 
       const cleanCategories = (catsData || []).map(c => ({
         ...c,
@@ -49,10 +90,10 @@ function Home() {
       setCategories(cleanCategories)
       setAboutContent(aboutData ? {
         ...aboutData,
-        truncated_preview: sanitizeText(aboutData.truncated_preview)
+        truncated_preview: useCustomExcerpt && customExcerpt ? customExcerpt : sanitizeText(aboutData.truncated_preview)
       } : null)
-      setPublications((pubsData || []).map(sanitizePublication).filter(Boolean).slice(0, 5))
-      setPoems((poemsData || []).map(sanitizePoem).filter(Boolean).slice(0, 5))
+      setPublications(orderedPubs)
+      setPoems(orderedPoems)
     } catch (err) {
       console.error('Error loading data:', err)
       setError('Content not available')
