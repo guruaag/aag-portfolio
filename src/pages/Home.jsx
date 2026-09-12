@@ -83,39 +83,34 @@ function Home() {
         }
       } catch (e) {}
 
+      // Dynamic single-row card limits from settings (default 3)
+      const maxPoems = parseInt(sMap.home_featured_poems_limit || '3', 10)
+      const maxBooks = parseInt(sMap.home_featured_publications_limit || '3', 10)
+
       const allCleanPoems = (poemsData || []).map(sanitizePoem).filter(Boolean)
       const allCleanPubs = (pubsData || []).map(sanitizePublication).filter(Boolean)
 
+      // Strict Zero Hardcoding Rule:
+      // Map featured items strictly based on saved IDs in settings.
+      // If no IDs are saved in settings, keep ordered arrays empty (no hardcoded fallback arrays/mock items).
       let orderedPoems = []
       if (Array.isArray(featPoemIds) && featPoemIds.length > 0) {
         orderedPoems = featPoemIds.map(id => allCleanPoems.find(p => String(p.id) === String(id))).filter(Boolean)
-      }
-      if (orderedPoems.length === 0) {
-        orderedPoems = allCleanPoems.slice(0, 6)
       }
 
       let orderedPubs = []
       if (Array.isArray(featPubIds) && featPubIds.length > 0) {
         orderedPubs = featPubIds.map(id => allCleanPubs.find(p => String(p.id) === String(id))).filter(Boolean)
       }
-      if (orderedPubs.length === 0) {
-        orderedPubs = allCleanPubs.slice(0, 6)
-      }
 
       let orderedTimeline = []
       if (Array.isArray(featTimelineIds) && featTimelineIds.length > 0) {
         orderedTimeline = featTimelineIds.map(id => (timelineData || []).find(t => String(t.id) === String(id))).filter(Boolean)
       }
-      if (orderedTimeline.length === 0) {
-        orderedTimeline = (timelineData || []).slice(0, 4)
-      }
 
       let orderedAwards = []
       if (Array.isArray(featAwardIds) && featAwardIds.length > 0) {
         orderedAwards = featAwardIds.map(id => (awardsData || []).find(a => String(a.id) === String(id))).filter(Boolean)
-      }
-      if (orderedAwards.length === 0) {
-        orderedAwards = (awardsData || []).slice(0, 4)
       }
 
       const cleanCategories = (catsData || []).map(c => ({
@@ -130,10 +125,11 @@ function Home() {
         ...aboutData,
         truncated_preview: useCustomExcerpt && customExcerpt ? customExcerpt : sanitizeText(aboutData.truncated_preview)
       } : null)
-      setPublications(orderedPubs)
-      setPoems(orderedPoems)
-      setTimelineHighlights(orderedTimeline)
-      setAwardsHighlights(orderedAwards)
+      setPublications(orderedPubs.slice(0, maxBooks))
+      setPoems(orderedPoems.slice(0, maxPoems))
+      setTimelineHighlights(orderedTimeline.slice(0, 4))
+      setAwardsHighlights(orderedAwards.slice(0, 4))
+
     } catch (err) {
       console.error('Error loading data:', err)
       setError('Content not available')
@@ -296,7 +292,7 @@ function Home() {
                 काव्य संग्रह
               </motion.h2>
               
-              <div className="phoenix-poems-list-home">
+              <div className="phoenix-poems-list-home phoenix-single-row-grid">
                 {poems.map((poem, index) => (
                   <PoemCard
                     key={poem.id}
@@ -329,7 +325,8 @@ function Home() {
                 प्रकाशन
               </motion.h2>
               
-              <div className="phoenix-publications-scroll">
+              <div className="phoenix-publications-scroll phoenix-single-row-grid">
+
                 {publications.map((pub, index) => (
                   <PublicationCard
                     key={pub.id}

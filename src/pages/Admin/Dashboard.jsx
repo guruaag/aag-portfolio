@@ -964,6 +964,9 @@ function HomeManager({ initialSubTab = 'hero', poems = [], publications = [], ab
   // Module 3: Featured Works State (Selected ID Arrays in 1st, 2nd, 3rd sequence)
   const [featuredPoems, setFeaturedPoems] = useState([])
   const [featuredPubs, setFeaturedPubs] = useState([])
+  const [poemsLimit, setPoemsLimit] = useState(3)
+  const [pubsLimit, setPubsLimit] = useState(3)
+
 
   // Module 4: Highlights State (Selected ID Arrays in sequence)
   const [featuredTimeline, setFeaturedTimeline] = useState([])
@@ -1014,6 +1017,13 @@ function HomeManager({ initialSubTab = 'hero', poems = [], publications = [], ab
         }
       } catch (e) {
         setFeaturedPubs(Array.isArray(publications) ? publications.slice(0, 4).map(p => p.id) : [])
+      }
+
+      if (settings.home_featured_poems_limit) {
+        setPoemsLimit(parseInt(settings.home_featured_poems_limit, 10) || 3)
+      }
+      if (settings.home_featured_publications_limit) {
+        setPubsLimit(parseInt(settings.home_featured_publications_limit, 10) || 3)
       }
 
       try {
@@ -1079,9 +1089,12 @@ function HomeManager({ initialSubTab = 'hero', poems = [], publications = [], ab
         { key: 'home_custom_excerpt', value: aboutConfig.custom_excerpt, display_label: 'Custom Excerpt' },
         { key: 'home_featured_poems', value: JSON.stringify(featuredPoems), display_label: 'Featured Poems' },
         { key: 'home_featured_publications', value: JSON.stringify(featuredPubs), display_label: 'Featured Publications' },
+        { key: 'home_featured_poems_limit', value: String(poemsLimit), display_label: 'Featured Poems Limit' },
+        { key: 'home_featured_publications_limit', value: String(pubsLimit), display_label: 'Featured Publications Limit' },
         { key: 'home_featured_timeline', value: JSON.stringify(featuredTimeline), display_label: 'Featured Timeline' },
         { key: 'home_featured_awards', value: JSON.stringify(featuredAwards), display_label: 'Featured Awards' }
       ]
+
 
       let hasError = false
       for (const update of updates) {
@@ -1290,6 +1303,50 @@ function HomeManager({ initialSubTab = 'hero', poems = [], publications = [], ab
             <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', color: 'var(--leona-charcoal)', marginBottom: '16px' }}>
               📚 {tLabel('प्रमुख रचनाएं एवं पुस्तकें (Featured Works Showcase)', 'Featured Poems & Books Showcase')}
             </h3>
+
+            {/* Single Row Limits Configuration */}
+            <div style={{ background: '#FFF', padding: '18px', borderRadius: '10px', border: '1px solid rgba(226, 215, 197, 0.8)', marginBottom: '24px' }}>
+              <h4 style={{ margin: '0 0 12px 0', fontFamily: 'Lora, serif', fontSize: '1.05rem', color: 'var(--leona-charcoal)' }}>
+                ⚙️ {tLabel('होम पेज प्रदर्शित कार्ड सीमा (Single-Row Card Limits)', 'Home Page Single-Row Display Limits')}
+              </h4>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '10px' }}>
+                <div>
+                  <label style={{ display: 'block', fontWeight: 600, fontSize: '0.9rem', marginBottom: '6px', color: '#1e293b' }}>
+                    {tLabel('काव्य संग्रह कार्ड सीमा (Max Poems on Home Page)', 'Max Poems on Home Page')}
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="10"
+                    className="admin-input"
+                    value={poemsLimit}
+                    onChange={(e) => {
+                      setPoemsLimit(Math.max(1, parseInt(e.target.value || '1', 10)))
+                      if (setIsDirty) setIsDirty(true)
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontWeight: 600, fontSize: '0.9rem', marginBottom: '6px', color: '#1e293b' }}>
+                    {tLabel('प्रकाशन कार्ड सीमा (Max Books on Home Page)', 'Max Publications on Home Page')}
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="10"
+                    className="admin-input"
+                    value={pubsLimit}
+                    onChange={(e) => {
+                      setPubsLimit(Math.max(1, parseInt(e.target.value || '1', 10)))
+                      if (setIsDirty) setIsDirty(true)
+                    }}
+                  />
+                </div>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b', fontStyle: 'italic' }}>
+                💡 {tLabel('होम पेज पर केवल एक पंक्ति (single row) में दिखने वाले कार्ड्स की अधिकतम संख्या set करें।', 'Set the maximum number of cards displayed in a single row on the public home page.')}
+              </p>
+            </div>
 
             {/* Featured Poems Sub-Section */}
             <div style={{ background: '#FFF', padding: '18px', borderRadius: '10px', border: '1px solid rgba(226, 215, 197, 0.8)', marginBottom: '24px' }}>

@@ -136,19 +136,32 @@
   text-align: left;
 }
 
-/* Poems List Home Grid */
-.phoenix-poems-list-home {
+/* Single-Row Flex/Grid Container */
+.phoenix-single-row-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  align-items: stretch;
+  overflow-x: auto;
+  scroll-behavior: smooth;
   margin-top: 1.5rem;
   margin-bottom: var(--phoenix-space-md);
+}
+
+/* Prevent flex items from wrapping into row 2 on large screens */
+@media (min-width: 1024px) {
+  .phoenix-single-row-grid {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    overflow-x: visible;
+  }
+}
+
+/* Poems List Home Grid */
+.phoenix-poems-list-home {
   padding-left: var(--phoenix-padding-mobile);
   padding-right: var(--phoenix-padding-mobile);
 }
-
-
-
 
 @media (min-width: 1025px) {
   .phoenix-poems-list-home {
@@ -156,6 +169,7 @@
     padding-right: var(--phoenix-padding-desktop);
   }
 }
+
 
 .phoenix-poem-item-home {
   width: 100%;
