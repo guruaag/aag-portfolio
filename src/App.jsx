@@ -164,7 +164,9 @@ function App() {
                     <Route path="/admin/timeline" element={<AdminDashboard tab="timeline" />} />
                     <Route path="/admin/awards" element={<AdminDashboard tab="awards" />} />
                     <Route path="/admin/kavya-sangrah" element={<AdminDashboard tab="poems" />} />
+                    <Route path="/admin/kavya-sangrah/:id" element={<AdminDashboard tab="poems" />} />
                     <Route path="/admin/poems" element={<AdminDashboard tab="poems" />} />
+                    <Route path="/admin/poems/:id" element={<AdminDashboard tab="poems" />} />
                     <Route path="/admin/categories" element={<AdminDashboard tab="categories" />} />
                     <Route path="/admin/prakashan" element={<AdminDashboard tab="publications" />} />
                     <Route path="/admin/publications" element={<AdminDashboard tab="publications" />} />

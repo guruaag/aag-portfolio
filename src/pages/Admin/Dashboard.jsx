@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useParams } from 'react-router-dom'
 import { supabase } from '../../lib/supabaseClient'
 import { getCategories, getAboutContent, getPublications, getPoems, getSetting, getAllSettings } from '../../lib/supabaseClient'
 import { uploadImage, getImageUrl, deleteImage } from '../../lib/imageUtils'
@@ -2490,8 +2490,12 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
 
 function PoemsManager({ poems, onUpdate, setIsDirty }) {
   const { adminLang, tLabel } = useAdminLang()
+  const { id: paramId } = useParams()
+  const navigate = useNavigate()
+
   const [editing, setEditing] = useState(null)
   const [showForm, setShowForm] = useState(false)
+  const [showCanvasModal, setShowCanvasModal] = useState(false)
   const [formData, setFormData] = useState({
     heading: '',
     description: '',
@@ -2499,7 +2503,7 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
     sort_order: 1
   })
   const [itemsList, setItemsList] = useState(Array.isArray(poems) ? poems : [])
-  const [selectedIds, setSelectedIds] = useState([])
+  const [hoveredId, setHoveredId] = useState(null)
 
   useEffect(() => {
     if (Array.isArray(poems)) {
@@ -2507,37 +2511,76 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
     }
   }, [poems])
 
+  // Sync route param (standalone editor route: /admin/kavya-sangrah/:id or /admin/poems/:id)
+  useEffect(() => {
+    if (!paramId) {
+      setShowForm(false)
+      setEditing(null)
+      return
+    }
+
+    if (paramId === 'new') {
+      setEditing(null)
+      setFormData({ heading: '', description: '', body_text: '', sort_order: 1 })
+      setShowForm(true)
+    } else {
+      const poem = (itemsList.length > 0 ? itemsList : poems)?.find(i => String(i.id) === String(paramId))
+      if (poem) {
+        setEditing(poem.id)
+        setShowForm(true)
+        setFormData({
+          heading: poem.heading || poem.heading_hi || poem.heading_en || '',
+          description: poem.description || '',
+          body_text: poem.full_text || poem.body_text_hi || poem.body_text_en || '',
+          sort_order: poem.sort_order || 1
+        })
+      } else if (paramId) {
+        // Direct URL paste fallback
+        supabase.from('poems').select('*').eq('id', paramId).single().then(({ data }) => {
+          if (data) {
+            setEditing(data.id)
+            setShowForm(true)
+            setFormData({
+              heading: data.heading || data.heading_hi || data.heading_en || '',
+              description: data.description || '',
+              body_text: data.full_text || data.body_text_hi || data.body_text_en || '',
+              sort_order: data.sort_order || 1
+            })
+          }
+        })
+      }
+    }
+  }, [paramId, poems, itemsList])
+
   const updateForm = (fields) => {
     setFormData(prev => ({ ...prev, ...fields }))
     if (setIsDirty) setIsDirty(true)
   }
 
-  const toggleSelection = (id) => {
-    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])
-  }
-
-  const clearSelection = () => setSelectedIds([])
-
   const displayList = itemsList.length > 0 ? itemsList : (Array.isArray(poems) ? poems : [])
-  const singleSelectedId = selectedIds.length === 1 ? selectedIds[0] : null
-  const singleIndex = singleSelectedId ? displayList.findIndex(i => i.id === singleSelectedId) : -1
 
   const handleCreate = () => {
-    setEditing(null)
-    setFormData({ heading: '', description: '', body_text: '', sort_order: 1 })
-    setShowForm(true)
+    navigate('/admin/kavya-sangrah/new')
   }
 
-  const handleCancel = () => {
-    setEditing(null)
-    setShowForm(false)
-    if (setIsDirty) setIsDirty(false)
+  const handleBackToList = () => {
+    // Prompt if user has unsaved changes
+    if (setIsDirty) {
+      const confirmLeave = window.confirm(
+        tLabel(
+          'आपके पास सहेजे न गए बदलाव हैं! क्या आप वाकई बिना सहेजे काव्य संग्रह सूची पर वापस जाना चाहते हैं?',
+          'You have unsaved changes! Are you sure you want to return to the poems list without saving?'
+        )
+      )
+      if (!confirmLeave) return
+      setIsDirty(false)
+    }
+    navigate('/admin/kavya-sangrah')
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      // Rule 2: New records get sort_order = 1 (top priority index)
       const dataToSave = {
         heading: formData.heading || '',
         description: formData.description || '',
@@ -2572,29 +2615,11 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
 
       if (setIsDirty) setIsDirty(false)
       onUpdate()
-      setEditing(null)
-      setShowForm(false)
-      clearSelection()
-      setFormData({ heading: '', description: '', body_text: '', sort_order: 1 })
       alert(adminLang === 'en' ? '✓ Poem published & saved successfully!' : '✓ रचना सफलतापूर्वक प्रकाशित की गई!')
+      navigate('/admin/kavya-sangrah')
     } catch (err) {
       alert((adminLang === 'en' ? 'Error saving poem: ' : 'कविता सहेजने में त्रुटि: ') + (err.message || 'Unknown error'))
     }
-  }
-
-  const handleEditSelected = () => {
-    if (!singleSelectedId) return
-    const poem = displayList.find(i => i.id === singleSelectedId)
-    if (!poem) return
-    setEditing(poem.id)
-    setShowForm(true)
-    const formDataToSet = {
-      heading: poem.heading || poem.heading_hi || poem.heading_en || '',
-      description: poem.description || '',
-      body_text: poem.full_text || poem.body_text_hi || poem.body_text_en || '',
-      sort_order: poem.sort_order || 1
-    }
-    setFormData(formDataToSet)
   }
 
   const persistReorder = async (updated) => {
@@ -2610,52 +2635,34 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
     onUpdate()
   }
 
-  const handleMoveTop = () => {
-    if (singleIndex <= 0) return
-    const item = displayList[singleIndex]
-    const updated = [item, ...displayList.filter((_, i) => i !== singleIndex)]
-    persistReorder(updated)
-    clearSelection()
-  }
-
-  const handleMoveUp = () => {
-    if (singleIndex <= 0) return
+  const handleCardMoveUp = (id) => {
+    const idx = displayList.findIndex(i => i.id === id)
+    if (idx <= 0) return
     const updated = [...displayList]
-    const temp = updated[singleIndex]
-    updated[singleIndex] = updated[singleIndex - 1]
-    updated[singleIndex - 1] = temp
+    const temp = updated[idx]
+    updated[idx] = updated[idx - 1]
+    updated[idx - 1] = temp
     persistReorder(updated)
   }
 
-  const handleMoveDown = () => {
-    if (singleIndex < 0 || singleIndex >= displayList.length - 1) return
+  const handleCardMoveDown = (id) => {
+    const idx = displayList.findIndex(i => i.id === id)
+    if (idx < 0 || idx >= displayList.length - 1) return
     const updated = [...displayList]
-    const temp = updated[singleIndex]
-    updated[singleIndex] = updated[singleIndex + 1]
-    updated[singleIndex + 1] = temp
+    const temp = updated[idx]
+    updated[idx] = updated[idx + 1]
+    updated[idx + 1] = temp
     persistReorder(updated)
   }
 
-  const handleMoveBottom = () => {
-    if (singleIndex < 0 || singleIndex >= displayList.length - 1) return
-    const item = displayList[singleIndex]
-    const updated = [...displayList.filter((_, i) => i !== singleIndex), item]
-    persistReorder(updated)
-    clearSelection()
-  }
-
-  const handleBatchDelete = async () => {
-    if (selectedIds.length === 0) return
-    if (!confirm(tLabel(`क्या आप चयनित ${selectedIds.length} कविताएं हटाना चाहते हैं?`, `Delete ${selectedIds.length} selected poems?`))) return
-
-    const updated = displayList.filter(i => !selectedIds.includes(i.id))
+  const handleCardDelete = async (id) => {
+    if (!confirm(tLabel('क्या आप इस कविता को हटाना चाहते हैं?', 'Are you sure you want to delete this poem?'))) return
+    const updated = displayList.filter(i => i.id !== id)
     setItemsList(updated)
-    clearSelection()
-
     try {
-      await supabase.from('poems').delete().in('id', selectedIds)
+      await supabase.from('poems').delete().eq('id', id)
     } catch (e) {
-      console.warn('Batch delete poems error:', e)
+      console.warn('Delete poem error:', e)
     }
     onUpdate()
   }
@@ -2676,18 +2683,41 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
     }
   }
 
+  const isStandalonePage = Boolean(paramId)
+
   return (
     <div className="admin-card-panel">
-      <div className="admin-panel-header">
-        <h2 className="admin-panel-title">✍️ {tLabel('काव्य रचनाएं एवं पद', 'Poems & Verse Collection')}</h2>
-        {!showForm && (
+      {/* Top Breadcrumb Header for Standalone Edit Route */}
+      {isStandalonePage ? (
+        <div className="admin-breadcrumb-bar">
+          <button
+            type="button"
+            className="admin-back-btn"
+            onClick={handleBackToList}
+          >
+            ← {tLabel('काव्य संग्रह सूची पर वापस जाएं', 'Back to Poems List')}
+          </button>
+          <div className="admin-breadcrumb-path">
+            <span>✍️ {tLabel('काव्य संग्रह', 'Kavya Sangrah')}</span>
+            <span className="admin-breadcrumb-sep">&gt;</span>
+            <span className="admin-breadcrumb-active">
+              {paramId === 'new'
+                ? tLabel('नई रचना जोड़ें', 'Add New Poem')
+                : (formData.heading || tLabel('कविता संपादन', 'Edit Poem'))}
+            </span>
+          </div>
+        </div>
+      ) : (
+        <div className="admin-panel-header">
+          <h2 className="admin-panel-title">✍️ {tLabel('काव्य रचनाएं एवं पद', 'Poems & Verse Collection')}</h2>
           <button type="button" className="admin-btn-primary" onClick={handleCreate}>
             + {tLabel('नई रचना जोड़ें', 'Add New Poem')}
           </button>
-        )}
-      </div>
-      
-      {(showForm || editing) && (
+        </div>
+      )}
+
+      {/* Main Standalone Form */}
+      {(showForm || editing || isStandalonePage) && (
         <form id="admin-active-form" onSubmit={handleSubmit} onChange={() => setIsDirty && setIsDirty(true)} onInput={() => setIsDirty && setIsDirty(true)} className="admin-form-container">
           <div className="admin-form-grid">
             <div className="admin-form-group full-width">
@@ -2716,14 +2746,42 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
                 {(formData.description || '').split('\n').length} / 2 {tLabel('पंक्तियां', 'lines')} | {(formData.description || '').length} / 160 {tLabel('अक्षर', 'chars')}
               </span>
             </div>
+
+            {/* PageMaker Canvas Fullscreen Trigger Button */}
             <div className="admin-form-group full-width" style={{ marginBottom: '16px' }}>
               <label style={{ fontWeight: 'bold', fontSize: '1.02rem', color: 'var(--leona-terracotta)', marginBottom: '8px', display: 'block' }}>
                 🖋️ {tLabel('पेजमेकर कैनवस (PM5)', 'PageMaker Canvas (PM5)')}
               </label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  className="admin-btn-primary pm5-trigger-btn"
+                  onClick={() => setShowCanvasModal(true)}
+                  style={{
+                    background: '#8B4513',
+                    borderColor: '#8B4513',
+                    padding: '10px 20px',
+                    fontWeight: '700',
+                    fontSize: '0.95rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  🎨 {tLabel('Edit Page Maker Canvas', 'Edit Page Maker Canvas')}
+                </button>
+                <span style={{ fontSize: '0.85rem', color: '#6E665E' }}>
+                  💡 {tLabel('फुलस्क्रीन डिस्ट्रैक्शन-फ्री कैनवस एडिटर खोलने के लिए दबाएं', 'Click to open distraction-free canvas editor')}
+                </span>
+              </div>
+            </div>
+
+            {/* Fullscreen PM5 Canvas Portal Overlay */}
+            {showCanvasModal && (
               <PM5WritingDesk
                 initialPages={paginateTextIntoPages(formData.body_text || '')}
                 initialTitle={formData.heading || ''}
                 lang={adminLang}
+                initialFullscreen={true}
+                onClose={() => setShowCanvasModal(false)}
                 onSave={(pagesArray, pageTitle) => {
                   const joinedText = pagesArray.join('\n\n');
                   if (setIsDirty) setIsDirty(true);
@@ -2734,7 +2792,8 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
                   }));
                 }}
               />
-            </div>
+            )}
+
             <div className="admin-form-group full-width">
               <label>{tLabel('सम्पूर्ण कविता पंक्तियाँ *', 'Full Stanzas / Verse Text *')}</label>
               <textarea
@@ -2758,49 +2817,76 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
         </form>
       )}
 
-      <div>
-        <ListContextualToolbar
-          selectedIds={selectedIds}
-          totalItems={displayList.length}
-          onClearSelection={clearSelection}
-          onEdit={handleEditSelected}
-          onMoveTop={handleMoveTop}
-          onMoveUp={handleMoveUp}
-          onMoveDown={handleMoveDown}
-          onMoveBottom={handleMoveBottom}
-          onBatchDelete={handleBatchDelete}
-          tLabel={tLabel}
-        />
-
-        <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
-          {tLabel('कुल काव्य रचनाएं', 'Total Poems Collection')} ({displayList.length})
-        </h3>
-        {displayList.length === 0 ? (
-          <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई कविता नहीं मिली। नई रचना जोड़ने के लिए बटन दबाएं।', 'No poems found. Click button to add new poem.')}</p>
-        ) : (
-          <ul className="admin-item-list">
-            {displayList.map((poem) => {
-              const isSelected = selectedIds.includes(poem.id)
-              return (
-                <li key={poem.id} className={`admin-item-card ${isSelected ? 'selected' : ''}`}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1 }}>
-                    <input
-                      type="checkbox"
-                      className="admin-item-checkbox"
-                      checked={isSelected}
-                      onChange={() => toggleSelection(poem.id)}
-                    />
-                    <div>
-                      <div className="admin-item-title">{poem.heading || poem.heading_hi || poem.heading_en || 'Untitled'}</div>
-                      <div className="admin-item-sub">{tLabel('क्रम:', 'Order:')} {poem.sort_order || 1}</div>
+      {/* Poem List Grid - Hidden when in standalone edit page */}
+      {!isStandalonePage && (
+        <div>
+          <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
+            {tLabel('कुल काव्य रचनाएं', 'Total Poems Collection')} ({displayList.length})
+          </h3>
+          {displayList.length === 0 ? (
+            <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई कविता नहीं मिली। नई रचना जोड़ने के लिए बटन दबाएं।', 'No poems found. Click button to add new poem.')}</p>
+          ) : (
+            <ul className="admin-item-list">
+              {displayList.map((poem) => {
+                const isHovered = hoveredId === poem.id
+                return (
+                  <li
+                    key={poem.id}
+                    className={`admin-item-card poem-hover-card ${isHovered ? 'is-hovered' : ''}`}
+                    onMouseEnter={() => setHoveredId(poem.id)}
+                    onMouseLeave={() => setHoveredId(null)}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1 }}>
+                      <div>
+                        <div className="admin-item-title">{poem.heading || poem.heading_hi || poem.heading_en || 'Untitled'}</div>
+                        <div className="admin-item-sub">{tLabel('क्रम:', 'Order:')} {poem.sort_order || 1}</div>
+                      </div>
                     </div>
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
-        )}
-      </div>
+
+                    {/* Hover Action Bar with Text-Only Badges */}
+                    <div className={`poem-card-hover-actions ${isHovered ? 'visible' : ''}`}>
+                      <button
+                        type="button"
+                        className="poem-hover-badge badge-edit"
+                        onClick={() => navigate(`/admin/kavya-sangrah/${poem.id}`)}
+                        title={tLabel('संपादित करें', 'Edit Poem')}
+                      >
+                        {tLabel('संपादित करें', 'Edit')}
+                      </button>
+                      <button
+                        type="button"
+                        className="poem-hover-badge badge-move"
+                        onClick={() => handleCardMoveUp(poem.id)}
+                        disabled={displayList.findIndex(i => i.id === poem.id) === 0}
+                        title={tLabel('ऊपर ले जाएं', 'Move Up')}
+                      >
+                        {tLabel('ऊपर ले जाएं', 'Move Up')}
+                      </button>
+                      <button
+                        type="button"
+                        className="poem-hover-badge badge-move"
+                        onClick={() => handleCardMoveDown(poem.id)}
+                        disabled={displayList.findIndex(i => i.id === poem.id) === displayList.length - 1}
+                        title={tLabel('नीचे ले जाएं', 'Move Down')}
+                      >
+                        {tLabel('नीचे ले जाएं', 'Move Down')}
+                      </button>
+                      <button
+                        type="button"
+                        className="poem-hover-badge badge-delete"
+                        onClick={() => handleCardDelete(poem.id)}
+                        title={tLabel('हटाएं', 'Delete Poem')}
+                      >
+                        {tLabel('हटाएं', 'Delete')}
+                      </button>
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+        </div>
+      )}
     </div>
   )
 }

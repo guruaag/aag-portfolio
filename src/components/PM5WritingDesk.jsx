@@ -23,7 +23,7 @@ export function paginateTextIntoPages(fullText, linesPerPage = 20) {
   return pages.length > 0 ? pages : [''];
 }
 
-export default function PM5WritingDesk({ initialPages = [''], onSave = null, initialTitle = '', lang = 'hi' }) {
+export default function PM5WritingDesk({ initialPages = [''], onSave = null, onClose = null, initialTitle = '', lang = 'hi', initialFullscreen = false }) {
   const isEn = lang === 'en' || lang === 'EN';
 
   const toHindiNumerals = (num) => {
@@ -40,9 +40,14 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
 
   const [activeIdx, setActiveIdx] = useState(0);
   const [title, setTitle] = useState(initialTitle);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(initialFullscreen);
   const [isDirty, setIsDirty] = useState(false);
   const [autoSaveStatus, setAutoSaveStatus] = useState(''); // '' | 'saving' | 'saved'
+
+  const handleExitDesk = () => {
+    setIsFullscreen(false);
+    if (onClose) onClose();
+  };
 
   // Ref to track component mount
   const isInitialMount = useRef(true);
@@ -80,7 +85,7 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && isFullscreen) {
-        setIsFullscreen(false);
+        handleExitDesk();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -293,7 +298,7 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
             <button
               type="button"
               className="pm5-undo-btn pm5-exit-fullscreen-toolbar-btn"
-              onClick={() => setIsFullscreen(false)}
+              onClick={handleExitDesk}
               title={isEn ? 'Exit Fullscreen (Esc)' : 'पूर्ण स्क्रीन बंद करें (Esc)'}
             >
               ✕ {isEn ? 'Exit Fullscreen' : 'पूर्ण स्क्रीन बंद करें'}

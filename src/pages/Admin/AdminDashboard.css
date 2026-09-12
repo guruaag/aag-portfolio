@@ -924,3 +924,128 @@
   -webkit-font-smoothing: antialiased;
 }
 
+/* Standalone Breadcrumbs Bar */
+.admin-breadcrumb-bar {
+  background: #FAF8F5;
+  border: 1px solid #E2D7C5;
+  border-radius: 10px;
+  padding: 12px 18px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.admin-back-btn {
+  background: #F4EFE6;
+  border: 1.5px solid #D4AF37;
+  color: #1E1B18;
+  border-radius: 20px;
+  padding: 6px 18px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-back-btn:hover {
+  background: #8B4513;
+  color: #FFFFFF;
+  border-color: #8B4513;
+  transform: translateX(-2px);
+}
+
+.admin-breadcrumb-path {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #555555;
+}
+
+.admin-breadcrumb-sep {
+  color: #B8AEA0;
+  font-weight: 700;
+}
+
+.admin-breadcrumb-active {
+  color: #8B4513;
+  font-weight: 700;
+}
+
+/* Poem Card Hover Actions (Text-Only Badges) */
+.poem-hover-card {
+  position: relative;
+  transition: all 0.2s ease !important;
+}
+
+.poem-card-hover-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.poem-hover-card:hover .poem-card-hover-actions,
+.poem-card-hover-actions.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.poem-hover-badge {
+  padding: 5px 14px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  line-height: 1.2;
+}
+
+.poem-hover-badge:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.poem-hover-badge.badge-edit {
+  background: #F4EFE6;
+  color: #8B4513;
+  border-color: #D4AF37;
+}
+
+.poem-hover-badge.badge-edit:hover {
+  background: #8B4513;
+  color: #FFFFFF;
+  border-color: #8B4513;
+}
+
+.poem-hover-badge.badge-move {
+  background: #F0F4F8;
+  color: #2B6CB0;
+  border-color: #CBD5E0;
+}
+
+.poem-hover-badge.badge-move:hover:not(:disabled) {
+  background: #2B6CB0;
+  color: #FFFFFF;
+  border-color: #2B6CB0;
+}
+
+.poem-hover-badge.badge-delete {
+  background: #FFF5F5;
+  color: #C53030;
+  border-color: #FEB2B2;
+}
+
+.poem-hover-badge.badge-delete:hover {
+  background: #C53030;
+  color: #FFFFFF;
+  border-color: #C53030;
+}
+
