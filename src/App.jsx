@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useState, useEffect, Suspense } from 'react'
 import { HelmetProvider } from 'react-helmet-async'
 import { I18nextProvider } from 'react-i18next'
@@ -167,7 +167,7 @@ function App() {
                     <Route path="/admin/kavya-sangrah/:id" element={<AdminDashboard tab="poems" />} />
                     <Route path="/admin/poems" element={<AdminDashboard tab="poems" />} />
                     <Route path="/admin/poems/:id" element={<AdminDashboard tab="poems" />} />
-                    <Route path="/admin/categories" element={<AdminDashboard tab="categories" />} />
+                    <Route path="/admin/categories" element={<Navigate to="/admin/kavya-sangrah" replace />} />
                     <Route path="/admin/prakashan" element={<AdminDashboard tab="publications" />} />
                     <Route path="/admin/prakashan/:id" element={<AdminDashboard tab="publications" />} />
                     <Route path="/admin/publications" element={<AdminDashboard tab="publications" />} />

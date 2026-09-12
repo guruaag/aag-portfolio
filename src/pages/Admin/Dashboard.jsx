@@ -403,27 +403,11 @@ function AdminDashboard({ tab, initialSubTab }) {
 
               {/* Poetry Archive Section */}
               <button
-                className={`admin-tab-btn ${activeTab === 'poems' || activeTab === 'categories' ? 'active' : ''}`}
+                className={`admin-tab-btn ${activeTab === 'poems' ? 'active' : ''}`}
                 onClick={() => switchTab('poems', '/admin/kavya-sangrah')}
               >
                 ✍️ {tLabel('काव्य संग्रह', 'Poetry Archive')}
               </button>
-
-              {/* Nested Sub-categories for Poetry Archive */}
-              <div className="admin-sub-nav">
-                <button
-                  className={`admin-sub-tab-btn ${activeTab === 'poems' ? 'active' : ''}`}
-                  onClick={() => switchTab('poems', '/admin/kavya-sangrah')}
-                >
-                  ▫️ 1. {tLabel('काव्य सूची', 'Poetry List')}
-                </button>
-                <button
-                  className={`admin-sub-tab-btn ${activeTab === 'categories' ? 'active' : ''}`}
-                  onClick={() => switchTab('categories', '/admin/categories')}
-                >
-                  ▫️ 2. {tLabel('काव्य श्रेणियां', 'Poetry Categories')}
-                </button>
-              </div>
 
               {/* Publications Section */}
               <button
@@ -486,8 +470,7 @@ function AdminDashboard({ tab, initialSubTab }) {
                 {activeTab === 'about' && `📖 ${tLabel('कवि परिचय व बैनर', 'Poet Bio & Hero Banner')}`}
                 {activeTab === 'timeline' && `⏳ ${tLabel('जीवन यात्रा (टाइमलाइन)', 'Timeline Milestones')}`}
                 {activeTab === 'awards' && `🏆 ${tLabel('पुरस्कार व सम्मान', 'Awards & Honors')}`}
-                {activeTab === 'poems' && `✍️ ${tLabel('काव्य रचनाएं', 'Poetry List')}`}
-                {activeTab === 'categories' && `🌐 ${tLabel('काव्य श्रेणियां', 'Poetry Categories')}`}
+                {activeTab === 'poems' && `✍️ ${tLabel('काव्य संग्रह', 'Poetry Archive')}`}
                 {activeTab === 'publications' && `📚 ${tLabel('प्रकाशन संग्रह', 'Publications List')}`}
                 {activeTab === 'contact' && `📍 ${tLabel('संपर्क विवरण', 'Contact Info')}`}
                 {activeTab === 'inbox' && `📬 ${tLabel('प्राप्त संदेश (इनबॉक्स)', 'Inbox Messages')}`}
@@ -524,14 +507,8 @@ function AdminDashboard({ tab, initialSubTab }) {
                 setIsDirty={setIsDirty}
               />
             )}
-            {(activeTab === 'poems' || activeTab === 'categories') && (
-              <PoemsArchiveManager
-                poems={data.poems}
-                categories={data.categories}
-                initialSubTab={activeTab === 'categories' ? 'categories' : 'poems'}
-                onUpdate={loadData}
-                setIsDirty={setIsDirty}
-              />
+            {activeTab === 'poems' && (
+              <PoemsManager poems={data.poems} onUpdate={loadData} setIsDirty={setIsDirty} />
             )}
             {activeTab === 'publications' && (
               <PublicationsManager publications={data.publications} onUpdate={loadData} setIsDirty={setIsDirty} />
