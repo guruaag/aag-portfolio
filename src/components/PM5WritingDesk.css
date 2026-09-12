@@ -360,28 +360,30 @@
   width: 100vw !important;
   height: 100vh !important;
   z-index: 999999 !important; /* Above sidebar, navbar, and admin headers */
-  background-color: #f8fafc !important;
-  padding: 2rem !important;
-  overflow-y: auto !important;
+  background-color: #0f172a !important; /* Deep rich slate studio background */
+  padding: 1.5rem 2rem !important;
+  overflow: hidden !important;
   box-sizing: border-box !important;
   border-radius: 0 !important;
   border: none !important;
+  display: flex !important;
+  flex-direction: column !important;
 }
 
 .pm5-floating-exit-btn {
   position: fixed !important;
-  top: 1.5rem !important;
+  top: 1.25rem !important;
   right: 2rem !important;
   z-index: 1000000 !important;
   background-color: #ef4444 !important;
   color: #ffffff !important;
   border: none !important;
   border-radius: 20px !important;
-  padding: 8px 18px !important;
+  padding: 8px 20px !important;
   font-size: 0.88rem !important;
   font-weight: 700 !important;
   cursor: pointer !important;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
   transition: all 0.2s ease !important;
 }
 
@@ -391,46 +393,93 @@
 }
 
 .pm5-desk-root.pm5-fullscreen .pm5-canvas-grid {
-  max-width: 900px !important;
+  display: grid !important;
+  grid-template-columns: 280px 1fr !important;
+  gap: 24px !important;
+  height: calc(100vh - 80px) !important;
+  width: 100% !important;
+  max-width: 1600px !important;
   margin: 0 auto !important;
 }
 
-.pm5-desk-root.pm5-fullscreen .pm5-canvas-area {
-  background: #cbd5e1;
-  min-height: 640px;
-}
-
 .pm5-desk-root.pm5-fullscreen .pm5-sidebar-pages {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  border-radius: 12px !important;
+  height: 100% !important;
+  max-height: calc(100vh - 90px) !important;
+  overflow-y: auto !important;
+  padding: 16px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
 }
 
 .pm5-desk-root.pm5-fullscreen .pm5-sidebar-title {
-  color: #0f172a;
-  border-bottom-color: #0f172a;
+  color: #f1f5f9 !important;
+  border-bottom-color: #334155 !important;
 }
 
 .pm5-desk-root.pm5-fullscreen .pm5-thumb-card {
-  background: #ffffff;
-  border-color: #cbd5e1;
-  color: #0f172a;
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
 }
 
+.pm5-desk-root.pm5-fullscreen .pm5-thumb-card:hover,
 .pm5-desk-root.pm5-fullscreen .pm5-thumb-card.active {
-  border-color: #2563eb;
-  background: #f1f5f9;
+  border-color: #38bdf8 !important;
+  background: #1e293b !important;
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.25) !important;
 }
 
 .pm5-desk-root.pm5-fullscreen .pm5-thumb-num {
-  color: #1e293b;
+  color: #38bdf8 !important;
 }
 
 .pm5-desk-root.pm5-fullscreen .pm5-thumb-preview {
-  color: #475569;
+  color: #94a3b8 !important;
 }
 
-.pm5-desk-root.pm5-fullscreen .pm5-undo-btn.active {
-  background: #2563eb;
-  color: #ffffff;
-  border-color: #2563eb;
+.pm5-desk-root.pm5-fullscreen .pm5-canvas-area {
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  border-radius: 12px !important;
+  height: 100% !important;
+  max-height: calc(100vh - 90px) !important;
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 24px !important;
+  box-sizing: border-box !important;
+  overflow-y: auto !important;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+.pm5-desk-root.pm5-fullscreen .pm5-sheet {
+  height: calc(100vh - 150px) !important;
+  max-height: 820px !important;
+  width: calc((100vh - 150px) * 0.72) !important;
+  max-width: 600px !important;
+  min-width: 440px !important;
+  min-height: 580px !important;
+  background: #ffffff !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  padding: 32px !important;
+  border-radius: 6px !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+.pm5-desk-root.pm5-fullscreen .pm5-editor-title {
+  font-size: 1.6rem !important;
+}
+
+.pm5-desk-root.pm5-fullscreen .pm5-editor-textarea {
+  flex: 1 !important;
+  height: 100% !important;
+  font-size: 1.35rem !important;
+  line-height: 2.2 !important;
+  margin-top: 16px !important;
 }

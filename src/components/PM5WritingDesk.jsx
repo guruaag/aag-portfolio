@@ -233,14 +233,16 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
           )}
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <button
-            type="button"
-            className={`pm5-undo-btn ${isFullscreen ? 'active' : ''}`}
-            onClick={toggleFullscreen}
-            title={isFullscreen ? (isEn ? 'Exit Fullscreen (Esc)' : 'पूर्ण स्क्रीन बंद करें (Esc)') : (isEn ? 'Distraction-Free Fullscreen' : 'डिस्ट्रेक्शन-फ्री पूर्ण स्क्रीन')}
-          >
-            {isFullscreen ? '↙️ Exit Fullscreen' : '⛶ Fullscreen'}
-          </button>
+          {!isFullscreen && (
+            <button
+              type="button"
+              className="pm5-undo-btn"
+              onClick={toggleFullscreen}
+              title={isEn ? 'Distraction-Free Fullscreen' : 'डिस्ट्रेक्शन-फ्री पूर्ण स्क्रीन'}
+            >
+              ⛶ Fullscreen
+            </button>
+          )}
           <button type="button" className="pm5-undo-btn" onClick={handleUndo} disabled={historyPointer === 0} title={isEn ? 'Undo (Ctrl+Z)' : 'पूर्ववत करें (Ctrl+Z)'}>
             ↩️ {isEn ? 'Undo' : 'पूर्ववत'}
           </button>
