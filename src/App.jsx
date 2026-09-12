@@ -148,6 +148,12 @@ function App() {
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/category/:categoryId" element={<CategoryDetail />} />
+                    <Route path="/kavya-sangrah" element={<Navigate to="/category/poems" replace />} />
+                    <Route path="/poetry" element={<Navigate to="/category/poems" replace />} />
+                    <Route path="/prakashan" element={<Navigate to="/category/publications" replace />} />
+                    <Route path="/books" element={<Navigate to="/category/publications" replace />} />
+                    <Route path="/about" element={<Navigate to="/category/about" replace />} />
+                    <Route path="/parichay" element={<Navigate to="/category/about" replace />} />
                     <Route path="/poem/:id" element={<PoemPage />} />
                     <Route path="/publication/:id" element={<PublicationPage />} />
                     <Route path="/contact" element={<Contact />} />

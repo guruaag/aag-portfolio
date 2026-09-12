@@ -37,8 +37,13 @@ function CategoryDetail() {
       if (!foundCategory) {
         const slugMap = {
           'publications': 'publications',
+          'prakashan': 'publications',
+          'books': 'publications',
           'about': 'about',
-          'poems': 'writings'
+          'parichay': 'about',
+          'poems': 'writings',
+          'kavya-sangrah': 'writings',
+          'poetry': 'writings'
         }
         const contentType = slugMap[categoryId]
         if (contentType) {
