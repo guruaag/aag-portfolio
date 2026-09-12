@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import './PM5WritingDesk.css';
 
-export function paginateTextIntoPages(fullText, linesPerPage = 14) {
+export function paginateTextIntoPages(fullText, linesPerPage = 20) {
   if (!fullText || !fullText.trim()) return [''];
   const rawLines = fullText.split('\n');
   const pages = [];
@@ -34,7 +34,7 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
 
   const [pages, setPages] = useState(() => {
     if (Array.isArray(initialPages) && initialPages.length > 0) return initialPages;
-    if (typeof initialPages === 'string' && initialPages.trim()) return paginateTextIntoPages(initialPages);
+    if (typeof initialPages === 'string' && initialPages.trim()) return paginateTextIntoPages(initialPages, 20);
     return [''];
   });
 
@@ -130,12 +130,62 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [historyPointer, history, activeIdx]);
 
+  // Strict 20-line Dynamic Auto-Pagination
   const updatePageContent = (text) => {
+    const lines = text.split('\n');
+    const MAX_LINES = 20;
+
+    if (lines.length > MAX_LINES) {
+      const page1Lines = lines.slice(0, MAX_LINES);
+      const overflowLines = lines.slice(MAX_LINES);
+
+      const updatedPages = [...pages];
+      updatedPages[activeIdx] = page1Lines.join('\n');
+
+      if (activeIdx + 1 < updatedPages.length) {
+        const nextText = updatedPages[activeIdx + 1];
+        const combined = overflowLines.join('\n') + (nextText ? '\n' + nextText : '');
+        updatedPages[activeIdx + 1] = combined;
+      } else {
+        updatedPages.splice(activeIdx + 1, 0, overflowLines.join('\n'));
+      }
+
+      setPages(updatedPages);
+      pushHistory(updatedPages);
+      setIsDirty(true);
+      setActiveIdx(activeIdx + 1);
+      return;
+    }
+
     const updatedPages = [...pages];
     updatedPages[activeIdx] = text;
     setPages(updatedPages);
     pushHistory(updatedPages);
     setIsDirty(true);
+  };
+
+  // Manual Page Break Button Handler
+  const handlePageBreak = () => {
+    const textarea = document.getElementById('pm5ActiveTextarea');
+    const updatedPages = [...pages];
+    
+    if (textarea && typeof textarea.selectionStart === 'number') {
+      const start = textarea.selectionStart;
+      const current = pages[activeIdx] || '';
+      
+      const textBefore = current.substring(0, start);
+      const textAfter = current.substring(start);
+      
+      updatedPages[activeIdx] = textBefore;
+      updatedPages.splice(activeIdx + 1, 0, textAfter);
+      
+      setPages(updatedPages);
+      pushHistory(updatedPages);
+      setIsDirty(true);
+      setActiveIdx(activeIdx + 1);
+    } else {
+      addNewPage();
+    }
   };
 
   const handlePasteAutoFlow = (e) => {
@@ -144,10 +194,9 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
 
     const rawLines = pastedText.split('\n');
 
-    // If pasted content exceeds single page bounds (more than 16 lines), auto-paginate across multiple pages
-    if (rawLines.length > 16) {
+    if (rawLines.length > 20) {
       e.preventDefault();
-      const paginatedPastedPages = paginateTextIntoPages(pastedText, 14);
+      const paginatedPastedPages = paginateTextIntoPages(pastedText, 20);
       
       const newPages = [...pages];
       newPages.splice(activeIdx, 1, ...paginatedPastedPages);
@@ -209,7 +258,7 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
   const deskContent = (
     <div className={`pm5-desk-root ${isFullscreen ? 'pm5-fullscreen' : ''}`}>
       
-      {/* Floating Exit Fullscreen Button */}
+      {/* Floating Exit Fullscreen Button positioned at Bottom Center */}
       {isFullscreen && (
         <button
           type="button"
@@ -221,10 +270,10 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
         </button>
       )}
 
-      {/* Top Bar with Undo / Redo & Fullscreen & AutoSave Indicator */}
+      {/* Top Bar with Undo / Redo & Page Break & Fullscreen & AutoSave Indicator */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
         <div style={{ fontSize: '0.85rem', color: '#666', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span>📐 {isEn ? 'Format: Standard Font Size • Natural Line Wrap' : 'प्रारूप: मानक फॉन्ट आकार • स्वाभाविक पंक्ति प्रवाह'}</span>
+          <span>📐 {isEn ? 'Format: Max 20 Lines/Page • Auto-Flow & Line Wrap' : 'प्रारूप: अधिकतम २० पंक्तियाँ/पृष्ठ • स्वचालित पृष्ठ विभाजन'}</span>
           {autoSaveStatus === 'saving' && (
             <span className="pm5-autosave-badge saving">⏳ {isEn ? 'Saving...' : 'सहेजा जा रहा है...'}</span>
           )}
@@ -249,6 +298,9 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
           <button type="button" className="pm5-undo-btn" onClick={handleRedo} disabled={historyPointer === history.length - 1} title={isEn ? 'Redo (Ctrl+Y)' : 'पुनः करें (Ctrl+Y)'}>
             ↪️ {isEn ? 'Redo' : 'पुनः'}
           </button>
+          <button type="button" className="pm5-undo-btn pm5-page-break-btn" onClick={handlePageBreak} title={isEn ? 'Insert Page Break' : 'मैनुअल पृष्ठ विभाजन'}>
+            📄 {isEn ? 'Page Break' : 'पृष्ठ ब्रेक'}
+          </button>
         </div>
       </div>
 
@@ -260,6 +312,24 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
           <div className="pm5-sidebar-title">
             📄 {isEn ? 'Pages Navigation' : 'पृष्ठ सूची'}
           </div>
+
+          {/* Sticky Save & Apply Bar Pinned Directly Below Header */}
+          {onSave && (
+            <div className="pm5-sticky-save-bar">
+              <button
+                type="button"
+                className="pm5-publish-btn"
+                onClick={() => {
+                  onSave(pages, title);
+                  setIsDirty(false);
+                  setAutoSaveStatus('saved');
+                  alert(isEn ? '✓ Canvas saved & applied to full verse text!' : '✓ कैनवस सफलतापूर्वक सहेजा गया!');
+                }}
+              >
+                💾 {isEn ? 'Save & Apply Canvas' : 'सहेजें और लागू करें'}
+              </button>
+            </div>
+          )}
 
           {pages.map((pText, i) => (
             <div
@@ -282,21 +352,6 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
           <button type="button" className="pm5-sidebar-add-btn" onClick={addNewPage}>
             + {isEn ? 'Add New Page' : 'नया पृष्ठ जोड़ें'}
           </button>
-
-          {onSave && (
-            <button
-              type="button"
-              className="pm5-publish-btn"
-              onClick={() => {
-                onSave(pages, title);
-                setIsDirty(false);
-                setAutoSaveStatus('saved');
-                alert(isEn ? '✓ Canvas saved & applied to full verse text!' : '✓ कैनवस सफलतापूर्वक सहेजा गया!');
-              }}
-            >
-              ✓ {isEn ? 'Save & Apply Canvas' : 'सहेजें और लागू करें'}
-            </button>
-          )}
         </div>
 
         {/* CENTERED PAGEMAKER PAPER SHEET */}
@@ -305,7 +360,7 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
             <div className="pm5-margin-guide" title="Page Margin Bounds (DTP Bounds)"></div>
 
             <div className="pm5-sheet-header">
-              — {isEn ? `PAGE ${activeIdx + 1} CANVAS` : `पृष्ठ ${toHindiNumerals(activeIdx + 1)}`} —
+              — {isEn ? `PAGE ${activeIdx + 1} CANVAS (MAX 20 LINES)` : `पृष्ठ ${toHindiNumerals(activeIdx + 1)} (अधिकतम २० पंक्तियाँ)`} —
             </div>
 
             {/* Poem Title Input */}
@@ -320,19 +375,19 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
               placeholder={isEn ? 'Enter title here...' : 'यहाँ शीर्षक लिखें...'}
             />
 
-            {/* Textarea with Paste Auto-Flow */}
+            {/* Textarea with Paste & Auto-Flow 20-Line Limit */}
             <textarea
               id="pm5ActiveTextarea"
               className="pm5-editor-textarea"
               value={currentText}
               onChange={(e) => updatePageContent(e.target.value)}
               onPaste={handlePasteAutoFlow}
-              placeholder={isEn ? 'Write or paste poem verses here...' : 'यहाँ कविता लिखें या पेस्ट करें...'}
+              placeholder={isEn ? 'Write or paste poem verses here (Max 20 lines/page)...' : 'यहाँ कविता लिखें या पेस्ट करें (अधिकतम २० पंक्तियाँ/पृष्ठ)...'}
             />
 
             {/* Bottom Status Bar */}
             <div className="pm5-sheet-footer">
-              <span>{isEn ? 'Page lines:' : 'कुल पंक्तियाँ:'} <strong>{toHindiNumerals(currentLinesCount)}</strong></span>
+              <span>{isEn ? 'Page lines:' : 'कुल पंक्तियाँ:'} <strong className={currentLinesCount >= 20 ? 'limit-status exceeded' : 'limit-status safe'}>{toHindiNumerals(currentLinesCount)} / {toHindiNumerals(20)}</strong></span>
               <span>{isEn ? 'Characters:' : 'कुल अक्षर:'} <strong>{toHindiNumerals(currentText.length)}</strong></span>
               <span>{isEn ? `Page ${activeIdx + 1}` : `पृष्ठ ${toHindiNumerals(activeIdx + 1)}`}</span>
             </div>
