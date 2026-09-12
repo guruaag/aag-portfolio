@@ -395,32 +395,18 @@
   flex-direction: column !important;
 }
 
-.pm5-floating-exit-btn {
-  position: fixed !important;
-  bottom: 2rem !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  top: auto !important;
-  right: auto !important;
-  z-index: 1000000 !important;
+.pm5-exit-fullscreen-toolbar-btn {
   background-color: #ef4444 !important;
   color: #ffffff !important;
-  border: none !important;
-  border-radius: 24px !important;
-  padding: 10px 24px !important;
-  font-size: 0.95rem !important;
-  font-weight: 700 !important;
-  cursor: pointer !important;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4) !important;
-  transition: all 0.2s ease !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
+  border-color: #dc2626 !important;
 }
 
-.pm5-floating-exit-btn:hover {
+.pm5-exit-fullscreen-toolbar-btn:hover {
   background-color: #dc2626 !important;
-  transform: translateX(-50%) scale(1.06) !important;
+}
+
+.pm5-desk-root.pm5-fullscreen .pm5-top-bar-info {
+  color: #cbd5e1 !important;
 }
 
 .pm5-desk-root.pm5-fullscreen .pm5-canvas-grid {
@@ -479,7 +465,7 @@
   width: 100% !important;
   display: flex !important;
   justify-content: center !important;
-  align-items: center !important;
+  align-items: flex-start !important;
   padding: 24px !important;
   box-sizing: border-box !important;
   overflow-y: auto !important;
@@ -487,11 +473,12 @@
 }
 
 .pm5-desk-root.pm5-fullscreen .pm5-sheet {
-  height: calc(100vh - 160px) !important;
-  min-height: 850px !important;
-  width: calc((100vh - 160px) * 0.72) !important;
-  max-width: 640px !important;
-  min-width: 440px !important;
+  height: 100% !important;
+  max-height: calc(100vh - 150px) !important;
+  min-height: 520px !important;
+  width: 100% !important;
+  max-width: 600px !important;
+  margin: 0 auto !important;
   background: #ffffff !important;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
   display: flex !important;
@@ -500,6 +487,7 @@
   padding: 32px !important;
   border-radius: 6px !important;
   border: 1px solid #cbd5e1 !important;
+  box-sizing: border-box !important;
 }
 
 .pm5-desk-root.pm5-fullscreen .pm5-editor-title {

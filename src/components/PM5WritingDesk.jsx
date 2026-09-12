@@ -258,21 +258,9 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
   const deskContent = (
     <div className={`pm5-desk-root ${isFullscreen ? 'pm5-fullscreen' : ''}`}>
       
-      {/* Floating Exit Fullscreen Button positioned at Bottom Center */}
-      {isFullscreen && (
-        <button
-          type="button"
-          className="pm5-floating-exit-btn"
-          onClick={() => setIsFullscreen(false)}
-          title={isEn ? 'Exit Fullscreen (Esc)' : 'पूर्ण स्क्रीन बंद करें (Esc)'}
-        >
-          ✕ {isEn ? 'Exit Fullscreen (Esc)' : 'पूर्ण स्क्रीन बंद करें (Esc)'}
-        </button>
-      )}
-
       {/* Top Bar with Undo / Redo & Page Break & Fullscreen & AutoSave Indicator */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
-        <div style={{ fontSize: '0.85rem', color: '#666', display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div className="pm5-top-bar-info" style={{ fontSize: '0.85rem', color: '#666', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span>📐 {isEn ? 'Format: Max 20 Lines/Page • Auto-Flow & Line Wrap' : 'प्रारूप: अधिकतम २० पंक्तियाँ/पृष्ठ • स्वचालित पृष्ठ विभाजन'}</span>
           {autoSaveStatus === 'saving' && (
             <span className="pm5-autosave-badge saving">⏳ {isEn ? 'Saving...' : 'सहेजा जा रहा है...'}</span>
@@ -301,6 +289,16 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
           <button type="button" className="pm5-undo-btn pm5-page-break-btn" onClick={handlePageBreak} title={isEn ? 'Insert Page Break' : 'मैनुअल पृष्ठ विभाजन'}>
             📄 {isEn ? 'Page Break' : 'पृष्ठ ब्रेक'}
           </button>
+          {isFullscreen && (
+            <button
+              type="button"
+              className="pm5-undo-btn pm5-exit-fullscreen-toolbar-btn"
+              onClick={() => setIsFullscreen(false)}
+              title={isEn ? 'Exit Fullscreen (Esc)' : 'पूर्ण स्क्रीन बंद करें (Esc)'}
+            >
+              ✕ {isEn ? 'Exit Fullscreen' : 'पूर्ण स्क्रीन बंद करें'}
+            </button>
+          )}
         </div>
       </div>
 
