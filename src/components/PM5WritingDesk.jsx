@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import './PM5WritingDesk.css';
 
 export function paginateTextIntoPages(fullText, linesPerPage = 14) {
@@ -45,6 +46,18 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
 
   // Ref to track component mount
   const isInitialMount = useRef(true);
+
+  // Body Scroll Lock for Fullscreen Portal
+  useEffect(() => {
+    if (isFullscreen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isFullscreen]);
 
   // Debounced Auto-Save Effect (2 seconds)
   useEffect(() => {
@@ -193,9 +206,21 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
   const currentText = pages[activeIdx] || '';
   const currentLinesCount = currentText ? currentText.split('\n').length : 0;
 
-  return (
+  const deskContent = (
     <div className={`pm5-desk-root ${isFullscreen ? 'pm5-fullscreen' : ''}`}>
       
+      {/* Floating Exit Fullscreen Button */}
+      {isFullscreen && (
+        <button
+          type="button"
+          className="pm5-floating-exit-btn"
+          onClick={() => setIsFullscreen(false)}
+          title={isEn ? 'Exit Fullscreen (Esc)' : 'पूर्ण स्क्रीन बंद करें (Esc)'}
+        >
+          ✕ {isEn ? 'Exit Fullscreen (Esc)' : 'पूर्ण स्क्रीन बंद करें (Esc)'}
+        </button>
+      )}
+
       {/* Top Bar with Undo / Redo & Fullscreen & AutoSave Indicator */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
         <div style={{ fontSize: '0.85rem', color: '#666', display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -316,4 +341,10 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
 
     </div>
   );
+
+  if (isFullscreen) {
+    return createPortal(deskContent, document.body);
+  }
+
+  return deskContent;
 }
