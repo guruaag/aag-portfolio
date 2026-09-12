@@ -225,7 +225,7 @@ function Home() {
                 {/* Image - Float Left, Text Wraps Around */}
                 {aboutImageUrl && (
                   <motion.div
-                    className="phoenix-about-home-image-wrap"
+                    className="phoenix-about-home-image-wrap about-image-container"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.2, duration: 0.3 }}
