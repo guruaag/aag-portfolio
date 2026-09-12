@@ -5,7 +5,8 @@ import { supabase } from '../lib/supabaseClient'
 import './ContactModal.css'
 
 function ContactModal({ isOpen, onClose }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const isHi = i18n.language === 'hi'
   const [settings, setSettings] = useState({
     phone: '',
     whatsapp: '',
@@ -17,6 +18,10 @@ function ContactModal({ isOpen, onClose }) {
     youtube: ''
   })
   const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState('form')
+  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' })
+  const [submitting, setSubmitting] = useState(false)
+  const [feedback, setFeedback] = useState(null)
 
   useEffect(() => {
     if (isOpen) {
@@ -44,7 +49,6 @@ function ContactModal({ isOpen, onClose }) {
 
   const handleContact = (type, value) => {
     if (!value) return
-
     switch (type) {
       case 'phone':
         window.location.href = `tel:${value}`
@@ -64,6 +68,57 @@ function ContactModal({ isOpen, onClose }) {
         break
       default:
         break
+    }
+  }
+
+  const handleFormChange = (e) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault()
+    setFeedback(null)
+
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+      setFeedback({
+        type: 'error',
+        msg: isHi ? 'कृपया अपना नाम, ईमेल और संदेश भरें।' : 'Please fill in your name, email, and message.'
+      })
+      return
+    }
+
+    try {
+      setSubmitting(true)
+      const { error } = await supabase.from('contact_submissions').insert([
+        {
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          subject: formData.subject.trim() || (isHi ? 'वेबसाइट संदेश' : 'Website Message'),
+          message: formData.message.trim(),
+          is_read: false,
+          created_at: new Date().toISOString()
+        }
+      ])
+
+      if (error) throw error
+
+      setFeedback({
+        type: 'success',
+        msg: isHi
+          ? '✓ आपका संदेश सफलतापूर्वक भेज दिया गया है!'
+          : '✓ Your message has been sent successfully!'
+      })
+
+      setFormData({ name: '', email: '', subject: '', message: '' })
+    } catch (err) {
+      console.error('Contact modal submission error:', err)
+      setFeedback({
+        type: 'error',
+        msg: isHi ? 'संदेश भेजने में त्रुटि हुई।' : 'Failed to send message.'
+      })
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -137,6 +192,7 @@ function ContactModal({ isOpen, onClose }) {
       >
         <motion.div
           className="phoenix-modal-content phoenix-contact-modal"
+          style={{ maxWidth: '520px' }}
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -149,34 +205,142 @@ function ContactModal({ isOpen, onClose }) {
             </button>
           </div>
 
-          <p className="phoenix-modal-subtitle">
-            {t('contact.subtitle')}
-          </p>
-
-          <div className="phoenix-contact-modal-grid">
-            {contactOptions.map((option, index) => (
-              <motion.button
-                key={option.key}
-                className="phoenix-contact-modal-card"
-                onClick={() => handleContact(option.key, option.value)}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                {option.icon}
-                <h3>{option.label}</h3>
-                {option.key === 'phone' && <p>{option.value}</p>}
-                {option.key === 'email' && <p>{option.value}</p>}
-                {(option.key === 'whatsapp' || option.key === 'facebook' || option.key === 'instagram' || option.key === 'twitter' || option.key === 'linkedin' || option.key === 'youtube') && (
-                  <p>{option.key === 'whatsapp' ? 'Message me' : 'Follow me'}</p>
-                )}
-              </motion.button>
-            ))}
+          <div className="modal-tab-selector" style={{ display: 'flex', gap: '8px', marginBottom: '20px', background: 'var(--theme-surface)', padding: '4px', borderRadius: '8px' }}>
+            <button
+              type="button"
+              onClick={() => setActiveTab('form')}
+              style={{
+                flex: 1,
+                padding: '8px 12px',
+                border: 'none',
+                borderRadius: '6px',
+                background: activeTab === 'form' ? 'var(--phoenix-terracotta, #B85C38)' : 'transparent',
+                color: activeTab === 'form' ? '#FFFFFF' : 'var(--theme-text)',
+                fontWeight: 600,
+                fontSize: '0.88rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              ✉️ {isHi ? 'सीधा संदेश' : 'Direct Message'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('channels')}
+              style={{
+                flex: 1,
+                padding: '8px 12px',
+                border: 'none',
+                borderRadius: '6px',
+                background: activeTab === 'channels' ? 'var(--phoenix-terracotta, #B85C38)' : 'transparent',
+                color: activeTab === 'channels' ? '#FFFFFF' : 'var(--theme-text)',
+                fontWeight: 600,
+                fontSize: '0.88rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              🌐 {isHi ? 'सोशल चैनल' : 'Social Channels'}
+            </button>
           </div>
 
-          <button className="phoenix-modal-close-button" onClick={onClose}>
+          {activeTab === 'form' ? (
+            <div className="modal-form-container">
+              {feedback && (
+                <div className={`phoenix-feedback-banner ${feedback.type}`} style={{ padding: '8px 12px', fontSize: '0.88rem', marginBottom: '14px' }}>
+                  {feedback.msg}
+                </div>
+              )}
+
+              <form onSubmit={handleFormSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div className="phoenix-form-group">
+                    <label style={{ fontSize: '0.82rem', fontWeight: 600 }}>{isHi ? 'नाम *' : 'Name *'}</label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleFormChange}
+                      placeholder={isHi ? 'आपका नाम' : 'Your name'}
+                      required
+                      style={{ padding: '8px 12px', fontSize: '0.9rem' }}
+                    />
+                  </div>
+                  <div className="phoenix-form-group">
+                    <label style={{ fontSize: '0.82rem', fontWeight: 600 }}>{isHi ? 'ईमेल *' : 'Email *'}</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleFormChange}
+                      placeholder={isHi ? 'आपका ईमेल' : 'Your email'}
+                      required
+                      style={{ padding: '8px 12px', fontSize: '0.9rem' }}
+                    />
+                  </div>
+                </div>
+
+                <div className="phoenix-form-group">
+                  <label style={{ fontSize: '0.82rem', fontWeight: 600 }}>{isHi ? 'विषय' : 'Subject'}</label>
+                  <input
+                    type="text"
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleFormChange}
+                    placeholder={isHi ? 'विषय लिखें' : 'Subject'}
+                    style={{ padding: '8px 12px', fontSize: '0.9rem' }}
+                  />
+                </div>
+
+                <div className="phoenix-form-group">
+                  <label style={{ fontSize: '0.82rem', fontWeight: 600 }}>{isHi ? 'संदेश *' : 'Message *'}</label>
+                  <textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleFormChange}
+                    rows={4}
+                    placeholder={isHi ? 'अपना संदेश यहाँ लिखें...' : 'Type message here...'}
+                    required
+                    style={{ padding: '8px 12px', fontSize: '0.9rem' }}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="phoenix-submit-btn"
+                  style={{ width: '100%', padding: '10px', fontSize: '0.95rem', marginTop: '4px' }}
+                >
+                  {submitting ? (isHi ? '⏳ भेजा जा रहा है...' : '⏳ Sending...') : (isHi ? '📨 संदेश भेजें' : '📨 Send Message')}
+                </button>
+              </form>
+            </div>
+          ) : (
+            <div className="phoenix-contact-modal-grid">
+              {contactOptions.map((option, index) => (
+                <motion.button
+                  key={option.key}
+                  className="phoenix-contact-modal-card"
+                  onClick={() => handleContact(option.key, option.value)}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {option.icon}
+                  <h3>{option.label}</h3>
+                  {option.key === 'phone' && <p>{option.value}</p>}
+                  {option.key === 'email' && <p>{option.value}</p>}
+                  {(option.key === 'whatsapp' || option.key === 'facebook' || option.key === 'instagram' || option.key === 'twitter' || option.key === 'linkedin' || option.key === 'youtube') && (
+                    <p>{option.key === 'whatsapp' ? 'Message me' : 'Follow me'}</p>
+                  )}
+                </motion.button>
+              ))}
+            </div>
+          )}
+
+          <button className="phoenix-modal-close-button" onClick={onClose} style={{ marginTop: '16px' }}>
             {t('common.close')}
           </button>
         </motion.div>
@@ -186,4 +350,3 @@ function ContactModal({ isOpen, onClose }) {
 }
 
 export default ContactModal
-

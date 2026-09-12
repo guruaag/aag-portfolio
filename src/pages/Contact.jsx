@@ -17,6 +17,16 @@ function Contact() {
   })
   const [loading, setLoading] = useState(true)
 
+  // Interactive Form State
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  })
+  const [submitting, setSubmitting] = useState(false)
+  const [feedback, setFeedback] = useState(null)
+
   useEffect(() => {
     loadContactInfo()
   }, [])
@@ -38,9 +48,8 @@ function Contact() {
     }
   }
 
-  const handleContact = (type, value) => {
+  const handleContactChannel = (type, value) => {
     if (!value) return
-
     switch (type) {
       case 'phone':
         window.location.href = `tel:${value}`
@@ -52,13 +61,64 @@ function Contact() {
         window.location.href = `mailto:${value}`
         break
       case 'facebook':
-        window.open(value, '_blank')
-        break
       case 'instagram':
         window.open(value, '_blank')
         break
       default:
         break
+    }
+  }
+
+  const handleFormChange = (e) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault()
+    setFeedback(null)
+
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+      setFeedback({
+        type: 'error',
+        msg: isHi ? 'कृपया अपना नाम, ईमेल और संदेश भरें।' : 'Please fill in your name, email, and message.'
+      })
+      return
+    }
+
+    try {
+      setSubmitting(true)
+      const { error } = await supabase.from('contact_submissions').insert([
+        {
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          subject: formData.subject.trim() || (isHi ? 'वेबसाइट संदेश' : 'Website Message'),
+          message: formData.message.trim(),
+          is_read: false,
+          created_at: new Date().toISOString()
+        }
+      ])
+
+      if (error) {
+        throw error
+      }
+
+      setFeedback({
+        type: 'success',
+        msg: isHi
+          ? '✓ आपका संदेश सफलतापूर्वक भेज दिया गया है! हम शीघ्र ही आपसे संपर्क करेंगे।'
+          : '✓ Your message has been sent successfully! We will get back to you soon.'
+      })
+
+      setFormData({ name: '', email: '', subject: '', message: '' })
+    } catch (err) {
+      console.error('Contact submission error:', err)
+      setFeedback({
+        type: 'error',
+        msg: isHi ? 'संदेश भेजने में त्रुटि हुई। कृपया पुनः प्रयास करें।' : 'Failed to send message. Please try again.'
+      })
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -105,15 +165,101 @@ function Contact() {
             transition={{ delay: 0.2, duration: 0.5 }}
           >
             {isHi 
-              ? 'आप निम्नलिखित माध्यमों से कवि गुरुप्रताप शर्मा \'आग\' से संपर्क कर सकते हैं' 
-              : 'Get in touch with me through any of the following channels'}
+              ? 'आप सीधे संदेश भेजकर या अन्य माध्यमों से कवि गुरुप्रताप शर्मा \'आग\' से संपर्क कर सकते हैं' 
+              : 'Get in touch directly by sending a message below'}
           </motion.p>
+
+          {/* Interactive Direct Message Form */}
+          <motion.div
+            className="phoenix-contact-form-wrapper"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25, duration: 0.5 }}
+          >
+            <h2 className="phoenix-form-title">
+              ✉️ {isHi ? 'सीधा संदेश भेजें (Direct Message)' : 'Send a Direct Message'}
+            </h2>
+
+            {feedback && (
+              <div className={`phoenix-feedback-banner ${feedback.type}`}>
+                {feedback.msg}
+              </div>
+            )}
+
+            <form onSubmit={handleFormSubmit} className="phoenix-contact-form">
+              <div className="phoenix-form-grid">
+                <div className="phoenix-form-group">
+                  <label htmlFor="contact-name">{isHi ? 'आपका नाम *' : 'Your Name *'}</label>
+                  <input
+                    id="contact-name"
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleFormChange}
+                    placeholder={isHi ? 'जैसे: राजेश कुमार' : 'e.g. Rajesh Kumar'}
+                    required
+                  />
+                </div>
+                <div className="phoenix-form-group">
+                  <label htmlFor="contact-email">{isHi ? 'आपका ईमेल *' : 'Your Email *'}</label>
+                  <input
+                    id="contact-email"
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleFormChange}
+                    placeholder={isHi ? 'जैसे: rajesh@example.com' : 'e.g. rajesh@example.com'}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="phoenix-form-group full-width">
+                <label htmlFor="contact-subject">{isHi ? 'विषय' : 'Subject'}</label>
+                <input
+                  id="contact-subject"
+                  type="text"
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleFormChange}
+                  placeholder={isHi ? 'जैसे: काव्य सम्मेलन आमंत्रण / प्रतिक्रिया' : 'e.g. Event Invitation / Feedback'}
+                />
+              </div>
+
+              <div className="phoenix-form-group full-width">
+                <label htmlFor="contact-message">{isHi ? 'आपका संदेश *' : 'Your Message *'}</label>
+                <textarea
+                  id="contact-message"
+                  name="message"
+                  value={formData.message}
+                  onChange={handleFormChange}
+                  rows={5}
+                  placeholder={isHi ? 'यहाँ अपना विस्तृत संदेश लिखें...' : 'Type your detailed message here...'}
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="phoenix-submit-btn"
+                disabled={submitting}
+              >
+                {submitting
+                  ? (isHi ? '⏳ संदेश भेजा जा रहा है...' : '⏳ Sending message...')
+                  : (isHi ? '📨 संदेश भेजें (Send Message)' : '📨 Send Message')}
+              </button>
+            </form>
+          </motion.div>
+
+          <h3 style={{ textAlign: 'center', marginTop: '48px', marginBottom: '24px', fontFamily: 'var(--phoenix-font-serif)', fontSize: '1.35rem', color: 'var(--phoenix-charcoal)' }}>
+            {isHi ? 'अथवा अन्य माध्यमों से जुड़ें' : 'Or connect via social channels'}
+          </h3>
 
           <div className="phoenix-contact-grid">
             {settings.phone && (
               <motion.button
                 className="phoenix-contact-card"
-                onClick={() => handleContact('phone', settings.phone)}
+                onClick={() => handleContactChannel('phone', settings.phone)}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.5 }}
@@ -133,7 +279,7 @@ function Contact() {
             {settings.whatsapp && (
               <motion.button
                 className="phoenix-contact-card"
-                onClick={() => handleContact('whatsapp', settings.whatsapp)}
+                onClick={() => handleContactChannel('whatsapp', settings.whatsapp)}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.5 }}
@@ -153,7 +299,7 @@ function Contact() {
             {settings.email && (
               <motion.button
                 className="phoenix-contact-card"
-                onClick={() => handleContact('email', settings.email)}
+                onClick={() => handleContactChannel('email', settings.email)}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.5 }}
@@ -174,7 +320,7 @@ function Contact() {
             {settings.facebook && (
               <motion.button
                 className="phoenix-contact-card"
-                onClick={() => handleContact('facebook', settings.facebook)}
+                onClick={() => handleContactChannel('facebook', settings.facebook)}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6, duration: 0.5 }}
@@ -194,7 +340,7 @@ function Contact() {
             {settings.instagram && (
               <motion.button
                 className="phoenix-contact-card"
-                onClick={() => handleContact('instagram', settings.instagram)}
+                onClick={() => handleContactChannel('instagram', settings.instagram)}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7, duration: 0.5 }}
@@ -220,4 +366,3 @@ function Contact() {
 }
 
 export default Contact
-
