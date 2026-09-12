@@ -4,6 +4,8 @@ import { supabase } from '../../lib/supabaseClient'
 import { getCategories, getAboutContent, getPublications, getPoems, getSetting, getAllSettings } from '../../lib/supabaseClient'
 import { uploadImage, getImageUrl, deleteImage } from '../../lib/imageUtils'
 import PM5WritingDesk, { paginateTextIntoPages } from '../../components/PM5WritingDesk'
+import ContentItemCard from '../../components/admin/ContentItemCard'
+import AdminBreadcrumb from '../../components/admin/AdminBreadcrumb'
 import i18n from '../../i18n/config'
 import './AdminDashboard.css'
 
@@ -639,12 +641,11 @@ function ListContextualToolbar({
 
 // Categories Manager Component
 function CategoriesManager({ categories, onUpdate, setIsDirty }) {
-  const { tLabel } = useAdminLang()
+  const { adminLang, tLabel } = useAdminLang()
   const [editing, setEditing] = useState(null)
   const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState({ name_en: '', name_display: '', content_type: 'about', sort_order: 1, is_active: true })
   const [itemsList, setItemsList] = useState(Array.isArray(categories) ? categories : [])
-  const [selectedIds, setSelectedIds] = useState([])
 
   useEffect(() => {
     if (Array.isArray(categories)) {
@@ -657,15 +658,7 @@ function CategoriesManager({ categories, onUpdate, setIsDirty }) {
     if (setIsDirty) setIsDirty(true)
   }
 
-  const toggleSelection = (id) => {
-    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])
-  }
-
-  const clearSelection = () => setSelectedIds([])
-
   const displayList = itemsList.length > 0 ? itemsList : (Array.isArray(categories) ? categories : [])
-  const singleSelectedId = selectedIds.length === 1 ? selectedIds[0] : null
-  const singleIndex = singleSelectedId ? displayList.findIndex(i => i.id === singleSelectedId) : -1
 
   const handleCreate = () => {
     setEditing(null)
@@ -673,17 +666,9 @@ function CategoriesManager({ categories, onUpdate, setIsDirty }) {
     setShowForm(true)
   }
 
-  const handleCancel = () => {
-    setEditing(null)
-    setShowForm(false)
-    setFormData({ name_en: '', name_display: '', content_type: 'about', sort_order: 1, is_active: true })
-    if (setIsDirty) setIsDirty(false)
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      // Rule 2: New records get sort_order = 1 (top priority)
       const dataToSave = {
         name_en: formData.name_en || '',
         name_display: formData.name_display || '',
@@ -705,24 +690,11 @@ function CategoriesManager({ categories, onUpdate, setIsDirty }) {
       onUpdate()
       setEditing(null)
       setShowForm(false)
-      clearSelection()
       alert('✓ Category saved successfully!')
     } catch (err) {
       console.error('Error saving category:', err)
       alert('Error saving category: ' + (err.message || 'Unknown error'))
     }
-  }
-
-  const handleEditSelected = () => {
-    if (!singleSelectedId) return
-    const cat = displayList.find(i => i.id === singleSelectedId)
-    if (!cat) return
-    setEditing(cat.id)
-    setShowForm(true)
-    setFormData({
-      ...cat,
-      is_active: cat.is_active !== undefined ? cat.is_active : true
-    })
   }
 
   const persistReorder = async (updated) => {
@@ -734,56 +706,6 @@ function CategoriesManager({ categories, onUpdate, setIsDirty }) {
       }
     } catch (e) {
       console.warn('Category resequence error:', e)
-    }
-    onUpdate()
-  }
-
-  const handleMoveTop = () => {
-    if (singleIndex <= 0) return
-    const item = displayList[singleIndex]
-    const updated = [item, ...displayList.filter((_, i) => i !== singleIndex)]
-    persistReorder(updated)
-    clearSelection()
-  }
-
-  const handleMoveUp = () => {
-    if (singleIndex <= 0) return
-    const updated = [...displayList]
-    const temp = updated[singleIndex]
-    updated[singleIndex] = updated[singleIndex - 1]
-    updated[singleIndex - 1] = temp
-    persistReorder(updated)
-  }
-
-  const handleMoveDown = () => {
-    if (singleIndex < 0 || singleIndex >= displayList.length - 1) return
-    const updated = [...displayList]
-    const temp = updated[singleIndex]
-    updated[singleIndex] = updated[singleIndex + 1]
-    updated[singleIndex + 1] = temp
-    persistReorder(updated)
-  }
-
-  const handleMoveBottom = () => {
-    if (singleIndex < 0 || singleIndex >= displayList.length - 1) return
-    const item = displayList[singleIndex]
-    const updated = [...displayList.filter((_, i) => i !== singleIndex), item]
-    persistReorder(updated)
-    clearSelection()
-  }
-
-  const handleBatchDelete = async () => {
-    if (selectedIds.length === 0) return
-    if (!confirm(tLabel(`क्या आप चयनित ${selectedIds.length} अनुभाग हटाना चाहते हैं?`, `Delete ${selectedIds.length} selected sections?`))) return
-
-    const updated = displayList.filter(i => !selectedIds.includes(i.id))
-    setItemsList(updated)
-    clearSelection()
-
-    try {
-      await supabase.from('categories').delete().in('id', selectedIds)
-    } catch (e) {
-      console.warn('Batch delete categories error:', e)
     }
     onUpdate()
   }
@@ -857,19 +779,6 @@ function CategoriesManager({ categories, onUpdate, setIsDirty }) {
       )}
 
       <div>
-        <ListContextualToolbar
-          selectedIds={selectedIds}
-          totalItems={displayList.length}
-          onClearSelection={clearSelection}
-          onEdit={handleEditSelected}
-          onMoveTop={handleMoveTop}
-          onMoveUp={handleMoveUp}
-          onMoveDown={handleMoveDown}
-          onMoveBottom={handleMoveBottom}
-          onBatchDelete={handleBatchDelete}
-          tLabel={tLabel}
-        />
-
         <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
           {tLabel('सक्रिय अनुभाग सूची', 'Active Sections List')} ({displayList.length})
         </h3>
@@ -877,32 +786,51 @@ function CategoriesManager({ categories, onUpdate, setIsDirty }) {
           <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई अनुभाग नहीं मिला। नया अनुभाग जोड़ने के लिए बटन दबाएं।', 'No sections found. Click button to add new section.')}</p>
         ) : (
           <ul className="admin-item-list">
-            {displayList.map((cat) => {
-              const isSelected = selectedIds.includes(cat.id)
-              return (
-                <li key={cat.id} className={`admin-item-card ${isSelected ? 'selected' : ''}`}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1 }}>
-                    <input
-                      type="checkbox"
-                      className="admin-item-checkbox"
-                      checked={isSelected}
-                      onChange={() => toggleSelection(cat.id)}
-                    />
-                    <div>
-                      <div className="admin-item-title">{cat.name_display || cat.name_en}</div>
-                      <div className="admin-item-sub">Key: {cat.name_en} • {tLabel('प्रकार:', 'Type:')} {cat.content_type} • {tLabel('क्रम:', 'Order:')} {cat.sort_order || 1}</div>
-                    </div>
-                  </div>
-                  <div className="admin-actions-group">
-                    {cat.is_active === false ? (
-                      <span className="admin-item-badge" style={{ background: '#FFF0ED', color: '#D95343', borderColor: '#FFC4BD' }}>{tLabel('निष्क्रिय', 'Inactive')}</span>
-                    ) : (
-                      <span className="admin-item-badge" style={{ background: '#EAF8F5', color: '#2C988F', borderColor: '#B5E8E2' }}>{tLabel('सक्रिय', 'Active')}</span>
-                    )}
-                  </div>
-                </li>
-              )
-            })}
+            {displayList.map((cat, idx) => (
+              <ContentItemCard
+                key={cat.id}
+                id={cat.id}
+                title={cat.name_display || cat.name_en}
+                subtitle={`Key: ${cat.name_en} • ${tLabel('प्रकार:', 'Type:')} ${cat.content_type} • ${tLabel('क्रम:', 'Order:')} ${cat.sort_order || 1}`}
+                badgeText={cat.is_active === false ? tLabel('निष्क्रिय', 'Inactive') : tLabel('सक्रिय', 'Active')}
+                badgeColor={cat.is_active === false ? '#D95343' : '#2C988F'}
+                onEdit={() => {
+                  setEditing(cat.id)
+                  setShowForm(true)
+                  setFormData({ ...cat, is_active: cat.is_active !== undefined ? cat.is_active : true })
+                }}
+                onMoveUp={() => {
+                  if (idx <= 0) return
+                  const updated = [...displayList]
+                  const temp = updated[idx]
+                  updated[idx] = updated[idx - 1]
+                  updated[idx - 1] = temp
+                  persistReorder(updated)
+                }}
+                onMoveDown={() => {
+                  if (idx >= displayList.length - 1) return
+                  const updated = [...displayList]
+                  const temp = updated[idx]
+                  updated[idx] = updated[idx + 1]
+                  updated[idx + 1] = temp
+                  persistReorder(updated)
+                }}
+                onDelete={async () => {
+                  if (!confirm(tLabel('क्या आप इस अनुभाग को हटाना चाहते हैं?', 'Do you want to delete this section?'))) return
+                  const updated = displayList.filter(i => i.id !== cat.id)
+                  setItemsList(updated)
+                  try {
+                    await supabase.from('categories').delete().eq('id', cat.id)
+                  } catch (e) {
+                    console.warn('Delete category error:', e)
+                  }
+                  onUpdate()
+                }}
+                canMoveUp={idx > 0}
+                canMoveDown={idx < displayList.length - 1}
+                lang={adminLang}
+              />
+            ))}
           </ul>
         )}
       </div>
@@ -2137,21 +2065,26 @@ function PoemsArchiveManager({ poems, categories, initialSubTab, onUpdate, setIs
 
 
 function PublicationsManager({ publications, onUpdate, setIsDirty }) {
-  const { tLabel } = useAdminLang()
+  const { adminLang, tLabel } = useAdminLang()
+  const { id: paramId } = useParams()
+  const navigate = useNavigate()
+
   const [editing, setEditing] = useState(null)
   const [showForm, setShowForm] = useState(false)
+  const [showCanvasModal, setShowCanvasModal] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
     subtitle: '',
     image_path: '',
     image_alt: '',
     description: '',
-    sort_order: 1
+    stanzas: '',
+    sort_order: 1,
+    is_active: true
   })
   const [uploadingImage, setUploadingImage] = useState(false)
   const [imagePreview, setImagePreview] = useState(null)
   const [itemsList, setItemsList] = useState(Array.isArray(publications) ? publications : [])
-  const [selectedIds, setSelectedIds] = useState([])
 
   useEffect(() => {
     if (Array.isArray(publications)) {
@@ -2159,33 +2092,72 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
     }
   }, [publications])
 
+  // Sync route param (standalone editor route: /admin/prakashan/:id or /admin/publications/:id)
+  useEffect(() => {
+    if (!paramId) {
+      setShowForm(false)
+      setEditing(null)
+      setImagePreview(null)
+      return
+    }
+
+    if (paramId === 'new') {
+      setEditing(null)
+      setFormData({ title: '', subtitle: '', image_path: '', image_alt: '', description: '', stanzas: '', sort_order: 1, is_active: true })
+      setImagePreview(null)
+      setShowForm(true)
+    } else {
+      const pub = (itemsList.length > 0 ? itemsList : publications)?.find(i => String(i.id) === String(paramId))
+      if (pub) {
+        setEditing(pub.id)
+        setShowForm(true)
+        setFormData({
+          title: pub.title || '',
+          subtitle: pub.subtitle || '',
+          image_path: pub.image_path || pub.cover_image_url || '',
+          image_alt: pub.image_alt || '',
+          description: pub.description || '',
+          stanzas: pub.stanzas || pub.full_text || pub.body_text || '',
+          sort_order: pub.sort_order || 1,
+          is_active: pub.is_active !== undefined ? pub.is_active : true
+        })
+        if (pub.image_path || pub.cover_image_url) {
+          setImagePreview(getImageUrl(pub.image_path || pub.cover_image_url))
+        }
+      } else if (paramId) {
+        // Direct URL paste fallback
+        supabase.from('publications').select('*').eq('id', paramId).single().then(({ data }) => {
+          if (data) {
+            setEditing(data.id)
+            setShowForm(true)
+            setFormData({
+              title: data.title || '',
+              subtitle: data.subtitle || '',
+              image_path: data.image_path || data.cover_image_url || '',
+              image_alt: data.image_alt || '',
+              description: data.description || '',
+              stanzas: data.stanzas || data.full_text || data.body_text || '',
+              sort_order: data.sort_order || 1,
+              is_active: data.is_active !== undefined ? data.is_active : true
+            })
+            if (data.image_path || data.cover_image_url) {
+              setImagePreview(getImageUrl(data.image_path || data.cover_image_url))
+            }
+          }
+        })
+      }
+    }
+  }, [paramId, publications, itemsList])
+
   const updateForm = (fields) => {
     setFormData(prev => ({ ...prev, ...fields }))
     if (setIsDirty) setIsDirty(true)
   }
 
-  const toggleSelection = (id) => {
-    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])
-  }
-
-  const clearSelection = () => setSelectedIds([])
-
   const displayList = itemsList.length > 0 ? itemsList : (Array.isArray(publications) ? publications : [])
-  const singleSelectedId = selectedIds.length === 1 ? selectedIds[0] : null
-  const singleIndex = singleSelectedId ? displayList.findIndex(i => i.id === singleSelectedId) : -1
 
   const handleCreate = () => {
-    setEditing(null)
-    setFormData({ title: '', subtitle: '', image_path: '', image_alt: '', description: '', sort_order: 1, is_active: true })
-    setImagePreview(null)
-    setShowForm(true)
-  }
-
-  const handleCancel = () => {
-    setEditing(null)
-    setShowForm(false)
-    setImagePreview(null)
-    if (setIsDirty) setIsDirty(false)
+    navigate('/admin/prakashan/new')
   }
 
   const handleImageUpload = async (e) => {
@@ -2201,9 +2173,10 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
       const pubId = editing || `temp-${Date.now()}`
       const fileName = `cover.${file.name.split('.').pop()}`
       const path = await uploadImage(file, `publications/${pubId}`, fileName)
-      setFormData({ ...formData, image_path: path })
+      setFormData(prev => ({ ...prev, image_path: path }))
       setImagePreview(URL.createObjectURL(file))
-      alert('Image uploaded!')
+      if (setIsDirty) setIsDirty(true)
+      alert('Cover image uploaded successfully!')
     } catch (err) {
       alert('Error uploading image: ' + err.message)
     } finally {
@@ -2214,13 +2187,13 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      // Rule 2: New records get sort_order = 1 (top priority index)
       const dataToSave = {
         title: formData.title || '',
         subtitle: formData.subtitle || '',
         image_path: formData.image_path || '',
         image_alt: formData.image_alt || '',
         description: formData.description || '',
+        stanzas: formData.stanzas || '',
         sort_order: editing ? (parseInt(formData.sort_order) || 1) : 1
       }
       
@@ -2255,28 +2228,10 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
 
       if (setIsDirty) setIsDirty(false)
       onUpdate()
-      setEditing(null)
-      setShowForm(false)
-      clearSelection()
-      setImagePreview(null)
-      alert('✓ Publication saved successfully!')
+      alert(adminLang === 'en' ? '✓ Publication saved successfully!' : '✓ पुस्तक विवरण सफलतापूर्वक सहेजा गया!')
+      navigate('/admin/prakashan')
     } catch (err) {
       alert('Error saving publication: ' + (err.message || 'Unknown error'))
-    }
-  }
-
-  const handleEditSelected = () => {
-    if (!singleSelectedId) return
-    const pub = displayList.find(i => i.id === singleSelectedId)
-    if (!pub) return
-    setEditing(pub.id)
-    setShowForm(true)
-    setFormData({
-      ...pub,
-      is_active: pub.is_active !== undefined ? pub.is_active : true
-    })
-    if (pub.image_path) {
-      setImagePreview(getImageUrl(pub.image_path))
     }
   }
 
@@ -2293,89 +2248,60 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
     onUpdate()
   }
 
-  const handleMoveTop = () => {
-    if (singleIndex <= 0) return
-    const item = displayList[singleIndex]
-    const updated = [item, ...displayList.filter((_, i) => i !== singleIndex)]
-    persistReorder(updated)
-    clearSelection()
-  }
-
-  const handleMoveUp = () => {
-    if (singleIndex <= 0) return
-    const updated = [...displayList]
-    const temp = updated[singleIndex]
-    updated[singleIndex] = updated[singleIndex - 1]
-    updated[singleIndex - 1] = temp
-    persistReorder(updated)
-  }
-
-  const handleMoveDown = () => {
-    if (singleIndex < 0 || singleIndex >= displayList.length - 1) return
-    const updated = [...displayList]
-    const temp = updated[singleIndex]
-    updated[singleIndex] = updated[singleIndex + 1]
-    updated[singleIndex + 1] = temp
-    persistReorder(updated)
-  }
-
-  const handleMoveBottom = () => {
-    if (singleIndex < 0 || singleIndex >= displayList.length - 1) return
-    const item = displayList[singleIndex]
-    const updated = [...displayList.filter((_, i) => i !== singleIndex), item]
-    persistReorder(updated)
-    clearSelection()
-  }
-
-  const handleBatchDelete = async () => {
-    if (selectedIds.length === 0) return
-    if (!confirm(tLabel(`क्या आप चयनित ${selectedIds.length} पुस्तकें हटाना चाहते हैं?`, `Delete ${selectedIds.length} selected books?`))) return
-
-    const updated = displayList.filter(i => !selectedIds.includes(i.id))
-    setItemsList(updated)
-    clearSelection()
-
-    try {
-      await supabase.from('publications').delete().in('id', selectedIds)
-    } catch (e) {
-      console.warn('Batch delete publications error:', e)
-    }
-    onUpdate()
-  }
+  const isStandalonePage = Boolean(paramId)
 
   return (
     <div className="admin-card-panel">
-      <div className="admin-panel-header">
-        <h2 className="admin-panel-title">📚 {tLabel('प्रकाशन एवं पुस्तकें', 'Publications & Books')}</h2>
-        {!showForm && (
+      {/* Top Breadcrumb Header for Standalone Edit Route */}
+      {isStandalonePage ? (
+        <AdminBreadcrumb
+          sectionTitle={`📚 ${tLabel('प्रकाशन', 'Publications')}`}
+          itemTitle={paramId === 'new' ? tLabel('नई पुस्तक जोड़ें', 'Add New Book') : (formData.title || tLabel('पुस्तक संपादन', 'Edit Book'))}
+          backPath="/admin/prakashan"
+          backLabel={`← ${tLabel('प्रकाशन सूची पर वापस जाएं', 'Back to Publications List')}`}
+          isDirty={Boolean(setIsDirty && setIsDirty.isDirty)}
+          lang={adminLang}
+        />
+      ) : (
+        <div className="admin-panel-header">
+          <h2 className="admin-panel-title">📚 {tLabel('प्रकाशन एवं पुस्तकें', 'Publications & Books')}</h2>
           <button type="button" className="admin-btn-primary" onClick={handleCreate}>
             + {tLabel('नई पुस्तक जोड़ें', 'Add Book')}
           </button>
-        )}
-      </div>
-      
-      {(showForm || editing) && (
+        </div>
+      )}
+
+      {/* Main Standalone Form with Strict Field Order */}
+      {(showForm || editing || isStandalonePage) && (
         <form id="admin-active-form" onSubmit={handleSubmit} onChange={() => setIsDirty && setIsDirty(true)} onInput={() => setIsDirty && setIsDirty(true)} className="admin-form-container">
           <div className="admin-form-grid">
-            <div className="admin-form-group">
+            {/* Field 1: Book Title */}
+            <div className="admin-form-group full-width">
               <label>{tLabel('पुस्तक का नाम *', 'Book Title *')}</label>
               <input
                 className="admin-input"
                 value={formData.title}
                 onChange={(e) => updateForm({ title: e.target.value })}
+                placeholder={tLabel('जैसे: ओजस्वी काव्य संग्रह', 'e.g. Ojaswi Kavya Sangrah')}
                 required
               />
             </div>
-            <div className="admin-form-group">
-              <label>{tLabel('उप-शीर्षक', 'Subtitle')}</label>
-              <input
-                className="admin-input"
-                value={formData.subtitle}
-                onChange={(e) => updateForm({ subtitle: e.target.value })}
+
+            {/* Field 2: Description / Brief Overview */}
+            <div className="admin-form-group full-width">
+              <label>{tLabel('संक्षिप्त विवरण / भूमिका', 'Description / Brief Overview')}</label>
+              <textarea
+                className="admin-textarea"
+                rows={3}
+                value={formData.description}
+                onChange={(e) => updateForm({ description: e.target.value })}
+                placeholder={tLabel('पुस्तक का संक्षिप्त विवरण या भूमिका लिखें...', 'Write brief overview or preface of the publication...')}
               />
             </div>
+
+            {/* Field 3: Book Cover Image Upload & Preview */}
             <div className="admin-form-group full-width">
-              <label>{tLabel('कवर चित्र', 'Book Cover Image')}</label>
+              <label>{tLabel('कवर चित्र (Book Cover Image)', 'Book Cover Image')}</label>
               {imagePreview && (
                 <div style={{ marginBottom: '12px' }}>
                   <img 
@@ -2400,14 +2326,67 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
               />
               {uploadingImage && <div style={{ marginTop: '6px', color: 'var(--leona-terracotta)', fontSize: '0.85rem' }}>कवर फोटो अपलोड हो रही है...</div>}
             </div>
+
+            {/* Field 4: PM5 PageMaker Canvas Fullscreen Trigger Button */}
+            <div className="admin-form-group full-width" style={{ marginBottom: '16px' }}>
+              <label style={{ fontWeight: 'bold', fontSize: '1.02rem', color: 'var(--leona-terracotta)', marginBottom: '8px', display: 'block' }}>
+                🖋️ {tLabel('पेजमेकर कैनवस (PM5)', 'PageMaker Canvas (PM5)')}
+              </label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  className="admin-btn-primary pm5-trigger-btn"
+                  onClick={() => setShowCanvasModal(true)}
+                  style={{
+                    background: '#8B4513',
+                    borderColor: '#8B4513',
+                    padding: '10px 20px',
+                    fontWeight: '700',
+                    fontSize: '0.95rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  🎨 {tLabel('Edit Page Maker Canvas', 'Edit Page Maker Canvas')}
+                </button>
+                <span style={{ fontSize: '0.85rem', color: '#6E665E' }}>
+                  💡 {tLabel('पुस्तक के अंश/नमूना पृष्ठ संपादित करने के लिए फुलस्क्रीन कैनवस खोलें', 'Open fullscreen canvas to edit book sample pages/excerpts')}
+                </span>
+              </div>
+            </div>
+
+            {/* Fullscreen PM5 Canvas Portal Overlay */}
+            {showCanvasModal && (
+              <PM5WritingDesk
+                initialPages={paginateTextIntoPages(formData.stanzas || '')}
+                initialTitle={formData.title || ''}
+                lang={adminLang}
+                initialFullscreen={true}
+                onClose={() => setShowCanvasModal(false)}
+                onSave={(pagesArray, pageTitle) => {
+                  const joinedText = pagesArray.join('\n\n');
+                  if (setIsDirty) setIsDirty(true);
+                  setFormData(prev => ({
+                    ...prev,
+                    stanzas: joinedText,
+                    title: pageTitle || prev.title
+                  }));
+                }}
+              />
+            )}
+
+            {/* Field 5: Full Stanzas / Excerpt Text */}
             <div className="admin-form-group full-width">
-              <label>{tLabel('पुस्तक विवरण', 'Book Description')}</label>
+              <label>{tLabel('सम्पूर्ण पद / पुस्तक अंश (Stanzas / Full Text)', 'Full Stanzas / Excerpt Text')}</label>
               <textarea
                 className="admin-textarea"
-                value={formData.description}
-                onChange={(e) => updateForm({ description: e.target.value })}
+                value={formData.stanzas}
+                onChange={(e) => updateForm({ stanzas: e.target.value })}
+                placeholder={tLabel('पुस्तक के अंश या पद्य यहाँ दर्ज करें...', 'Enter stanzas or excerpt verses here...')}
+                style={{ minHeight: '220px', fontFamily: 'Tiro Devanagari Hindi, Lora, serif', fontSize: '1.05rem', lineHeight: '1.7' }}
               />
             </div>
+
+            {/* Field 6: Sort Order */}
             <div className="admin-form-group">
               <label>{tLabel('क्रम संख्या', 'Sort Order')}</label>
               <input
@@ -2417,70 +2396,65 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
                 onChange={(e) => updateForm({ sort_order: parseInt(e.target.value) || 1 })}
               />
             </div>
-            <div className="admin-form-group full-width">
-              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  checked={formData.is_active !== false}
-                  onChange={(e) => updateForm({ is_active: e.target.checked })}
-                />
-                {tLabel('वेबसाइट पर प्रकाशित रखें', 'Active on Website')}
-              </label>
-            </div>
           </div>
         </form>
       )}
 
-      <div>
-        <ListContextualToolbar
-          selectedIds={selectedIds}
-          totalItems={displayList.length}
-          onClearSelection={clearSelection}
-          onEdit={handleEditSelected}
-          onMoveTop={handleMoveTop}
-          onMoveUp={handleMoveUp}
-          onMoveDown={handleMoveDown}
-          onMoveBottom={handleMoveBottom}
-          onBatchDelete={handleBatchDelete}
-          tLabel={tLabel}
-        />
-
-        <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
-          {tLabel('प्रकाशित पुस्तकों की सूची', 'Published Books List')} ({displayList.length})
-        </h3>
-        {displayList.length === 0 ? (
-          <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई पुस्तक नहीं मिली। नई पुस्तक जोड़ने के लिए बटन दबाएं।', 'No books found. Click button to add new book.')}</p>
-        ) : (
-          <ul className="admin-item-list">
-            {displayList.map((pub) => {
-              const isSelected = selectedIds.includes(pub.id)
-              return (
-                <li key={pub.id} className={`admin-item-card ${isSelected ? 'selected' : ''}`}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1 }}>
-                    <input
-                      type="checkbox"
-                      className="admin-item-checkbox"
-                      checked={isSelected}
-                      onChange={() => toggleSelection(pub.id)}
-                    />
-                    <div>
-                      <div className="admin-item-title">{pub.title}</div>
-                      <div className="admin-item-sub">{pub.subtitle || pub.description ? (pub.subtitle || pub.description).substring(0, 80) + '...' : ''} • {tLabel('क्रम:', 'Order:')} {pub.sort_order || 1}</div>
-                    </div>
-                  </div>
-                  <div className="admin-actions-group">
-                    {pub.is_active === false ? (
-                      <span className="admin-item-badge" style={{ background: '#FFF0ED', color: '#D95343', borderColor: '#FFC4BD' }}>{tLabel('अप्रकाशित', 'Draft')}</span>
-                    ) : (
-                      <span className="admin-item-badge" style={{ background: '#EAF8F5', color: '#2C988F', borderColor: '#B5E8E2' }}>{tLabel('प्रकाशित', 'Live')}</span>
-                    )}
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
-        )}
-      </div>
+      {/* Publication List Grid - Hidden when in standalone edit page */}
+      {!isStandalonePage && (
+        <div>
+          <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
+            {tLabel('प्रकाशित पुस्तकों की सूची', 'Published Books List')} ({displayList.length})
+          </h3>
+          {displayList.length === 0 ? (
+            <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई पुस्तक नहीं मिली। नई पुस्तक जोड़ने के लिए बटन दबाएं।', 'No books found. Click button to add new book.')}</p>
+          ) : (
+            <ul className="admin-item-list">
+              {displayList.map((pub, idx) => (
+                <ContentItemCard
+                  key={pub.id}
+                  id={pub.id}
+                  title={pub.title}
+                  subtitle={`${pub.subtitle || pub.description ? (pub.subtitle || pub.description).substring(0, 80) + '...' : ''} • ${tLabel('क्रम:', 'Order:')} ${pub.sort_order || 1}`}
+                  badgeText={pub.is_active === false ? tLabel('अप्रकाशित', 'Draft') : tLabel('प्रकाशित', 'Live')}
+                  badgeColor={pub.is_active === false ? '#D95343' : '#2C988F'}
+                  onEdit={() => navigate(`/admin/prakashan/${pub.id}`)}
+                  onMoveUp={() => {
+                    if (idx <= 0) return
+                    const updated = [...displayList]
+                    const temp = updated[idx]
+                    updated[idx] = updated[idx - 1]
+                    updated[idx - 1] = temp
+                    persistReorder(updated)
+                  }}
+                  onMoveDown={() => {
+                    if (idx >= displayList.length - 1) return
+                    const updated = [...displayList]
+                    const temp = updated[idx]
+                    updated[idx] = updated[idx + 1]
+                    updated[idx + 1] = temp
+                    persistReorder(updated)
+                  }}
+                  onDelete={async () => {
+                    if (!confirm(tLabel('क्या आप इस पुस्तक को हटाना चाहते हैं?', 'Are you sure you want to delete this book?'))) return
+                    const updated = displayList.filter(i => i.id !== pub.id)
+                    setItemsList(updated)
+                    try {
+                      await supabase.from('publications').delete().eq('id', pub.id)
+                    } catch (e) {
+                      console.warn('Delete publication error:', e)
+                    }
+                    onUpdate()
+                  }}
+                  canMoveUp={idx > 0}
+                  canMoveDown={idx < displayList.length - 1}
+                  lang={adminLang}
+                />
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -2689,24 +2663,14 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
     <div className="admin-card-panel">
       {/* Top Breadcrumb Header for Standalone Edit Route */}
       {isStandalonePage ? (
-        <div className="admin-breadcrumb-bar">
-          <button
-            type="button"
-            className="admin-back-btn"
-            onClick={handleBackToList}
-          >
-            ← {tLabel('काव्य संग्रह सूची पर वापस जाएं', 'Back to Poems List')}
-          </button>
-          <div className="admin-breadcrumb-path">
-            <span>✍️ {tLabel('काव्य संग्रह', 'Kavya Sangrah')}</span>
-            <span className="admin-breadcrumb-sep">&gt;</span>
-            <span className="admin-breadcrumb-active">
-              {paramId === 'new'
-                ? tLabel('नई रचना जोड़ें', 'Add New Poem')
-                : (formData.heading || tLabel('कविता संपादन', 'Edit Poem'))}
-            </span>
-          </div>
-        </div>
+        <AdminBreadcrumb
+          sectionTitle={`✍️ ${tLabel('काव्य संग्रह', 'Kavya Sangrah')}`}
+          itemTitle={paramId === 'new' ? tLabel('नई रचना जोड़ें', 'Add New Poem') : (formData.heading || tLabel('कविता संपादन', 'Edit Poem'))}
+          backPath="/admin/kavya-sangrah"
+          backLabel={`← ${tLabel('काव्य संग्रह सूची पर वापस जाएं', 'Back to Poems List')}`}
+          isDirty={Boolean(setIsDirty && setIsDirty.isDirty)}
+          lang={adminLang}
+        />
       ) : (
         <div className="admin-panel-header">
           <h2 className="admin-panel-title">✍️ {tLabel('काव्य रचनाएं एवं पद', 'Poems & Verse Collection')}</h2>
@@ -2827,62 +2791,21 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
             <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई कविता नहीं मिली। नई रचना जोड़ने के लिए बटन दबाएं।', 'No poems found. Click button to add new poem.')}</p>
           ) : (
             <ul className="admin-item-list">
-              {displayList.map((poem) => {
-                const isHovered = hoveredId === poem.id
-                return (
-                  <li
-                    key={poem.id}
-                    className={`admin-item-card poem-hover-card ${isHovered ? 'is-hovered' : ''}`}
-                    onMouseEnter={() => setHoveredId(poem.id)}
-                    onMouseLeave={() => setHoveredId(null)}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1 }}>
-                      <div>
-                        <div className="admin-item-title">{poem.heading || poem.heading_hi || poem.heading_en || 'Untitled'}</div>
-                        <div className="admin-item-sub">{tLabel('क्रम:', 'Order:')} {poem.sort_order || 1}</div>
-                      </div>
-                    </div>
-
-                    {/* Hover Action Bar with Text-Only Badges */}
-                    <div className={`poem-card-hover-actions ${isHovered ? 'visible' : ''}`}>
-                      <button
-                        type="button"
-                        className="poem-hover-badge badge-edit"
-                        onClick={() => navigate(`/admin/kavya-sangrah/${poem.id}`)}
-                        title={tLabel('संपादित करें', 'Edit Poem')}
-                      >
-                        {tLabel('संपादित करें', 'Edit')}
-                      </button>
-                      <button
-                        type="button"
-                        className="poem-hover-badge badge-move"
-                        onClick={() => handleCardMoveUp(poem.id)}
-                        disabled={displayList.findIndex(i => i.id === poem.id) === 0}
-                        title={tLabel('ऊपर ले जाएं', 'Move Up')}
-                      >
-                        {tLabel('ऊपर ले जाएं', 'Move Up')}
-                      </button>
-                      <button
-                        type="button"
-                        className="poem-hover-badge badge-move"
-                        onClick={() => handleCardMoveDown(poem.id)}
-                        disabled={displayList.findIndex(i => i.id === poem.id) === displayList.length - 1}
-                        title={tLabel('नीचे ले जाएं', 'Move Down')}
-                      >
-                        {tLabel('नीचे ले जाएं', 'Move Down')}
-                      </button>
-                      <button
-                        type="button"
-                        className="poem-hover-badge badge-delete"
-                        onClick={() => handleCardDelete(poem.id)}
-                        title={tLabel('हटाएं', 'Delete Poem')}
-                      >
-                        {tLabel('हटाएं', 'Delete')}
-                      </button>
-                    </div>
-                  </li>
-                )
-              })}
+              {displayList.map((poem, idx) => (
+                <ContentItemCard
+                  key={poem.id}
+                  id={poem.id}
+                  title={poem.heading || poem.heading_hi || poem.heading_en || 'Untitled'}
+                  subtitle={`${tLabel('क्रम:', 'Order:')} ${poem.sort_order || 1}`}
+                  onEdit={() => navigate(`/admin/kavya-sangrah/${poem.id}`)}
+                  onMoveUp={() => handleCardMoveUp(poem.id)}
+                  onMoveDown={() => handleCardMoveDown(poem.id)}
+                  onDelete={() => handleCardDelete(poem.id)}
+                  canMoveUp={idx > 0}
+                  canMoveDown={idx < displayList.length - 1}
+                  lang={adminLang}
+                />
+              ))}
             </ul>
           )}
         </div>
@@ -3170,21 +3093,10 @@ function TimelineManager({ onUpdate, setIsDirty }) {
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [formData, setFormData] = useState({ year_display: '', title: '', description: '', sort_order: 1 })
-  const [selectedIds, setSelectedIds] = useState([])
 
   useEffect(() => {
     fetchTimeline()
   }, [])
-
-  const toggleSelection = (id) => {
-    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])
-  }
-
-  const clearSelection = () => setSelectedIds([])
-
-  const displayList = items
-  const singleSelectedId = selectedIds.length === 1 ? selectedIds[0] : null
-  const singleIndex = singleSelectedId ? displayList.findIndex(i => i.id === singleSelectedId) : -1
 
   const updateForm = (fields) => {
     setFormData(prev => ({ ...prev, ...fields }))
@@ -3270,17 +3182,7 @@ function TimelineManager({ onUpdate, setIsDirty }) {
     if (setIsDirty) setIsDirty(false)
     alert('✓ ' + tLabel('जीवन यात्रा सहेजी गई!', 'Timeline item saved!'))
     setShowForm(false)
-    clearSelection()
     onUpdate()
-  }
-
-  const handleEditSelected = () => {
-    if (!singleSelectedId) return
-    const item = displayList.find(i => i.id === singleSelectedId)
-    if (!item) return
-    setEditingId(item.id)
-    setFormData(item)
-    setShowForm(true)
   }
 
   const persistReorder = async (updated) => {
@@ -3295,51 +3197,23 @@ function TimelineManager({ onUpdate, setIsDirty }) {
     onUpdate()
   }
 
-  const handleMoveTop = () => {
-    if (singleIndex <= 0) return
-    const item = displayList[singleIndex]
-    const updated = [item, ...displayList.filter((_, i) => i !== singleIndex)]
-    persistReorder(updated)
-    clearSelection()
-  }
-
-  const handleMoveUp = () => {
-    if (singleIndex <= 0) return
-    const updated = [...displayList]
-    const temp = updated[singleIndex]
-    updated[singleIndex] = updated[singleIndex - 1]
-    updated[singleIndex - 1] = temp
+  const handleMove = (index, direction) => {
+    const targetIdx = direction === 'up' ? index - 1 : index + 1
+    if (targetIdx < 0 || targetIdx >= items.length) return
+    const updated = [...items]
+    const temp = updated[index]
+    updated[index] = updated[targetIdx]
+    updated[targetIdx] = temp
     persistReorder(updated)
   }
 
-  const handleMoveDown = () => {
-    if (singleIndex < 0 || singleIndex >= displayList.length - 1) return
-    const updated = [...displayList]
-    const temp = updated[singleIndex]
-    updated[singleIndex] = updated[singleIndex + 1]
-    updated[singleIndex + 1] = temp
-    persistReorder(updated)
-  }
-
-  const handleMoveBottom = () => {
-    if (singleIndex < 0 || singleIndex >= displayList.length - 1) return
-    const item = displayList[singleIndex]
-    const updated = [...displayList.filter((_, i) => i !== singleIndex), item]
-    persistReorder(updated)
-    clearSelection()
-  }
-
-  const handleBatchDelete = async () => {
-    if (selectedIds.length === 0) return
-    if (!confirm(tLabel(`क्या आप चयनित ${selectedIds.length} जीवन यात्रा आइटम हटाना चाहते हैं?`, `Delete ${selectedIds.length} selected timeline items?`))) return
-
-    const updatedList = items.filter(i => !selectedIds.includes(i.id))
+  const handleDeleteItem = async (id) => {
+    if (!confirm(tLabel('क्या आप इस जीवन यात्रा आइटम को हटाना चाहते हैं?', 'Delete this timeline item?'))) return
+    const updatedList = items.filter(i => i.id !== id)
     setItems(updatedList)
     localStorage.setItem('app_timeline_milestones', JSON.stringify(updatedList))
-    clearSelection()
-
     try {
-      await supabase.from('timeline_milestones').delete().in('id', selectedIds)
+      await supabase.from('timeline_milestones').delete().eq('id', id)
     } catch (e) {}
     onUpdate()
   }
@@ -3376,49 +3250,35 @@ function TimelineManager({ onUpdate, setIsDirty }) {
               <textarea className="admin-textarea" value={formData.description} onChange={e => updateForm({ description: e.target.value })} rows={3} required />
             </div>
           </div>
+          <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+            <button type="submit" className="admin-btn-primary">💾 {tLabel('सहेजें', 'Save')}</button>
+            <button type="button" className="admin-btn-secondary" onClick={() => setShowForm(false)}>{tLabel('रद्द करें', 'Cancel')}</button>
+          </div>
         </form>
       )}
 
-      <ListContextualToolbar
-        selectedIds={selectedIds}
-        totalItems={displayList.length}
-        onClearSelection={clearSelection}
-        onEdit={handleEditSelected}
-        onMoveTop={handleMoveTop}
-        onMoveUp={handleMoveUp}
-        onMoveDown={handleMoveDown}
-        onMoveBottom={handleMoveBottom}
-        onBatchDelete={handleBatchDelete}
-        tLabel={tLabel}
-      />
-
-      <ul className="admin-item-list">
-        {displayList.map((item) => {
-          const isSelected = selectedIds.includes(item.id)
-          return (
-            <li key={item.id} className={`admin-item-card ${isSelected ? 'selected' : ''}`}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1 }}>
-                <input
-                  type="checkbox"
-                  className="admin-item-checkbox"
-                  checked={isSelected}
-                  onChange={() => toggleSelection(item.id)}
-                />
-                <div>
-                  <div className="admin-item-title">
-                    <span style={{ color: 'var(--leona-terracotta)', fontWeight: 700 }}>{item.year_display}</span> — {item.title}
-                  </div>
-                  <div className="admin-item-sub">{item.description}</div>
-                </div>
-              </div>
-            </li>
-          )
-        })}
-      </ul>
+      {loading ? (
+        <p style={{ color: '#888', fontStyle: 'italic', padding: '20px' }}>{tLabel('लोड हो रहा है...', 'Loading...')}</p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {items.map((item, idx) => (
+            <ContentItemCard
+              key={item.id}
+              title={<><span style={{ color: 'var(--leona-terracotta)', fontWeight: 700 }}>{item.year_display}</span> — {item.title}</>}
+              subtitle={item.description}
+              onEdit={() => { setEditingId(item.id); setFormData(item); setShowForm(true); }}
+              onMoveUp={() => handleMove(idx, 'up')}
+              onMoveDown={() => handleMove(idx, 'down')}
+              onDelete={() => handleDeleteItem(item.id)}
+              canMoveUp={idx > 0}
+              canMoveDown={idx < items.length - 1}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
-
 
 // Awards Manager Component
 function AwardsManager({ onUpdate, setIsDirty }) {
@@ -3427,21 +3287,10 @@ function AwardsManager({ onUpdate, setIsDirty }) {
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [formData, setFormData] = useState({ year_display: '', title: '', organization: '', sort_order: 1 })
-  const [selectedIds, setSelectedIds] = useState([])
 
   useEffect(() => {
     fetchAwards()
   }, [])
-
-  const toggleSelection = (id) => {
-    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])
-  }
-
-  const clearSelection = () => setSelectedIds([])
-
-  const displayList = items
-  const singleSelectedId = selectedIds.length === 1 ? selectedIds[0] : null
-  const singleIndex = singleSelectedId ? displayList.findIndex(i => i.id === singleSelectedId) : -1
 
   const updateForm = (fields) => {
     setFormData(prev => ({ ...prev, ...fields }))
@@ -3462,7 +3311,7 @@ function AwardsManager({ onUpdate, setIsDirty }) {
           const defaultItems = [
             { id: '1', year_display: '१९९५', title: 'राजस्थान साहित्य अकादमी सम्मान', organization: 'राजस्थान सरकार', sort_order: 1 },
             { id: '2', year_display: '२०१०', title: 'राष्ट्रकवि मैथिलीशरण गुप्त पुरस्कार', organization: 'हिंदी साहित्य सम्मेलन', sort_order: 2 },
-            { id: '3', year_display: '२०२२', title: 'साहित्य जीवन साधना सम्मान', organization: 'भारतीय भाषा परिषद', sort_order: 3 }
+            { id: '3', year_display: '२०२०', title: 'साहित्य जीवन साधना सम्मान', organization: 'भारतीय भाषा परिषद', sort_order: 3 }
           ]
           setItems(defaultItems)
           localStorage.setItem('app_awards_honors', JSON.stringify(defaultItems))
@@ -3521,17 +3370,7 @@ function AwardsManager({ onUpdate, setIsDirty }) {
     if (setIsDirty) setIsDirty(false)
     alert('✓ ' + tLabel('पुरस्कार सहेजा गया!', 'Award saved!'))
     setShowForm(false)
-    clearSelection()
     onUpdate()
-  }
-
-  const handleEditSelected = () => {
-    if (!singleSelectedId) return
-    const item = displayList.find(i => i.id === singleSelectedId)
-    if (!item) return
-    setEditingId(item.id)
-    setFormData(item)
-    setShowForm(true)
   }
 
   const persistReorder = async (updated) => {
@@ -3546,51 +3385,23 @@ function AwardsManager({ onUpdate, setIsDirty }) {
     onUpdate()
   }
 
-  const handleMoveTop = () => {
-    if (singleIndex <= 0) return
-    const item = displayList[singleIndex]
-    const updated = [item, ...displayList.filter((_, i) => i !== singleIndex)]
-    persistReorder(updated)
-    clearSelection()
-  }
-
-  const handleMoveUp = () => {
-    if (singleIndex <= 0) return
-    const updated = [...displayList]
-    const temp = updated[singleIndex]
-    updated[singleIndex] = updated[singleIndex - 1]
-    updated[singleIndex - 1] = temp
+  const handleMove = (index, direction) => {
+    const targetIdx = direction === 'up' ? index - 1 : index + 1
+    if (targetIdx < 0 || targetIdx >= items.length) return
+    const updated = [...items]
+    const temp = updated[index]
+    updated[index] = updated[targetIdx]
+    updated[targetIdx] = temp
     persistReorder(updated)
   }
 
-  const handleMoveDown = () => {
-    if (singleIndex < 0 || singleIndex >= displayList.length - 1) return
-    const updated = [...displayList]
-    const temp = updated[singleIndex]
-    updated[singleIndex] = updated[singleIndex + 1]
-    updated[singleIndex + 1] = temp
-    persistReorder(updated)
-  }
-
-  const handleMoveBottom = () => {
-    if (singleIndex < 0 || singleIndex >= displayList.length - 1) return
-    const item = displayList[singleIndex]
-    const updated = [...displayList.filter((_, i) => i !== singleIndex), item]
-    persistReorder(updated)
-    clearSelection()
-  }
-
-  const handleBatchDelete = async () => {
-    if (selectedIds.length === 0) return
-    if (!confirm(tLabel(`क्या आप चयनित ${selectedIds.length} पुरस्कार हटाना चाहते हैं?`, `Delete ${selectedIds.length} selected awards?`))) return
-
-    const updatedList = items.filter(i => !selectedIds.includes(i.id))
+  const handleDeleteItem = async (id) => {
+    if (!confirm(tLabel('क्या आप इस पुरस्कार को हटाना चाहते हैं?', 'Delete this award?'))) return
+    const updatedList = items.filter(i => i.id !== id)
     setItems(updatedList)
     localStorage.setItem('app_awards_honors', JSON.stringify(updatedList))
-    clearSelection()
-
     try {
-      await supabase.from('awards_honors').delete().in('id', selectedIds)
+      await supabase.from('awards_honors').delete().eq('id', id)
     } catch (e) {}
     onUpdate()
   }
@@ -3606,68 +3417,53 @@ function AwardsManager({ onUpdate, setIsDirty }) {
         )}
       </div>
 
-      <form id="admin-active-form" onSubmit={handleSubmit} onChange={() => setIsDirty && setIsDirty(true)} onInput={() => setIsDirty && setIsDirty(true)} className="admin-form-container" style={{ display: showForm ? 'block' : 'none' }}>
-        <div className="admin-form-grid">
-          <div className="admin-form-group">
-            <label>{tLabel('वर्ष (e.g. १९९५ / 1995)', 'Year (e.g. 1995)')}</label>
-            <input className="admin-input" value={formData.year_display} onChange={e => updateForm({ year_display: e.target.value })} required={showForm} />
+      {showForm && (
+        <form id="admin-active-form" onSubmit={handleSubmit} onChange={() => setIsDirty && setIsDirty(true)} onInput={() => setIsDirty && setIsDirty(true)} className="admin-form-container">
+          <div className="admin-form-grid">
+            <div className="admin-form-group">
+              <label>{tLabel('वर्ष (e.g. १९९५ / 1995)', 'Year (e.g. 1995)')}</label>
+              <input className="admin-input" value={formData.year_display} onChange={e => updateForm({ year_display: e.target.value })} required />
+            </div>
+            <div className="admin-form-group">
+              <label>{tLabel('सम्मान का नाम', 'Award Title')}</label>
+              <input className="admin-input" value={formData.title} onChange={e => updateForm({ title: e.target.value })} required />
+            </div>
+            <div className="admin-form-group full-width">
+              <label>{tLabel('संस्था / आयोजक', 'Organization')}</label>
+              <input className="admin-input" value={formData.organization} onChange={e => updateForm({ organization: e.target.value })} required />
+            </div>
           </div>
-          <div className="admin-form-group">
-            <label>{tLabel('सम्मान का नाम', 'Award Title')}</label>
-            <input className="admin-input" value={formData.title} onChange={e => updateForm({ title: e.target.value })} required={showForm} />
+          <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+            <button type="submit" className="admin-btn-primary">💾 {tLabel('सहेजें', 'Save')}</button>
+            <button type="button" className="admin-btn-secondary" onClick={() => setShowForm(false)}>{tLabel('रद्द करें', 'Cancel')}</button>
           </div>
-          <div className="admin-form-group full-width">
-            <label>{tLabel('संस्था / आयोजक', 'Organization')}</label>
-            <input className="admin-input" value={formData.organization} onChange={e => updateForm({ organization: e.target.value })} required={showForm} />
-          </div>
-        </div>
-      </form>
+        </form>
+      )}
 
-      <ListContextualToolbar
-        selectedIds={selectedIds}
-        totalItems={displayList.length}
-        onClearSelection={clearSelection}
-        onEdit={handleEditSelected}
-        onMoveTop={handleMoveTop}
-        onMoveUp={handleMoveUp}
-        onMoveDown={handleMoveDown}
-        onMoveBottom={handleMoveBottom}
-        onBatchDelete={handleBatchDelete}
-        tLabel={tLabel}
-      />
-
-      <ul className="admin-item-list">
-        {displayList.map(item => {
-          const isSelected = selectedIds.includes(item.id)
-          return (
-            <li key={item.id} className={`admin-item-card ${isSelected ? 'selected' : ''}`}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1 }}>
-                <input
-                  type="checkbox"
-                  className="admin-item-checkbox"
-                  checked={isSelected}
-                  onChange={() => toggleSelection(item.id)}
-                />
-                <div>
-                  <div className="admin-item-title"><span style={{ color: 'var(--leona-terracotta)', fontWeight: 700 }}>{item.year_display}</span> — {item.title}</div>
-                  <div className="admin-item-sub">{tLabel('संस्था:', 'Org:')} {item.organization}</div>
-                </div>
-              </div>
-            </li>
-          )
-        })}
-      </ul>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {items.map((item, idx) => (
+          <ContentItemCard
+            key={item.id}
+            title={<><span style={{ color: 'var(--leona-terracotta)', fontWeight: 700 }}>{item.year_display}</span> — {item.title}</>}
+            subtitle={`${tLabel('संस्था:', 'Org:')} ${item.organization}`}
+            onEdit={() => { setEditingId(item.id); setFormData(item); setShowForm(true); }}
+            onMoveUp={() => handleMove(idx, 'up')}
+            onMoveDown={() => handleMove(idx, 'down')}
+            onDelete={() => handleDeleteItem(item.id)}
+            canMoveUp={idx > 0}
+            canMoveDown={idx < items.length - 1}
+          />
+        ))}
+      </div>
     </div>
   )
 }
 
-
 function InboxManager({ onUpdate }) {
   const { tLabel } = useAdminLang()
   const [messages, setMessages] = useState([])
-  const [selectedIds, setSelectedIds] = useState([])
-  const [expandedId, setExpandedId] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [expandedId, setExpandedId] = useState(null)
 
   useEffect(() => {
     fetchInbox()
@@ -3684,7 +3480,6 @@ function InboxManager({ onUpdate }) {
       if (!error && data && data.length > 0) {
         setMessages(data)
       } else {
-        // Fallback seed demo data
         setMessages([
           {
             id: 'demo-1',
@@ -3713,201 +3508,91 @@ function InboxManager({ onUpdate }) {
     }
   }
 
-  const toggleSelection = (id) => {
-    setSelectedIds(prev =>
-      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
-    )
-  }
-
-  const clearSelection = () => {
-    setSelectedIds([])
-  }
-
-  const selectAll = () => {
-    const safeMsgs = Array.isArray(messages) ? messages : []
-    if (selectedIds.length === safeMsgs.length) {
-      setSelectedIds([])
-    } else {
-      setSelectedIds(safeMsgs.map(m => m.id))
-    }
-  }
-
-  const handleBatchMarkRead = async (targetReadStatus) => {
-    if (selectedIds.length === 0) return
+  const handleToggleRead = async (msg) => {
+    const targetStatus = !msg.is_read
+    setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, is_read: targetStatus } : m))
     try {
-      // Background Supabase update
-      await supabase
-        .from('contact_submissions')
-        .update({ is_read: targetReadStatus })
-        .in('id', selectedIds)
+      await supabase.from('contact_submissions').update({ is_read: targetStatus }).eq('id', msg.id)
     } catch (e) {
-      console.warn('Supabase mark read error:', e)
+      console.warn('Mark read error:', e)
     }
-
-    // Optimistic UI update
-    setMessages(prev =>
-      prev.map(m => (selectedIds.includes(m.id) ? { ...m, is_read: targetReadStatus } : m))
-    )
-    setSelectedIds([])
   }
 
-  const handleBatchDelete = async () => {
-    if (selectedIds.length === 0) return
-    if (!confirm(tLabel(`क्या आप चयनित ${selectedIds.length} संदेश हटाना चाहते हैं?`, `Delete selected ${selectedIds.length} message(s)?`))) {
-      return
-    }
-
+  const handleDeleteMsg = async (id) => {
+    if (!confirm(tLabel('क्या आप इस संदेश को हटाना चाहते हैं?', 'Delete this message?'))) return
+    setMessages(prev => prev.filter(m => m.id !== id))
     try {
-      // Background Supabase batch deletion
-      await supabase
-        .from('contact_submissions')
-        .delete()
-        .in('id', selectedIds)
+      await supabase.from('contact_submissions').delete().eq('id', id)
     } catch (e) {
-      console.warn('Supabase batch delete error:', e)
+      console.warn('Delete message error:', e)
     }
-
-    // Optimistic UI update
-    setMessages(prev => prev.filter(m => !selectedIds.includes(m.id)))
-    setSelectedIds([])
   }
 
   const safeMsgs = Array.isArray(messages) ? messages : []
-  const hasUnreadSelected = safeMsgs.some(m => selectedIds.includes(m.id) && !m.is_read)
-  const hasReadSelected = safeMsgs.some(m => selectedIds.includes(m.id) && m.is_read)
 
   return (
     <div className="admin-card-panel">
       <div className="admin-panel-header">
         <h2 className="admin-panel-title">📬 {tLabel('प्राप्त संदेश इनबॉक्स', 'Messages Inbox')}</h2>
-        {safeMsgs.length > 0 && (
-          <button type="button" className="admin-btn-secondary" onClick={selectAll}>
-            {selectedIds.length === safeMsgs.length
-              ? tLabel('चयन हटाएं', 'Deselect All')
-              : tLabel('सभी चुनें', 'Select All')}
-          </button>
-        )}
       </div>
-
-      {/* Phase 2.5 Contextual Top Action Bar for Inbox */}
-      {selectedIds.length > 0 && (
-        <div className="admin-contextual-toolbar">
-          <div className="admin-toolbar-info">
-            <span className="admin-toolbar-count">
-              {selectedIds.length} {tLabel('संदेश चयनित', 'messages selected')}
-            </span>
-            <button type="button" className="admin-btn-link" onClick={clearSelection}>
-              {tLabel('रद्द करें', 'Clear selection')}
-            </button>
-          </div>
-          <div className="admin-toolbar-actions">
-            <button
-              type="button"
-              className="admin-btn-secondary"
-              disabled={!hasUnreadSelected}
-              onClick={() => handleBatchMarkRead(true)}
-            >
-              ✉️ {tLabel('पठित चिन्हित करें', 'Mark as Read')}
-            </button>
-            <button
-              type="button"
-              className="admin-btn-secondary"
-              disabled={!hasReadSelected}
-              onClick={() => handleBatchMarkRead(false)}
-            >
-              📩 {tLabel('अपठित चिन्हित करें', 'Mark as Unread')}
-            </button>
-            <button
-              type="button"
-              className="admin-btn-danger"
-              onClick={handleBatchDelete}
-            >
-              🗑️ {tLabel(`हटाएं (${selectedIds.length})`, `Delete Selected (${selectedIds.length})`)}
-            </button>
-          </div>
-        </div>
-      )}
 
       {loading ? (
         <p style={{ color: '#888', fontStyle: 'italic', padding: '20px' }}>{tLabel('संदेश लोड हो रहे हैं...', 'Loading messages...')}</p>
       ) : safeMsgs.length === 0 ? (
         <p style={{ color: '#666', fontStyle: 'italic', padding: '20px' }}>{tLabel('कोई संदेश नहीं मिला।', 'No messages found.')}</p>
       ) : (
-        <ul className="admin-item-list">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {safeMsgs.map(msg => {
-            const isSelected = selectedIds.includes(msg.id)
-            const isExpanded = expandedId === msg.id
             const isRead = msg.is_read === true || msg.status === 'read'
+            const isExpanded = expandedId === msg.id
 
             return (
-              <li
+              <ContentItemCard
                 key={msg.id}
-                className={`admin-item-card ${isSelected ? 'selected' : ''}`}
-                style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '10px' }}
-              >
-                <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <input
-                      type="checkbox"
-                      className="admin-item-checkbox"
-                      checked={isSelected}
-                      onChange={() => toggleSelection(msg.id)}
-                    />
-                    <div>
-                      <span style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--leona-charcoal)' }}>
-                        {msg.name}
-                      </span>
-                      {msg.email && (
-                        <span style={{ fontSize: '0.88rem', color: '#666', marginLeft: '8px' }}>
-                          ({msg.email})
+                title={`${msg.name} ${msg.email ? `(${msg.email})` : ''}`}
+                subtitle={
+                  <div>
+                    <div style={{ fontWeight: 600, color: 'var(--leona-terracotta)', marginBottom: '4px' }}>
+                      {tLabel('विषय:', 'Subject:')} {msg.subject || tLabel('(कोई विषय नहीं)', '(No Subject)')}
+                    </div>
+                    <div
+                      style={{
+                        background: '#FDFBF7',
+                        padding: '10px 14px',
+                        borderRadius: '6px',
+                        border: '1px solid rgba(226, 215, 197, 0.7)',
+                        marginTop: '6px',
+                        color: 'var(--leona-text-main)',
+                        fontSize: '0.95rem'
+                      }}
+                      onClick={(e) => { e.stopPropagation(); setExpandedId(isExpanded ? null : msg.id); }}
+                    >
+                      {isExpanded ? msg.message : msg.message && msg.message.length > 120 ? `${msg.message.substring(0, 120)}...` : msg.message}
+                      {msg.message && msg.message.length > 120 && (
+                        <span style={{ color: 'var(--leona-terracotta)', fontWeight: 600, marginLeft: '8px', fontSize: '0.85rem' }}>
+                          {isExpanded ? tLabel('[कम दिखाएं]', '[Show Less]') : tLabel('[पूरा पढ़ें]', '[Read More]')}
                         </span>
                       )}
                     </div>
                   </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span className={isRead ? 'admin-badge-read' : 'admin-badge-unread'}>
-                      {isRead ? `✅ ${tLabel('पठित', 'Read')}` : `📩 ${tLabel('अपठित', 'Unread')}`}
-                    </span>
-                    <span style={{ fontSize: '0.8rem', color: '#888' }}>
-                      {new Date(msg.created_at || Date.now()).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-
-                <div style={{ fontWeight: 600, color: 'var(--leona-terracotta)', width: '100%' }}>
-                  {tLabel('विषय:', 'Subject:')} {msg.subject || tLabel('(कोई विषय नहीं)', '(No Subject)')}
-                </div>
-
-                <div
-                  style={{
-                    background: '#FDFBF7',
-                    padding: '14px',
-                    borderRadius: '8px',
-                    border: '1px solid rgba(226, 215, 197, 0.7)',
-                    width: '100%',
-                    fontSize: '0.95rem',
-                    color: 'var(--leona-text-main)',
-                    lineHeight: '1.6',
-                    cursor: 'pointer'
-                  }}
-                  onClick={() => setExpandedId(isExpanded ? null : msg.id)}
-                >
-                  {isExpanded
-                    ? msg.message
-                    : msg.message && msg.message.length > 120
-                    ? `${msg.message.substring(0, 120)}...`
-                    : msg.message}
-                  {msg.message && msg.message.length > 120 && (
-                    <span style={{ color: 'var(--leona-terracotta)', fontWeight: 600, marginLeft: '8px', fontSize: '0.85rem' }}>
-                      {isExpanded ? tLabel('[कम दिखाएं]', '[Show Less]') : tLabel('[पूरा पढ़ें]', '[Read More]')}
-                    </span>
-                  )}
-                </div>
-              </li>
+                }
+                badgeText={isRead ? tLabel('पठित', 'Read') : tLabel('अपठित', 'Unread')}
+                badgeColor={isRead ? '#2e7d32' : '#c62828'}
+                onDelete={() => handleDeleteMsg(msg.id)}
+                customActions={[
+                  ...(msg.email ? [{
+                    label: tLabel('उत्तर दें', 'Reply'),
+                    onClick: () => { window.location.href = `mailto:${msg.email}?subject=Re: ${encodeURIComponent(msg.subject || '')}`; }
+                  }] : []),
+                  {
+                    label: isRead ? tLabel('अपठित चिन्हित करें', 'Mark Unread') : tLabel('पठित चिन्हित करें', 'Mark Read'),
+                    onClick: () => handleToggleRead(msg)
+                  }
+                ]}
+              />
             )
           })}
-        </ul>
+        </div>
       )}
     </div>
   )
