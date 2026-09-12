@@ -6,8 +6,23 @@ import { uploadImage, getImageUrl, deleteImage } from '../../lib/imageUtils'
 import PM5WritingDesk, { paginateTextIntoPages } from '../../components/PM5WritingDesk'
 import ContentItemCard from '../../components/admin/ContentItemCard'
 import AdminBreadcrumb from '../../components/admin/AdminBreadcrumb'
+import { convertKrutiDevToUnicode, isKrutiDevText } from '../../utils/unicodeConverter'
 import i18n from '../../i18n/config'
 import './AdminDashboard.css'
+
+function handleKrutiDevPaste(e, currentValue, onUpdate) {
+  const rawPasted = (e.clipboardData || window.clipboardData)?.getData('text') || '';
+  if (rawPasted && isKrutiDevText(rawPasted)) {
+    e.preventDefault();
+    const converted = convertKrutiDevToUnicode(rawPasted);
+    const target = e.target;
+    const start = target.selectionStart || 0;
+    const end = target.selectionEnd || 0;
+    const current = currentValue || '';
+    const newText = current.substring(0, start) + converted + current.substring(end);
+    onUpdate(newText);
+  }
+}
 
 export const FormStateContext = createContext({
   isDirty: false,
@@ -2353,11 +2368,27 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
 
             {/* Field 5: Full Stanzas / Excerpt Text */}
             <div className="admin-form-group full-width">
-              <label>{tLabel('सम्पूर्ण पद / पुस्तक अंश (Stanzas / Full Text)', 'Full Stanzas / Excerpt Text')}</label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <label style={{ margin: 0 }}>{tLabel('सम्पूर्ण पद / पुस्तक अंश (Stanzas / Full Text)', 'Full Stanzas / Excerpt Text')}</label>
+                <button
+                  type="button"
+                  className="admin-btn-secondary"
+                  onClick={() => {
+                    if (!formData.stanzas) return;
+                    const converted = convertKrutiDevToUnicode(formData.stanzas);
+                    updateForm({ stanzas: converted });
+                  }}
+                  style={{ fontSize: '0.8rem', padding: '4px 10px', borderRadius: '12px', background: '#F5F2EB', border: '1px solid #D2C4B0', color: '#5C4033', fontWeight: 600, cursor: 'pointer' }}
+                  title={tLabel('कृतिदेव फॉन्ट टेक्स्ट को मानक यूनिकोड हिंदी में बदलें', 'Convert Kruti Dev text to Unicode Hindi')}
+                >
+                  🔄 {tLabel('कृतिदेव ➔ यूनिकोड', 'Kruti Dev ➔ Unicode')}
+                </button>
+              </div>
               <textarea
                 className="admin-textarea"
                 value={formData.stanzas}
                 onChange={(e) => updateForm({ stanzas: e.target.value })}
+                onPaste={(e) => handleKrutiDevPaste(e, formData.stanzas, (text) => updateForm({ stanzas: text }))}
                 placeholder={tLabel('पुस्तक के अंश या पद्य यहाँ दर्ज करें...', 'Enter stanzas or excerpt verses here...')}
                 style={{ minHeight: '220px', fontFamily: 'Tiro Devanagari Hindi, Lora, serif', fontSize: '1.05rem', lineHeight: '1.7' }}
               />
@@ -2736,11 +2767,27 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
             )}
 
             <div className="admin-form-group full-width">
-              <label>{tLabel('सम्पूर्ण कविता पंक्तियाँ *', 'Full Stanzas / Verse Text *')}</label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <label style={{ margin: 0 }}>{tLabel('सम्पूर्ण कविता पंक्तियाँ *', 'Full Stanzas / Verse Text *')}</label>
+                <button
+                  type="button"
+                  className="admin-btn-secondary"
+                  onClick={() => {
+                    if (!formData.body_text) return;
+                    const converted = convertKrutiDevToUnicode(formData.body_text);
+                    updateForm({ body_text: converted });
+                  }}
+                  style={{ fontSize: '0.8rem', padding: '4px 10px', borderRadius: '12px', background: '#F5F2EB', border: '1px solid #D2C4B0', color: '#5C4033', fontWeight: 600, cursor: 'pointer' }}
+                  title={tLabel('कृतिदेव फॉन्ट टेक्स्ट को मानक यूनिकोड हिंदी में बदलें', 'Convert Kruti Dev text to Unicode Hindi')}
+                >
+                  🔄 {tLabel('कृतिदेव ➔ यूनिकोड', 'Kruti Dev ➔ Unicode')}
+                </button>
+              </div>
               <textarea
                 className="admin-textarea"
                 value={formData.body_text || ''}
                 onChange={(e) => updateForm({ body_text: e.target.value })}
+                onPaste={(e) => handleKrutiDevPaste(e, formData.body_text || '', (text) => updateForm({ body_text: text }))}
                 required
                 style={{ minHeight: '220px', fontFamily: 'Tiro Devanagari Hindi, Lora, serif', fontSize: '1.05rem', lineHeight: '1.7' }}
               />

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { convertKrutiDevToUnicode, isKrutiDevText } from '../utils/unicodeConverter';
 import './PM5WritingDesk.css';
 
 export function paginateTextIntoPages(fullText, linesPerPage = 20) {
@@ -194,12 +195,14 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, onC
   };
 
   const handlePasteAutoFlow = (e) => {
-    const pastedText = (e.clipboardData || window.clipboardData)?.getData('text') || '';
-    if (!pastedText) return;
+    const rawPasted = (e.clipboardData || window.clipboardData)?.getData('text') || '';
+    if (!rawPasted) return;
 
+    const shouldConvert = isKrutiDevText(rawPasted);
+    const pastedText = shouldConvert ? convertKrutiDevToUnicode(rawPasted) : rawPasted;
     const rawLines = pastedText.split('\n');
 
-    if (rawLines.length > 20) {
+    if (shouldConvert || rawLines.length > 20) {
       e.preventDefault();
       const paginatedPastedPages = paginateTextIntoPages(pastedText, 20);
       
@@ -293,6 +296,23 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, onC
           </button>
           <button type="button" className="pm5-undo-btn pm5-page-break-btn" onClick={handlePageBreak} title={isEn ? 'Insert Page Break' : 'मैनुअल पृष्ठ विभाजन'}>
             📄 {isEn ? 'New Page' : 'नया पृष्ठ'}
+          </button>
+          <button
+            type="button"
+            className="pm5-undo-btn pm5-krutidev-btn"
+            onClick={() => {
+              const current = pages[activeIdx] || '';
+              if (!current.trim()) return;
+              const converted = convertKrutiDevToUnicode(current);
+              const updated = [...pages];
+              updated[activeIdx] = converted;
+              setPages(updated);
+              pushHistory(updated);
+              setIsDirty(true);
+            }}
+            title={isEn ? 'Convert Kruti Dev text to Unicode Hindi' : 'कृतिदेव फॉन्ट टेक्स्ट को मानक यूनिकोड हिंदी में बदलें'}
+          >
+            🔄 {isEn ? 'Kruti Dev ➔ Unicode' : 'कृतिदेव ➔ यूनिकोड'}
           </button>
           {isFullscreen && (
             <button
