@@ -89,17 +89,24 @@ function ContactModal({ isOpen, onClose }) {
     }
 
     try {
-      setSubmitting(true)
-      const { error } = await supabase.from('contact_submissions').insert([
-        {
-          name: formData.name.trim(),
-          email: formData.email.trim(),
-          subject: formData.subject.trim() || (isHi ? 'वेबसाइट संदेश' : 'Website Message'),
-          message: formData.message.trim(),
-          is_read: false,
-          created_at: new Date().toISOString()
-        }
-      ])
+      const basePayload = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        subject: formData.subject.trim() || (isHi ? 'वेबसाइट संदेश' : 'Website Message'),
+        message: formData.message.trim(),
+        created_at: new Date().toISOString()
+      }
+
+      let { error } = await supabase.from('contact_submissions').insert([basePayload])
+
+      if (error && error.code === 'PGRST204') {
+        const fallbackRes = await supabase.from('contact_submissions').insert([{
+          name: basePayload.name,
+          email: basePayload.email,
+          message: basePayload.message
+        }])
+        error = fallbackRes.error
+      }
 
       if (error) throw error
 
