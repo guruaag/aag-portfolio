@@ -348,3 +348,61 @@
   color: #D32F2F;
   font-weight: 700;
 }
+
+/* FULLSCREEN DISTRACTION-FREE MODE STYLES */
+.pm5-desk-root.pm5-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  border-radius: 0;
+  border: none;
+  background: #1A1816;
+  overflow-y: auto;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.pm5-desk-root.pm5-fullscreen .pm5-canvas-area {
+  background: #2D2926;
+  min-height: 700px;
+}
+
+.pm5-desk-root.pm5-fullscreen .pm5-sidebar-pages {
+  background: #25221F;
+  border-color: #443E38;
+}
+
+.pm5-desk-root.pm5-fullscreen .pm5-sidebar-title {
+  color: #D4AF37;
+  border-bottom-color: #D4AF37;
+}
+
+.pm5-desk-root.pm5-fullscreen .pm5-thumb-card {
+  background: #2D2926;
+  border-color: #443E38;
+  color: #E2D7C5;
+}
+
+.pm5-desk-root.pm5-fullscreen .pm5-thumb-card.active {
+  border-color: #D4AF37;
+  background: #36312D;
+}
+
+.pm5-desk-root.pm5-fullscreen .pm5-thumb-num {
+  color: #D4AF37;
+}
+
+.pm5-desk-root.pm5-fullscreen .pm5-thumb-preview {
+  color: #A89B8C;
+}
+
+.pm5-desk-root.pm5-fullscreen .pm5-undo-btn.active {
+  background: #D4AF37;
+  color: #1A1816;
+  border-color: #D4AF37;
+}

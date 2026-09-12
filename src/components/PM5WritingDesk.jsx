@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './PM5WritingDesk.css';
 
 export function paginateTextIntoPages(fullText, linesPerPage = 14) {
@@ -39,26 +39,42 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
 
   const [activeIdx, setActiveIdx] = useState(0);
   const [title, setTitle] = useState(initialTitle);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [autoSaveStatus, setAutoSaveStatus] = useState(''); // '' | 'saving' | 'saved'
 
-  // Sync with prop changes when parent updates full text
+  // Ref to track component mount
+  const isInitialMount = useRef(true);
+
+  // Debounced Auto-Save Effect (2 seconds)
   useEffect(() => {
-    if (Array.isArray(initialPages) && initialPages.length > 0) {
-      if (initialPages.join('\n\n') !== pages.join('\n\n')) {
-        setPages(initialPages);
-      }
-    } else if (typeof initialPages === 'string' && initialPages.trim()) {
-      const paginated = paginateTextIntoPages(initialPages);
-      if (paginated.join('\n\n') !== pages.join('\n\n')) {
-        setPages(paginated);
-      }
-    }
-  }, [JSON.stringify(initialPages)]);
+    if (!isDirty) return;
 
+    setAutoSaveStatus('saving');
+    const timer = setTimeout(() => {
+      if (onSave) {
+        onSave(pages, title);
+      }
+      setIsDirty(false);
+      setAutoSaveStatus('saved');
+      setTimeout(() => setAutoSaveStatus(''), 3000);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [pages, title, isDirty, onSave]);
+
+  // Fullscreen Keyboard Listener (Escape key)
   useEffect(() => {
-    setTitle(initialTitle);
-  }, [initialTitle]);
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFullscreen]);
 
-  // Undo / Redo History Stack
+  // History Stack for Undo/Redo
   const [history, setHistory] = useState([pages]);
   const [historyPointer, setHistoryPointer] = useState(0);
 
@@ -75,7 +91,7 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
       setHistoryPointer(historyPointer - 1);
       setPages(prevPages);
       setActiveIdx(Math.min(activeIdx, prevPages.length - 1));
-      if (onSave) onSave(prevPages, title);
+      setIsDirty(true);
     }
   };
 
@@ -84,7 +100,7 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
       const nextPages = history[historyPointer + 1];
       setHistoryPointer(historyPointer + 1);
       setPages(nextPages);
-      if (onSave) onSave(nextPages, title);
+      setIsDirty(true);
     }
   };
 
@@ -104,10 +120,9 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
   const updatePageContent = (text) => {
     const updatedPages = [...pages];
     updatedPages[activeIdx] = text;
-
     setPages(updatedPages);
     pushHistory(updatedPages);
-    if (onSave) onSave(updatedPages, title);
+    setIsDirty(true);
   };
 
   const handlePasteAutoFlow = (e) => {
@@ -126,9 +141,8 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
       
       setPages(newPages);
       pushHistory(newPages);
-      if (onSave) onSave(newPages, title);
+      setIsDirty(true);
     }
-    // Short paste operates natively via onChange without breaking cursor
   };
 
   const addNewPage = () => {
@@ -136,7 +150,7 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
     setPages(updated);
     setActiveIdx(updated.length - 1);
     pushHistory(updated);
-    if (onSave) onSave(updated, title);
+    setIsDirty(true);
   };
 
   const deletePage = (e, idx) => {
@@ -152,7 +166,7 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
       const newActive = Math.max(0, idx - 1);
       setActiveIdx(newActive);
       pushHistory(updated);
-      if (onSave) onSave(updated, title);
+      setIsDirty(true);
     }
   };
 
@@ -169,21 +183,39 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
     setPages(updated);
     setActiveIdx(targetIdx);
     pushHistory(updated);
-    if (onSave) onSave(updated, title);
+    setIsDirty(true);
+  };
+
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
   };
 
   const currentText = pages[activeIdx] || '';
   const currentLinesCount = currentText ? currentText.split('\n').length : 0;
 
   return (
-    <div className="pm5-desk-root">
+    <div className={`pm5-desk-root ${isFullscreen ? 'pm5-fullscreen' : ''}`}>
       
-      {/* Top Bar with Undo / Redo */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-        <div style={{ fontSize: '0.85rem', color: '#666' }}>
-          📐 {isEn ? 'Format: Standard Font Size • Natural Line Wrap & Flexible Page Bounds' : 'प्रारूप: मानक फॉन्ट आकार • स्वाभाविक पंक्ति प्रवाह एवं लचीला पृष्ठ आकार'}
+      {/* Top Bar with Undo / Redo & Fullscreen & AutoSave Indicator */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
+        <div style={{ fontSize: '0.85rem', color: '#666', display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span>📐 {isEn ? 'Format: Standard Font Size • Natural Line Wrap' : 'प्रारूप: मानक फॉन्ट आकार • स्वाभाविक पंक्ति प्रवाह'}</span>
+          {autoSaveStatus === 'saving' && (
+            <span className="pm5-autosave-badge saving">⏳ {isEn ? 'Saving...' : 'सहेजा जा रहा है...'}</span>
+          )}
+          {autoSaveStatus === 'saved' && (
+            <span className="pm5-autosave-badge success">💾 {isEn ? 'Auto-saved' : 'स्वतः सहेजा गया'}</span>
+          )}
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button
+            type="button"
+            className={`pm5-undo-btn ${isFullscreen ? 'active' : ''}`}
+            onClick={toggleFullscreen}
+            title={isFullscreen ? (isEn ? 'Exit Fullscreen (Esc)' : 'पूर्ण स्क्रीन बंद करें (Esc)') : (isEn ? 'Distraction-Free Fullscreen' : 'डिस्ट्रेक्शन-फ्री पूर्ण स्क्रीन')}
+          >
+            {isFullscreen ? '↙️ Exit Fullscreen' : '⛶ Fullscreen'}
+          </button>
           <button type="button" className="pm5-undo-btn" onClick={handleUndo} disabled={historyPointer === 0} title={isEn ? 'Undo (Ctrl+Z)' : 'पूर्ववत करें (Ctrl+Z)'}>
             ↩️ {isEn ? 'Undo' : 'पूर्ववत'}
           </button>
@@ -230,6 +262,8 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
               className="pm5-publish-btn"
               onClick={() => {
                 onSave(pages, title);
+                setIsDirty(false);
+                setAutoSaveStatus('saved');
                 alert(isEn ? '✓ Canvas saved & applied to full verse text!' : '✓ कैनवस सफलतापूर्वक सहेजा गया!');
               }}
             >
@@ -253,9 +287,8 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, ini
               className="pm5-editor-title"
               value={title}
               onChange={(e) => {
-                const newTitle = e.target.value;
-                setTitle(newTitle);
-                if (onSave) onSave(pages, newTitle);
+                setTitle(e.target.value);
+                setIsDirty(true);
               }}
               placeholder={isEn ? 'Enter title here...' : 'यहाँ शीर्षक लिखें...'}
             />

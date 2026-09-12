@@ -901,3 +901,26 @@
   gap: 4px;
 }
 
+/* Enforce uniform font across all admin inputs, canvas, and buttons */
+.admin-container input,
+.admin-container textarea,
+.admin-container select,
+.admin-container button,
+.admin-container label,
+.admin-layout input,
+.admin-layout textarea,
+.admin-layout select,
+.admin-layout button,
+.admin-layout label,
+.admin-form-container input,
+.admin-form-container textarea,
+.admin-form-container select,
+.admin-form-container button,
+.admin-form-container label,
+.admin-input,
+.admin-textarea,
+.admin-select {
+  font-family: 'Noto Sans Devanagari', 'Inter', -apple-system, sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+}
+

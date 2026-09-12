@@ -1096,13 +1096,9 @@ function HomeManager({ initialSubTab = 'hero', poems = [], publications = [], ab
       ]
 
 
-      let hasError = false
-      for (const update of updates) {
-        const { error } = await supabase.from('settings').upsert(update, { onConflict: 'key' })
-        if (error) {
-          console.error('Error saving home setting ' + update.key + ':', error)
-          hasError = true
-        }
+      const { error } = await supabase.from('settings').upsert(updates, { onConflict: 'key' })
+      if (error) {
+        console.error("Save failed:", error.message)
       }
 
       // Background attempt to update table columns if present
@@ -1948,10 +1944,13 @@ function AboutManager({ about, initialSubTab, onUpdate, setIsDirty }) {
         { key: 'hero_tag', value: formData.hero_tag || "साहित्यिक जीवन परिचय", display_label: 'Hero Tag' },
         { key: 'hero_subtitle', value: formData.hero_subtitle || "राष्ट्रीय चेतना, ओज एवं मानवीय संवेदनाओं के संवाहक", display_label: 'Hero Subtitle' },
         { key: 'badge_text', value: formData.badge_text || "वरिष्ठ हिंदी साहित्यकार", display_label: 'Badge Text' },
-        { key: 'quote_attribution', value: formData.quote_attribution || "गुरुप्रताप शर्मा 'आग'", display_label: 'Quote Attribution' }
+        { key: 'quote_attribution', value: formData.quote_attribution || "गुरुप्रताप शर्मा 'आग'", display_label: 'Quote Attribution' },
+        { key: 'about_bio_overview', value: formData.truncated_preview || '', display_label: 'About Bio Overview' }
       ]
-      for (const s of extraSettings) {
-        await supabase.from('settings').upsert(s, { onConflict: 'key' })
+
+      const { error: settingsError } = await supabase.from('settings').upsert(extraSettings, { onConflict: 'key' })
+      if (settingsError) {
+        console.error("Save failed:", settingsError.message)
       }
 
       const aboutDataToSave = {
@@ -1966,15 +1965,16 @@ function AboutManager({ about, initialSubTab, onUpdate, setIsDirty }) {
         : await supabase.from('about_content').insert(aboutDataToSave)
 
       if (error) {
-        console.error('Error saving about content:', error)
+        console.error('Save failed:', error.message)
         alert('Error saving about content: ' + error.message)
         return
       }
 
+      if (setIsDirty) setIsDirty(false)
       alert('✓ कवि परिचय एवं बैनर सफलतापूर्वक सहेजा गया! (Bio & Hero Saved)')
       onUpdate()
     } catch (err) {
-      console.error('Error saving about content:', err)
+      console.error('Save failed:', err.message || err)
       alert('Error saving about content: ' + (err.message || 'Unknown error'))
     }
   }
@@ -1982,7 +1982,7 @@ function AboutManager({ about, initialSubTab, onUpdate, setIsDirty }) {
   return (
     <div>
       {subTab === 'timeline' && <TimelineManager onUpdate={onUpdate} />}
-      {subTab === 'awards' && <AwardsManager onUpdate={onUpdate} />}
+      {subTab === 'awards' && <AwardsManager onUpdate={onUpdate} setIsDirty={setIsDirty} />}
 
       {subTab === 'bio' && (
         <div className="admin-card-panel">
@@ -3411,13 +3411,25 @@ function AwardsManager({ onUpdate, setIsDirty }) {
     }
 
     try {
-      if (editingId && editingId !== 'new') {
-        await supabase.from('awards_honors').update(cleanData).eq('id', editingId)
-      } else {
-        await supabase.from('awards_honors').insert(cleanData)
+      const { error: dbErr } = (editingId && editingId !== 'new')
+        ? await supabase.from('awards_honors').update(cleanData).eq('id', editingId)
+        : await supabase.from('awards_honors').insert(cleanData)
+
+      if (dbErr) {
+        console.error("Save failed:", dbErr.message)
+      }
+
+      const { error: settingsErr } = await supabase.from('settings').upsert({
+        key: 'awards_list',
+        value: JSON.stringify(updatedList),
+        display_label: 'Awards List'
+      }, { onConflict: 'key' })
+
+      if (settingsErr) {
+        console.error("Save failed:", settingsErr.message)
       }
     } catch (err) {
-      console.warn('Awards DB save fallback:', err)
+      console.error('Save failed:', err.message || err)
     }
 
     if (setIsDirty) setIsDirty(false)
@@ -3508,24 +3520,22 @@ function AwardsManager({ onUpdate, setIsDirty }) {
         )}
       </div>
 
-      {showForm && (
-        <form id="admin-active-form" onSubmit={handleSubmit} onChange={() => setIsDirty && setIsDirty(true)} onInput={() => setIsDirty && setIsDirty(true)} className="admin-form-container">
-          <div className="admin-form-grid">
-            <div className="admin-form-group">
-              <label>{tLabel('वर्ष (e.g. १९९५ / 1995)', 'Year (e.g. 1995)')}</label>
-              <input className="admin-input" value={formData.year_display} onChange={e => updateForm({ year_display: e.target.value })} required />
-            </div>
-            <div className="admin-form-group">
-              <label>{tLabel('सम्मान का नाम', 'Award Title')}</label>
-              <input className="admin-input" value={formData.title} onChange={e => updateForm({ title: e.target.value })} required />
-            </div>
-            <div className="admin-form-group full-width">
-              <label>{tLabel('संस्था / आयोजक', 'Organization')}</label>
-              <input className="admin-input" value={formData.organization} onChange={e => updateForm({ organization: e.target.value })} required />
-            </div>
+      <form id="admin-active-form" onSubmit={handleSubmit} onChange={() => setIsDirty && setIsDirty(true)} onInput={() => setIsDirty && setIsDirty(true)} className="admin-form-container" style={{ display: showForm ? 'block' : 'none' }}>
+        <div className="admin-form-grid">
+          <div className="admin-form-group">
+            <label>{tLabel('वर्ष (e.g. १९९५ / 1995)', 'Year (e.g. 1995)')}</label>
+            <input className="admin-input" value={formData.year_display} onChange={e => updateForm({ year_display: e.target.value })} required={showForm} />
           </div>
-        </form>
-      )}
+          <div className="admin-form-group">
+            <label>{tLabel('सम्मान का नाम', 'Award Title')}</label>
+            <input className="admin-input" value={formData.title} onChange={e => updateForm({ title: e.target.value })} required={showForm} />
+          </div>
+          <div className="admin-form-group full-width">
+            <label>{tLabel('संस्था / आयोजक', 'Organization')}</label>
+            <input className="admin-input" value={formData.organization} onChange={e => updateForm({ organization: e.target.value })} required={showForm} />
+          </div>
+        </div>
+      </form>
 
       <ListContextualToolbar
         selectedIds={selectedIds}
