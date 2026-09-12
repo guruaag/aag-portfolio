@@ -252,8 +252,8 @@ function Contact() {
                 disabled={submitting}
               >
                 {submitting
-                  ? (isHi ? '⏳ संदेश भेजा जा रहा है...' : '⏳ Sending message...')
-                  : (isHi ? '📨 संदेश भेजें (Send Message)' : '📨 Send Message')}
+                  ? (isHi ? '⏳ भेजा जा रहा है...' : '⏳ Sending...')
+                  : (isHi ? '📨 भेजें' : '📨 Send')}
               </button>
             </form>
           </motion.div>

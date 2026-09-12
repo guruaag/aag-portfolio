@@ -63,10 +63,10 @@ function Header() {
   }
 
   const menuItems = [
-    { path: '/', label: i18n.language === 'en' ? 'Home' : 'मुख्य पृष्ठ' },
-    { path: '/kavi-parichay.html', label: i18n.language === 'en' ? 'About Poet' : 'कवि परिचय', isHtml: true },
-    { path: '/category/poems', label: i18n.language === 'en' ? 'Poetry Archive' : 'काव्य संग्रह' },
-    { path: '/category/publications', label: i18n.language === 'en' ? 'Publications' : 'प्रकाशन' },
+    { path: '/', label: i18n.language === 'en' ? 'Home' : 'होम' },
+    { path: '/kavi-parichay.html', label: i18n.language === 'en' ? 'About' : 'परिचय', isHtml: true },
+    { path: '/category/poems', label: i18n.language === 'en' ? 'Poetry' : 'कविताएं' },
+    { path: '/category/publications', label: i18n.language === 'en' ? 'Books' : 'पुस्तकें' },
     { path: '/contact', label: i18n.language === 'en' ? 'Contact' : 'संपर्क' }
   ]
 

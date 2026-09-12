@@ -340,7 +340,7 @@ function AdminDashboard({ tab, initialSubTab }) {
                 className={`admin-tab-btn ${activeTab === 'home' ? 'active' : ''}`}
                 onClick={() => switchTab('home', '/admin/home/hero', 'hero')}
               >
-                🏠 {tLabel('मुख्य पृष्ठ', 'Home Page')}
+                🏠 {tLabel('होम', 'Home')}
               </button>
 
               {/* Nested Sub-categories for Home Page */}
@@ -376,7 +376,7 @@ function AdminDashboard({ tab, initialSubTab }) {
                 className={`admin-tab-btn ${activeTab === 'about' || activeTab === 'timeline' || activeTab === 'awards' ? 'active' : ''}`}
                 onClick={() => switchTab('about', '/admin/parichay')}
               >
-                📖 {tLabel('कवि परिचय', 'About Bio')}
+                📖 {tLabel('परिचय', 'About')}
               </button>
               
               {/* Nested Sub-categories for About Bio */}
@@ -406,7 +406,7 @@ function AdminDashboard({ tab, initialSubTab }) {
                 className={`admin-tab-btn ${activeTab === 'poems' ? 'active' : ''}`}
                 onClick={() => switchTab('poems', '/admin/kavya-sangrah')}
               >
-                ✍️ {tLabel('काव्य संग्रह', 'Poetry Archive')}
+                ✍️ {tLabel('कविताएं', 'Poetry')}
               </button>
 
               {/* Publications Section */}
@@ -414,7 +414,7 @@ function AdminDashboard({ tab, initialSubTab }) {
                 className={`admin-tab-btn ${activeTab === 'publications' ? 'active' : ''}`}
                 onClick={() => switchTab('publications', '/admin/prakashan')}
               >
-                📚 {tLabel('प्रकाशन', 'Publications')}
+                📚 {tLabel('पुस्तकें', 'Books')}
               </button>
 
               {/* Contact & Inbox Section */}
@@ -422,7 +422,7 @@ function AdminDashboard({ tab, initialSubTab }) {
                 className={`admin-tab-btn ${activeTab === 'contact' || activeTab === 'inbox' ? 'active' : ''}`}
                 onClick={() => switchTab('contact', '/admin/sampark')}
               >
-                📞 {tLabel('संपर्क व इनबॉक्स', 'Contact & Inbox')}
+                📞 {tLabel('संदेश', 'Inbox')}
               </button>
 
               {/* Nested Sub-categories for Contact */}
@@ -446,7 +446,7 @@ function AdminDashboard({ tab, initialSubTab }) {
                 className={`admin-tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
                 onClick={() => switchTab('settings', '/admin/settings')}
               >
-                ⚙️ {tLabel('सेटिंग्स', 'Site Settings')}
+                ⚙️ {tLabel('सेटिंग्स', 'Settings')}
               </button>
             </div>
           </div>
@@ -481,7 +481,7 @@ function AdminDashboard({ tab, initialSubTab }) {
             <div className="admin-sticky-header-right">
               {isDirty && (
                 <span className="admin-dirty-badge">
-                  ⚠️ {tLabel('असुरक्षित बदलाव', 'Unsaved Changes')}
+                  ⚠️ {tLabel('बिना सहेजा', 'Unsaved')}
                 </span>
               )}
               <button
@@ -490,7 +490,7 @@ function AdminDashboard({ tab, initialSubTab }) {
                 className="admin-btn-primary admin-header-save-btn"
                 style={{ padding: '8px 20px', borderRadius: '20px', fontWeight: 700 }}
               >
-                💾 {tLabel('सहेजें / अपडेट', 'Save / Update')}
+                💾 {tLabel('सहेजें', 'Save')}
               </button>
             </div>
           </header>
@@ -2323,7 +2323,7 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
                     cursor: 'pointer'
                   }}
                 >
-                  🎨 {tLabel('Edit Page Maker Canvas', 'Edit Page Maker Canvas')}
+                  🎨 {tLabel('लेआउट बदलें', 'Edit Layout')}
                 </button>
                 <span style={{ fontSize: '0.85rem', color: '#6E665E' }}>
                   💡 {tLabel('पुस्तक के अंश/नमूना पृष्ठ संपादित करने के लिए फुलस्क्रीन कैनवस खोलें', 'Open fullscreen canvas to edit book sample pages/excerpts')}
@@ -2707,7 +2707,7 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
                     cursor: 'pointer'
                   }}
                 >
-                  🎨 {tLabel('Edit Page Maker Canvas', 'Edit Page Maker Canvas')}
+                  🎨 {tLabel('लेआउट बदलें', 'Edit Layout')}
                 </button>
                 <span style={{ fontSize: '0.85rem', color: '#6E665E' }}>
                   💡 {tLabel('फुलस्क्रीन डिस्ट्रैक्शन-फ्री कैनवस एडिटर खोलने के लिए दबाएं', 'Click to open distraction-free canvas editor')}
@@ -3558,11 +3558,11 @@ function InboxManager({ onUpdate }) {
                 onDelete={() => handleDeleteMsg(msg.id)}
                 customActions={[
                   ...(msg.email ? [{
-                    label: tLabel('उत्तर दें', 'Reply'),
+                    label: tLabel('जवाब दें', 'Reply'),
                     onClick: () => { window.location.href = `mailto:${msg.email}?subject=Re: ${encodeURIComponent(msg.subject || '')}`; }
                   }] : []),
                   {
-                    label: isRead ? tLabel('अपठित चिन्हित करें', 'Mark Unread') : tLabel('पठित चिन्हित करें', 'Mark Read'),
+                    label: isRead ? tLabel('अपठित', 'Mark Unread') : tLabel('पढ़ा हुआ', 'Mark Read'),
                     onClick: () => handleToggleRead(msg)
                   }
                 ]}

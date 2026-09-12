@@ -58,9 +58,9 @@ export default function ContentItemCard({
             type="button"
             className="poem-hover-badge badge-edit"
             onClick={onEdit}
-            title={isEn ? 'Edit Item' : 'संपादित करें'}
+            title={isEn ? 'Edit Item' : 'बदलें'}
           >
-            {isEn ? 'Edit' : 'संपादित करें'}
+            {isEn ? 'Edit' : 'बदलें'}
           </button>
         )}
 
@@ -70,9 +70,9 @@ export default function ContentItemCard({
             className="poem-hover-badge badge-move"
             onClick={onMoveUp}
             disabled={!canMoveUp}
-            title={isEn ? 'Move Up' : 'ऊपर ले जाएं'}
+            title={isEn ? 'Move Up' : 'ऊपर'}
           >
-            {isEn ? 'Move Up' : 'ऊपर ले जाएं'}
+            {isEn ? 'Move Up' : 'ऊपर'}
           </button>
         )}
 
@@ -82,9 +82,9 @@ export default function ContentItemCard({
             className="poem-hover-badge badge-move"
             onClick={onMoveDown}
             disabled={!canMoveDown}
-            title={isEn ? 'Move Down' : 'नीचे ले जाएं'}
+            title={isEn ? 'Move Down' : 'नीचे'}
           >
-            {isEn ? 'Move Down' : 'नीचे ले जाएं'}
+            {isEn ? 'Move Down' : 'नीचे'}
           </button>
         )}
 

@@ -292,7 +292,7 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, onC
             ↪️ {isEn ? 'Redo' : 'पुनः'}
           </button>
           <button type="button" className="pm5-undo-btn pm5-page-break-btn" onClick={handlePageBreak} title={isEn ? 'Insert Page Break' : 'मैनुअल पृष्ठ विभाजन'}>
-            📄 {isEn ? 'Page Break' : 'पृष्ठ ब्रेक'}
+            📄 {isEn ? 'New Page' : 'नया पृष्ठ'}
           </button>
           {isFullscreen && (
             <button
@@ -301,7 +301,7 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, onC
               onClick={handleExitDesk}
               title={isEn ? 'Exit Fullscreen (Esc)' : 'पूर्ण स्क्रीन बंद करें (Esc)'}
             >
-              ✕ {isEn ? 'Exit Fullscreen' : 'पूर्ण स्क्रीन बंद करें'}
+              ✕ {isEn ? 'Exit' : 'बाहर निकलें'}
             </button>
           )}
         </div>
@@ -329,7 +329,7 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, onC
                   alert(isEn ? '✓ Canvas saved & applied to full verse text!' : '✓ कैनवस सफलतापूर्वक सहेजा गया!');
                 }}
               >
-                💾 {isEn ? 'Save & Apply Canvas' : 'सहेजें और लागू करें'}
+                💾 {isEn ? 'Apply' : 'लागू करें'}
               </button>
             </div>
           )}

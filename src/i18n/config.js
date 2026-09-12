@@ -8,9 +8,9 @@ const resources = {
       // Navigation
       nav: {
         home: 'Home',
-        publications: 'Publications',
+        publications: 'Books',
         about: 'About',
-        poems: 'Poems',
+        poems: 'Poetry',
         contact: 'Contact',
         settings: 'Settings'
       },
@@ -34,7 +34,7 @@ const resources = {
       },
       // Publications
       publications: {
-        title: 'My Publications',
+        title: 'My Books',
         subtitle: 'A collection of literary works',
         viewDetails: 'View Details'
       },
@@ -59,16 +59,16 @@ const resources = {
     translation: {
       // Navigation
       nav: {
-        home: 'मुख्य पृष्ठ',
-        publications: 'प्रकाशन',
-        about: 'कवि परिचय',
-        poems: 'काव्य संग्रह',
+        home: 'होम',
+        publications: 'पुस्तकें',
+        about: 'परिचय',
+        poems: 'कविताएं',
         contact: 'संपर्क',
         settings: 'सेटिंग्स'
       },
       // Common
       common: {
-        readMore: 'और पढ़ें',
+        readMore: 'पढ़ें',
         readNow: 'अभी पढ़ें',
         back: 'वापस',
         share: 'साझा करें',
@@ -86,7 +86,7 @@ const resources = {
       },
       // Publications
       publications: {
-        title: 'मेरे प्रकाशन',
+        title: 'मेरी पुस्तकें',
         subtitle: 'साहित्यिक कृतियों का संग्रह',
         viewDetails: 'विवरण देखें',
         buyNow: 'अभी खरीदें',
@@ -98,7 +98,7 @@ const resources = {
       },
       // Common
       common: {
-        readMore: 'और पढ़ें',
+        readMore: 'पढ़ें',
         readNow: 'अभी पढ़ें',
         back: 'वापस',
         share: 'साझा करें',
@@ -111,7 +111,7 @@ const resources = {
       },
       // About
       about: {
-        title: 'के बारे में',
+        title: 'परिचय',
         mission: 'मिशन'
       },
       // Footer

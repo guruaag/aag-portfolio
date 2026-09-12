@@ -318,7 +318,7 @@ function ContactModal({ isOpen, onClose }) {
                   className="phoenix-submit-btn"
                   style={{ width: '100%', padding: '10px', fontSize: '0.95rem', marginTop: '4px' }}
                 >
-                  {submitting ? (isHi ? '⏳ भेजा जा रहा है...' : '⏳ Sending...') : (isHi ? '📨 संदेश भेजें' : '📨 Send Message')}
+                  {submitting ? (isHi ? '⏳ भेजा जा रहा है...' : '⏳ Sending...') : (isHi ? '📨 भेजें' : '📨 Send')}
                 </button>
               </form>
             </div>
