@@ -12,6 +12,8 @@ import Contact from './pages/Contact'
 import Settings from './pages/Settings'
 import AdminLogin from './pages/Admin/Login'
 import AdminDashboard from './pages/Admin/Dashboard'
+import KrutiDevConverterStudio from './pages/Admin/KrutiDevConverterStudio'
+
 import { initTheme } from './lib/themeSystem'
 import './styles/phoenix-design-system.css'
 import './styles/app.css'
@@ -163,6 +165,8 @@ function App() {
  <Route path="/admin/sampark" element={<AdminDashboard tab="contact" />} />
  <Route path="/admin/inbox" element={<AdminDashboard tab="inbox" />} />
  <Route path="/admin/settings" element={<AdminDashboard tab="settings" />} />
+ <Route path="/admin/kruti-dev-converter" element={<KrutiDevConverterStudio />} />
+ <Route path="/admin/converter" element={<KrutiDevConverterStudio />} />
  </Routes>
  </Layout>
  } />

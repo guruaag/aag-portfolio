@@ -57,40 +57,26 @@ export function isKrutiDevText(text) {
   // If original raw text ALREADY contains Devanagari Unicode characters (\u0900-\u097F), not ASCII Kruti Dev
   if (/[\u0900-\u097F]/.test(raw)) return false;
 
-  // Check for unique extended Kruti Dev symbols
+  // Check for unique extended Kruti Dev / PageMaker symbols
   if (/[ñòôõö÷øùúûüýþÿµ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöâ]/.test(raw)) {
     return true;
   }
 
-  // Count matches of Kruti Dev signature substrings
-  const cleanSpace = raw.replaceAll('\u00A0', ' ').replaceAll('\r\n', '\n');
-  const words = cleanSpace.split(/\s+/);
-  let krutiMatches = 0;
-  let totalWords = 0;
+  // Common Kruti Dev / PageMaker signature combinations
+  const krutiPatterns = [
+    'dks', 'esa', 'gSa', 'gks', 'vks', 'rFkk', 'ysfdu', 'lkFk', 'fd', 'ij', 'ds', 'dk', 'dh',
+    "f'", "'k", "[k", "Hkz", "lÙkk", "çtk", "ijs", "oun", "f'k", "dky", "j'", "vXf",
+    'gS', 'uk', 'esaA', 'esa]', 'dsA', 'ds]', 'drk', 'jks', 'ls', 'gkFk', 'usrk'
+  ];
 
-  for (const word of words) {
-    // Ignore numbers, punctuation, or legitimate English words/titles
-    if (/^[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+$/.test(word)) continue;
-    if (/^[a-zA-Z]{3,}$/.test(word) && !/(dks|esa|gSa|gks|vks|rFkk|ysfdu|lkFk|fjd|djk|f'|dky|j'|vXf|Hkz|dkj|f'k|dky|oun|lÙkk|çtk|ijs)/i.test(word)) {
-      // Standard English word without Kruti Dev signature combinations
-      continue;
-    }
-    
-    totalWords++;
-
-    let hasPattern = false;
-    for (const sig of KRUTI_DEV_SIGNATURES) {
-      if (word.includes(sig) || word.includes("f'") || word.includes("'k") || word.includes("[k") || word.includes("Hkz") || word.includes("lÙkk") || word.includes("çtk")) {
-        hasPattern = true;
-        break;
-      }
-    }
-    if (hasPattern) krutiMatches++;
+  let matches = 0;
+  for (const pat of krutiPatterns) {
+    if (raw.includes(pat)) matches++;
   }
 
-  if (totalWords === 0) return false;
-  return (krutiMatches / totalWords) >= 0.20;
+  return matches >= 1 || /[Hkz"Vkpkj|lÙkk|çtk|f'k{kk]/.test(raw);
 }
+
 
 /**
  * Converts a string (or word) of Kruti Dev text into Devanagari Unicode
@@ -326,7 +312,7 @@ export function convertKrutiDevToUnicode(text) {
       nextPos++;
     }
     str = str.substring(0, posF) + charToShift + 'ि' + str.substring(posF + 1 + charToShift.length);
-    posF = str.indexOf('f', posF + 1);
+    posF = str.indexOf('f', posF + charToShift.length + 1);
   }
 
   // Reph 'Z' (र्) positioning - skip back past matras to place before consonant
@@ -350,4 +336,6 @@ export function convertKrutiDevToUnicode(text) {
 
   return str.replaceAll('Z', 'र्').replaceAll('f', 'ि');
 }
+
+
 
