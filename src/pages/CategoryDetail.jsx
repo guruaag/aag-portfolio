@@ -12,7 +12,7 @@ import './CategoryDetail.css'
 
 function CategoryDetail() {
   const { categoryId } = useParams()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [category, setCategory] = useState(null)
   const [content, setContent] = useState(null)
   const [loading, setLoading] = useState(true)

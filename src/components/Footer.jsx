@@ -12,7 +12,7 @@ import './Footer.css'
 function Footer() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [toast, setToast] = useState(null)
   const [showThankYou, setShowThankYou] = useState(false)
   const [showShareMenu, setShowShareMenu] = useState(false)

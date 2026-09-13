@@ -7,7 +7,7 @@ import './PublicationCard.css'
 
 function PublicationCard({ publication, index = 0 }) {
   const navigate = useNavigate()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [isHovered, setIsHovered] = useState(false)
   
   const imageUrl = getImageUrl(publication.image_path)
