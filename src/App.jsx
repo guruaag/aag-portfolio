@@ -25,6 +25,8 @@ import './styles/scroll-reveal.css'
 
 
 
+import { FontProvider } from './contexts/FontContext'
+
 import { Component } from 'react'
 
 class ErrorBoundary extends Component {
@@ -107,6 +109,7 @@ function App() {
  <ErrorBoundary>
  <HelmetProvider>
  <I18nextProvider i18n={i18n}>
+ <FontProvider>
  <BrowserRouter>
  <Suspense fallback={<div style={{ 
  display: 'flex', 
@@ -173,6 +176,7 @@ function App() {
  </Routes>
  </Suspense>
  </BrowserRouter>
+ </FontProvider>
  </I18nextProvider>
  </HelmetProvider>
  </ErrorBoundary>
@@ -180,4 +184,3 @@ function App() {
 }
 
 export default App
-

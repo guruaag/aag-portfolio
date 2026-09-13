@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
+import { useFontPreference } from '../contexts/FontContext'
 import { supabase } from '../lib/supabaseClient'
 import { getImageUrl } from '../lib/imageUtils'
 import './Header.css'
 
 function Header() {
+  const { typingFont, setTypingFont } = useFontPreference()
   const navigate = useNavigate()
   const location = useLocation()
   const { t, i18n } = useTranslation()
@@ -183,6 +185,29 @@ function Header() {
 
           {/* Right Side Actions */}
           <div className="phoenix-header-actions">
+            {/* Font Switcher Select (English vs Kruti Dev) */}
+            <select
+              value={typingFont}
+              onChange={(e) => setTypingFont(e.target.value)}
+              className="btn-font-switcher"
+              title="Global Typing Font Mode"
+              style={{
+                padding: '5px 10px',
+                border: typingFont === 'krutidev' ? '1.5px solid #F66E5E' : '1.5px solid #1E1B18',
+                borderRadius: '20px',
+                background: typingFont === 'krutidev' ? 'rgba(246, 110, 94, 0.1)' : 'transparent',
+                color: typingFont === 'krutidev' ? '#F66E5E' : '#1E1B18',
+                fontSize: '0.82rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                outline: 'none',
+                marginRight: '6px'
+              }}
+            >
+              <option value="english">Font: English</option>
+              <option value="krutidev">Font: कृतिदेव</option>
+            </select>
+
             {/* Language Switcher Button - Exact HI / EN as public site */}
             <motion.button
               className="btn-lang"

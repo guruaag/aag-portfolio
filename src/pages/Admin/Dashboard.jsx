@@ -14,6 +14,7 @@ import PM5BatchPasteModal from '../../components/admin/PM5BatchPasteModal'
 import { handleHindiKeyDown } from '../../utils/hindiTypingEngine'
 import i18n from '../../i18n/config'
 import { handleFormattingShortcut } from '../../utils/textFormatter'
+import { useFontPreference } from '../../contexts/FontContext'
 import './AdminDashboard.css'
 
 function handleKrutiDevPaste(e, currentValue, onUpdate, setPasteToast) {
@@ -98,6 +99,7 @@ function UnsavedChangesModal({ isOpen, onConfirmDiscard, onKeepEditing, tLabel }
 
 function AdminDashboard({ tab, initialSubTab }) {
  const navigate = useNavigate()
+ const { typingFont, setTypingFont } = useFontPreference()
  const [activeTab, setActiveTab] = useState(tab || 'categories')
  const [homeSubTab, setHomeSubTab] = useState(initialSubTab || 'hero')
 
@@ -363,6 +365,53 @@ function AdminDashboard({ tab, initialSubTab }) {
  {adminLang === 'hi' ? 'English' : 'हिंदी'}
  </button>
  </div>
+
+  {/* Global Application-Wide Typing Switcher (English vs Kruti Dev Remington) */}
+  <div className="admin-sidebar-font-switcher" style={{ marginTop: '12px', padding: '8px 10px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+  <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#F66E5E', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+  <span>⌨️</span> {tLabel('टाइपिंग मोड:', 'Typing Mode:')}
+  </div>
+  <div style={{ display: 'flex', gap: '6px' }}>
+  <button
+  type="button"
+  className={`admin-sidebar-action-btn ${typingFont === 'english' ? 'active' : ''}`}
+  onClick={() => setTypingFont('english')}
+  style={{
+  flex: 1,
+  padding: '6px 8px',
+  fontSize: '0.75rem',
+  fontWeight: 600,
+  borderRadius: '6px',
+  background: typingFont === 'english' ? '#F66E5E' : 'rgba(255, 255, 255, 0.1)',
+  color: '#FFFFFF',
+  border: 'none',
+  cursor: 'pointer',
+  textAlign: 'center'
+  }}
+  >
+  English
+  </button>
+  <button
+  type="button"
+  className={`admin-sidebar-action-btn ${typingFont === 'krutidev' ? 'active' : ''}`}
+  onClick={() => setTypingFont('krutidev')}
+  style={{
+  flex: 1,
+  padding: '6px 8px',
+  fontSize: '0.75rem',
+  fontWeight: 600,
+  borderRadius: '6px',
+  background: typingFont === 'krutidev' ? '#F66E5E' : 'rgba(255, 255, 255, 0.1)',
+  color: '#FFFFFF',
+  border: 'none',
+  cursor: 'pointer',
+  textAlign: 'center'
+  }}
+  >
+  कृतिदेव
+  </button>
+  </div>
+  </div>
  </div>
 
  {/* Independently Scrollable Navigation Container */}

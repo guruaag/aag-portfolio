@@ -292,6 +292,8 @@ export function convertKrutiDevToUnicode(text) {
     ['l', 'स'],
     ['g', 'ह'],
     ['o', 'व'],
+    ['=Z', 'र्त्र'],
+    ['=', 'त्र'],
     ['{', 'क्ष्']
   ];
 
@@ -324,6 +326,11 @@ export function convertKrutiDevToUnicode(text) {
     while (prevPos >= 0) {
       const c = str.charAt(prevPos);
       charToShift = c + charToShift;
+      if (c === 'र' && prevPos >= 2 && str.slice(prevPos - 2, prevPos) === 'त्') {
+        charToShift = 'त्' + charToShift;
+        prevPos -= 2;
+        break;
+      }
       if (c !== '्' && !matraChars.has(c)) break;
       prevPos--;
     }
