@@ -13,412 +13,412 @@ import ImageModal from '../components/ImageModal'
 import './Home.css'
 
 function Home() {
-  const { t, i18n } = useTranslation()
-  const navigate = useNavigate()
-  const [categories, setCategories] = useState([])
-  const [aboutContent, setAboutContent] = useState(null)
-  const [publications, setPublications] = useState([])
-  const [poems, setPoems] = useState([])
-  const [timelineHighlights, setTimelineHighlights] = useState([])
-  const [awardsHighlights, setAwardsHighlights] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [imageModal, setImageModal] = useState({ isOpen: false, url: null, alt: '' })
+ const { t, i18n } = useTranslation()
+ const navigate = useNavigate()
+ const [categories, setCategories] = useState([])
+ const [aboutContent, setAboutContent] = useState(null)
+ const [publications, setPublications] = useState([])
+ const [poems, setPoems] = useState([])
+ const [timelineHighlights, setTimelineHighlights] = useState([])
+ const [awardsHighlights, setAwardsHighlights] = useState([])
+ const [loading, setLoading] = useState(true)
+ const [error, setError] = useState(null)
+ const [imageModal, setImageModal] = useState({ isOpen: false, url: null, alt: '' })
 
-  useEffect(() => {
-    loadData()
-  }, [])
+ useEffect(() => {
+ loadData()
+ }, [])
 
-  const loadData = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      
-      const [catsData, aboutData, pubsData, poemsData, settingsList, timelineData, awardsData] = await Promise.all([
-        getCategories().catch(() => []),
-        getAboutContent().catch(() => null),
-        getPublications().catch(() => []),
-        getPoems().catch(() => []),
-        getAllSettings().catch(() => []),
-        getTimeline().catch(() => []),
-        getAwards().catch(() => [])
-      ])
+ const loadData = async () => {
+ try {
+ setLoading(true)
+ setError(null)
+ 
+ const [catsData, aboutData, pubsData, poemsData, settingsList, timelineData, awardsData] = await Promise.all([
+ getCategories().catch(() => []),
+ getAboutContent().catch(() => null),
+ getPublications().catch(() => []),
+ getPoems().catch(() => []),
+ getAllSettings().catch(() => []),
+ getTimeline().catch(() => []),
+ getAwards().catch(() => [])
+ ])
 
-      const sMap = {}
-      if (Array.isArray(settingsList)) {
-        settingsList.forEach(s => { if (s && s.key) sMap[s.key] = s.value })
-      }
+ const sMap = {}
+ if (Array.isArray(settingsList)) {
+ settingsList.forEach(s => { if (s && s.key) sMap[s.key] = s.value })
+ }
 
-      // Check custom intro excerpt setting
-      const useCustomExcerpt = sMap.home_use_custom_excerpt === 'true'
-      const customExcerpt = sMap.home_custom_excerpt || ''
+ // Check custom intro excerpt setting
+ const useCustomExcerpt = sMap.home_use_custom_excerpt === 'true'
+ const customExcerpt = sMap.home_custom_excerpt || ''
 
-      // Process featured items based on selected sequence
-      let featPoemIds = []
-      let featPubIds = []
-      let featTimelineIds = []
-      let featAwardIds = []
+ // Process featured items based on selected sequence
+ let featPoemIds = []
+ let featPubIds = []
+ let featTimelineIds = []
+ let featAwardIds = []
 
-      try {
-        if (sMap.home_featured_poems) {
-          featPoemIds = typeof sMap.home_featured_poems === 'string' ? JSON.parse(sMap.home_featured_poems) : sMap.home_featured_poems
-        }
-      } catch (e) {}
+ try {
+ if (sMap.home_featured_poems) {
+ featPoemIds = typeof sMap.home_featured_poems === 'string' ? JSON.parse(sMap.home_featured_poems) : sMap.home_featured_poems
+ }
+ } catch (e) {}
 
-      try {
-        if (sMap.home_featured_publications) {
-          featPubIds = typeof sMap.home_featured_publications === 'string' ? JSON.parse(sMap.home_featured_publications) : sMap.home_featured_publications
-        }
-      } catch (e) {}
+ try {
+ if (sMap.home_featured_publications) {
+ featPubIds = typeof sMap.home_featured_publications === 'string' ? JSON.parse(sMap.home_featured_publications) : sMap.home_featured_publications
+ }
+ } catch (e) {}
 
-      try {
-        if (sMap.home_featured_timeline) {
-          featTimelineIds = typeof sMap.home_featured_timeline === 'string' ? JSON.parse(sMap.home_featured_timeline) : sMap.home_featured_timeline
-        }
-      } catch (e) {}
+ try {
+ if (sMap.home_featured_timeline) {
+ featTimelineIds = typeof sMap.home_featured_timeline === 'string' ? JSON.parse(sMap.home_featured_timeline) : sMap.home_featured_timeline
+ }
+ } catch (e) {}
 
-      try {
-        if (sMap.home_featured_awards) {
-          featAwardIds = typeof sMap.home_featured_awards === 'string' ? JSON.parse(sMap.home_featured_awards) : sMap.home_featured_awards
-        }
-      } catch (e) {}
+ try {
+ if (sMap.home_featured_awards) {
+ featAwardIds = typeof sMap.home_featured_awards === 'string' ? JSON.parse(sMap.home_featured_awards) : sMap.home_featured_awards
+ }
+ } catch (e) {}
 
-      // Dynamic single-row card limits from settings (default 3)
-      const maxPoems = parseInt(sMap.home_featured_poems_limit || '3', 10)
-      const maxBooks = parseInt(sMap.home_featured_publications_limit || '3', 10)
+ // Dynamic single-row card limits from settings (default 3)
+ const maxPoems = parseInt(sMap.home_featured_poems_limit || '3', 10)
+ const maxBooks = parseInt(sMap.home_featured_publications_limit || '3', 10)
 
-      const allCleanPoems = (poemsData || []).map(sanitizePoem).filter(Boolean)
-      const allCleanPubs = (pubsData || []).map(sanitizePublication).filter(Boolean)
+ const allCleanPoems = (poemsData || []).map(sanitizePoem).filter(Boolean)
+ const allCleanPubs = (pubsData || []).map(sanitizePublication).filter(Boolean)
 
-      // Strict Zero Hardcoding Rule:
-      // Map featured items strictly based on saved IDs in settings.
-      // If no IDs are saved in settings, keep ordered arrays empty (no hardcoded fallback arrays/mock items).
-      let orderedPoems = []
-      if (Array.isArray(featPoemIds) && featPoemIds.length > 0) {
-        orderedPoems = featPoemIds.map(id => allCleanPoems.find(p => String(p.id) === String(id))).filter(Boolean)
-      }
+ // Strict Zero Hardcoding Rule:
+ // Map featured items strictly based on saved IDs in settings.
+ // If no IDs are saved in settings, keep ordered arrays empty (no hardcoded fallback arrays/mock items).
+ let orderedPoems = []
+ if (Array.isArray(featPoemIds) && featPoemIds.length > 0) {
+ orderedPoems = featPoemIds.map(id => allCleanPoems.find(p => String(p.id) === String(id))).filter(Boolean)
+ }
 
-      let orderedPubs = []
-      if (Array.isArray(featPubIds) && featPubIds.length > 0) {
-        orderedPubs = featPubIds.map(id => allCleanPubs.find(p => String(p.id) === String(id))).filter(Boolean)
-      }
+ let orderedPubs = []
+ if (Array.isArray(featPubIds) && featPubIds.length > 0) {
+ orderedPubs = featPubIds.map(id => allCleanPubs.find(p => String(p.id) === String(id))).filter(Boolean)
+ }
 
-      let orderedTimeline = []
-      if (Array.isArray(featTimelineIds) && featTimelineIds.length > 0) {
-        orderedTimeline = featTimelineIds.map(id => (timelineData || []).find(t => String(t.id) === String(id))).filter(Boolean)
-      }
+ let orderedTimeline = []
+ if (Array.isArray(featTimelineIds) && featTimelineIds.length > 0) {
+ orderedTimeline = featTimelineIds.map(id => (timelineData || []).find(t => String(t.id) === String(id))).filter(Boolean)
+ }
 
-      let orderedAwards = []
-      if (Array.isArray(featAwardIds) && featAwardIds.length > 0) {
-        orderedAwards = featAwardIds.map(id => (awardsData || []).find(a => String(a.id) === String(id))).filter(Boolean)
-      }
+ let orderedAwards = []
+ if (Array.isArray(featAwardIds) && featAwardIds.length > 0) {
+ orderedAwards = featAwardIds.map(id => (awardsData || []).find(a => String(a.id) === String(id))).filter(Boolean)
+ }
 
-      const cleanCategories = (catsData || []).map(c => ({
-        ...c,
-        name_display: sanitizeText(c.name_display || c.name_hi || c.name),
-        name_hi: sanitizeText(c.name_hi || c.name),
-        name_en: sanitizeText(c.name_en || c.name)
-      }))
+ const cleanCategories = (catsData || []).map(c => ({
+ ...c,
+ name_display: sanitizeText(c.name_display || c.name_hi || c.name),
+ name_hi: sanitizeText(c.name_hi || c.name),
+ name_en: sanitizeText(c.name_en || c.name)
+ }))
 
-      setCategories(cleanCategories)
-      setAboutContent(aboutData ? {
-        ...aboutData,
-        truncated_preview: useCustomExcerpt && customExcerpt ? customExcerpt : sanitizeText(aboutData.truncated_preview)
-      } : null)
-      setPublications(orderedPubs.slice(0, maxBooks))
-      setPoems(orderedPoems.slice(0, maxPoems))
-      setTimelineHighlights(orderedTimeline.slice(0, 4))
-      setAwardsHighlights(orderedAwards.slice(0, 4))
+ setCategories(cleanCategories)
+ setAboutContent(aboutData ? {
+ ...aboutData,
+ truncated_preview: useCustomExcerpt && customExcerpt ? customExcerpt : sanitizeText(aboutData.truncated_preview)
+ } : null)
+ setPublications(orderedPubs.slice(0, maxBooks))
+ setPoems(orderedPoems.slice(0, maxPoems))
+ setTimelineHighlights(orderedTimeline.slice(0, 4))
+ setAwardsHighlights(orderedAwards.slice(0, 4))
 
-    } catch (err) {
-      console.error('Error loading data:', err)
-      setError('Content not available')
-    } finally {
-      setLoading(false)
-    }
-  }
+ } catch (err) {
+ console.error('Error loading data:', err)
+ setError('Content not available')
+ } finally {
+ setLoading(false)
+ }
+ }
 
-  if (loading) {
-    return (
-      <div className="phoenix-loading">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-          className="phoenix-spinner"
-        />
-        <p>Loading...</p>
-      </div>
-    )
-  }
+ if (loading) {
+ return (
+ <div className="phoenix-loading">
+ <motion.div
+ animate={{ rotate: 360 }}
+ transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+ className="phoenix-spinner"
+ />
+ <p>Loading...</p>
+ </div>
+ )
+ }
 
-  if (error) {
-    return (
-      <div className="phoenix-error">
-        <p>{error}</p>
-        <button className="phoenix-btn phoenix-btn-outline" onClick={loadData}>
-          Refresh
-        </button>
-      </div>
-    )
-  }
+ if (error) {
+ return (
+ <div className="phoenix-error">
+ <p>{error}</p>
+ <button className="phoenix-btn phoenix-btn-outline" onClick={loadData}>
+ Refresh
+ </button>
+ </div>
+ )
+ }
 
-  const aboutCategory = categories.find(c => c.content_type === 'about' && c.is_active !== false)
-  const publicationsCategory = categories.find(c => c.content_type === 'publications' && c.is_active !== false)
-  const poemsCategory = categories.find(c => c.content_type === 'writings' && c.is_active !== false)
-  const aboutImageUrl = aboutContent?.photo_path ? getImageUrl(aboutContent.photo_path) : null
-  const isHi = i18n.language === 'hi'
+ const aboutCategory = categories.find(c => c.content_type === 'about' && c.is_active !== false)
+ const publicationsCategory = categories.find(c => c.content_type === 'publications' && c.is_active !== false)
+ const poemsCategory = categories.find(c => c.content_type === 'writings' && c.is_active !== false)
+ const aboutImageUrl = aboutContent?.photo_path ? getImageUrl(aboutContent.photo_path) : null
+ const isHi = i18n.language === 'hi'
 
-  return (
-    <>
-      <Helmet>
-        <title>कवि गुरुप्रताप शर्मा 'आग' | हिंदी साहित्य</title>
-        <meta name="description" content={aboutContent?.truncated_preview || 'कवि गुरुप्रताप शर्मा \'आग\' की रचनाएं व काव्य संग्रह।'} />
-        <meta name="keywords" content="Guru Pratap Sharma Aag, Hindi Poetry, Hindi Sahitya, Kavita" />
-        <meta name="author" content="Guru Pratap Sharma 'Aag'" />
-        
-        {/* OpenGraph Tags */}
-        <meta property="og:title" content="कवि गुरुप्रताप शर्मा 'आग' | हिंदी साहित्य" />
-        <meta property="og:description" content={aboutContent?.truncated_preview || 'कवि गुरुप्रताप शर्मा \'आग\' की रचनाएं व काव्य संग्रह।'} />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={window.location.href} />
-        {aboutImageUrl && <meta property="og:image" content={aboutImageUrl} />}
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:locale" content="hi_IN" />
-        
-        {/* Twitter Card */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="कवि गुरुप्रताप शर्मा 'आग'" />
-        <meta name="twitter:description" content={aboutContent?.truncated_preview || 'कवि गुरुप्रताप शर्मा \'आग\''} />
-        {aboutImageUrl && <meta name="twitter:image" content={aboutImageUrl} />}
-        
-        {/* Additional SEO */}
-        <meta name="robots" content="index, follow" />
-        <link rel="canonical" href={window.location.href} />
-      </Helmet>
+ return (
+ <>
+ <Helmet>
+ <title>कवि गुरुप्रताप शर्मा 'आग' | हिंदी साहित्य</title>
+ <meta name="description" content={aboutContent?.truncated_preview || 'कवि गुरुप्रताप शर्मा \'आग\' की रचनाएं व काव्य संग्रह।'} />
+ <meta name="keywords" content="Guru Pratap Sharma Aag, Hindi Poetry, Hindi Sahitya, Kavita" />
+ <meta name="author" content="Guru Pratap Sharma 'Aag'" />
+ 
+ {/* OpenGraph Tags */}
+ <meta property="og:title" content="कवि गुरुप्रताप शर्मा 'आग' | हिंदी साहित्य" />
+ <meta property="og:description" content={aboutContent?.truncated_preview || 'कवि गुरुप्रताप शर्मा \'आग\' की रचनाएं व काव्य संग्रह।'} />
+ <meta property="og:type" content="website" />
+ <meta property="og:url" content={window.location.href} />
+ {aboutImageUrl && <meta property="og:image" content={aboutImageUrl} />}
+ <meta property="og:image:width" content="1200" />
+ <meta property="og:image:height" content="630" />
+ <meta property="og:locale" content="hi_IN" />
+ 
+ {/* Twitter Card */}
+ <meta name="twitter:card" content="summary_large_image" />
+ <meta name="twitter:title" content="कवि गुरुप्रताप शर्मा 'आग'" />
+ <meta name="twitter:description" content={aboutContent?.truncated_preview || 'कवि गुरुप्रताप शर्मा \'आग\''} />
+ {aboutImageUrl && <meta name="twitter:image" content={aboutImageUrl} />}
+ 
+ {/* Additional SEO */}
+ <meta name="robots" content="index, follow" />
+ <link rel="canonical" href={window.location.href} />
+ </Helmet>
 
-      <div className="phoenix-home">
-        {/* Top Hero Banner */}
-        <HeroSection />
+ <div className="phoenix-home">
+ {/* Top Hero Banner */}
+ <HeroSection />
 
-        {/* 1. About Section */}
-        {aboutContent && (
-          <motion.section
-            className="phoenix-section phoenix-section-box phoenix-about-section-home"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="phoenix-content">
-              <motion.h2
-                className="phoenix-section-title phoenix-section-title-link"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1, duration: 0.3 }}
-                onClick={() => navigate('/parichay')}
-                style={{ cursor: 'pointer' }}
-              >
-                कवि परिचय
-              </motion.h2>
-              
-              <div className="phoenix-about-home-layout-text-wrap">
-                {/* Image - Float Left, Text Wraps Around */}
-                {aboutImageUrl && (
-                  <motion.div
-                    className="phoenix-about-home-image-wrap about-image-container"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2, duration: 0.3 }}
-                  >
-                    <img
-                      src={aboutImageUrl}
-                      alt={aboutContent.title || 'Guru Pratap Sharma'}
-                      className="phoenix-about-home-img-wrap"
-                      onClick={() => setImageModal({ isOpen: true, url: aboutImageUrl, alt: aboutContent.title || 'Guru Pratap Sharma' })}
-                      style={{ cursor: 'pointer' }}
-                    />
-                  </motion.div>
-                )}
-                
-                {/* Text Wraps Around Image */}
-                <motion.div
-                  className="phoenix-about-home-text-wrap"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.2, duration: 0.3 }}
-                >
-                  {aboutContent.truncated_preview && (
-                    <p className="phoenix-about-preview">
-                      {aboutContent.truncated_preview}
-                    </p>
-                  )}
-                  <button
-                    className="phoenix-highlights-more-btn"
-                    onClick={() => navigate('/parichay')}
-                  >
-                    पूरा परिचय पढ़ें →
-                  </button>
-                </motion.div>
-              </div>
-              
-              {/* Image Modal */}
-              <ImageModal
-                isOpen={imageModal.isOpen}
-                imageUrl={imageModal.url}
-                alt={imageModal.alt}
-                onClose={() => setImageModal({ isOpen: false, url: null, alt: '' })}
-              />
-            </div>
-          </motion.section>
-        )}
+ {/* 1. About Section */}
+ {aboutContent && (
+ <motion.section
+ className="phoenix-section phoenix-section-box phoenix-about-section-home"
+ initial={{ opacity: 0, y: 20 }}
+ animate={{ opacity: 1, y: 0 }}
+ transition={{ duration: 0.3 }}
+ >
+ <div className="phoenix-content">
+ <motion.h2
+ className="phoenix-section-title phoenix-section-title-link"
+ initial={{ opacity: 0, y: 10 }}
+ animate={{ opacity: 1, y: 0 }}
+ transition={{ delay: 0.1, duration: 0.3 }}
+ onClick={() => navigate('/parichay')}
+ style={{ cursor: 'pointer' }}
+ >
+ कवि परिचय
+ </motion.h2>
+ 
+ <div className="phoenix-about-home-layout-text-wrap">
+ {/* Image - Float Left, Text Wraps Around */}
+ {aboutImageUrl && (
+ <motion.div
+ className="phoenix-about-home-image-wrap about-image-container"
+ initial={{ opacity: 0 }}
+ animate={{ opacity: 1 }}
+ transition={{ delay: 0.2, duration: 0.3 }}
+ >
+ <img
+ src={aboutImageUrl}
+ alt={aboutContent.title || 'Guru Pratap Sharma'}
+ className="phoenix-about-home-img-wrap"
+ onClick={() => setImageModal({ isOpen: true, url: aboutImageUrl, alt: aboutContent.title || 'Guru Pratap Sharma' })}
+ style={{ cursor: 'pointer' }}
+ />
+ </motion.div>
+ )}
+ 
+ {/* Text Wraps Around Image */}
+ <motion.div
+ className="phoenix-about-home-text-wrap"
+ initial={{ opacity: 0 }}
+ animate={{ opacity: 1 }}
+ transition={{ delay: 0.2, duration: 0.3 }}
+ >
+ {aboutContent.truncated_preview && (
+ <p className="phoenix-about-preview">
+ {aboutContent.truncated_preview}
+ </p>
+ )}
+ <button
+ className="phoenix-highlights-more-btn"
+ onClick={() => navigate('/parichay')}
+ >
+ पूरा परिचय पढ़ें →
+ </button>
+ </motion.div>
+ </div>
+ 
+ {/* Image Modal */}
+ <ImageModal
+ isOpen={imageModal.isOpen}
+ imageUrl={imageModal.url}
+ alt={imageModal.alt}
+ onClose={() => setImageModal({ isOpen: false, url: null, alt: '' })}
+ />
+ </div>
+ </motion.section>
+ )}
 
-        {/* 2. Poems Section */}
-        {poems.length > 0 && (
-          <motion.section
-            className="phoenix-section phoenix-section-box phoenix-poems-section-home"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.1 }}
-          >
-            <div className="phoenix-content">
-              <motion.h2
-                className="phoenix-section-title phoenix-section-title-link"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.3 }}
-                onClick={() => poemsCategory ? navigate(`/category/${poemsCategory.id}`) : navigate('/kavya-sangrah')}
-                style={{ cursor: 'pointer' }}
-              >
-                काव्य संग्रह
-              </motion.h2>
-              
-              <div className="phoenix-poems-list-home phoenix-single-row-grid">
-                {poems.map((poem, index) => (
-                  <PoemCard
-                    key={poem.id}
-                    poem={poem}
-                    index={index}
-                  />
-                ))}
-              </div>
-            </div>
-          </motion.section>
-        )}
+ {/* 2. Poems Section */}
+ {poems.length > 0 && (
+ <motion.section
+ className="phoenix-section phoenix-section-box phoenix-poems-section-home"
+ initial={{ opacity: 0, y: 20 }}
+ animate={{ opacity: 1, y: 0 }}
+ transition={{ duration: 0.3, delay: 0.1 }}
+ >
+ <div className="phoenix-content">
+ <motion.h2
+ className="phoenix-section-title phoenix-section-title-link"
+ initial={{ opacity: 0, y: 10 }}
+ animate={{ opacity: 1, y: 0 }}
+ transition={{ delay: 0.2, duration: 0.3 }}
+ onClick={() => poemsCategory ? navigate(`/category/${poemsCategory.id}`) : navigate('/kavya-sangrah')}
+ style={{ cursor: 'pointer' }}
+ >
+ काव्य संग्रह
+ </motion.h2>
+ 
+ <div className="phoenix-poems-list-home phoenix-single-row-grid">
+ {poems.map((poem, index) => (
+ <PoemCard
+ key={poem.id}
+ poem={poem}
+ index={index}
+ />
+ ))}
+ </div>
+ </div>
+ </motion.section>
+ )}
 
-        {/* 3. Publications Section */}
-        {publications.length > 0 && (
-          <motion.section
-            className="phoenix-section phoenix-section-box phoenix-publications-section-home"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
-          >
-            <div className="phoenix-content">
-              <motion.h2
-                className="phoenix-section-title phoenix-section-title-link"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.3 }}
-                onClick={() => publicationsCategory ? navigate(`/category/${publicationsCategory.id}`) : navigate('/prakashan')}
-                style={{ cursor: 'pointer' }}
-              >
-                प्रकाशन
-              </motion.h2>
-              
-              <div className="phoenix-publications-scroll phoenix-single-row-grid">
+ {/* 3. Publications Section */}
+ {publications.length > 0 && (
+ <motion.section
+ className="phoenix-section phoenix-section-box phoenix-publications-section-home"
+ initial={{ opacity: 0, y: 20 }}
+ animate={{ opacity: 1, y: 0 }}
+ transition={{ duration: 0.3, delay: 0.2 }}
+ >
+ <div className="phoenix-content">
+ <motion.h2
+ className="phoenix-section-title phoenix-section-title-link"
+ initial={{ opacity: 0, y: 10 }}
+ animate={{ opacity: 1, y: 0 }}
+ transition={{ delay: 0.3, duration: 0.3 }}
+ onClick={() => publicationsCategory ? navigate(`/category/${publicationsCategory.id}`) : navigate('/prakashan')}
+ style={{ cursor: 'pointer' }}
+ >
+ प्रकाशन
+ </motion.h2>
+ 
+ <div className="phoenix-publications-scroll phoenix-single-row-grid">
 
-                {publications.map((pub, index) => (
-                  <PublicationCard
-                    key={pub.id}
-                    publication={pub}
-                    index={index}
-                  />
-                ))}
-              </div>
-            </div>
-          </motion.section>
-        )}
+ {publications.map((pub, index) => (
+ <PublicationCard
+ key={pub.id}
+ publication={pub}
+ index={index}
+ />
+ ))}
+ </div>
+ </div>
+ </motion.section>
+ )}
 
-        {/* 4. Highlights Section (Timeline & Awards) */}
-        {(timelineHighlights.length > 0 || awardsHighlights.length > 0) && (
-          <motion.section
-            className="phoenix-section phoenix-section-box phoenix-highlights-section-home"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.3 }}
-          >
-            <div className="phoenix-content">
-              <h2 className="phoenix-section-title">
-                मुख्य उपलब्धियां
-              </h2>
+ {/* 4. Highlights Section (Timeline & Awards) */}
+ {(timelineHighlights.length > 0 || awardsHighlights.length > 0) && (
+ <motion.section
+ className="phoenix-section phoenix-section-box phoenix-highlights-section-home"
+ initial={{ opacity: 0, y: 20 }}
+ animate={{ opacity: 1, y: 0 }}
+ transition={{ duration: 0.3, delay: 0.3 }}
+ >
+ <div className="phoenix-content">
+ <h2 className="phoenix-section-title">
+ मुख्य उपलब्धियां
+ </h2>
 
-              <div className="phoenix-highlights-grid">
-                {/* Left Col: Timeline */}
-                {timelineHighlights.length > 0 && (
-                  <div className="phoenix-highlight-col">
-                    <h3 className="phoenix-highlight-col-title">
-                      ⏳ जीवन यात्रा (मील के पत्थर)
-                    </h3>
-                    {timelineHighlights.map((item) => (
-                      <div key={item.id} className="phoenix-highlight-card">
-                        {(item.year || item.year_period) && (
-                          <span className="phoenix-highlight-year-badge">{item.year || item.year_period}</span>
-                        )}
-                        <h4 className="phoenix-highlight-item-title">
-                          {item.title_hi || item.title || item.event_title}
-                        </h4>
-                        {(item.description_hi || item.description) && (
-                          <p className="phoenix-highlight-item-desc">
-                            {item.description_hi || item.description}
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                    <button
-                      className="phoenix-highlights-more-btn"
-                      onClick={() => navigate('/parichay')}
-                    >
-                      और देखें →
-                    </button>
-                  </div>
-                )}
+ <div className="phoenix-highlights-grid">
+ {/* Left Col: Timeline */}
+ {timelineHighlights.length > 0 && (
+ <div className="phoenix-highlight-col">
+ <h3 className="phoenix-highlight-col-title">
+ जीवन यात्रा (मील के पत्थर)
+ </h3>
+ {timelineHighlights.map((item) => (
+ <div key={item.id} className="phoenix-highlight-card">
+ {(item.year || item.year_period) && (
+ <span className="phoenix-highlight-year-badge">{item.year || item.year_period}</span>
+ )}
+ <h4 className="phoenix-highlight-item-title">
+ {item.title_hi || item.title || item.event_title}
+ </h4>
+ {(item.description_hi || item.description) && (
+ <p className="phoenix-highlight-item-desc">
+ {item.description_hi || item.description}
+ </p>
+ )}
+ </div>
+ ))}
+ <button
+ className="phoenix-highlights-more-btn"
+ onClick={() => navigate('/parichay')}
+ >
+ और देखें →
+ </button>
+ </div>
+ )}
 
-                {/* Right Col: Awards */}
-                {awardsHighlights.length > 0 && (
-                  <div className="phoenix-highlight-col">
-                    <h3 className="phoenix-highlight-col-title">
-                      🏆 पुरस्कार व सम्मान
-                    </h3>
-                    {awardsHighlights.map((award) => (
-                      <div key={award.id} className="phoenix-highlight-card">
-                        {(award.year || award.year_awarded) && (
-                          <span className="phoenix-highlight-year-badge">{award.year || award.year_awarded}</span>
-                        )}
-                        <h4 className="phoenix-highlight-item-title">
-                          {award.title_hi || award.title || award.award_name}
-                        </h4>
-                        {(award.description_hi || award.description || award.conferred_by || award.given_by) && (
-                          <p className="phoenix-highlight-item-desc">
-                            {award.description_hi || award.description || (award.conferred_by ? `प्रदाता: ${award.conferred_by}` : (award.given_by ? `Conferred by: ${award.given_by}` : ''))}
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                    <button
-                      className="phoenix-highlights-more-btn"
-                      onClick={() => navigate('/parichay')}
-                    >
-                      और देखें →
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </motion.section>
-        )}
-      </div>
-    </>
-  )
+ {/* Right Col: Awards */}
+ {awardsHighlights.length > 0 && (
+ <div className="phoenix-highlight-col">
+ <h3 className="phoenix-highlight-col-title">
+ पुरस्कार व सम्मान
+ </h3>
+ {awardsHighlights.map((award) => (
+ <div key={award.id} className="phoenix-highlight-card">
+ {(award.year || award.year_awarded) && (
+ <span className="phoenix-highlight-year-badge">{award.year || award.year_awarded}</span>
+ )}
+ <h4 className="phoenix-highlight-item-title">
+ {award.title_hi || award.title || award.award_name}
+ </h4>
+ {(award.description_hi || award.description || award.conferred_by || award.given_by) && (
+ <p className="phoenix-highlight-item-desc">
+ {award.description_hi || award.description || (award.conferred_by ? `प्रदाता: ${award.conferred_by}` : (award.given_by ? `Conferred by: ${award.given_by}` : ''))}
+ </p>
+ )}
+ </div>
+ ))}
+ <button
+ className="phoenix-highlights-more-btn"
+ onClick={() => navigate('/parichay')}
+ >
+ और देखें →
+ </button>
+ </div>
+ )}
+ </div>
+ </div>
+ </motion.section>
+ )}
+ </div>
+ </>
+ )
 }
 
 export default Home

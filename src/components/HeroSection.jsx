@@ -7,162 +7,162 @@ import { getAboutContent, supabase, getAllSettings } from '../lib/supabaseClient
 import './HeroSection.css'
 
 function HeroSection() {
-  const { t, i18n } = useTranslation()
-  const navigate = useNavigate()
-  const [aboutContent, setAboutContent] = useState(null)
-  const [heroConfig, setHeroConfig] = useState({
-    title: 'अग्नि कलश',
-    subtitle: '"हिंदी काव्य और ओजस्वी चेतना की अमर गाथा"',
-    imageUrl: '',
-    ctaPrimaryLabel: 'रचनाएं पढ़ें',
-    ctaPrimaryUrl: '/kavya-sangrah',
-    ctaSecondaryLabel: 'परिचय',
-    ctaSecondaryUrl: '/parichay'
-  })
-  const [loading, setLoading] = useState(true)
+ const { t, i18n } = useTranslation()
+ const navigate = useNavigate()
+ const [aboutContent, setAboutContent] = useState(null)
+ const [heroConfig, setHeroConfig] = useState({
+ title: 'अग्नि कलश',
+ subtitle: '"हिंदी काव्य और ओजस्वी चेतना की अमर गाथा"',
+ imageUrl: '',
+ ctaPrimaryLabel: 'रचनाएं पढ़ें',
+ ctaPrimaryUrl: '/kavya-sangrah',
+ ctaSecondaryLabel: 'परिचय',
+ ctaSecondaryUrl: '/parichay'
+ })
+ const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    loadHeroData()
-  }, [])
+ useEffect(() => {
+ loadHeroData()
+ }, [])
 
-  const loadHeroData = async () => {
-    try {
-      setLoading(true)
-      const [aboutData, settingsList] = await Promise.all([
-        getAboutContent().catch(() => null),
-        getAllSettings().catch(() => [])
-      ])
+ const loadHeroData = async () => {
+ try {
+ setLoading(true)
+ const [aboutData, settingsList] = await Promise.all([
+ getAboutContent().catch(() => null),
+ getAllSettings().catch(() => [])
+ ])
 
-      setAboutContent(aboutData)
+ setAboutContent(aboutData)
 
-      const sMap = {}
-      if (Array.isArray(settingsList)) {
-        settingsList.forEach(s => { if (s && s.key) sMap[s.key] = s.value })
-      }
+ const sMap = {}
+ if (Array.isArray(settingsList)) {
+ settingsList.forEach(s => { if (s && s.key) sMap[s.key] = s.value })
+ }
 
-      setHeroConfig({
-        title: sMap.home_hero_title || 'अग्नि कलश',
-        subtitle: sMap.home_hero_subtitle || '"हिंदी काव्य और ओजस्वी चेतना की अमर गाथा"',
-        description: sMap.home_hero_description || '',
-        imageUrl: sMap.home_hero_image_url || '',
-        ctaPrimaryLabel: sMap.home_cta_primary_label || 'रचनाएं पढ़ें',
-        ctaPrimaryUrl: sMap.home_cta_primary_url || '/kavya-sangrah',
-        ctaSecondaryLabel: sMap.home_cta_secondary_label || 'परिचय',
-        ctaSecondaryUrl: sMap.home_cta_secondary_url || '/parichay'
-      })
-    } catch (err) {
-      console.error('Error loading hero data:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
+ setHeroConfig({
+ title: sMap.home_hero_title || 'अग्नि कलश',
+ subtitle: sMap.home_hero_subtitle || '"हिंदी काव्य और ओजस्वी चेतना की अमर गाथा"',
+ description: sMap.home_hero_description || '',
+ imageUrl: sMap.home_hero_image_url || '',
+ ctaPrimaryLabel: sMap.home_cta_primary_label || 'रचनाएं पढ़ें',
+ ctaPrimaryUrl: sMap.home_cta_primary_url || '/kavya-sangrah',
+ ctaSecondaryLabel: sMap.home_cta_secondary_label || 'परिचय',
+ ctaSecondaryUrl: sMap.home_cta_secondary_url || '/parichay'
+ })
+ } catch (err) {
+ console.error('Error loading hero data:', err)
+ } finally {
+ setLoading(false)
+ }
+ }
 
-  const isValidHeroImg = heroConfig.imageUrl && 
-    !heroConfig.imageUrl.toLowerCase().includes('screenshot') && 
-    !heroConfig.imageUrl.includes('media_')
+ const isValidHeroImg = heroConfig.imageUrl && 
+ !heroConfig.imageUrl.toLowerCase().includes('screenshot') && 
+ !heroConfig.imageUrl.includes('media_')
 
-  const authorImageUrl = isValidHeroImg
-    ? getImageUrl(heroConfig.imageUrl)
-    : (aboutContent?.photo_path ? getImageUrl(aboutContent.photo_path) : '/logo.png')
+ const authorImageUrl = isValidHeroImg
+ ? getImageUrl(heroConfig.imageUrl)
+ : (aboutContent?.photo_path ? getImageUrl(aboutContent.photo_path) : '/logo.png')
 
-  const authorName = i18n.language === 'hi' ? 'गुरु प्रताप शर्मा' : 'Guru Pratap Sharma'
-  const penName = i18n.language === 'hi' ? 'आग' : 'AAG'
-  const isHi = i18n.language === 'hi'
+ const authorName = i18n.language === 'hi' ? 'गुरु प्रताप शर्मा' : 'Guru Pratap Sharma'
+ const penName = i18n.language === 'hi' ? 'आग' : 'AAG'
+ const isHi = i18n.language === 'hi'
 
-  const handleCtaClick = (url) => {
-    if (!url) return
-    if (url.startsWith('/')) {
-      navigate(url)
-    } else if (url.startsWith('#')) {
-      const el = document.querySelector(url)
-      if (el) el.scrollIntoView({ behavior: 'smooth' })
-    } else {
-      window.location.href = url
-    }
-  }
+ const handleCtaClick = (url) => {
+ if (!url) return
+ if (url.startsWith('/')) {
+ navigate(url)
+ } else if (url.startsWith('#')) {
+ const el = document.querySelector(url)
+ if (el) el.scrollIntoView({ behavior: 'smooth' })
+ } else {
+ window.location.href = url
+ }
+ }
 
-  return (
-    <section className="phoenix-hero leona-hero">
-      <div className="phoenix-container">
-        <div className="leona-hero-grid">
-          
-          {/* 1. Left: 3D Featured Book Showcase */}
-          <motion.div 
-            className="leona-hero-book-showcase"
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <div className="leona-book-cover-3d-wrapper">
-              <span className="leona-book-badge-award">★ {isHi ? 'विशेष संकलन' : 'Featured Collection'}</span>
-              <img
-                src={authorImageUrl}
-                alt={heroConfig.title}
-                className="leona-book-cover-3d"
-                onError={(e) => {
-                  e.target.onerror = null
-                  e.target.src = aboutContent?.photo_path ? getImageUrl(aboutContent.photo_path) : '/logo.png'
-                }}
-              />
-            </div>
-          </motion.div>
+ return (
+ <section className="phoenix-hero leona-hero">
+ <div className="phoenix-container">
+ <div className="leona-hero-grid">
+ 
+ {/* 1. Left: 3D Featured Book Showcase */}
+ <motion.div 
+ className="leona-hero-book-showcase"
+ initial={{ opacity: 0, x: -30 }}
+ animate={{ opacity: 1, x: 0 }}
+ transition={{ duration: 0.8 }}
+ >
+ <div className="leona-book-cover-3d-wrapper">
+ <span className="leona-book-badge-award"> {isHi ? 'विशेष संकलन' : 'Featured Collection'}</span>
+ <img
+ src={authorImageUrl}
+ alt={heroConfig.title}
+ className="leona-book-cover-3d"
+ onError={(e) => {
+ e.target.onerror = null
+ e.target.src = aboutContent?.photo_path ? getImageUrl(aboutContent.photo_path) : '/logo.png'
+ }}
+ />
+ </div>
+ </motion.div>
 
-          {/* 2. Right: Hero Content & CTAs */}
-          <motion.div
-            className="leona-hero-content-meta"
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
-            <span className="leona-featured-tag">
-              🔥 {isHi ? 'कवि' : 'Poet'} {authorName} <span className="phoenix-hero-aag">{penName}</span>
-            </span>
+ {/* 2. Right: Hero Content & CTAs */}
+ <motion.div
+ className="leona-hero-content-meta"
+ initial={{ opacity: 0, x: 30 }}
+ animate={{ opacity: 1, x: 0 }}
+ transition={{ duration: 0.8, delay: 0.2 }}
+ >
+ <span className="leona-featured-tag">
+ {isHi ? 'कवि' : 'Poet'} {authorName} <span className="phoenix-hero-aag">{penName}</span>
+ </span>
 
-            <h1 className="leona-hero-title">
-              {heroConfig.title}
-            </h1>
+ <h1 className="leona-hero-title">
+ {heroConfig.title}
+ </h1>
 
-            {heroConfig.subtitle && (
-              <div className="leona-hero-subtitle">
-                {heroConfig.subtitle}
-              </div>
-            )}
+ {heroConfig.subtitle && (
+ <div className="leona-hero-subtitle">
+ {heroConfig.subtitle}
+ </div>
+ )}
 
-            {heroConfig.description && (
-              <p className="leona-hero-description">
-                {heroConfig.description}
-              </p>
-            )}
+ {heroConfig.description && (
+ <p className="leona-hero-description">
+ {heroConfig.description}
+ </p>
+ )}
 
-            <div className="leona-hero-actions">
-              {heroConfig.ctaPrimaryLabel && (
-                <motion.button
-                  className="btn-primary-terracotta"
-                  onClick={() => handleCtaClick(heroConfig.ctaPrimaryUrl)}
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.96 }}
-                >
-                  🛒 {heroConfig.ctaPrimaryLabel}
-                </motion.button>
-              )}
+ <div className="leona-hero-actions">
+ {heroConfig.ctaPrimaryLabel && (
+ <motion.button
+ className="btn-primary-terracotta"
+ onClick={() => handleCtaClick(heroConfig.ctaPrimaryUrl)}
+ whileHover={{ scale: 1.04 }}
+ whileTap={{ scale: 0.96 }}
+ >
+ {heroConfig.ctaPrimaryLabel}
+ </motion.button>
+ )}
 
-              {heroConfig.ctaSecondaryLabel && (
-                <motion.button
-                  className="btn-secondary-teal"
-                  onClick={() => handleCtaClick(heroConfig.ctaSecondaryUrl)}
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.96 }}
-                >
-                  📖 {heroConfig.ctaSecondaryLabel}
-                </motion.button>
-              )}
-            </div>
-          </motion.div>
+ {heroConfig.ctaSecondaryLabel && (
+ <motion.button
+ className="btn-secondary-teal"
+ onClick={() => handleCtaClick(heroConfig.ctaSecondaryUrl)}
+ whileHover={{ scale: 1.04 }}
+ whileTap={{ scale: 0.96 }}
+ >
+ {heroConfig.ctaSecondaryLabel}
+ </motion.button>
+ )}
+ </div>
+ </motion.div>
 
-        </div>
-      </div>
-    </section>
-  )
+ </div>
+ </div>
+ </section>
+ )
 }
 
 export default HeroSection
