@@ -54,26 +54,27 @@ export function normalizePageMaker5Text(text) {
  */
 export function isKrutiDevText(text) {
   if (!text || typeof text !== 'string') return false;
-  const clean = normalizePageMaker5Text(text).trim();
-  if (clean.length < 2) return false;
+  const raw = text.trim();
+  if (raw.length < 2) return false;
 
-  // If already contains Devanagari Unicode characters (\u0900-\u097F), not ASCII Kruti Dev
-  if (/[\u0900-\u097F]/.test(clean)) return false;
+  // If original raw text ALREADY contains Devanagari Unicode characters (\u0900-\u097F), not ASCII Kruti Dev
+  if (/[\u0900-\u097F]/.test(raw)) return false;
 
   // Check for unique extended Kruti Dev symbols
-  if (/[ñòôõö÷øùúûüýþÿµ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö]/.test(clean)) {
+  if (/[ñòôõö÷øùúûüýþÿµ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöâ]/.test(raw)) {
     return true;
   }
 
   // Count matches of Kruti Dev signature substrings
-  const words = clean.split(/\s+/);
+  const cleanSpace = raw.replaceAll('\u00A0', ' ').replaceAll('\r\n', '\n');
+  const words = cleanSpace.split(/\s+/);
   let krutiMatches = 0;
   let totalWords = 0;
 
   for (const word of words) {
     // Ignore numbers, punctuation, or legitimate English words/titles
     if (/^[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+$/.test(word)) continue;
-    if (/^[a-zA-Z]{3,}$/.test(word) && !/(dks|esa|gSa|gks|vks|rFkk|ysfdu|lkFk|fjd|djk)/i.test(word)) {
+    if (/^[a-zA-Z]{3,}$/.test(word) && !/(dks|esa|gSa|gks|vks|rFkk|ysfdu|lkFk|fjd|djk|f'|dky|j'|vXf)/i.test(word)) {
       // Standard English word without Kruti Dev signature combinations
       continue;
     }
@@ -82,7 +83,7 @@ export function isKrutiDevText(text) {
 
     let hasPattern = false;
     for (const sig of KRUTI_DEV_SIGNATURES) {
-      if (word.includes(sig)) {
+      if (word.includes(sig) || word.includes("f'") || word.includes("'k") || word.includes("[k")) {
         hasPattern = true;
         break;
       }
@@ -91,8 +92,9 @@ export function isKrutiDevText(text) {
   }
 
   if (totalWords === 0) return false;
-  return (krutiMatches / totalWords) >= 0.25;
+  return (krutiMatches / totalWords) >= 0.20;
 }
+
 
 /**
  * Converts a single Kruti Dev token string to Unicode Devanagari
