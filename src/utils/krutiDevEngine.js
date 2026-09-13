@@ -142,6 +142,21 @@ function convertKrutiDevSingleToken(str) {
 
   // Step 1: Pre-processed Substitutions for Complex Conjuncts & Special Symbols
   const replacements = [
+    // Signature PageMaker Title Words & Common Overrides
+    ["j'âjk", 'रश्मि'],
+    ["j'â", 'रश्मि'],
+    ["dky'k", 'कलश'],
+
+    // Nukta combinations (+)
+    ['M+', 'ड़'],
+    ['B+', 'ढ़'],
+    ['t+', 'ज़'],
+    ['Q+', 'फ़'],
+    ['d+', 'क़'],
+    ['x+', 'ख़'],
+    ['X+', 'ग़'],
+    ['+', '़'],
+
     ['[k', 'ख'],
     ['?k', 'घ'],
     ['>k', 'झ'],
@@ -172,6 +187,7 @@ function convertKrutiDevSingleToken(str) {
     ['î', 'ह्न्'],
     ['™', '्र'],
     ['ç', '्र'],
+
 
     // Multi-char vowel/consonant combinations (MUST BE BEFORE single chars)
     ['dks', 'को'],
