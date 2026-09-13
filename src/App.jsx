@@ -22,15 +22,27 @@ import './styles/premium-theme.css'
 import './styles/scroll-reveal.css'
 
 function DynamicIframeRoute() {
- const pathname = window.location.pathname
- const search = window.location.search
- return (
- <iframe
- src={`${pathname}${search}`}
- style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }}
- title="Page View"
- />
- )
+  const pathname = window.location.pathname
+  const search = window.location.search
+  const cleanPath = pathname.replace(/\/$/, '')
+
+  if (cleanPath === '/prakashan' || cleanPath === '/books') {
+    return <Navigate to="/category/publications" replace />
+  }
+  if (cleanPath === '/kavya-sangrah' || cleanPath === '/poetry') {
+    return <Navigate to="/category/poems" replace />
+  }
+  if (cleanPath === '/about' || cleanPath === '/parichay') {
+    return <Navigate to="/category/about" replace />
+  }
+
+  return (
+    <iframe
+      src={`${pathname}${search}`}
+      style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }}
+      title="Page View"
+    />
+  )
 }
 
 import { Component } from 'react'
