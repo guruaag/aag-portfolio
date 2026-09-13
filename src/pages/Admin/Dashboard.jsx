@@ -996,6 +996,7 @@ function HomeManager({ initialSubTab = 'hero', poems = [], publications = [], ab
  // Submit Handler for entire Home Manager view (Bound to form="admin-active-form")
  const handleSubmit = async (e) => {
  e.preventDefault()
+ let hasError = false
  try {
  const updates = [
  { key: 'home_hero_title', value: heroForm.hero_title, display_label: 'Hero Title' },
