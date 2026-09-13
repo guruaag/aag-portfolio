@@ -95,6 +95,21 @@ function Header() {
     navigate('/admin')
   }
 
+  const isItemActive = (itemPath) => {
+    const current = location.pathname
+    if (itemPath === '/') return current === '/'
+    if (itemPath === '/category/poems') {
+      return current === '/category/poems' || current.startsWith('/poem/') || current === '/kavya-sangrah'
+    }
+    if (itemPath === '/category/publications') {
+      return current === '/category/publications' || current.startsWith('/publication/') || current === '/prakashan'
+    }
+    if (itemPath === '/category/about') {
+      return current === '/category/about' || current === '/about' || current === '/parichay'
+    }
+    return current.startsWith(itemPath)
+  }
+
   return (
     <>
       <motion.header
@@ -156,7 +171,7 @@ function Header() {
             {menuItems.map((item) => (
               <motion.button
                 key={item.path}
-                className={`phoenix-nav-link ${location.pathname === item.path ? 'active' : ''}`}
+                className={`phoenix-nav-link ${isItemActive(item.path) ? 'active' : ''}`}
                 onClick={() => navigate(item.path)}
                 whileHover={{ y: -2 }}
                 whileTap={{ y: 0 }}
@@ -270,7 +285,7 @@ function Header() {
                     transition={{ delay: index * 0.1 }}
                   >
                     <motion.button
-                      className={`phoenix-menu-item ${location.pathname === item.path ? 'active' : ''}`}
+                      className={`phoenix-menu-item ${isItemActive(item.path) ? 'active' : ''}`}
                       onClick={() => {
                         navigate(item.path)
                         setMenuOpen(false)

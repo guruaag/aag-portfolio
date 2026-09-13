@@ -5,6 +5,7 @@ import { getCategories, getAboutContent, getPublications, getPoems, getSetting, 
 import { uploadImage, getImageUrl, deleteImage } from '../../lib/imageUtils'
 import PM5WritingDesk, { paginateTextIntoPages } from '../../components/PM5WritingDesk'
 import ContentItemCard from '../../components/admin/ContentItemCard'
+import ConfirmModal from '../../components/admin/ConfirmModal'
 import AdminBreadcrumb from '../../components/admin/AdminBreadcrumb'
 import { convertKrutiDevToUnicode, isKrutiDevText } from '../../utils/unicodeConverter'
 import i18n from '../../i18n/config'
@@ -3284,7 +3285,8 @@ function TimelineManager({ onUpdate, setIsDirty }) {
  key={item.id}
  title={<><span style={{ color: 'var(--leona-terracotta)', fontWeight: 700 }}>{item.year_display}</span> — {item.title}</>}
  subtitle={item.description}
- onEdit={() => { setEditingId(item.id); setFormData(item); setShowForm(true); }}
+ onEdit={() => { setEditingId(item.id)
+    window.scrollTo({ top: 0, behavior: 'smooth' }); setFormData(item); setShowForm(true); }}
  onMoveUp={() => handleMove(idx, 'up')}
  onMoveDown={() => handleMove(idx, 'down')}
  onDelete={() => handleDeleteItem(item.id)}
@@ -3464,7 +3466,8 @@ function AwardsManager({ onUpdate, setIsDirty }) {
  key={item.id}
  title={<><span style={{ color: 'var(--leona-terracotta)', fontWeight: 700 }}>{item.year_display}</span> — {item.title}</>}
  subtitle={`${tLabel('संस्था:', 'Org:')} ${item.organization}`}
- onEdit={() => { setEditingId(item.id); setFormData(item); setShowForm(true); }}
+ onEdit={() => { setEditingId(item.id)
+    window.scrollTo({ top: 0, behavior: 'smooth' }); setFormData(item); setShowForm(true); }}
  onMoveUp={() => handleMove(idx, 'up')}
  onMoveDown={() => handleMove(idx, 'down')}
  onDelete={() => handleDeleteItem(item.id)}

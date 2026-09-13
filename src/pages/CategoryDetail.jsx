@@ -146,8 +146,20 @@ function CategoryDetail() {
               <div className="phoenix-title-underline" />
             </motion.div>
 
+            {/* Empty State */}
+            {Array.isArray(content) && content.length === 0 && (
+              <div className="phoenix-empty-state" style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--phoenix-text-secondary)' }}>
+                <p style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '8px' }}>
+                  {i18n.language === 'hi' ? 'इस संग्रह में अभी कोई रचना उपलब्ध नहीं है।' : 'No items published in this collection yet.'}
+                </p>
+                <p style={{ fontSize: '0.9rem', color: '#888' }}>
+                  {i18n.language === 'hi' ? 'शीघ्र ही नई प्रस्तुतियां जोड़ी जाएंगी।' : 'New content will be added soon.'}
+                </p>
+              </div>
+            )}
+
             {/* Publications Grid */}
-            {category.content_type === 'publications' && Array.isArray(content) && (
+            {category.content_type === 'publications' && Array.isArray(content) && content.length > 0 && (
               <motion.div
                 className="phoenix-publications-grid phoenix-publications-grid-full"
                 initial={{ opacity: 0 }}
@@ -165,7 +177,7 @@ function CategoryDetail() {
             )}
 
             {/* Poems List */}
-            {category.content_type === 'writings' && Array.isArray(content) && (
+            {category.content_type === 'writings' && Array.isArray(content) && content.length > 0 && (
               <motion.div
                 className="phoenix-poems-list"
                 initial={{ opacity: 0 }}

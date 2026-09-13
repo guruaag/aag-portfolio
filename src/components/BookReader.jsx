@@ -44,16 +44,37 @@ export default function BookReader({
  const pages = parsePages(content);
  const totalPages = pages.length;
 
- const [currentIdx, setCurrentIdx] = useState(0);
- const [theme, setTheme] = useState('parchment'); // 'parchment', 'night', 'ivory'
- const [fontSizeScale, setFontSizeScale] = useState(100); // 100%, 115%, 130%
- const [focusActive, setFocusActive] = useState(false);
- const [showToc, setShowToc] = useState(false);
- const [animClass, setAnimClass] = useState('turning-sheet');
- const [audioPlaying, setAudioPlaying] = useState(false);
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [theme, setTheme] = useState(() => localStorage.getItem('reader_theme') || 'parchment');
+  const [fontSizeScale, setFontSizeScale] = useState(() => {
+    const saved = localStorage.getItem('reader_font_scale');
+    return saved ? parseInt(saved, 10) : 100;
+  });
+  const [focusActive, setFocusActive] = useState(false);
+  const [showToc, setShowToc] = useState(false);
+  const [animClass, setAnimClass] = useState('turning-sheet');
+  const [audioPlaying, setAudioPlaying] = useState(false);
 
- const audioRef = useRef(null);
- const bookStageRef = useRef(null);
+  const audioRef = useRef(null);
+  const bookStageRef = useRef(null);
+
+  const handleThemeChange = (newTheme) => {
+    setTheme(newTheme);
+    localStorage.setItem('reader_theme', newTheme);
+  };
+
+  const handleFontScaleChange = (newScale) => {
+    setFontSizeScale(newScale);
+    localStorage.setItem('reader_font_scale', String(newScale));
+  };
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+    };
+  }, []);
 
  const isMobile = () => typeof window !== 'undefined' && window.innerWidth <= 768;
 
@@ -181,21 +202,21 @@ export default function BookReader({
  
  {/* TOOLBAR CONTROLS ABOVE BOOK */}
  <div className="book-reader-top-controls">
- {/* Paper Themes */}
- <div className="theme-switcher">
- <span className="control-label">कागज़ रंग:</span>
- <button className={`theme-btn parchment ${theme === 'parchment' ? 'active' : ''}`} onClick={() => setTheme('parchment')} title="ऋषि ग्रंथ" aria-label="ग्रंथ थीम चुनें"> ग्रंथ</button>
- <button className={`theme-btn night ${theme === 'night' ? 'active' : ''}`} onClick={() => setTheme('night')} title="रात्रि ध्यान" aria-label="रात्रि थीम चुनें"> रात्रि</button>
- <button className={`theme-btn ivory ${theme === 'ivory' ? 'active' : ''}`} onClick={() => setTheme('ivory')} title="शाही प्रपत्र" aria-label="शाही थीम चुनें"> शाही</button>
- </div>
+      {/* Paper Themes */}
+      <div className="theme-switcher">
+        <span className="control-label">कागज़ रंग:</span>
+        <button className={`theme-btn parchment ${theme === 'parchment' ? 'active' : ''}`} onClick={() => handleThemeChange('parchment')} title="ऋषि ग्रंथ" aria-label="ग्रंथ थीम चुनें"> ग्रंथ</button>
+        <button className={`theme-btn night ${theme === 'night' ? 'active' : ''}`} onClick={() => handleThemeChange('night')} title="रात्रि ध्यान" aria-label="रात्रि थीम चुनें"> रात्रि</button>
+        <button className={`theme-btn ivory ${theme === 'ivory' ? 'active' : ''}`} onClick={() => handleThemeChange('ivory')} title="शाही प्रपत्र" aria-label="शाही थीम चुनें"> शाही</button>
+      </div>
 
- {/* Text Scaler */}
- <div className="font-scaler">
- <span className="control-label">अक्षर आकार:</span>
- <button className={`scale-btn ${fontSizeScale === 100 ? 'active' : ''}`} onClick={() => setFontSizeScale(100)} aria-label="सामान्य अक्षर आकार">सामान्य</button>
- <button className={`scale-btn ${fontSizeScale === 115 ? 'active' : ''}`} onClick={() => setFontSizeScale(115)} aria-label="बड़ा अक्षर आकार">बड़ा</button>
- <button className={`scale-btn ${fontSizeScale === 130 ? 'active' : ''}`} onClick={() => setFontSizeScale(130)} aria-label="विशाल अक्षर आकार">विशाल</button>
- </div>
+      {/* Text Scaler */}
+      <div className="font-scaler">
+        <span className="control-label">अक्षर आकार:</span>
+        <button className={`scale-btn ${fontSizeScale === 100 ? 'active' : ''}`} onClick={() => handleFontScaleChange(100)} aria-label="सामान्य अक्षर आकार">सामान्य</button>
+        <button className={`scale-btn ${fontSizeScale === 115 ? 'active' : ''}`} onClick={() => handleFontScaleChange(115)} aria-label="बड़ा अक्षर आकार">बड़ा</button>
+        <button className={`scale-btn ${fontSizeScale === 130 ? 'active' : ''}`} onClick={() => handleFontScaleChange(130)} aria-label="विशाल अक्षर आकार">विशाल</button>
+      </div>
 
  {/* Table of Contents & Share */}
  <div className="utility-btns">
