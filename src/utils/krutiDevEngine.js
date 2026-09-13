@@ -1,7 +1,7 @@
 /**
- * High-Precision 2-Pass Kruti Dev 010 -> Unicode Hindi Converter Engine
+ * High-Precision 2-Pass Kruti Dev 010 & 022 -> Unicode Hindi Converter Engine
  * Handles complex conjuncts, pre-matra (ि) lookahead positioning, Reph (र्),
- * Windows Alt-codes, macOS Option-codes, and Kruti Dev heuristic auto-detection.
+ * Windows Alt-codes, macOS Option-codes, and PageMaker 5.0 clipboard pre-processing.
  */
 
 // Heuristic Kruti Dev character pairs and signature tokens
@@ -33,7 +33,7 @@ export function normalizePageMaker5Text(text) {
 
   // Extended PageMaker ANSI byte mappings
   const pm5Map = {
-    'â': "'",
+    'â': 'म',
     'ä': 'द्य',
     'ö': 'द्व',
     'ê': 'हृ',
@@ -49,9 +49,8 @@ export function normalizePageMaker5Text(text) {
   return str;
 }
 
-
 /**
- * Heuristic Detector: Determines if text contains Kruti Dev 010 ASCII patterns
+ * Heuristic Detector: Determines if text contains Kruti Dev 010 / 022 ASCII patterns
  */
 export function isKrutiDevText(text) {
   if (!text || typeof text !== 'string') return false;
@@ -94,7 +93,6 @@ export function isKrutiDevText(text) {
   if (totalWords === 0) return false;
   return (krutiMatches / totalWords) >= 0.25;
 }
-
 
 /**
  * Converts a single Kruti Dev token string to Unicode Devanagari
@@ -142,6 +140,14 @@ function convertKrutiDevSingleToken(str) {
 
   // Step 1: Pre-processed Substitutions for Complex Conjuncts & Special Symbols
   const replacements = [
+    ['[k', 'ख'],
+    ['?k', 'घ'],
+    ['>k', 'झ'],
+    ['.k', 'ण'],
+    ['Fk', 'थ'],
+    ['/k', 'ध'],
+    ['Hk', 'भ'],
+    ['{k', 'क्ष'],
     ["'k", 'श'],
     ['"k', 'श'],
     ["'", 'श्'],
@@ -165,7 +171,6 @@ function convertKrutiDevSingleToken(str) {
     ['™', '्र'],
     ['ç', '्र'],
 
-
     // Multi-char vowel/consonant combinations (MUST BE BEFORE single chars)
     ['dks', 'को'],
     ['gSa', 'हैं'],
@@ -180,16 +185,6 @@ function convertKrutiDevSingleToken(str) {
     ['kS', 'ौ'],
     ['kk', 'ा'],
     ['ks', 'े'],
-
-    // Half letters & conjuncts
-    ['[k', 'ख'],
-    ['?k', 'घ'],
-    ['>k', 'झ'],
-    ['.k', 'ण'],
-    ['Fk', 'थ'],
-    ['/k', 'ध'],
-    ['Hk', 'भ'],
-    ['{k', 'क्ष'],
     ['D', 'क्'],
     ['K', 'ख्'],
     ['X', 'ग्'],
@@ -210,7 +205,6 @@ function convertKrutiDevSingleToken(str) {
     ['Y', 'य्'],
     ['Yk', 'ल्'],
     ['V', 'व्'],
-    ['"', 'श्'],
     ['L', 'ष्'],
     ['O', 'व्'],
 
@@ -319,7 +313,7 @@ function convertKrutiDevSingleToken(str) {
 }
 
 /**
- * Main Conversion Function: Kruti Dev 010 ASCII to Unicode Devanagari
+ * Main Conversion Function: Kruti Dev 010 & 022 ASCII to Unicode Devanagari
  * Preserves English words and numbers while converting Kruti Dev legacy snippets.
  */
 export function convertKrutiDevToUnicode(text) {
@@ -327,12 +321,11 @@ export function convertKrutiDevToUnicode(text) {
 
   const normalizedText = normalizePageMaker5Text(text);
 
-  // Split string into words and delimiters while preserving whitespace and punctuation
-  const tokens = normalizedText.split(/(\s+|[-–—:,()\[\]{}"'])/);
-
+  // Split string into words and delimiters while preserving whitespace and sentence punctuation
+  const tokens = normalizedText.split(/(\s+|[-–—:,()])/);
 
   return tokens.map(token => {
-    if (!token || /^\s+$/.test(token) || /^[-–—:,()\[\]{}"']+$/.test(token)) {
+    if (!token || /^\s+$/.test(token) || /^[-–—:,()]+$/.test(token)) {
       return token;
     }
 
@@ -359,5 +352,3 @@ export function convertKrutiDevToUnicode(text) {
     return convertKrutiDevSingleToken(token);
   }).join('');
 }
-
-
