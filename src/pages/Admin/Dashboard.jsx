@@ -1907,17 +1907,17 @@ function AboutManager({ about, initialSubTab, onUpdate, setIsDirty }) {
       {subTab === 'bio' && (
         <div className="admin-card-panel">
           <div className="admin-panel-header">
-            <h2 className="admin-panel-title">📖 {tLabel('कवि परिचय व बैनर सम्पादन', 'Poet Biography & Hero Banner')}</h2>
+            <h2 className="admin-panel-title">📖 {tLabel('कवि परिचय व बैनर', 'Biography & Hero')}</h2>
           </div>
 
           <form id="admin-active-form" onSubmit={handleSubmit} onChange={() => setIsDirty && setIsDirty(true)} onInput={() => setIsDirty && setIsDirty(true)} className="admin-form-container">
             <div style={{ background: 'var(--leona-sand-light, #FAF6F0)', padding: '16px', borderRadius: '8px', marginBottom: '20px', borderLeft: '4px solid var(--leona-terracotta)' }}>
               <h4 style={{ margin: '0 0 12px 0', fontFamily: 'Lora, serif', color: 'var(--leona-charcoal)' }}>
-                🎯 {tLabel('हीरो बैनर व मुख्य शीर्षक पाठ', 'Hero Banner & Header Text')}
+                🎯 {tLabel('बैनर जानकारी', 'Banner Details')}
               </h4>
               <div className="admin-form-grid">
                 <div className="admin-form-group">
-                  <label>{tLabel('बैनर टैग', 'Hero Tag Pill')}</label>
+                  <label>{tLabel('हीरो टैग', 'Hero Tag')}</label>
                   <input
                     className="admin-input"
                     value={formData.hero_tag}
@@ -1926,7 +1926,7 @@ function AboutManager({ about, initialSubTab, onUpdate, setIsDirty }) {
                   />
                 </div>
                 <div className="admin-form-group">
-                  <label>{tLabel('कवि का नाम *', 'Poet Full Name *')}</label>
+                  <label>{tLabel('नाम *', 'Full Name *')}</label>
                   <input
                     className="admin-input"
                     value={formData.author_name}
@@ -1935,7 +1935,7 @@ function AboutManager({ about, initialSubTab, onUpdate, setIsDirty }) {
                   />
                 </div>
                 <div className="admin-form-group full-width">
-                  <label>{tLabel('मुख्य उप-शीर्षक / टैगलाइन *', 'Hero Subtitle / Tagline *')}</label>
+                  <label>{tLabel('उपशीर्षक *', 'Subtitle *')}</label>
                   <input
                     className="admin-input"
                     value={formData.hero_subtitle}
@@ -1945,7 +1945,7 @@ function AboutManager({ about, initialSubTab, onUpdate, setIsDirty }) {
                   />
                 </div>
                 <div className="admin-form-group">
-                  <label>{tLabel('बैज पाठ', 'Badge Tag')}</label>
+                  <label>{tLabel('बैज टैग', 'Badge Tag')}</label>
                   <input
                     className="admin-input"
                     value={formData.badge_text}
@@ -1953,7 +1953,7 @@ function AboutManager({ about, initialSubTab, onUpdate, setIsDirty }) {
                   />
                 </div>
                 <div className="admin-form-group">
-                  <label>{tLabel('उद्धरण श्रेय (Quote Attribution)', 'Quote Attribution')}</label>
+                  <label>{tLabel('उद्धरण श्रेय', 'Quote Credit')}</label>
                   <input
                     className="admin-input"
                     value={formData.quote_attribution}
@@ -1965,7 +1965,7 @@ function AboutManager({ about, initialSubTab, onUpdate, setIsDirty }) {
 
             <div style={{ background: '#FFFFFF', padding: '16px', borderRadius: '8px', marginBottom: '20px', border: '1px solid rgba(226, 215, 197, 0.8)' }}>
               <h4 style={{ margin: '0 0 12px 0', fontFamily: 'Lora, serif', color: 'var(--leona-charcoal)' }}>
-                🖼️ {tLabel('कवि की तस्वीर', 'Poet Photograph')}
+                🖼️ {tLabel('प्रोफाइल फोटो', 'Profile Image')}
               </h4>
               <div style={{ display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
                 {photoPreview ? (
@@ -1996,11 +1996,11 @@ function AboutManager({ about, initialSubTab, onUpdate, setIsDirty }) {
 
             <div style={{ background: '#FFFFFF', padding: '16px', borderRadius: '8px', border: '1px solid rgba(226, 215, 197, 0.8)' }}>
               <h4 style={{ margin: '0 0 12px 0', fontFamily: 'Lora, serif', color: 'var(--leona-charcoal)' }}>
-                📝 {tLabel('विस्तृत जीवन परिचय (बायोग्राफी गद्य)', 'Biography Text & Prose')}
+                📝 {tLabel('संक्षिप्त परिचय', 'Short Bio')}
               </h4>
               <div className="admin-form-grid">
                 <div className="admin-form-group full-width">
-                  <label>{tLabel('बायोग्राफी शीर्षक *', 'Biography Title *')}</label>
+                  <label>{tLabel('संक्षिप्त परिचय *', 'Short Bio *')}</label>
                   <input
                     className="admin-input"
                     value={formData.title}
@@ -2256,9 +2256,9 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
         />
       ) : (
         <div className="admin-panel-header">
-          <h2 className="admin-panel-title">📚 {tLabel('प्रकाशन एवं पुस्तकें', 'Publications & Books')}</h2>
+          <h2 className="admin-panel-title">📚 {tLabel('प्रकाशन', 'Publications')}</h2>
           <button type="button" className="admin-btn-primary" onClick={handleCreate}>
-            + {tLabel('नई पुस्तक जोड़ें', 'Add Book')}
+            + {tLabel('नई पुस्तक जोड़ें', 'Add New Book')}
           </button>
         </div>
       )}
@@ -2269,7 +2269,7 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
           <div className="admin-form-grid">
             {/* Field 1: Book Title */}
             <div className="admin-form-group full-width">
-              <label>{tLabel('पुस्तक का नाम *', 'Book Title *')}</label>
+              <label>{tLabel('पुस्तक शीर्षक *', 'Book Title *')}</label>
               <input
                 className="admin-input"
                 value={formData.title}
@@ -2281,7 +2281,7 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
 
             {/* Field 2: Description / Brief Overview */}
             <div className="admin-form-group full-width">
-              <label>{tLabel('संक्षिप्त विवरण / भूमिका', 'Description / Brief Overview')}</label>
+              <label>{tLabel('विवरण', 'Summary')}</label>
               <textarea
                 className="admin-textarea"
                 rows={3}
@@ -2293,7 +2293,7 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
 
             {/* Field 3: Book Cover Image Upload & Preview */}
             <div className="admin-form-group full-width">
-              <label>{tLabel('कवर चित्र (Book Cover Image)', 'Book Cover Image')}</label>
+              <label>{tLabel('कवर फोटो', 'Cover Photo')}</label>
               {imagePreview && (
                 <div style={{ marginBottom: '12px' }}>
                   <img 
@@ -2369,7 +2369,7 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
             {/* Field 5: Full Stanzas / Excerpt Text */}
             <div className="admin-form-group full-width">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <label style={{ margin: 0 }}>{tLabel('सम्पूर्ण पद / पुस्तक अंश (Stanzas / Full Text)', 'Full Stanzas / Excerpt Text')}</label>
+                <label style={{ margin: 0 }}>{tLabel('काव्य अंश', 'Sample Stanzas')}</label>
                 <button
                   type="button"
                   className="admin-btn-secondary"
@@ -2381,7 +2381,7 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
                   style={{ fontSize: '0.8rem', padding: '4px 10px', borderRadius: '12px', background: '#F5F2EB', border: '1px solid #D2C4B0', color: '#5C4033', fontWeight: 600, cursor: 'pointer' }}
                   title={tLabel('कृतिदेव फॉन्ट टेक्स्ट को मानक यूनिकोड हिंदी में बदलें', 'Convert Kruti Dev text to Unicode Hindi')}
                 >
-                  🔄 {tLabel('कृतिदेव ➔ यूनिकोड', 'Kruti Dev ➔ Unicode')}
+                  🔄 {tLabel('कृतिदेव > यूनिकोड', 'Kruti Dev > Unicode')}
                 </button>
               </div>
               <textarea
@@ -2396,12 +2396,24 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
 
             {/* Field 6: Sort Order */}
             <div className="admin-form-group">
-              <label>{tLabel('क्रम संख्या', 'Sort Order')}</label>
+              <label>{tLabel('क्रम', 'Order')}</label>
               <input
                 className="admin-input"
                 type="number"
                 value={formData.sort_order}
                 onChange={(e) => updateForm({ sort_order: parseInt(e.target.value) || 1 })}
+              />
+            </div>
+
+            {/* Field 7: Purchase URL */}
+            <div className="admin-form-group full-width">
+              <label>{tLabel('खरीद लिंक', 'Buy Link')}</label>
+              <input
+                className="admin-input"
+                type="url"
+                value={formData.purchase_url || ''}
+                onChange={(e) => updateForm({ purchase_url: e.target.value })}
+                placeholder="https://amazon.in/dp/example"
               />
             </div>
           </div>
@@ -2768,7 +2780,7 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
 
             <div className="admin-form-group full-width">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <label style={{ margin: 0 }}>{tLabel('सम्पूर्ण कविता पंक्तियाँ *', 'Full Stanzas / Verse Text *')}</label>
+                <label style={{ margin: 0 }}>{tLabel('कविता पाठ *', 'Poem Text *')}</label>
                 <button
                   type="button"
                   className="admin-btn-secondary"
@@ -2780,7 +2792,7 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
                   style={{ fontSize: '0.8rem', padding: '4px 10px', borderRadius: '12px', background: '#F5F2EB', border: '1px solid #D2C4B0', color: '#5C4033', fontWeight: 600, cursor: 'pointer' }}
                   title={tLabel('कृतिदेव फॉन्ट टेक्स्ट को मानक यूनिकोड हिंदी में बदलें', 'Convert Kruti Dev text to Unicode Hindi')}
                 >
-                  🔄 {tLabel('कृतिदेव ➔ यूनिकोड', 'Kruti Dev ➔ Unicode')}
+                  🔄 {tLabel('कृतिदेव > यूनिकोड', 'Kruti Dev > Unicode')}
                 </button>
               </div>
               <textarea
@@ -2793,7 +2805,7 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
               />
             </div>
             <div className="admin-form-group">
-              <label>{tLabel('क्रम संख्या', 'Sort Order')}</label>
+              <label>{tLabel('क्रम', 'Order')}</label>
               <input
                 className="admin-input"
                 type="number"

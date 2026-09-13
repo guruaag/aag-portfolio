@@ -111,7 +111,7 @@ function PublicationCard({ publication, index = 0 }) {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    {t('publications.buyNow') || 'Buy Now'}
+                    {t('public_actions.buy_now') || 'Buy Book'}
                   </motion.button>
                 )}
                 {publication.sample_url && (
@@ -121,7 +121,7 @@ function PublicationCard({ publication, index = 0 }) {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    {t('publications.sampleChapter') || 'Sample Chapter'}
+                    {t('public_actions.sample') || 'Preview'}
                   </motion.button>
                 )}
               </motion.div>

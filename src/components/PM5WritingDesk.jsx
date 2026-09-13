@@ -269,7 +269,7 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, onC
       {/* Top Bar with Undo / Redo & Page Break & Fullscreen & AutoSave Indicator */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
         <div className="pm5-top-bar-info" style={{ fontSize: '0.85rem', color: '#666', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span>📐 {isEn ? 'Format: Max 20 Lines/Page • Auto-Flow & Line Wrap' : 'प्रारूप: अधिकतम २० पंक्तियाँ/पृष्ठ • स्वचालित पृष्ठ विभाजन'}</span>
+          <span>📐 {isEn ? 'Format: Max 20 Lines/Page • Auto-Flow' : 'प्रारूप: अधिकतम २० पंक्तियाँ/पृष्ठ • ऑटो-फ्लो'}</span>
           {autoSaveStatus === 'saving' && (
             <span className="pm5-autosave-badge saving">⏳ {isEn ? 'Saving...' : 'सहेजा जा रहा है...'}</span>
           )}
@@ -294,8 +294,8 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, onC
           <button type="button" className="pm5-undo-btn" onClick={handleRedo} disabled={historyPointer === history.length - 1} title={isEn ? 'Redo (Ctrl+Y)' : 'पुनः करें (Ctrl+Y)'}>
             ↪️ {isEn ? 'Redo' : 'पुनः'}
           </button>
-          <button type="button" className="pm5-undo-btn pm5-page-break-btn" onClick={handlePageBreak} title={isEn ? 'Insert Page Break' : 'मैनुअल पृष्ठ विभाजन'}>
-            📄 {isEn ? 'New Page' : 'नया पृष्ठ'}
+          <button type="button" className="pm5-undo-btn pm5-page-break-btn" onClick={handlePageBreak} title={isEn ? 'Add Page' : 'नया पेज'}>
+            📄 {isEn ? 'Add Page' : 'नया पेज'}
           </button>
           <button
             type="button"
@@ -312,7 +312,7 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, onC
             }}
             title={isEn ? 'Convert Kruti Dev text to Unicode Hindi' : 'कृतिदेव फॉन्ट टेक्स्ट को मानक यूनिकोड हिंदी में बदलें'}
           >
-            🔄 {isEn ? 'Kruti Dev ➔ Unicode' : 'कृतिदेव ➔ यूनिकोड'}
+            🔄 {isEn ? 'Kruti Dev > Unicode' : 'कृतिदेव > यूनिकोड'}
           </button>
           {isFullscreen && (
             <button
@@ -333,7 +333,7 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, onC
         {/* LEFT PAGE THUMBNAILS SIDEBAR */}
         <div className="pm5-sidebar-pages">
           <div className="pm5-sidebar-title">
-            📄 {isEn ? 'Pages Navigation' : 'पृष्ठ सूची'}
+            📄 {isEn ? 'Page Control' : 'पेज कंट्रोल'}
           </div>
 
           {/* Sticky Save & Apply Bar Pinned Directly Below Header */}
@@ -373,7 +373,7 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, onC
           ))}
 
           <button type="button" className="pm5-sidebar-add-btn" onClick={addNewPage}>
-            + {isEn ? 'Add New Page' : 'नया पृष्ठ जोड़ें'}
+            + {isEn ? 'Add Page' : 'नया पेज'}
           </button>
         </div>
 
