@@ -2242,21 +2242,14 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
 
  return (
  <div className="admin-card-panel">
- {/* Top Breadcrumb Header for Standalone Edit Route */}
- {isStandalonePage ? (
- <AdminBreadcrumb
- backPath="/admin/prakashan"
- isDirty={Boolean(setIsDirty && setIsDirty.isDirty)}
- lang={adminLang}
- />
- ) : (
  <div className="admin-panel-header">
- <h2 className="admin-panel-title">{tLabel('पुस्तकें', 'Books')}</h2>
- <button type="button" className="admin-btn-primary" onClick={handleCreate}>
- + {tLabel('नई पुस्तक जोड़ें', 'Add New Book')}
- </button>
- </div>
- )}
+  <h2 className="admin-panel-title">
+    {isStandalonePage
+      ? (editing ? tLabel('पुस्तक विवरण संपादित करें', 'Edit Book Details') : tLabel('नई पुस्तक जोड़ें', 'Add New Book'))
+      : tLabel('पुस्तकें', 'Books')
+    }
+  </h2>
+</div>
 
  {/* Main Standalone Form with Strict Field Order */}
  {(showForm || editing || isStandalonePage) && (
@@ -2672,21 +2665,14 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
 
  return (
  <div className="admin-card-panel">
- {/* Top Breadcrumb Header for Standalone Edit Route */}
- {isStandalonePage ? (
- <AdminBreadcrumb
- backPath="/admin/kavya-sangrah"
- isDirty={Boolean(setIsDirty && setIsDirty.isDirty)}
- lang={adminLang}
- />
- ) : (
  <div className="admin-panel-header">
- <h2 className="admin-panel-title">{tLabel('कविताएं', 'Poetry')}</h2>
- <button type="button" className="admin-btn-primary" onClick={handleCreate}>
- + {tLabel('नई रचना जोड़ें', 'Add New Poem')}
- </button>
- </div>
- )}
+  <h2 className="admin-panel-title">
+    {isStandalonePage
+      ? (editing ? tLabel('कविता संपादित करें', 'Edit Poem') : tLabel('नई कविता जोड़ें', 'Add New Poem'))
+      : tLabel('कविताएं', 'Poetry')
+    }
+  </h2>
+</div>
 
  {/* Main Standalone Form */}
  {(showForm || editing || isStandalonePage) && (
