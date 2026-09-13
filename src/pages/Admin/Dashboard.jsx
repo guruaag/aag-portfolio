@@ -468,7 +468,7 @@ function AdminDashboard({ tab, initialSubTab }) {
  className={`admin-sub-tab-btn ${activeTab === 'about' ? 'active' : ''}`}
  onClick={() => switchTab('about', '/admin/parichay')}
  >
- 1. {tLabel('कवि परिचय व बैनर', 'Overview & Hero')}
+ 1. {tLabel('परिचय विवरण', 'Intro')}
  </button>
  <button
  className={`admin-sub-tab-btn ${activeTab === 'timeline' ? 'active' : ''}`}
@@ -1863,61 +1863,10 @@ function AboutManager({ about, initialSubTab, onUpdate, setIsDirty }) {
  {subTab === 'bio' && (
  <div className="admin-card-panel">
  <div className="admin-panel-header">
- <h2 className="admin-panel-title">{tLabel('कवि परिचय व बैनर', 'Biography & Hero')}</h2>
+ <h2 className="admin-panel-title">{tLabel('परिचय विवरण', 'Intro')}</h2>
  </div>
 
  <form id="admin-active-form" onSubmit={handleSubmit} onChange={() => setIsDirty && setIsDirty(true)} onInput={() => setIsDirty && setIsDirty(true)} className="admin-form-container">
- <div style={{ background: 'var(--leona-sand-light, #FAF6F0)', padding: '16px', borderRadius: '8px', marginBottom: '20px', borderLeft: '4px solid var(--leona-terracotta)' }}>
- <h4 style={{ margin: '0 0 12px 0', fontFamily: 'Lora, serif', color: 'var(--leona-charcoal)' }}>
- {tLabel('बैनर जानकारी', 'Banner Details')}
- </h4>
- <div className="admin-form-grid">
- <div className="admin-form-group">
- <label>{tLabel('हीरो टैग', 'Hero Tag')}</label>
- <input
- className="admin-input"
- value={formData.hero_tag}
- onChange={(e) => setFormData({ ...formData, hero_tag: e.target.value })}
- placeholder="साहित्यिक जीवन परिचय"
- />
- </div>
- <div className="admin-form-group">
- <label>{tLabel('नाम *', 'Full Name *')}</label>
- <input
- className="admin-input"
- value={formData.author_name}
- onChange={(e) => setFormData({ ...formData, author_name: e.target.value })}
- required
- />
- </div>
- <div className="admin-form-group full-width">
- <label>{tLabel('उपशीर्षक *', 'Subtitle *')}</label>
- <input
- className="admin-input"
- value={formData.hero_subtitle}
- onChange={(e) => setFormData({ ...formData, hero_subtitle: e.target.value })}
- placeholder="राष्ट्रीय चेतना, ओज एवं मानवीय संवेदनाओं के संवाहक"
- required
- />
- </div>
- <div className="admin-form-group">
- <label>{tLabel('बैज टैग', 'Badge Tag')}</label>
- <input
- className="admin-input"
- value={formData.badge_text}
- onChange={(e) => setFormData({ ...formData, badge_text: e.target.value })}
- />
- </div>
- <div className="admin-form-group">
- <label>{tLabel('उद्धरण श्रेय', 'Quote Credit')}</label>
- <input
- className="admin-input"
- value={formData.quote_attribution}
- onChange={(e) => setFormData({ ...formData, quote_attribution: e.target.value })}
- />
- </div>
- </div>
- </div>
 
  <div style={{ background: '#FFFFFF', padding: '16px', borderRadius: '8px', marginBottom: '20px', border: '1px solid rgba(226, 215, 197, 0.8)' }}>
  <h4 style={{ margin: '0 0 12px 0', fontFamily: 'Lora, serif', color: 'var(--leona-charcoal)' }}>
