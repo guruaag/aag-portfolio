@@ -99,6 +99,7 @@ function UnsavedChangesModal({ isOpen, onConfirmDiscard, onKeepEditing, tLabel }
 
 function AdminDashboard({ tab, initialSubTab }) {
  const navigate = useNavigate()
+ const { id: paramId } = useParams()
  const { typingFont, setTypingFont } = useFontPreference()
  const [activeTab, setActiveTab] = useState(tab || 'categories')
  const [homeSubTab, setHomeSubTab] = useState(initialSubTab || 'hero')
@@ -562,6 +563,86 @@ function AdminDashboard({ tab, initialSubTab }) {
  </div>
 
  <div className="admin-sticky-header-right">
+ {((activeTab === 'poems' || activeTab === 'publications') && !paramId) ? (
+ <button
+ type="button"
+ className="admin-btn-primary"
+ onClick={() => {
+ if (activeTab === 'poems') navigate('/admin/kavya-sangrah/new')
+ else if (activeTab === 'publications') navigate('/admin/prakashan/new')
+ }}
+ style={{
+ backgroundColor: '#16a34a',
+ color: '#FFFFFF',
+ padding: '8px 20px',
+ borderRadius: '20px',
+ fontWeight: 700,
+ border: 'none',
+ cursor: 'pointer',
+ display: 'flex',
+ alignItems: 'center',
+ gap: '6px'
+ }}
+ >
+ + {tLabel('जोड़ें', 'Add')}
+ </button>
+ ) : ((activeTab === 'poems' || activeTab === 'publications') && paramId) ? (
+ <>
+ {isDirty && (
+ <span className="admin-dirty-badge">
+ {tLabel('अंसहेजा', 'Unsaved')}
+ </span>
+ )}
+ <button
+ type="button"
+ className="admin-header-back-btn"
+ onClick={() => {
+ if (isDirty) {
+ const confirmLeave = window.confirm(
+ tLabel(
+ 'आपके पास सहेजे न गए बदलाव हैं! क्या आप वाकई बिना सहेजे वापस जाना चाहते हैं?',
+ 'You have unsaved changes! Are you sure you want to return without saving?'
+ )
+ )
+ if (!confirmLeave) return
+ setIsDirty(false)
+ }
+ if (activeTab === 'poems') navigate('/admin/kavya-sangrah')
+ else if (activeTab === 'publications') navigate('/admin/prakashan')
+ }}
+ style={{
+ backgroundColor: '#1E1B18',
+ color: '#FFFFFF',
+ padding: '8px 18px',
+ borderRadius: '20px',
+ fontWeight: 700,
+ border: 'none',
+ cursor: 'pointer'
+ }}
+ >
+ {tLabel('वापस', 'Back')}
+ </button>
+ <button
+ type="submit"
+ form="admin-active-form"
+ className="admin-btn-primary admin-header-save-btn"
+ disabled={!isDirty}
+ style={{
+ backgroundColor: isDirty ? '#16a34a' : '#888888',
+ color: '#FFFFFF',
+ padding: '8px 20px',
+ borderRadius: '20px',
+ fontWeight: 700,
+ border: 'none',
+ cursor: isDirty ? 'pointer' : 'not-allowed',
+ opacity: isDirty ? 1 : 0.6
+ }}
+ >
+ {tLabel('सहेजें', 'Save')}
+ </button>
+ </>
+ ) : (
+ <>
  {isDirty && (
  <span className="admin-dirty-badge">
  {tLabel('अंसहेजा', 'Unsaved')}
@@ -571,10 +652,22 @@ function AdminDashboard({ tab, initialSubTab }) {
  type="submit"
  form="admin-active-form"
  className="admin-btn-primary admin-header-save-btn"
- style={{ padding: '8px 20px', borderRadius: '20px', fontWeight: 700 }}
+ disabled={!isDirty}
+ style={{
+ backgroundColor: isDirty ? '#16a34a' : '#888888',
+ color: '#FFFFFF',
+ padding: '8px 20px',
+ borderRadius: '20px',
+ fontWeight: 700,
+ border: 'none',
+ cursor: isDirty ? 'pointer' : 'not-allowed',
+ opacity: isDirty ? 1 : 0.6
+ }}
  >
  {tLabel('सहेजें', 'Save')}
  </button>
+ </>
+ )}
  </div>
  </header>
 
