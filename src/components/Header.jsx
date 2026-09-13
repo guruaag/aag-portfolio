@@ -64,7 +64,7 @@ function Header() {
 
   const menuItems = [
     { path: '/', label: i18n.language === 'en' ? 'Home' : 'होम' },
-    { path: '/kavi-parichay.html', label: i18n.language === 'en' ? 'About' : 'परिचय', isHtml: true },
+    { path: '/category/about', label: i18n.language === 'en' ? 'About' : 'परिचय' },
     { path: '/category/poems', label: i18n.language === 'en' ? 'Poetry' : 'कविताएं' },
     { path: '/category/publications', label: i18n.language === 'en' ? 'Books' : 'पुस्तकें' },
     { path: '/contact', label: i18n.language === 'en' ? 'Contact' : 'संपर्क' }
@@ -146,13 +146,7 @@ function Header() {
               <motion.button
                 key={item.path}
                 className={`phoenix-nav-link ${location.pathname === item.path ? 'active' : ''}`}
-                onClick={() => {
-                  if (item.isHtml) {
-                    window.location.href = item.path
-                  } else {
-                    navigate(item.path)
-                  }
-                }}
+                onClick={() => navigate(item.path)}
                 whileHover={{ y: -2 }}
                 whileTap={{ y: 0 }}
               >
@@ -267,11 +261,7 @@ function Header() {
                     <motion.button
                       className={`phoenix-menu-item ${location.pathname === item.path ? 'active' : ''}`}
                       onClick={() => {
-                        if (item.isHtml) {
-                          window.location.href = item.path
-                        } else {
-                          navigate(item.path)
-                        }
+                        navigate(item.path)
                         setMenuOpen(false)
                       }}
                       whileHover={{ x: -10 }}

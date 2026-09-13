@@ -21,29 +21,7 @@ import './styles/font-standardization.css'
 import './styles/premium-theme.css'
 import './styles/scroll-reveal.css'
 
-function DynamicIframeRoute() {
-  const pathname = window.location.pathname
-  const search = window.location.search
-  const cleanPath = pathname.replace(/\/$/, '')
 
-  if (cleanPath === '/prakashan' || cleanPath === '/books') {
-    return <Navigate to="/category/publications" replace />
-  }
-  if (cleanPath === '/kavya-sangrah' || cleanPath === '/poetry') {
-    return <Navigate to="/category/poems" replace />
-  }
-  if (cleanPath === '/about' || cleanPath === '/parichay') {
-    return <Navigate to="/category/about" replace />
-  }
-
-  return (
-    <iframe
-      src={`${pathname}${search}`}
-      style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }}
-      title="Page View"
-    />
-  )
-}
 
 import { Component } from 'react'
 
@@ -138,21 +116,13 @@ function App() {
  color: 'var(--phoenix-text-secondary)'
  }}>Loading...</div>}>
  <Routes>
- {/* Leona Theme Primary Homepage & Standalone HTML Prototype routes */}
- 
- <Route path="/preview" element={<iframe src="/preview.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Prototype Preview" />} />
- <Route path="/preview.html" element={<iframe src="/preview.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Prototype Preview" />} />
- <Route path="/kavi-parichay.html" element={<iframe src="/kavi-parichay.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Kavi Parichay" />} />
- <Route path="/kavya-sangrah.html" element={<iframe src="/kavya-sangrah.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Kavya Sangrah" />} />
- <Route path="/kavya-sangrah/*" element={<DynamicIframeRoute />} />
- <Route path="/prakashan.html" element={<iframe src="/prakashan.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Prakashan" />} />
- <Route path="/prakashan/*" element={<DynamicIframeRoute />} />
- <Route path="/pustak/*" element={<DynamicIframeRoute />} />
- <Route path="/sampark.html" element={<iframe src="/sampark.html" style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Sampark" />} />
- <Route path="/book-detail.html" element={<iframe src={`/book-detail.html${window.location.search}`} style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Book Detail" />} />
- <Route path="/book.html" element={<iframe src={`/book.html${window.location.search}`} style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Book View" />} />
- <Route path="/poem-reader.html" element={<iframe src={`/poem-reader.html${window.location.search}`} style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Poem Reader" />} />
- <Route path="/poem.html" element={<iframe src={`/poem.html${window.location.search}`} style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }} title="Poem View" />} />
+          {/* Legacy HTML Prototype redirects -> Single React SPA Source of Truth */}
+          <Route path="/preview" element={<Navigate to="/" replace />} />
+          <Route path="/preview.html" element={<Navigate to="/" replace />} />
+          <Route path="/kavi-parichay.html" element={<Navigate to="/category/about" replace />} />
+          <Route path="/kavya-sangrah.html" element={<Navigate to="/category/poems" replace />} />
+          <Route path="/prakashan.html" element={<Navigate to="/category/publications" replace />} />
+          <Route path="/sampark.html" element={<Navigate to="/contact" replace />} />
 
  {/* Standard routes inside React Layout wrapper */}
  <Route path="*" element={
