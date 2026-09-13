@@ -8,6 +8,7 @@ import ContentItemCard from '../../components/admin/ContentItemCard'
 import AdminBreadcrumb from '../../components/admin/AdminBreadcrumb'
 import { convertKrutiDevToUnicode, isKrutiDevText } from '../../utils/unicodeConverter'
 import i18n from '../../i18n/config'
+import { handleFormattingShortcut } from '../../utils/textFormatter'
 import './AdminDashboard.css'
 
 function handleKrutiDevPaste(e, currentValue, onUpdate) {
@@ -53,7 +54,7 @@ function UnsavedChangesModal({ isOpen, onConfirmDiscard, onKeepEditing, tLabel }
  return (
  <div className="admin-modal-overlay">
  <div className="admin-modal-card">
- <div className="admin-modal-icon">️</div>
+ <div className="admin-modal-icon"></div>
  <h3 className="admin-modal-title">
  {tLabel('असुरक्षित बदलाव मौजूद हैं', 'Unsaved Changes Detected')}
  </h3>
@@ -698,7 +699,7 @@ function CategoriesManager({ categories, onUpdate, setIsDirty }) {
  } catch (e) {
  console.warn('Category resequence error:', e)
  }
- onUpdate()
+ // optimistic state update without full re-render flicker
  }
 
  return (
@@ -2236,7 +2237,7 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
  } catch (e) {
  console.warn('Publication resequence error:', e)
  }
- onUpdate()
+ // optimistic state update without full re-render flicker
  }
 
  const isStandalonePage = Boolean(paramId)
@@ -2614,7 +2615,7 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
  } catch (e) {
  console.warn('Poem resequence error:', e)
  }
- onUpdate()
+ // optimistic state update without full re-render flicker
  }
 
  const handleCardMoveUp = (id) => {
@@ -3210,7 +3211,7 @@ function TimelineManager({ onUpdate, setIsDirty }) {
  await supabase.from('timeline_milestones').update({ sort_order: item.sort_order }).eq('id', item.id)
  }
  } catch (e) {}
- onUpdate()
+ // optimistic state update without full re-render flicker
  }
 
  const handleMove = (index, direction) => {
@@ -3398,7 +3399,7 @@ function AwardsManager({ onUpdate, setIsDirty }) {
  await supabase.from('awards_honors').update({ sort_order: item.sort_order }).eq('id', item.id)
  }
  } catch (e) {}
- onUpdate()
+ // optimistic state update without full re-render flicker
  }
 
  const handleMove = (index, direction) => {

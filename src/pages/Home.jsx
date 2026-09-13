@@ -10,6 +10,7 @@ import PublicationCard from '../components/PublicationCard'
 import PoemCard from '../components/PoemCard'
 import HeroSection from '../components/HeroSection'
 import ImageModal from '../components/ImageModal'
+import { renderFormattedText } from '../utils/textFormatter'
 import './Home.css'
 
 function Home() {
@@ -249,7 +250,7 @@ function Home() {
  >
  {aboutContent.truncated_preview && (
  <p className="phoenix-about-preview">
- {aboutContent.truncated_preview}
+ {renderFormattedText(aboutContent.truncated_preview)}
  </p>
  )}
  <button

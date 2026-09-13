@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { renderFormattedText } from '../utils/textFormatter';
 import './BookReader.css';
 
 export default function BookReader({
@@ -217,7 +218,7 @@ export default function BookReader({
 
  <div className="page-body">
  {currentIdx === 0 && title && <div className="poem-title">{title}</div>}
- <div className="poem-stanzas">{leftPageText}</div>
+ <div className="poem-stanzas">{renderFormattedText(leftPageText)}</div>
  </div>
 
  <div className="page-foot">
@@ -247,7 +248,7 @@ export default function BookReader({
 
  <div className="page-body">
  {rightPageText ? (
- <div className="poem-stanzas">{rightPageText}</div>
+ <div className="poem-stanzas">{renderFormattedText(rightPageText)}</div>
  ) : (
  <div className="poem-stanzas end-notice">
  {"\n\n— समाप्त —\n(अग्नि कलश संस्करण)"}
