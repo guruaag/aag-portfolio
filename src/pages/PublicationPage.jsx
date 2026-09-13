@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import { getPublication } from '../lib/supabaseClient'
 import { sanitizePublication } from '../lib/dataSanitizer'
 import { getImageUrl } from '../lib/imageUtils'
@@ -10,6 +11,7 @@ import './PublicationPage.css'
 
 function PublicationPage() {
   const { id } = useParams()
+  const { i18n } = useTranslation()
   const [publication, setPublication] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -27,7 +29,7 @@ function PublicationPage() {
       setPublication(pubData ? sanitizePublication(pubData) : null)
     } catch (err) {
       console.error('Error loading publication:', err)
-      setError('Content not available')
+      setError(i18n.language === 'hi' ? 'सामग्री उपलब्ध नहीं है' : 'Content not available')
     } finally {
       setLoading(false)
     }
@@ -41,7 +43,7 @@ function PublicationPage() {
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
           className="phoenix-spinner"
         />
-        <p>Loading...</p>
+        <p>{i18n.language === 'hi' ? 'लोड हो रहा है...' : 'Loading...'}</p>
       </div>
     )
   }
@@ -49,9 +51,9 @@ function PublicationPage() {
   if (error || !publication) {
     return (
       <div className="phoenix-error">
-        <p>{error || 'Publication not found'}</p>
+        <p>{error || (i18n.language === 'hi' ? 'प्रकाशन नहीं मिला' : 'Publication not found')}</p>
         <button className="phoenix-btn phoenix-btn-outline" onClick={loadPublication}>
-          Refresh
+          {i18n.language === 'hi' ? 'पुनः प्रयास करें' : 'Refresh'}
         </button>
       </div>
     )

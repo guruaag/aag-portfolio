@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { getPoem, getPoems } from '../lib/supabaseClient'
 import { sanitizePoem } from '../lib/dataSanitizer'
 import PoemDetail from '../components/PoemDetail'
 
 function PoemPage() {
   const { id } = useParams()
+  const { i18n } = useTranslation()
   const [poem, setPoem] = useState(null)
   const [allPoems, setAllPoems] = useState([])
   const [loading, setLoading] = useState(true)
@@ -30,7 +32,7 @@ function PoemPage() {
       setAllPoems((allPoemsData || []).map(sanitizePoem).filter(Boolean))
     } catch (err) {
       console.error('Error loading poem:', err)
-      setError('Content not available')
+      setError(i18n.language === 'hi' ? 'सामग्री उपलब्ध नहीं है' : 'Content not available')
     } finally {
       setLoading(false)
     }
@@ -44,7 +46,7 @@ function PoemPage() {
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
           className="phoenix-spinner"
         />
-        <p>Loading...</p>
+        <p>{i18n.language === 'hi' ? 'लोड हो रहा है...' : 'Loading...'}</p>
       </div>
     )
   }
@@ -52,9 +54,9 @@ function PoemPage() {
   if (error || !poem) {
     return (
       <div className="phoenix-error">
-        <p>{error || 'Poem not found'}</p>
+        <p>{error || (i18n.language === 'hi' ? 'कविता नहीं मिली' : 'Poem not found')}</p>
         <button className="phoenix-btn phoenix-btn-outline" onClick={loadPoem}>
-          Refresh
+          {i18n.language === 'hi' ? 'पुनः प्रयास करें' : 'Refresh'}
         </button>
       </div>
     )

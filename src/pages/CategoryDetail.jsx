@@ -87,7 +87,7 @@ function CategoryDetail() {
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
           className="phoenix-spinner"
         />
-        <p>Loading...</p>
+        <p>{i18n.language === 'hi' ? 'लोड हो रहा है...' : 'Loading...'}</p>
       </div>
     )
   }
@@ -95,9 +95,9 @@ function CategoryDetail() {
   if (error || !category) {
     return (
       <div className="phoenix-error">
-        <p>{error || 'Category not found'}</p>
+        <p>{error || (i18n.language === 'hi' ? 'श्रेणी नहीं मिली' : 'Category not found')}</p>
         <button className="phoenix-btn phoenix-btn-outline" onClick={loadCategory}>
-          Refresh
+          {i18n.language === 'hi' ? 'पुनः प्रयास करें' : 'Refresh'}
         </button>
       </div>
     )

@@ -236,6 +236,10 @@ function Home() {
  alt={aboutContent.title || 'Guru Pratap Sharma'}
  className="phoenix-about-home-img-wrap"
  onClick={() => setImageModal({ isOpen: true, url: aboutImageUrl, alt: aboutContent.title || 'Guru Pratap Sharma' })}
+ onError={(e) => {
+ e.target.onerror = null
+ e.target.style.display = 'none'
+ }}
  style={{ cursor: 'pointer' }}
  />
  </motion.div>

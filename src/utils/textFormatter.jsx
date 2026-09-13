@@ -73,24 +73,24 @@ function parseInlineFormatting(text) {
     if (!token) return null;
 
     if (token.startsWith('**') && token.endsWith('**') && token.length >= 4) {
-      return <strong key={idx}>{token.slice(2, -2)}</strong>;
+      return <strong key={`b-${idx}`}>{token.slice(2, -2)}</strong>;
     }
     if (token.startsWith('*') && token.endsWith('*') && token.length >= 2) {
-      return <em key={idx}>{token.slice(1, -1)}</em>;
+      return <em key={`i-${idx}`}>{token.slice(1, -1)}</em>;
     }
     if (token.startsWith('<b>') && token.endsWith('</b>')) {
-      return <strong key={idx}>{token.slice(3, -4)}</strong>;
+      return <strong key={`b-html-${idx}`}>{token.slice(3, -4)}</strong>;
     }
     if (token.startsWith('<strong>') && token.endsWith('</strong>')) {
-      return <strong key={idx}>{token.slice(8, -9)}</strong>;
+      return <strong key={`str-${idx}`}>{token.slice(8, -9)}</strong>;
     }
     if (token.startsWith('<i>') && token.endsWith('</i>')) {
-      return <em key={idx}>{token.slice(3, -4)}</em>;
+      return <em key={`i-html-${idx}`}>{token.slice(3, -4)}</em>;
     }
     if (token.startsWith('<em>') && token.endsWith('</em>')) {
-      return <em key={idx}>{token.slice(4, -5)}</em>;
+      return <em key={`em-${idx}`}>{token.slice(4, -5)}</em>;
     }
 
-    return token;
+    return <React.Fragment key={`txt-${idx}`}>{token}</React.Fragment>;
   });
 }

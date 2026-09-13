@@ -87,7 +87,10 @@ function AdminLogin() {
  type="text"
  className="admin-input"
  value={username}
- onChange={(e) => setUsername(e.target.value)}
+ onChange={(e) => {
+ setError('')
+ setUsername(e.target.value)
+ }}
  placeholder={tLabel('उपयोगकर्ता नाम दर्ज करें', 'Enter username')}
  required
  autoFocus
@@ -100,7 +103,10 @@ function AdminLogin() {
  type="password"
  className="admin-input"
  value={password}
- onChange={(e) => setPassword(e.target.value)}
+ onChange={(e) => {
+ setError('')
+ setPassword(e.target.value)
+ }}
  placeholder={tLabel('पासवर्ड दर्ज करें', 'Enter password')}
  required
  />

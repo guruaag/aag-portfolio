@@ -56,6 +56,17 @@ function Header() {
     setMenuOpen(false)
   }, [location.pathname])
 
+  // Close menu on Escape key press
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && menuOpen) {
+        setMenuOpen(false)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [menuOpen])
+
   const toggleLanguage = () => {
     const newLang = i18n.language === 'en' ? 'hi' : 'en'
     i18n.changeLanguage(newLang)
@@ -245,8 +256,8 @@ function Header() {
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             >
               <div className="phoenix-menu-header">
-                <h2>Menu</h2>
-                <button onClick={() => setMenuOpen(false)} aria-label="Close menu">
+                <h2>{i18n.language === 'en' ? 'Menu' : 'मेन्यू'}</h2>
+                <button onClick={() => setMenuOpen(false)} aria-label={i18n.language === 'en' ? 'Close menu' : 'मेन्यू बंद करें'}>
                   ×
                 </button>
               </div>

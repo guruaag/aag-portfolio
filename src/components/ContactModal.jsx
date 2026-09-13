@@ -199,6 +199,9 @@ function ContactModal({ isOpen, onClose }) {
  >
  <motion.div
  className="phoenix-modal-content phoenix-contact-modal"
+ role="dialog"
+ aria-modal="true"
+ aria-labelledby="contact-modal-title"
  style={{ maxWidth: '520px' }}
  initial={{ opacity: 0, scale: 0.9, y: 20 }}
  animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -206,7 +209,7 @@ function ContactModal({ isOpen, onClose }) {
  onClick={(e) => e.stopPropagation()}
  >
  <div className="phoenix-modal-header">
- <h2 className="phoenix-modal-title">{t('nav.contact')}</h2>
+ <h2 className="phoenix-modal-title" id="contact-modal-title">{t('nav.contact')}</h2>
  <button className="phoenix-modal-close-btn" onClick={onClose} aria-label="Close">
  ×
  </button>

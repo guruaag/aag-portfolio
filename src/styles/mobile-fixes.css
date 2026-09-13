@@ -162,3 +162,18 @@
   }
 }
 
+/* Ultra-small viewports (<360px) header & layout protection */
+@media (max-width: 360px) {
+  .phoenix-header-container {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+  .phoenix-header-title {
+    font-size: 0.85rem !important;
+  }
+  .btn-lang {
+    padding: 4px 10px !important;
+    font-size: 0.75rem !important;
+  }
+}
+

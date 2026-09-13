@@ -116,7 +116,7 @@ function Footer() {
             
             {/* Left: Copyright Note */}
             <div className="footer-copyright-note">
-              © {new Date().getFullYear()} गुरुप्रताप शर्मा 'आग'
+              © {new Date().getFullYear()} {i18n.language === 'en' ? "Guru Pratap Sharma 'Aag'" : "गुरुप्रताप शर्मा 'आग'"}
             </div>
 
             {/* Middle: SVG Social Icon Buttons */}
@@ -150,7 +150,7 @@ function Footer() {
 
             {/* Right: Relocated Admin Link */}
             <div>
-              <a href="/admin" className="footer-admin-link">प्रशासन (Admin)</a>
+              <a href="/admin" className="footer-admin-link">{i18n.language === 'en' ? 'Admin Portal' : 'प्रशासन (Admin)'}</a>
             </div>
 
           </div>

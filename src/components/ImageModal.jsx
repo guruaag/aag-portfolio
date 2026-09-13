@@ -29,7 +29,15 @@ function ImageModal({ isOpen, imageUrl, alt, onClose }) {
             >
               ×
             </button>
-            <img src={imageUrl} alt={alt || 'Image'} className="phoenix-image-modal-img" />
+            <img
+              src={imageUrl}
+              alt={alt || 'Image'}
+              className="phoenix-image-modal-img"
+              onError={(e) => {
+                e.target.onerror = null
+                onClose()
+              }}
+            />
           </motion.div>
         </>
       )}

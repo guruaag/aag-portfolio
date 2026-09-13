@@ -184,17 +184,17 @@ export default function BookReader({
  {/* Paper Themes */}
  <div className="theme-switcher">
  <span className="control-label">कागज़ रंग:</span>
- <button className={`theme-btn parchment ${theme === 'parchment' ? 'active' : ''}`} onClick={() => setTheme('parchment')} title="ऋषि ग्रंथ"> ग्रंथ</button>
- <button className={`theme-btn night ${theme === 'night' ? 'active' : ''}`} onClick={() => setTheme('night')} title="रात्रि ध्यान"> रात्रि</button>
- <button className={`theme-btn ivory ${theme === 'ivory' ? 'active' : ''}`} onClick={() => setTheme('ivory')} title="शाही प्रपत्र">️ शाही</button>
+ <button className={`theme-btn parchment ${theme === 'parchment' ? 'active' : ''}`} onClick={() => setTheme('parchment')} title="ऋषि ग्रंथ" aria-label="ग्रंथ थीम चुनें"> ग्रंथ</button>
+ <button className={`theme-btn night ${theme === 'night' ? 'active' : ''}`} onClick={() => setTheme('night')} title="रात्रि ध्यान" aria-label="रात्रि थीम चुनें"> रात्रि</button>
+ <button className={`theme-btn ivory ${theme === 'ivory' ? 'active' : ''}`} onClick={() => setTheme('ivory')} title="शाही प्रपत्र" aria-label="शाही थीम चुनें"> शाही</button>
  </div>
 
  {/* Text Scaler */}
  <div className="font-scaler">
  <span className="control-label">अक्षर आकार:</span>
- <button className={`scale-btn ${fontSizeScale === 100 ? 'active' : ''}`} onClick={() => setFontSizeScale(100)}>सामान्य</button>
- <button className={`scale-btn ${fontSizeScale === 115 ? 'active' : ''}`} onClick={() => setFontSizeScale(115)}>बड़ा</button>
- <button className={`scale-btn ${fontSizeScale === 130 ? 'active' : ''}`} onClick={() => setFontSizeScale(130)}>विशाल</button>
+ <button className={`scale-btn ${fontSizeScale === 100 ? 'active' : ''}`} onClick={() => setFontSizeScale(100)} aria-label="सामान्य अक्षर आकार">सामान्य</button>
+ <button className={`scale-btn ${fontSizeScale === 115 ? 'active' : ''}`} onClick={() => setFontSizeScale(115)} aria-label="बड़ा अक्षर आकार">बड़ा</button>
+ <button className={`scale-btn ${fontSizeScale === 130 ? 'active' : ''}`} onClick={() => setFontSizeScale(130)} aria-label="विशाल अक्षर आकार">विशाल</button>
  </div>
 
  {/* Table of Contents & Share */}

@@ -1,10 +1,14 @@
 import { motion } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import { marked } from 'marked'
 import { getImageUrl } from '../lib/imageUtils'
 import './AboutPanel.css'
 
 function AboutPanel({ aboutContent, categoryName }) {
+  const { i18n } = useTranslation()
+  const isHi = i18n.language === 'hi'
+
   if (!aboutContent) return null
 
   const htmlContent = aboutContent.body_text 
@@ -12,7 +16,7 @@ function AboutPanel({ aboutContent, categoryName }) {
     : ''
 
   const photoUrl = getImageUrl(aboutContent.photo_path)
-  const displayTitle = aboutContent.title || categoryName || 'About Guru Pratap Sharma'
+  const displayTitle = aboutContent.title || categoryName || (isHi ? 'गुरुप्रताप शर्मा \'आग\' का परिचय' : 'About Guru Pratap Sharma')
 
   return (
     <>
@@ -61,13 +65,13 @@ function AboutPanel({ aboutContent, categoryName }) {
                 />
                 <div className="phoenix-about-photo-placeholder" style={{ display: 'none' }}>
                   <span className="phoenix-about-photo-initials">GS</span>
-                  <span>Photo</span>
+                  <span>{isHi ? 'चित्र' : 'Photo'}</span>
                 </div>
               </div>
             ) : (
               <div className="phoenix-about-photo-placeholder">
                 <span className="phoenix-about-photo-initials">GS</span>
-                <span>Photo</span>
+                <span>{isHi ? 'चित्र' : 'Photo'}</span>
               </div>
             )}
           </motion.div>
@@ -86,7 +90,7 @@ function AboutPanel({ aboutContent, categoryName }) {
               />
             ) : (
               <p className="phoenix-about-empty">
-                Content coming soon...
+                {isHi ? 'सामग्री शीघ्र उपलब्ध होगी...' : 'Content coming soon...'}
               </p>
             )}
 
