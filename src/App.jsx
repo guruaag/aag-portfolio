@@ -151,7 +151,10 @@ function App() {
  <Route path="/admin/home/hero" element={<AdminDashboard tab="home" initialSubTab="hero" />} />
  <Route path="/admin/home/intro" element={<AdminDashboard tab="home" initialSubTab="about" />} />
  <Route path="/admin/home/featured" element={<AdminDashboard tab="home" initialSubTab="featured" />} />
- <Route path="/admin/home/highlights" element={<AdminDashboard tab="home" initialSubTab="highlights" />} />
+ <Route path="/admin/home/banner" element={<AdminDashboard tab="home" initialSubTab="hero" />} />
+ <Route path="/admin/home/about" element={<AdminDashboard tab="home" initialSubTab="about" />} />
+ <Route path="/admin/home/poetry" element={<AdminDashboard tab="home" initialSubTab="featured" />} />
+ <Route path="/admin/home/books" element={<AdminDashboard tab="home" initialSubTab="books" />} />
  <Route path="/admin/parichay" element={<AdminDashboard tab="about" />} />
  <Route path="/admin/about" element={<AdminDashboard tab="about" />} />
  <Route path="/admin/timeline" element={<AdminDashboard tab="timeline" />} />

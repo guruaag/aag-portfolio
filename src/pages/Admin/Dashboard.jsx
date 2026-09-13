@@ -429,28 +429,28 @@ function AdminDashboard({ tab, initialSubTab }) {
  {/* Nested Sub-categories for Home Page */}
  <div className="admin-sub-nav">
  <button
- className={`admin-sub-tab-btn ${activeTab === 'home' && homeSubTab === 'hero' ? 'active' : ''}`}
- onClick={() => switchTab('home', '/admin/home/hero', 'hero')}
+ className={`admin-sub-tab-btn ${activeTab === 'home' && (homeSubTab === 'hero' || homeSubTab === 'banner') ? 'active' : ''}`}
+ onClick={() => switchTab('home', '/admin/home/banner', 'hero')}
  >
- 1. {tLabel('हीरो बैनर', 'Hero Banner')}
+ 1. {tLabel('बैनर', 'Banner')}
  </button>
  <button
  className={`admin-sub-tab-btn ${activeTab === 'home' && (homeSubTab === 'about' || homeSubTab === 'intro') ? 'active' : ''}`}
- onClick={() => switchTab('home', '/admin/home/intro', 'about')}
+ onClick={() => switchTab('home', '/admin/home/about', 'about')}
  >
- 2. {tLabel('परिचय सारांश', 'Bio Excerpt')}
+ 2. {tLabel('परिचय', 'About')}
  </button>
  <button
- className={`admin-sub-tab-btn ${activeTab === 'home' && homeSubTab === 'featured' ? 'active' : ''}`}
- onClick={() => switchTab('home', '/admin/home/featured', 'featured')}
+ className={`admin-sub-tab-btn ${activeTab === 'home' && (homeSubTab === 'featured' || homeSubTab === 'poetry') ? 'active' : ''}`}
+ onClick={() => switchTab('home', '/admin/home/poetry', 'featured')}
  >
- 3. {tLabel('प्रमुख रचनाएं व पुस्तकें', 'Featured Works')}
+ 3. {tLabel('विशेष कविताएं', 'Featured Poetry')}
  </button>
  <button
- className={`admin-sub-tab-btn ${activeTab === 'home' && homeSubTab === 'highlights' ? 'active' : ''}`}
- onClick={() => switchTab('home', '/admin/home/highlights', 'highlights')}
+ className={`admin-sub-tab-btn ${activeTab === 'home' && homeSubTab === 'books' ? 'active' : ''}`}
+ onClick={() => switchTab('home', '/admin/home/books', 'books')}
  >
- 4. {tLabel('मुख्य उपलब्धियां', 'Highlights & Awards')}
+ 4. {tLabel('विशेष पुस्तकें', 'Featured Books')}
  </button>
  </div>
 
@@ -784,6 +784,41 @@ function CategoriesManager({ categories, onUpdate, setIsDirty }) {
  {(showForm || editing) && (
  <form id="admin-active-form" onSubmit={handleSubmit} onChange={() => setIsDirty && setIsDirty(true)} onInput={() => setIsDirty && setIsDirty(true)} className="admin-form-container">
  <div className="admin-form-grid">
+ {/* Home Manager Sub-Tab Navigation Bar */}
+ <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', borderBottom: '2px solid rgba(226, 215, 197, 0.4)', paddingBottom: '12px', flexWrap: 'wrap' }}>
+ <button
+ type="button"
+ className={`admin-btn ${activeTab === 'hero' || activeTab === 'banner' ? 'phoenix-btn-primary' : 'admin-btn-secondary'}`}
+ onClick={() => setActiveTab('hero')}
+ style={{ padding: '6px 16px', fontSize: '0.88rem', fontWeight: 600 }}
+ >
+ 1. {tLabel('बैनर', 'Banner')}
+ </button>
+ <button
+ type="button"
+ className={`admin-btn ${activeTab === 'about' || activeTab === 'intro' ? 'phoenix-btn-primary' : 'admin-btn-secondary'}`}
+ onClick={() => setActiveTab('about')}
+ style={{ padding: '6px 16px', fontSize: '0.88rem', fontWeight: 600 }}
+ >
+ 2. {tLabel('परिचय', 'About')}
+ </button>
+ <button
+ type="button"
+ className={`admin-btn ${activeTab === 'featured' || activeTab === 'poetry' ? 'phoenix-btn-primary' : 'admin-btn-secondary'}`}
+ onClick={() => setActiveTab('featured')}
+ style={{ padding: '6px 16px', fontSize: '0.88rem', fontWeight: 600 }}
+ >
+ 3. {tLabel('विशेष कविताएं', 'Featured Poetry')}
+ </button>
+ <button
+ type="button"
+ className={`admin-btn ${activeTab === 'books' ? 'phoenix-btn-primary' : 'admin-btn-secondary'}`}
+ onClick={() => setActiveTab('books')}
+ style={{ padding: '6px 16px', fontSize: '0.88rem', fontWeight: 600 }}
+ >
+ 4. {tLabel('विशेष पुस्तकें', 'Featured Books')}
+ </button>
+ </div>
  <div className="admin-form-group">
  <label>{tLabel('अनुभाग नाम (Slug) *', 'Section Key (Slug) *')}</label>
  <input
@@ -812,7 +847,7 @@ function CategoriesManager({ categories, onUpdate, setIsDirty }) {
  <option value="about">{tLabel('कवि परिचय', 'About')}</option>
  <option value="publications">{tLabel('प्रकाशन', 'Publications')}</option>
  <option value="writings">{tLabel('काव्य संग्रह', 'Poems')}</option>
- <option value="hero">{tLabel('हीरो बैनर', 'Hero Banner')}</option>
+ <option value="hero">{tLabel('बैनर', 'Banner')}</option>
  </select>
  </div>
  <div className="admin-form-group">
@@ -1140,10 +1175,10 @@ function HomeManager({ initialSubTab = 'hero', poems = [], publications = [], ab
  className="admin-form-container"
  >
  {/* MODULE 1: HERO & BANNER */}
- {activeTab === 'hero' && (
+ {(activeTab === 'hero' || activeTab === 'banner') && (
  <div>
  <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', color: 'var(--leona-charcoal)', marginBottom: '16px' }}>
- {tLabel('हीरो बैनर', 'Hero Banner')}
+ {tLabel('बैनर', 'Banner')}
  </h3>
 
  <div className="admin-form-grid">
@@ -1282,20 +1317,16 @@ function HomeManager({ initialSubTab = 'hero', poems = [], publications = [], ab
  </div>
  )}
 
- {/* MODULE 3: FEATURED WORKS SHOWCASE */}
- {activeTab === 'featured' && (
+ {/* MODULE 3: FEATURED POETRY */}
+ {(activeTab === 'featured' || activeTab === 'poetry') && (
  <div>
  <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', color: 'var(--leona-charcoal)', marginBottom: '16px' }}>
- {tLabel('प्रमुख रचनाएं एवं पुस्तकें (Featured Works Showcase)', 'Featured Poems & Books Showcase')}
+ {tLabel('विशेष कविताएं (Featured Poetry)', 'Featured Poetry')}
  </h3>
 
- {/* Single Row Limits Configuration */}
+ {/* Single Row Limit Configuration */}
  <div style={{ background: '#FFF', padding: '18px', borderRadius: '10px', border: '1px solid rgba(226, 215, 197, 0.8)', marginBottom: '24px' }}>
- <h4 style={{ margin: '0 0 12px 0', fontFamily: 'Lora, serif', fontSize: '1.05rem', color: 'var(--leona-charcoal)' }}>
- {tLabel('प्रदर्शन सीमा', 'Display Limits')}
- </h4>
- <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '10px' }}>
- <div>
+ <div style={{ maxWidth: '320px' }}>
  <label style={{ display: 'block', fontWeight: 600, fontSize: '0.9rem', marginBottom: '6px', color: '#1e293b' }}>
  {tLabel('काव्य संग्रह कार्ड सीमा (Max Poems on Home Page)', 'Max Poems on Home Page')}
  </label>
@@ -1311,40 +1342,22 @@ function HomeManager({ initialSubTab = 'hero', poems = [], publications = [], ab
  }}
  />
  </div>
- <div>
- <label style={{ display: 'block', fontWeight: 600, fontSize: '0.9rem', marginBottom: '6px', color: '#1e293b' }}>
- {tLabel('प्रकाशन कार्ड सीमा (Max Books on Home Page)', 'Max Publications on Home Page')}
- </label>
- <input
- type="number"
- min="1"
- max="10"
- className="admin-input"
- value={pubsLimit}
- onChange={(e) => {
- setPubsLimit(Math.max(1, parseInt(e.target.value || '1', 10)))
- if (setIsDirty) setIsDirty(true)
- }}
- />
- </div>
- </div>
- <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b', fontStyle: 'italic' }}>
- {tLabel('होम पेज पर केवल एक पंक्ति (single row) में दिखने वाले कार्ड्स की अधिकतम संख्या set करें।', 'Set the maximum number of cards displayed in a single row on the public home page.')}
+ <p style={{ margin: '8px 0 0 0', fontSize: '0.85rem', color: '#64748b', fontStyle: 'italic' }}>
+ {tLabel('होम पेज पर दिखने वाले काव्य कार्ड्स की अधिकतम संख्या set करें।', 'Set maximum number of poem cards displayed on the public home page.')}
  </p>
  </div>
 
- {/* Featured Poems Sub-Section */}
- <div style={{ background: '#FFF', padding: '18px', borderRadius: '10px', border: '1px solid rgba(226, 215, 197, 0.8)', marginBottom: '24px' }}>
+ {/* Featured Poems List */}
+ <div style={{ background: '#FFF', padding: '18px', borderRadius: '10px', border: '1px solid rgba(226, 215, 197, 0.8)' }}>
  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
  <h4 style={{ margin: 0, fontFamily: 'Lora, serif', fontSize: '1.05rem', color: 'var(--leona-charcoal)' }}>
- ️ {tLabel('1. मुख्य पृष्ठ काव्य रचनाएं (Featured Poems)', '1. Featured Poems')}
+ {tLabel('मुख्य पृष्ठ काव्य रचनाएं (Featured Poems)', 'Featured Poems')}
  </h4>
  <span className="admin-toolbar-count">
  {featuredPoems.length}/6 {tLabel('रचनाएं चयनित', 'Poems Selected')}
  </span>
  </div>
 
- {/* Search Picker for Adding Poems */}
  <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
  <select
  className="admin-input"
@@ -1373,7 +1386,6 @@ function HomeManager({ initialSubTab = 'hero', poems = [], publications = [], ab
  </select>
  </div>
 
- {/* Selected Featured Poems Ordered List */}
  {featuredPoems.length === 0 ? (
  <p style={{ fontStyle: 'italic', color: '#888', margin: 0 }}>{tLabel('कोई रचना चयनित नहीं है।', 'No featured poems selected.')}</p>
  ) : (
@@ -1398,7 +1410,7 @@ function HomeManager({ initialSubTab = 'hero', poems = [], publications = [], ab
  ⬇️
  </button>
  <button type="button" className="admin-btn-danger" onClick={() => { setFeaturedPoems(featuredPoems.filter(item => item !== id)); if (setIsDirty) setIsDirty(true); }}>
- 
+ 🗑️
  </button>
  </div>
  </li>
@@ -1407,19 +1419,50 @@ function HomeManager({ initialSubTab = 'hero', poems = [], publications = [], ab
  </ul>
  )}
  </div>
+ </div>
+ )}
 
- {/* Featured Publications Sub-Section */}
+ {/* MODULE 4: FEATURED BOOKS (NEW TAB) */}
+ {activeTab === 'books' && (
+ <div>
+ <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', color: 'var(--leona-charcoal)', marginBottom: '16px' }}>
+ {tLabel('विशेष पुस्तकें (Featured Books)', 'Featured Books')}
+ </h3>
+
+ {/* Single Row Limit Configuration */}
+ <div style={{ background: '#FFF', padding: '18px', borderRadius: '10px', border: '1px solid rgba(226, 215, 197, 0.8)', marginBottom: '24px' }}>
+ <div style={{ maxWidth: '320px' }}>
+ <label style={{ display: 'block', fontWeight: 600, fontSize: '0.9rem', marginBottom: '6px', color: '#1e293b' }}>
+ {tLabel('प्रकाशन कार्ड सीमा (Max Books on Home Page)', 'Max Books on Home Page')}
+ </label>
+ <input
+ type="number"
+ min="1"
+ max="10"
+ className="admin-input"
+ value={pubsLimit}
+ onChange={(e) => {
+ setPubsLimit(Math.max(1, parseInt(e.target.value || '1', 10)))
+ if (setIsDirty) setIsDirty(true)
+ }}
+ />
+ </div>
+ <p style={{ margin: '8px 0 0 0', fontSize: '0.85rem', color: '#64748b', fontStyle: 'italic' }}>
+ {tLabel('होम पेज पर दिखने वाले पुस्तक कार्ड्स की अधिकतम संख्या set करें।', 'Set maximum number of book cards displayed on the public home page.')}
+ </p>
+ </div>
+
+ {/* Featured Publications List */}
  <div style={{ background: '#FFF', padding: '18px', borderRadius: '10px', border: '1px solid rgba(226, 215, 197, 0.8)' }}>
  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
  <h4 style={{ margin: 0, fontFamily: 'Lora, serif', fontSize: '1.05rem', color: 'var(--leona-charcoal)' }}>
- {tLabel('2. मुख्य पृष्ठ पुस्तकें (Featured Books)', '2. Featured Publications')}
+ {tLabel('मुख्य पृष्ठ पुस्तकें (Featured Books)', 'Featured Publications')}
  </h4>
  <span className="admin-toolbar-count">
  {featuredPubs.length}/6 {tLabel('पुस्तकें चयनित', 'Books Selected')}
  </span>
  </div>
 
- {/* Search Picker for Adding Publications */}
  <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
  <select
  className="admin-input"
@@ -1448,7 +1491,6 @@ function HomeManager({ initialSubTab = 'hero', poems = [], publications = [], ab
  </select>
  </div>
 
- {/* Selected Featured Publications Ordered List */}
  {featuredPubs.length === 0 ? (
  <p style={{ fontStyle: 'italic', color: '#888', margin: 0 }}>{tLabel('कोई पुस्तक चयनित नहीं है।', 'No featured publications selected.')}</p>
  ) : (
@@ -1473,162 +1515,7 @@ function HomeManager({ initialSubTab = 'hero', poems = [], publications = [], ab
  ⬇️
  </button>
  <button type="button" className="admin-btn-danger" onClick={() => { setFeaturedPubs(featuredPubs.filter(item => item !== id)); if (setIsDirty) setIsDirty(true); }}>
- 
- </button>
- </div>
- </li>
- )
- })}
- </ul>
- )}
- </div>
- </div>
- )}
-
- {/* MODULE 4: HIGHLIGHTS & AWARDS */}
- {activeTab === 'highlights' && (
- <div>
- <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', color: 'var(--leona-charcoal)', marginBottom: '16px' }}>
- {tLabel('उपलब्धियां', 'Highlights & Awards')}
- </h3>
-
- {/* Featured Timeline Sub-Section */}
- <div style={{ background: '#FFF', padding: '18px', borderRadius: '10px', border: '1px solid rgba(226, 215, 197, 0.8)', marginBottom: '24px' }}>
- <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
- <h4 style={{ margin: 0, fontFamily: 'Lora, serif', fontSize: '1.05rem', color: 'var(--leona-charcoal)' }}>
- {tLabel('विशेष समयरेखा', 'Featured Timeline')}
- </h4>
- <span className="admin-toolbar-count">
- {featuredTimeline.length}/4 {tLabel('चयनित', 'Selected')}
- </span>
- </div>
-
- <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
- <select
- className="admin-input"
- style={{ flex: 1 }}
- value=""
- onChange={(e) => {
- const id = e.target.value
- if (id && !featuredTimeline.includes(id)) {
- if (featuredTimeline.length >= 4) {
- alert(tLabel('अधिकतम 4 मील के पत्थर ही चुने जा सकते हैं।', 'Maximum 4 timeline items allowed.'))
- return
- }
- setFeaturedTimeline([...featuredTimeline, id])
- if (setIsDirty) setIsDirty(true)
- }
- }}
- >
- <option value="">-- {tLabel('टाइमलाइन से घटना चुनें व जोड़ें...', 'Select timeline milestone to add...')} --</option>
- {safeTimeline
- .filter(t => !featuredTimeline.includes(t.id))
- .map(t => (
- <option key={t.id} value={t.id}>
- {t.year_display ? `[${t.year_display}] ` : ''}{t.title}
- </option>
- ))}
- </select>
- </div>
-
- {featuredTimeline.length === 0 ? (
- <p style={{ fontStyle: 'italic', color: '#888', margin: 0 }}>{tLabel('कोई मील का पत्थर चयनित नहीं है।', 'No timeline milestones selected.')}</p>
- ) : (
- <ul className="admin-item-list">
- {featuredTimeline.map((id, index) => {
- const tmObj = safeTimeline.find(t => t.id === id)
- return (
- <li key={id} className="admin-item-card" style={{ justifyContent: 'space-between' }}>
- <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
- <span style={{ fontWeight: 700, width: '24px', height: '24px', background: 'var(--leona-terracotta)', color: '#FFF', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>
- {index + 1}
- </span>
- <span style={{ fontWeight: 600, color: 'var(--leona-charcoal)' }}>
- {tmObj ? `${tmObj.year_display ? `[${tmObj.year_display}] ` : ''}${tmObj.title}` : `Timeline ID: ${id}`}
- </span>
- </div>
- <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
- <button type="button" className="admin-btn-secondary" onClick={() => setFeaturedTimeline(moveItemInArray(featuredTimeline, index, 'up'))} disabled={index === 0}>
- {tLabel('ऊपर', 'Up')}
- </button>
- <button type="button" className="admin-btn-secondary" onClick={() => setFeaturedTimeline(moveItemInArray(featuredTimeline, index, 'down'))} disabled={index === featuredTimeline.length - 1}>
- {tLabel('नीचे', 'Down')}
- </button>
- <button type="button" className="admin-btn-danger" onClick={() => { setFeaturedTimeline(featuredTimeline.filter(item => item !== id)); if (setIsDirty) setIsDirty(true); }}>
- {tLabel('हटाएं', 'Delete')}
- </button>
- </div>
- </li>
- )
- })}
- </ul>
- )}
- </div>
-
- {/* Featured Awards Sub-Section */}
- <div style={{ background: '#FFF', padding: '18px', borderRadius: '10px', border: '1px solid rgba(226, 215, 197, 0.8)' }}>
- <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
- <h4 style={{ margin: 0, fontFamily: 'Lora, serif', fontSize: '1.05rem', color: 'var(--leona-charcoal)' }}>
- {tLabel('विशेष सम्मान', 'Featured Awards')}
- </h4>
- <span className="admin-toolbar-count">
- {featuredAwards.length}/4 {tLabel('चयनित', 'Selected')}
- </span>
- </div>
-
- <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
- <select
- className="admin-input"
- style={{ flex: 1 }}
- value=""
- onChange={(e) => {
- const id = e.target.value
- if (id && !featuredAwards.includes(id)) {
- if (featuredAwards.length >= 4) {
- alert(tLabel('अधिकतम 4 पुरस्कार ही चुने जा सकते हैं।', 'Maximum 4 awards allowed.'))
- return
- }
- setFeaturedAwards([...featuredAwards, id])
- if (setIsDirty) setIsDirty(true)
- }
- }}
- >
- <option value="">-- {tLabel('पुरस्कार सूची से सम्मान चुनें व जोड़ें...', 'Select award to add...')} --</option>
- {safeAwards
- .filter(a => !featuredAwards.includes(a.id))
- .map(a => (
- <option key={a.id} value={a.id}>
- {a.year_display ? `[${a.year_display}] ` : ''}{a.title}
- </option>
- ))}
- </select>
- </div>
-
- {featuredAwards.length === 0 ? (
- <p style={{ fontStyle: 'italic', color: '#888', margin: 0 }}>{tLabel('कोई सम्मान चयनित नहीं है।', 'No featured awards selected.')}</p>
- ) : (
- <ul className="admin-item-list">
- {featuredAwards.map((id, index) => {
- const awObj = safeAwards.find(a => a.id === id)
- return (
- <li key={id} className="admin-item-card" style={{ justifyContent: 'space-between' }}>
- <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
- <span style={{ fontWeight: 700, width: '24px', height: '24px', background: 'var(--leona-terracotta)', color: '#FFF', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>
- {index + 1}
- </span>
- <span style={{ fontWeight: 600, color: 'var(--leona-charcoal)' }}>
- {awObj ? `${awObj.year_display ? `[${awObj.year_display}] ` : ''}${awObj.title}` : `Award ID: ${id}`}
- </span>
- </div>
- <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
- <button type="button" className="admin-btn-secondary" onClick={() => setFeaturedAwards(moveItemInArray(featuredAwards, index, 'up'))} disabled={index === 0}>
- {tLabel('ऊपर', 'Up')}
- </button>
- <button type="button" className="admin-btn-secondary" onClick={() => setFeaturedAwards(moveItemInArray(featuredAwards, index, 'down'))} disabled={index === featuredAwards.length - 1}>
- {tLabel('नीचे', 'Down')}
- </button>
- <button type="button" className="admin-btn-danger" onClick={() => { setFeaturedAwards(featuredAwards.filter(item => item !== id)); if (setIsDirty) setIsDirty(true); }}>
- {tLabel('हटाएं', 'Delete')}
+ 🗑️
  </button>
  </div>
  </li>
