@@ -142,6 +142,11 @@ function convertKrutiDevSingleToken(str) {
 
   // Step 1: Pre-processed Substitutions for Complex Conjuncts & Special Symbols
   const replacements = [
+    ["'k", 'श'],
+    ['"k', 'श'],
+    ["'", 'श्'],
+    ['"', 'श्'],
+    ['â', 'म'],
     ['Dkz', 'क्र'],
     ['=k', 'त्रा'],
     ['=\'', 'त्र'],
@@ -159,6 +164,7 @@ function convertKrutiDevSingleToken(str) {
     ['î', 'ह्न्'],
     ['™', '्र'],
     ['ç', '्र'],
+
 
     // Multi-char vowel/consonant combinations (MUST BE BEFORE single chars)
     ['dks', 'को'],
