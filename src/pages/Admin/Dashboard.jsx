@@ -550,29 +550,29 @@ function AdminDashboard({ tab, initialSubTab }) {
  <header className="admin-sticky-header">
  <div className="admin-sticky-header-left">
  <span className="admin-breadcrumb-title">
-  {activeTab === 'home' && (
-  homeSubTab === 'banner' || homeSubTab === 'hero' ? tLabel('होम > बैनर', 'Home > Banner') :
-  homeSubTab === 'about' || homeSubTab === 'intro' ? tLabel('होम > परिचय', 'Home > About') :
-  homeSubTab === 'poetry' || homeSubTab === 'featured' ? tLabel('होम > विशेष काव्य', 'Home > Featured Poetry') :
-  tLabel('होम > विशेष पुस्तकें', 'Home > Featured Books')
-  )}
-  {activeTab === 'about' && tLabel('परिचय', 'Intro')}
-  {activeTab === 'timeline' && tLabel('समयरेखा', 'Timeline')}
-  {activeTab === 'awards' && tLabel('पुरस्कार व सम्मान', 'Awards & Honors')}
-  {activeTab === 'poems' && (
-  !paramId ? tLabel('कविताएं', 'Poetry') :
-  paramId === 'new' ? tLabel('कविताएं > नई कविता जोड़ें', 'Poetry > Add New Poem') :
-  tLabel('कविताएं > कविता संपादित करें', 'Poetry > Edit Poem')
-  )}
-  {activeTab === 'publications' && (
-  !paramId ? tLabel('पुस्तकें', 'Books') :
-  paramId === 'new' ? tLabel('पुस्तकें > नई पुस्तक जोड़ें', 'Books > Add New Book') :
-  tLabel('पुस्तकें > पुस्तक विवरण संपादित करें', 'Books > Edit Book Details')
-  )}
-  {activeTab === 'contact' && tLabel('संपर्क विवरण', 'Contact Info')}
-  {activeTab === 'inbox' && tLabel('संदेश', 'Inbox')}
-  {activeTab === 'settings' && tLabel('सेटिंग्स', 'Settings')}
-  </span>
+ {activeTab === 'home' && (
+ homeSubTab === 'banner' || homeSubTab === 'hero' ? tLabel('होम > बैनर', 'Home > Banner') :
+ homeSubTab === 'about' || homeSubTab === 'intro' ? tLabel('होम > परिचय', 'Home > About') :
+ homeSubTab === 'poetry' || homeSubTab === 'featured' ? tLabel('होम > विशेष काव्य', 'Home > Featured Poetry') :
+ tLabel('होम > विशेष पुस्तकें', 'Home > Featured Books')
+ )}
+ {activeTab === 'about' && tLabel('परिचय', 'Intro')}
+ {activeTab === 'timeline' && tLabel('समयरेखा', 'Timeline')}
+ {activeTab === 'awards' && tLabel('पुरस्कार व सम्मान', 'Awards & Honors')}
+ {activeTab === 'poems' && (
+ !paramId ? tLabel('कविताएं', 'Poetry') :
+ paramId === 'new' ? tLabel('कविताएं > नई कविता जोड़ें', 'Poetry > Add New Poem') :
+ tLabel('कविताएं > कविता संपादित करें', 'Poetry > Edit Poem')
+ )}
+ {activeTab === 'publications' && (
+ !paramId ? tLabel('पुस्तकें', 'Books') :
+ paramId === 'new' ? tLabel('पुस्तकें > नई पुस्तक जोड़ें', 'Books > Add New Book') :
+ tLabel('पुस्तकें > पुस्तक विवरण संपादित करें', 'Books > Edit Book Details')
+ )}
+ {activeTab === 'contact' && tLabel('संपर्क विवरण', 'Contact Info')}
+ {activeTab === 'inbox' && tLabel('संदेश', 'Inbox')}
+ {activeTab === 'settings' && tLabel('सेटिंग्स', 'Settings')}
+ </span>
  </div>
 
  <div className="admin-sticky-header-right">
@@ -870,7 +870,387 @@ function CategoriesManager({ categories, onUpdate, setIsDirty }) {
 
  return (
  <div className="admin-card-panel">
+ 
+ {(showForm || editing) && (
+ <form id="admin-active-form" onSubmit={handleSubmit} onChange={() => setIsDirty && setIsDirty(true)} onInput={() => setIsDirty && setIsDirty(true)} className="admin-form-container">
+ <div className="admin-form-grid">
+ {/* Home Manager Sub-Tab Navigation Bar */}
+ <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', borderBottom: '2px solid rgba(226, 215, 197, 0.4)', paddingBottom: '12px', flexWrap: 'wrap' }}>
+ <button
+ type="button"
+ className={`admin-btn ${activeTab === 'hero' || activeTab === 'banner' ? 'phoenix-btn-primary' : 'admin-btn-secondary'}`}
+ onClick={() => setActiveTab('hero')}
+ style={{ padding: '6px 16px', fontSize: '0.88rem', fontWeight: 600 }}
+ >
+ 1. {tLabel('बैनर', 'Banner')}
+ </button>
+ <button
+ type="button"
+ className={`admin-btn ${activeTab === 'about' || activeTab === 'intro' ? 'phoenix-btn-primary' : 'admin-btn-secondary'}`}
+ onClick={() => setActiveTab('about')}
+ style={{ padding: '6px 16px', fontSize: '0.88rem', fontWeight: 600 }}
+ >
+ 2. {tLabel('परिचय', 'About')}
+ </button>
+ <button
+ type="button"
+ className={`admin-btn ${activeTab === 'featured' || activeTab === 'poetry' ? 'phoenix-btn-primary' : 'admin-btn-secondary'}`}
+ onClick={() => setActiveTab('featured')}
+ style={{ padding: '6px 16px', fontSize: '0.88rem', fontWeight: 600 }}
+ >
+ 3. {tLabel('विशेष कविताएं', 'Featured Poetry')}
+ </button>
+ <button
+ type="button"
+ className={`admin-btn ${activeTab === 'books' ? 'phoenix-btn-primary' : 'admin-btn-secondary'}`}
+ onClick={() => setActiveTab('books')}
+ style={{ padding: '6px 16px', fontSize: '0.88rem', fontWeight: 600 }}
+ >
+ 4. {tLabel('विशेष पुस्तकें', 'Featured Books')}
+ </button>
+ </div>
+ <div className="admin-form-group">
+ <label>{tLabel('अनुभाग नाम (Slug) *', 'Section Key (Slug) *')}</label>
+ <input
+ className="admin-input"
+ value={formData.name_en}
+ onChange={(e) => updateForm({ name_en: e.target.value })}
+ required
+ />
+ </div>
+ <div className="admin-form-group">
+ <label>{tLabel('प्रदर्शित नाम', 'Display Name')}</label>
+ <input
+ className="admin-input"
+ value={formData.name_display}
+ onChange={(e) => updateForm({ name_display: e.target.value })}
+ />
+ </div>
+ <div className="admin-form-group">
+ <label>{tLabel('सामग्री प्रकार *', 'Content Type *')}</label>
+ <select
+ className="admin-select"
+ value={formData.content_type}
+ onChange={(e) => updateForm({ content_type: e.target.value })}
+ required
+ >
+ <option value="about">{tLabel('कवि परिचय', 'About')}</option>
+ <option value="publications">{tLabel('प्रकाशन', 'Publications')}</option>
+ <option value="writings">{tLabel('काव्य संग्रह', 'Poems')}</option>
+ <option value="hero">{tLabel('बैनर', 'Banner')}</option>
+ </select>
+ </div>
+ <div className="admin-form-group">
+ <label>{tLabel('क्रम संख्या', 'Sort Order')}</label>
+ <input
+ className="admin-input"
+ type="number"
+ value={formData.sort_order}
+ onChange={(e) => updateForm({ sort_order: parseInt(e.target.value) || 1 })}
+ />
+ </div>
+ <div className="admin-form-group full-width">
+ <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+ <input
+ type="checkbox"
+ checked={formData.is_active !== false}
+ onChange={(e) => updateForm({ is_active: e.target.checked })}
+ />
+ {tLabel('वेबसाइट पर सक्रिय रखें', 'Active on Website')}
+ </label>
+ </div>
+ </div>
+ </form>
+ )}
 
+ <div>
+ <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
+ {tLabel('सक्रिय अनुभाग सूची', 'Active Sections List')} ({displayList.length})
+ </h3>
+ {displayList.length === 0 ? (
+ <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई अनुभाग नहीं मिला। नया अनुभाग जोड़ने के लिए बटन दबाएं।', 'No sections found. Click button to add new section.')}</p>
+ ) : (
+ <ul className="admin-item-list">
+ {displayList.map((cat, idx) => (
+ <ContentItemCard
+ key={cat.id}
+ id={cat.id}
+ title={cat.name_display || cat.name_en}
+ subtitle={`Key: ${cat.name_en} • ${tLabel('प्रकार:', 'Type:')} ${cat.content_type} • ${tLabel('क्रम:', 'Order:')} ${cat.sort_order || 1}`}
+ badgeText={cat.is_active === false ? tLabel('निष्क्रिय', 'Inactive') : tLabel('सक्रिय', 'Active')}
+ badgeColor={cat.is_active === false ? '#D95343' : '#2C988F'}
+ onEdit={() => {
+ setEditing(cat.id)
+ setShowForm(true)
+ setFormData({ ...cat, is_active: cat.is_active !== undefined ? cat.is_active : true })
+ }}
+ onMoveUp={() => {
+ if (idx <= 0) return
+ const updated = [...displayList]
+ const temp = updated[idx]
+ updated[idx] = updated[idx - 1]
+ updated[idx - 1] = temp
+ persistReorder(updated)
+ }}
+ onMoveDown={() => {
+ if (idx >= displayList.length - 1) return
+ const updated = [...displayList]
+ const temp = updated[idx]
+ updated[idx] = updated[idx + 1]
+ updated[idx + 1] = temp
+ persistReorder(updated)
+ }}
+ onDelete={async () => {
+ if (!confirm(tLabel('क्या आप इस अनुभाग को हटाना चाहते हैं?', 'Do you want to delete this section?'))) return
+ const updated = displayList.filter(i => i.id !== cat.id)
+ setItemsList(updated)
+ try {
+ await supabase.from('categories').delete().eq('id', cat.id)
+ } catch (e) {
+ console.warn('Delete category error:', e)
+ }
+ onUpdate()
+ }}
+ canMoveUp={idx > 0}
+ canMoveDown={idx < displayList.length - 1}
+ lang={adminLang}
+ />
+ ))}
+ </ul>
+ )}
+ </div>
+ </div>
+ )
+}
+
+// 1. Home Manager Component (4-Module Hybrid Dashboard for Home Page Re-Architecture)
+function HomeManager({ initialSubTab = 'hero', poems = [], publications = [], about, settings = {}, onUpdate, setIsDirty }) {
+ const { tLabel } = useAdminLang()
+ const [activeTab, setActiveTab] = useState(initialSubTab || 'hero')
+
+ useEffect(() => {
+ if (initialSubTab) {
+ setActiveTab(initialSubTab)
+ }
+ }, [initialSubTab]) // 'hero' | 'about' | 'featured' | 'highlights'
+
+ // Additional data for timeline and awards
+ const [timelineItems, setTimelineItems] = useState([])
+ const [awardsItems, setAwardsItems] = useState([])
+
+ useEffect(() => {
+ fetchAuxiliaryData()
+ }, [])
+
+ const fetchAuxiliaryData = async () => {
+ try {
+ const [{ data: tmData }, { data: awData }] = await Promise.all([
+ supabase.from('timeline').select('*').order('sort_order', { ascending: true }),
+ supabase.from('awards').select('*').order('sort_order', { ascending: true })
+ ])
+ if (tmData) setTimelineItems(tmData)
+ if (awData) setAwardsItems(awData)
+ } catch (e) {
+ console.warn('Error fetching timeline/awards for HomeManager:', e)
+ }
+ }
+
+ // Module 1: Hero State
+ const [heroForm, setHeroForm] = useState({
+ hero_title: '',
+ hero_subtitle: '',
+ hero_image_url: '',
+ cta_primary_label: 'रचनाएं पढ़ें',
+ cta_primary_url: '/kavya-sangrah',
+ cta_secondary_label: 'परिचय',
+ cta_secondary_url: '/parichay'
+ })
+ const [uploadingHeroImg, setUploadingHeroImg] = useState(false)
+ const [heroImgPreview, setHeroImgPreview] = useState(null)
+
+ // Module 2: Kavi Parichay Excerpt State
+ const [aboutConfig, setAboutConfig] = useState({
+ use_custom_excerpt: false,
+ custom_excerpt: ''
+ })
+
+ // Module 3: Featured Works State (Selected ID Arrays in 1st, 2nd, 3rd sequence)
+ const [featuredPoems, setFeaturedPoems] = useState([])
+ const [featuredPubs, setFeaturedPubs] = useState([])
+ const [poemsLimit, setPoemsLimit] = useState(3)
+ const [pubsLimit, setPubsLimit] = useState(3)
+
+
+ // Module 4: Highlights State (Selected ID Arrays in sequence)
+ const [featuredTimeline, setFeaturedTimeline] = useState([])
+ const [featuredAwards, setFeaturedAwards] = useState([])
+
+ // Search filter states for dropdown pickers
+ const [poemSearch, setPoemSearch] = useState('')
+ const [pubSearch, setPubSearch] = useState('')
+ const [timelineSearch, setTimelineSearch] = useState('')
+ const [awardSearch, setAwardSearch] = useState('')
+
+ // Load existing configuration from settings
+ useEffect(() => {
+ if (settings) {
+ setHeroForm({
+ hero_title: settings.home_hero_title || 'अग्नि कलश',
+ hero_subtitle: settings.home_hero_subtitle || '"हिंदी काव्य और ओजस्वी चेतना की अमर गाथा"',
+ hero_image_url: settings.home_hero_image_url || '',
+ cta_primary_label: settings.home_cta_primary_label || 'रचनाएं पढ़ें',
+ cta_primary_url: settings.home_cta_primary_url || '/kavya-sangrah',
+ cta_secondary_label: settings.home_cta_secondary_label || 'परिचय',
+ cta_secondary_url: settings.home_cta_secondary_url || '/parichay'
+ })
+ if (settings.home_hero_image_url) {
+ setHeroImgPreview(getImageUrl(settings.home_hero_image_url))
+ }
+
+ setAboutConfig({
+ use_custom_excerpt: settings.home_use_custom_excerpt === 'true',
+ custom_excerpt: settings.home_custom_excerpt || ''
+ })
+
+ try {
+ if (settings.home_featured_poems) {
+ setFeaturedPoems(JSON.parse(settings.home_featured_poems))
+ } else if (Array.isArray(poems)) {
+ setFeaturedPoems(poems.slice(0, 4).map(p => p.id))
+ }
+ } catch (e) {
+ setFeaturedPoems(Array.isArray(poems) ? poems.slice(0, 4).map(p => p.id) : [])
+ }
+
+ try {
+ if (settings.home_featured_publications) {
+ setFeaturedPubs(JSON.parse(settings.home_featured_publications))
+ } else if (Array.isArray(publications)) {
+ setFeaturedPubs(publications.slice(0, 4).map(p => p.id))
+ }
+ } catch (e) {
+ setFeaturedPubs(Array.isArray(publications) ? publications.slice(0, 4).map(p => p.id) : [])
+ }
+
+ if (settings.home_featured_poems_limit) {
+ setPoemsLimit(parseInt(settings.home_featured_poems_limit, 10) || 3)
+ }
+ if (settings.home_featured_publications_limit) {
+ setPubsLimit(parseInt(settings.home_featured_publications_limit, 10) || 3)
+ }
+
+ try {
+ if (settings.home_featured_timeline) {
+ setFeaturedTimeline(JSON.parse(settings.home_featured_timeline))
+ }
+ } catch (e) {}
+
+ try {
+ if (settings.home_featured_awards) {
+ setFeaturedAwards(JSON.parse(settings.home_featured_awards))
+ }
+ } catch (e) {}
+ }
+ }, [settings, poems.length, publications.length])
+
+ // Hero Image Upload Handler
+ const handleHeroImageUpload = async (e) => {
+ const file = e.target.files?.[0]
+ if (!file) return
+ if (!file.type.startsWith('image/')) {
+ alert(tLabel('कृपया फोटो फाइल चुनें।', 'Please select an image file'))
+ return
+ }
+ try {
+ setUploadingHeroImg(true)
+ const fileName = `home-hero-${Date.now()}.${file.name.split('.').pop()}`
+ const path = await uploadImage(file, 'logos', fileName)
+ setHeroForm(prev => ({ ...prev, hero_image_url: path }))
+ setHeroImgPreview(URL.createObjectURL(file))
+ if (setIsDirty) setIsDirty(true)
+ } catch (err) {
+ alert('Upload error: ' + err.message)
+ } finally {
+ setUploadingHeroImg(false)
+ }
+ }
+
+ // Resequence Handlers (Move Up / Move Down) for Selected Featured Items
+ const moveItemInArray = (arr, index, direction) => {
+ const nextArr = [...arr]
+ const targetIdx = direction === 'up' ? index - 1 : index + 1
+ if (targetIdx < 0 || targetIdx >= nextArr.length) return nextArr
+ const temp = nextArr[index]
+ nextArr[index] = nextArr[targetIdx]
+ nextArr[targetIdx] = temp
+ return nextArr
+ }
+
+ // Submit Handler for entire Home Manager view (Bound to form="admin-active-form")
+ const handleSubmit = async (e) => {
+ e.preventDefault()
+ let hasError = false
+ try {
+ const updates = [
+ { key: 'home_hero_title', value: heroForm.hero_title, display_label: 'Hero Title' },
+ { key: 'home_hero_subtitle', value: heroForm.hero_subtitle, display_label: 'Hero Subtitle' },
+ { key: 'home_hero_image_url', value: heroForm.hero_image_url, display_label: 'Hero Image' },
+ { key: 'home_cta_primary_label', value: heroForm.cta_primary_label, display_label: 'CTA Primary Label' },
+ { key: 'home_cta_primary_url', value: heroForm.cta_primary_url, display_label: 'CTA Primary URL' },
+ { key: 'home_cta_secondary_label', value: heroForm.cta_secondary_label, display_label: 'CTA Secondary Label' },
+ { key: 'home_cta_secondary_url', value: heroForm.cta_secondary_url, display_label: 'CTA Secondary URL' },
+ { key: 'home_use_custom_excerpt', value: String(aboutConfig.use_custom_excerpt), display_label: 'Use Custom Excerpt' },
+ { key: 'home_custom_excerpt', value: aboutConfig.custom_excerpt, display_label: 'Custom Excerpt' },
+ { key: 'home_featured_poems', value: JSON.stringify(featuredPoems), display_label: 'Featured Poems' },
+ { key: 'home_featured_publications', value: JSON.stringify(featuredPubs), display_label: 'Featured Publications' },
+ { key: 'home_featured_poems_limit', value: String(poemsLimit), display_label: 'Featured Poems Limit' },
+ { key: 'home_featured_publications_limit', value: String(pubsLimit), display_label: 'Featured Publications Limit' },
+ { key: 'home_featured_timeline', value: JSON.stringify(featuredTimeline), display_label: 'Featured Timeline' },
+ { key: 'home_featured_awards', value: JSON.stringify(featuredAwards), display_label: 'Featured Awards' }
+ ]
+
+
+ const { error } = await supabase.from('settings').upsert(updates, { onConflict: 'key' })
+ if (error) {
+ console.error("Save failed:", error.message)
+ }
+
+ // Background attempt to update table columns if present
+ try {
+ if (featuredPoems.length > 0) {
+ await supabase.from('poems').update({ is_featured_home: false }).neq('id', '0')
+ await supabase.from('poems').update({ is_featured_home: true }).in('id', featuredPoems)
+ }
+ if (featuredPubs.length > 0) {
+ await supabase.from('publications').update({ is_featured_home: false }).neq('id', '0')
+ await supabase.from('publications').update({ is_featured_home: true }).in('id', featuredPubs)
+ }
+ } catch (e) {
+ console.warn('Table flag sync warning (non-fatal):', e)
+ }
+
+ if (hasError) {
+ alert(tLabel('चेतावनी: मुख्य पृष्ठ की कुछ सेटिंग्स सहेजी नहीं जा सकीं।', 'Warning: Some Home page settings could not be saved.'))
+ } else {
+ alert(tLabel(' मुख्य पृष्ठ की समस्त सेटिंग्स सफलतापूर्वक सहेजी गईं!', ' Home page configurations saved successfully!'))
+ }
+
+ if (setIsDirty) setIsDirty(false)
+ if (onUpdate) onUpdate()
+ } catch (err) {
+ console.error('Error saving home page configurations:', err)
+ alert(tLabel('त्रुटि: ', 'Error saving settings: ') + (err.message || 'Unknown error'))
+ }
+ }
+
+ // Safe arrays
+ const safePoems = Array.isArray(poems) ? poems : []
+ const safePubs = Array.isArray(publications) ? publications : []
+ const safeTimeline = Array.isArray(timelineItems) ? timelineItems : []
+ const safeAwards = Array.isArray(awardsItems) ? awardsItems : []
+
+ return (
+ <div className="admin-card-panel">
  {/* Single Form Container (Bound to sticky top header Save) */}
 
  <form
@@ -1326,7 +1706,6 @@ function ContactInfoForm({ settings, onUpdate, setIsDirty }) {
 
  return (
  <div className="admin-card-panel">
-
  <form
  id="admin-active-form"
  onSubmit={handleSubmit}
@@ -1476,30 +1855,6 @@ function AboutManager({ about, initialSubTab, onUpdate, setIsDirty }) {
  const [photoPreview, setPhotoPreview] = useState(null)
 
  useEffect(() => {
-  const handleCancel = () => {
-  if (about) {
-  setFormData({
-  author_name: about.author_name || "कवि गुरुप्रताप शर्मा 'आग'",
-  hero_tag: about.hero_tag || "साहित्यिक जीवन परिचय",
-  hero_subtitle: about.hero_subtitle || about.subtitle || "राष्ट्रीय चेतना, ओज एवं मानवीय संवेदनाओं के संवाहक",
-  badge_text: about.badge_text || "वरिष्ठ हिंदी साहित्यकार",
-  quote_attribution: about.quote_attribution || "गुरुप्रताप शर्मा 'आग'",
-  title: about.title || 'जीवनी व साहित्यिक यात्रा',
-  body_text: about.body_text || '',
-  truncated_preview: about.truncated_preview || '',
-  photo_path: about.photo_path || ''
-  })
-  if (about.photo_path) setPhotoPreview(getImageUrl(about.photo_path))
-  }
-  if (setIsDirty) setIsDirty(false)
-  }
-  window.addEventListener('adminFormCancel', handleCancel)
-  return () => window.removeEventListener('adminFormCancel', handleCancel)
-  }, [about, setIsDirty])
-
-
-
- useEffect(() => {
  if (about) {
  setFormData({
  author_name: about.author_name || "कवि गुरुप्रताप शर्मा 'आग'",
@@ -1589,7 +1944,6 @@ function AboutManager({ about, initialSubTab, onUpdate, setIsDirty }) {
 
  {subTab === 'bio' && (
  <div className="admin-card-panel">
-
  <form id="admin-active-form" onSubmit={handleSubmit} onChange={() => setIsDirty && setIsDirty(true)} onInput={() => setIsDirty && setIsDirty(true)} className="admin-form-container">
 
  <div style={{ background: '#FFFFFF', padding: '16px', borderRadius: '8px', marginBottom: '20px', border: '1px solid rgba(226, 215, 197, 0.8)' }}>
@@ -1714,33 +2068,6 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
  setItemsList(publications)
  }
  }, [publications])
-
-  useEffect(() => {
-  const handleCancel = () => {
-  if (paramId && paramId !== 'new') {
-  const pub = (itemsList.length > 0 ? itemsList : publications)?.find(i => String(i.id) === String(paramId))
-  if (pub) {
-  setFormData({
-  title: pub.title || '',
-  subtitle: pub.subtitle || '',
-  image_path: pub.image_path || pub.cover_image_url || '',
-  image_alt: pub.image_alt || '',
-  description: pub.description || '',
-  stanzas: pub.stanzas || pub.full_text || pub.body_text || '',
-  sort_order: pub.sort_order || 1,
-  is_active: pub.is_active !== undefined ? pub.is_active : true
-  })
-  }
-  } else {
-  setFormData({ title: '', subtitle: '', image_path: '', image_alt: '', description: '', stanzas: '', sort_order: 1, is_active: true })
-  }
-  if (setIsDirty) setIsDirty(false)
-  }
-  window.addEventListener('adminFormCancel', handleCancel)
-  return () => window.removeEventListener('adminFormCancel', handleCancel)
-  }, [paramId, publications, itemsList, setIsDirty])
-
-
 
  // Sync route param (standalone editor route: /admin/prakashan/:id or /admin/publications/:id)
  useEffect(() => {
@@ -2140,29 +2467,6 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
  setItemsList(poems)
  }
  }, [poems])
-
-  useEffect(() => {
-  const handleCancel = () => {
-  if (paramId && paramId !== 'new') {
-  const poem = (itemsList.length > 0 ? itemsList : poems)?.find(i => String(i.id) === String(paramId))
-  if (poem) {
-  setFormData({
-  heading: poem.heading || poem.heading_hi || poem.heading_en || '',
-  description: poem.description || '',
-  body_text: poem.full_text || poem.body_text_hi || poem.body_text_en || '',
-  sort_order: poem.sort_order || 1
-  })
-  }
-  } else {
-  setFormData({ heading: '', description: '', body_text: '', sort_order: 1 })
-  }
-  if (setIsDirty) setIsDirty(false)
-  }
-  window.addEventListener('adminFormCancel', handleCancel)
-  return () => window.removeEventListener('adminFormCancel', handleCancel)
-  }, [paramId, poems, itemsList, setIsDirty])
-
-
 
  // Sync route param (standalone editor route: /admin/kavya-sangrah/:id or /admin/poems/:id)
  useEffect(() => {
@@ -2649,7 +2953,6 @@ function SettingsManager({ settings, onUpdate, setIsDirty }) {
 
  return (
  <div className="admin-card-panel">
-
  <form
  id="admin-active-form"
  onSubmit={handleSubmit}
@@ -2946,7 +3249,318 @@ function TimelineManager({ onUpdate, setIsDirty }) {
 
  return (
  <div className="admin-card-panel">
+ <div className="admin-panel-header">
+ <div style={{ display: 'flex', gap: '8px' }}>
+ <button type="button" className="admin-btn-secondary" onClick={handleSortByYear}>
+ {tLabel('स्वचालित क्रम', 'Auto-Sort')}
+ </button>
+ {!showForm && (
+ <button className="admin-btn-primary" onClick={() => { setEditingId(null); setFormData({ year_display: '', title: '', description: '', sort_order: 1 }); setShowForm(true); }}>
+ + {tLabel('नया मील का पत्थर जोड़ें', 'Add Timeline Year')}
+ </button>
+ )}
+ </div>
+ </div>
 
+ {showForm && (
+ <form id="admin-active-form" onSubmit={handleSubmit} onChange={() => setIsDirty && setIsDirty(true)} onInput={() => setIsDirty && setIsDirty(true)} className="admin-form-container">
+ <div className="admin-form-grid">
+ <div className="admin-form-group">
+ <label>{tLabel('वर्ष (e.g. १९४५ / 1945)', 'Year (e.g. 1945)')}</label>
+ <input className="admin-input" value={formData.year_display} onChange={e => updateForm({ year_display: e.target.value })} required />
+ </div>
+ <div className="admin-form-group">
+ <label>{tLabel('शीर्षक', 'Title')}</label>
+ <input className="admin-input" value={formData.title} onChange={e => updateForm({ title: e.target.value })} required />
+ </div>
+ <div className="admin-form-group full-width">
+ <label>{tLabel('विवरण', 'Description')}</label>
+ <textarea className="admin-textarea" value={formData.description} onChange={e => updateForm({ description: e.target.value })} rows={3} required />
+ </div>
+ </div>
+ <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+ <button type="submit" className="admin-btn-primary"> {tLabel('सहेजें', 'Save')}</button>
+ <button type="button" className="admin-btn-secondary" onClick={() => setShowForm(false)}>{tLabel('रद्द करें', 'Cancel')}</button>
+ </div>
+ </form>
+ )}
+
+ {loading ? (
+ <p style={{ color: '#888', fontStyle: 'italic', padding: '20px' }}>{tLabel('लोड हो रहा है...', 'Loading...')}</p>
+ ) : (
+ <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+ {items.map((item, idx) => (
+ <ContentItemCard
+ key={item.id}
+ title={<><span style={{ color: 'var(--leona-terracotta)', fontWeight: 700 }}>{item.year_display}</span> — {item.title}</>}
+ subtitle={item.description}
+ onEdit={() => { setEditingId(item.id)
+    window.scrollTo({ top: 0, behavior: 'smooth' }); setFormData(item); setShowForm(true); }}
+ onMoveUp={() => handleMove(idx, 'up')}
+ onMoveDown={() => handleMove(idx, 'down')}
+ onDelete={() => handleDeleteItem(item.id)}
+ canMoveUp={idx > 0}
+ canMoveDown={idx < items.length - 1}
+ />
+ ))}
+ </div>
+ )}
+ </div>
+ )
+}
+
+// Awards Manager Component
+function AwardsManager({ onUpdate, setIsDirty }) {
+ const { tLabel } = useAdminLang()
+ const [items, setItems] = useState([])
+ const [showForm, setShowForm] = useState(false)
+ const [editingId, setEditingId] = useState(null)
+ const [formData, setFormData] = useState({ year_display: '', title: '', organization: '', sort_order: 1 })
+
+ useEffect(() => {
+ fetchAwards()
+ }, [])
+
+ const updateForm = (fields) => {
+ setFormData(prev => ({ ...prev, ...fields }))
+ if (setIsDirty) setIsDirty(true)
+ }
+
+ const fetchAwards = async () => {
+ try {
+ const { data, error } = await supabase.from('awards_honors').select('*').order('sort_order', { ascending: true })
+ if (!error && data && data.length > 0) {
+ setItems(data)
+ localStorage.setItem('app_awards_honors', JSON.stringify(data))
+ } else {
+ const cached = localStorage.getItem('app_awards_honors')
+ if (cached) {
+ setItems(JSON.parse(cached))
+ } else {
+ const defaultItems = [
+ { id: '1', year_display: '१९९५', title: 'राजस्थान साहित्य अकादमी सम्मान', organization: 'राजस्थान सरकार', sort_order: 1 },
+ { id: '2', year_display: '२०१०', title: 'राष्ट्रकवि मैथिलीशरण गुप्त पुरस्कार', organization: 'हिंदी साहित्य सम्मेलन', sort_order: 2 },
+ { id: '3', year_display: '२०२०', title: 'साहित्य जीवन साधना सम्मान', organization: 'भारतीय भाषा परिषद', sort_order: 3 }
+ ]
+ setItems(defaultItems)
+ localStorage.setItem('app_awards_honors', JSON.stringify(defaultItems))
+ }
+ }
+ } catch (e) {
+ console.warn('Awards fetch notice:', e)
+ }
+ }
+
+ const handleSubmit = async (e) => {
+ e.preventDefault()
+ let updatedList = []
+ const newSortOrder = editingId ? (parseInt(formData.sort_order) || 1) : 1
+
+ if (editingId && editingId !== 'new') {
+ updatedList = items.map(i => i.id === editingId ? { ...i, ...formData } : i)
+ } else {
+ const newItem = { id: String(Date.now()), ...formData, sort_order: newSortOrder }
+ updatedList = [newItem, ...items]
+ }
+
+ updatedList.forEach((item, idx) => { item.sort_order = idx + 1 })
+ setItems(updatedList)
+ localStorage.setItem('app_awards_honors', JSON.stringify(updatedList))
+
+ const cleanData = {
+ year_display: formData.year_display || '',
+ title: formData.title || '',
+ organization: formData.organization || '',
+ sort_order: newSortOrder
+ }
+
+ try {
+ const { error: dbErr } = (editingId && editingId !== 'new')
+ ? await supabase.from('awards_honors').update(cleanData).eq('id', editingId)
+ : await supabase.from('awards_honors').insert(cleanData)
+
+ if (dbErr) {
+ console.error("Save failed:", dbErr.message)
+ }
+
+ const { error: settingsErr } = await supabase.from('settings').upsert({
+ key: 'awards_list',
+ value: JSON.stringify(updatedList),
+ display_label: 'Awards List'
+ }, { onConflict: 'key' })
+
+ if (settingsErr) {
+ console.error("Save failed:", settingsErr.message)
+ }
+ } catch (err) {
+ console.error('Save failed:', err.message || err)
+ }
+
+ if (setIsDirty) setIsDirty(false)
+ alert(' ' + tLabel('पुरस्कार सहेजा गया!', 'Award saved!'))
+ setShowForm(false)
+ onUpdate()
+ }
+
+ const persistReorder = async (updated) => {
+ updated.forEach((item, idx) => { item.sort_order = idx + 1 })
+ setItems(updated)
+ localStorage.setItem('app_awards_honors', JSON.stringify(updated))
+ try {
+ for (const item of updated) {
+ await supabase.from('awards_honors').update({ sort_order: item.sort_order }).eq('id', item.id)
+ }
+ } catch (e) {}
+ // optimistic state update without full re-render flicker
+ }
+
+ const handleMove = (index, direction) => {
+ const targetIdx = direction === 'up' ? index - 1 : index + 1
+ if (targetIdx < 0 || targetIdx >= items.length) return
+ const updated = [...items]
+ const temp = updated[index]
+ updated[index] = updated[targetIdx]
+ updated[targetIdx] = temp
+ persistReorder(updated)
+ }
+
+ const handleDeleteItem = async (id) => {
+ if (!confirm(tLabel('क्या आप इस पुरस्कार को हटाना चाहते हैं?', 'Delete this award?'))) return
+ const updatedList = items.filter(i => i.id !== id)
+ setItems(updatedList)
+ localStorage.setItem('app_awards_honors', JSON.stringify(updatedList))
+ try {
+ await supabase.from('awards_honors').delete().eq('id', id)
+ } catch (e) {}
+ onUpdate()
+ }
+
+ return (
+ <div className="admin-card-panel">
+ <div className="admin-panel-header">
+ {!showForm && (
+ <button className="admin-btn-primary" onClick={() => { setEditingId(null); setFormData({ year_display: '', title: '', organization: '', sort_order: 1 }); setShowForm(true); }}>
+ + {tLabel('नया सम्मान जोड़ें', 'Add Award')}
+ </button>
+ )}
+ </div>
+
+ {showForm && (
+ <form id="admin-active-form" onSubmit={handleSubmit} onChange={() => setIsDirty && setIsDirty(true)} onInput={() => setIsDirty && setIsDirty(true)} className="admin-form-container">
+ <div className="admin-form-grid">
+ <div className="admin-form-group">
+ <label>{tLabel('वर्ष (e.g. १९९५ / 1995)', 'Year (e.g. 1995)')}</label>
+ <input className="admin-input" value={formData.year_display} onChange={e => updateForm({ year_display: e.target.value })} required />
+ </div>
+ <div className="admin-form-group">
+ <label>{tLabel('सम्मान का नाम', 'Award Title')}</label>
+ <input className="admin-input" value={formData.title} onChange={e => updateForm({ title: e.target.value })} required />
+ </div>
+ <div className="admin-form-group full-width">
+ <label>{tLabel('संस्था / आयोजक', 'Organization')}</label>
+ <input className="admin-input" value={formData.organization} onChange={e => updateForm({ organization: e.target.value })} required />
+ </div>
+ </div>
+ <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+ <button type="submit" className="admin-btn-primary"> {tLabel('सहेजें', 'Save')}</button>
+ <button type="button" className="admin-btn-secondary" onClick={() => setShowForm(false)}>{tLabel('रद्द करें', 'Cancel')}</button>
+ </div>
+ </form>
+ )}
+
+ <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+ {items.map((item, idx) => (
+ <ContentItemCard
+ key={item.id}
+ title={<><span style={{ color: 'var(--leona-terracotta)', fontWeight: 700 }}>{item.year_display}</span> — {item.title}</>}
+ subtitle={`${tLabel('संस्था:', 'Org:')} ${item.organization}`}
+ onEdit={() => { setEditingId(item.id)
+    window.scrollTo({ top: 0, behavior: 'smooth' }); setFormData(item); setShowForm(true); }}
+ onMoveUp={() => handleMove(idx, 'up')}
+ onMoveDown={() => handleMove(idx, 'down')}
+ onDelete={() => handleDeleteItem(item.id)}
+ canMoveUp={idx > 0}
+ canMoveDown={idx < items.length - 1}
+ />
+ ))}
+ </div>
+ </div>
+ )
+}
+
+function InboxManager({ onUpdate }) {
+ const { tLabel } = useAdminLang()
+ const [messages, setMessages] = useState([])
+ const [loading, setLoading] = useState(false)
+ const [expandedId, setExpandedId] = useState(null)
+
+ useEffect(() => {
+ fetchInbox()
+ }, [])
+
+ const fetchInbox = async () => {
+ try {
+ setLoading(true)
+ const { data, error } = await supabase
+ .from('contact_submissions')
+ .select('*')
+ .order('created_at', { ascending: false })
+
+ if (!error && data && data.length > 0) {
+ setMessages(data)
+ } else {
+ setMessages([
+ {
+ id: 'demo-1',
+ name: 'राजेश कुमार',
+ email: 'rajesh@example.com',
+ subject: 'काव्य सम्मेलन आमंत्रण',
+ message: 'आदरणीय कवि जी, हम आपको जयपुर साहित्य उत्सव में काव्य पाठ हेतु आमंत्रित करना चाहते हैं। कृपया अपनी स्वीकृति प्रदान करें।',
+ is_read: false,
+ created_at: new Date().toISOString()
+ },
+ {
+ id: 'demo-2',
+ name: 'डॉ. अनीता शर्मा',
+ email: 'anita@literature.org',
+ subject: 'पुस्तकों का संकलन',
+ message: 'नमस्ते गुरुप्रताप जी, आपकी हालिया प्रकाशित पुस्तक "अंगारे" का समीक्षा पत्र तैयार है।',
+ is_read: true,
+ created_at: new Date(Date.now() - 86400000 * 2).toISOString()
+ }
+ ])
+ }
+ } catch (e) {
+ console.warn('Inbox fetch error:', e)
+ } finally {
+ setLoading(false)
+ }
+ }
+
+ const handleToggleRead = async (msg) => {
+ const targetStatus = !msg.is_read
+ setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, is_read: targetStatus } : m))
+ try {
+ await supabase.from('contact_submissions').update({ is_read: targetStatus }).eq('id', msg.id)
+ } catch (e) {
+ console.warn('Mark read error:', e)
+ }
+ }
+
+ const handleDeleteMsg = async (id) => {
+ if (!confirm(tLabel('क्या आप इस संदेश को हटाना चाहते हैं?', 'Delete this message?'))) return
+ setMessages(prev => prev.filter(m => m.id !== id))
+ try {
+ await supabase.from('contact_submissions').delete().eq('id', id)
+ } catch (e) {
+ console.warn('Delete message error:', e)
+ }
+ }
+
+ const safeMsgs = Array.isArray(messages) ? messages : []
+
+ return (
+ <div className="admin-card-panel">
  {loading ? (
  <p style={{ color: '#888', fontStyle: 'italic', padding: '20px' }}>{tLabel('संदेश लोड हो रहे हैं...', 'Loading messages...')}</p>
  ) : safeMsgs.length === 0 ? (
