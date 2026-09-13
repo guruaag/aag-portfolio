@@ -7,12 +7,16 @@ import PM5WritingDesk, { paginateTextIntoPages } from '../../components/PM5Writi
 import ContentItemCard from '../../components/admin/ContentItemCard'
 import ConfirmModal from '../../components/admin/ConfirmModal'
 import AdminBreadcrumb from '../../components/admin/AdminBreadcrumb'
-import { convertKrutiDevToUnicode, isKrutiDevText } from '../../utils/unicodeConverter'
+import { convertKrutiDevToUnicode, isKrutiDevText } from '../../utils/krutiDevEngine'
+import TypingToolbar from '../../components/admin/TypingToolbar'
+import RemingtonKeymapDrawer from '../../components/admin/RemingtonKeymapDrawer'
+import PM5BatchPasteModal from '../../components/admin/PM5BatchPasteModal'
+import { handleHindiKeyDown } from '../../utils/hindiTypingEngine'
 import i18n from '../../i18n/config'
 import { handleFormattingShortcut } from '../../utils/textFormatter'
 import './AdminDashboard.css'
 
-function handleKrutiDevPaste(e, currentValue, onUpdate) {
+function handleKrutiDevPaste(e, currentValue, onUpdate, setPasteToast) {
  const rawPasted = (e.clipboardData || window.clipboardData)?.getData('text') || '';
  if (rawPasted && isKrutiDevText(rawPasted)) {
  e.preventDefault();
@@ -21,8 +25,22 @@ function handleKrutiDevPaste(e, currentValue, onUpdate) {
  const start = target.selectionStart || 0;
  const end = target.selectionEnd || 0;
  const current = currentValue || '';
+ const previousText = current;
  const newText = current.substring(0, start) + converted + current.substring(end);
  onUpdate(newText);
+
+ if (setPasteToast) {
+ setPasteToast({
+ message: '⚡ Kruti Dev text automatically converted to Unicode Hindi!',
+ onUndo: () => {
+ onUpdate(previousText);
+ setPasteToast(null);
+ }
+ });
+ setTimeout(() => {
+ setPasteToast(null);
+ }, 7000);
+ }
  }
 }
 
@@ -2481,6 +2499,10 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
  const [editing, setEditing] = useState(null)
  const [showForm, setShowForm] = useState(false)
  const [showCanvasModal, setShowCanvasModal] = useState(false)
+ const [typingMode, setTypingMode] = useState('off')
+ const [showKeymapDrawer, setShowKeymapDrawer] = useState(false)
+ const [showBatchModal, setShowBatchModal] = useState(false)
+ const [pasteToast, setPasteToast] = useState(null)
  const [formData, setFormData] = useState({
  heading: '',
  description: '',
@@ -2691,6 +2713,15 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
  {/* Main Standalone Form */}
  {(showForm || editing || isStandalonePage) && (
  <form id="admin-active-form" onSubmit={handleSubmit} onChange={() => setIsDirty && setIsDirty(true)} onInput={() => setIsDirty && setIsDirty(true)} className="admin-form-container">
+ 
+ {/* Sticky Typing Toolbar (Phonetic / Remington / Off + Batch PM5 & Keymap Map) */}
+ <TypingToolbar
+ typingMode={typingMode}
+ onModeChange={setTypingMode}
+ onOpenBatchModal={() => setShowBatchModal(true)}
+ onOpenKeymapDrawer={() => setShowKeymapDrawer(true)}
+ />
+
  <div className="admin-form-grid">
  <div className="admin-form-group full-width">
  <label>{tLabel('कविता शीर्षक *', 'Poem Title *')}</label>
@@ -2698,6 +2729,8 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
  className="admin-input"
  value={formData.heading || ''}
  onChange={(e) => updateForm({ heading: e.target.value })}
+ onPaste={(e) => handleKrutiDevPaste(e, formData.heading || '', (text) => updateForm({ heading: text }), setPasteToast)}
+ onKeyDown={(e) => handleHindiKeyDown(e, typingMode, formData.heading || '', (text) => updateForm({ heading: text }))}
  placeholder={tLabel('कविता का नामदर्ज करें...', 'Enter poem title...')}
  required
  />
@@ -2710,7 +2743,11 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
  maxLength={160}
  value={formData.description || ''}
  onChange={handleDescriptionChange}
- onKeyDown={handleDescriptionKeyDown}
+ onPaste={(e) => handleKrutiDevPaste(e, formData.description || '', (text) => updateForm({ description: text }), setPasteToast)}
+ onKeyDown={(e) => {
+ handleDescriptionKeyDown(e);
+ handleHindiKeyDown(e, typingMode, formData.description || '', (text) => updateForm({ description: text }));
+ }}
  placeholder={tLabel('संक्षिप्त २ पंक्तियों में संदर्भ...', 'Brief context (max 160 chars)...')}
  style={{ minHeight: '52px', maxHeight: '72px', resize: 'none' }}
  />
@@ -2782,7 +2819,8 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
  className="admin-textarea"
  value={formData.body_text || ''}
  onChange={(e) => updateForm({ body_text: e.target.value })}
- onPaste={(e) => handleKrutiDevPaste(e, formData.body_text || '', (text) => updateForm({ body_text: text }))}
+ onPaste={(e) => handleKrutiDevPaste(e, formData.body_text || '', (text) => updateForm({ body_text: text }), setPasteToast)}
+ onKeyDown={(e) => handleHindiKeyDown(e, typingMode, formData.body_text || '', (text) => updateForm({ body_text: text }))}
  required
  style={{ minHeight: '220px', fontFamily: 'Tiro Devanagari Hindi, Lora, serif', fontSize: '1.05rem', lineHeight: '1.7' }}
  />
@@ -2798,6 +2836,47 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
  </div>
  </div>
  </form>
+ )}
+
+ {/* Remington Keymap Overlay Drawer */}
+ <RemingtonKeymapDrawer
+ isOpen={showKeymapDrawer}
+ onClose={() => setShowKeymapDrawer(false)}
+ />
+
+ {/* PageMaker 5.0 Batch Archive Converter Modal */}
+ <PM5BatchPasteModal
+ isOpen={showBatchModal}
+ onClose={() => setShowBatchModal(false)}
+ onImport={({ title, context, content }) => {
+ updateForm({
+ heading: title || formData.heading,
+ description: context || formData.description,
+ body_text: content || formData.body_text
+ });
+ setPasteToast({
+ message: '✓ Batch PageMaker archive successfully imported into form fields!',
+ onUndo: () => {
+ setPasteToast(null);
+ }
+ });
+ }}
+ />
+
+ {/* Auto-Paste Conversion Toast Feedback */}
+ {pasteToast && (
+ <div className="fixed bottom-6 right-6 z-50 bg-amber-950 border border-amber-500/80 text-amber-100 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-bottom duration-300">
+ <span className="text-xs font-medium font-sans">{pasteToast.message}</span>
+ {pasteToast.onUndo && (
+ <button
+ type="button"
+ onClick={pasteToast.onUndo}
+ className="px-2.5 py-1 bg-amber-700 hover:bg-amber-600 text-white rounded-lg text-xs font-bold transition-colors shadow-sm"
+ >
+ Undo (पूर्ववत)
+ </button>
+ )}
+ </div>
  )}
 
  {/* Poem List Grid - Hidden when in standalone edit page */}
