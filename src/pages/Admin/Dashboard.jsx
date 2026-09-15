@@ -2572,6 +2572,7 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
   const persistReorder = async (updated) => {
     updated.forEach((item, idx) => { item.sort_order = idx + 1 })
     setItemsList(updated)
+    clearSelection()
     try {
       for (const item of updated) {
         await supabase.from('publications').update({ sort_order: item.sort_order }).eq('id', item.id)
@@ -2895,6 +2896,9 @@ function SettingsManager({ settings, onUpdate, setIsDirty }) {
       }
     }
 
+    if (formData.default_accent) {
+      document.documentElement.style.setProperty('--phoenix-accent', formData.default_accent)
+    }
     if (hasError) {
       alert(tLabel('चेतावनी: कुछ सेटिंग्स सहेजी नहीं जा सकीं।', 'Warning: Some settings could not be saved.'))
     } else {

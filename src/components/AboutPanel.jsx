@@ -12,7 +12,7 @@ function AboutPanel({ aboutContent, categoryName }) {
   if (!aboutContent) return null
 
   const htmlContent = aboutContent.body_text 
-    ? marked.parse(aboutContent.body_text)
+    ? marked.parse(aboutContent.body_text, { breaks: true, gfm: true })
     : ''
 
   const photoUrl = getImageUrl(aboutContent.photo_path)

@@ -82,6 +82,11 @@ export function isKrutiDevText(text) {
  * Converts a string (or word) of Kruti Dev text into Devanagari Unicode
  */
 export function convertKrutiDevToUnicode(text) {
+  if (!text) return ''
+  // If text is already 100% Unicode Devanagari, return as is to prevent corruption
+  if (/^[\u0900-\u097F\s\d\p{P}]+$/u.test(text.trim())) {
+    return text
+  }
   if (!text || typeof text !== 'string') return text || '';
 
   // If already Devanagari Unicode and no Kruti Dev patterns, return as is
