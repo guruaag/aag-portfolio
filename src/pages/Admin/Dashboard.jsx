@@ -1660,15 +1660,30 @@ function ContactInfoForm({ settings, onUpdate, setIsDirty }) {
   const renderLabelWithToggle = (labelHi, labelEn, key) => (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
       <label style={{ margin: 0, fontWeight: 600 }}>{tLabel(labelHi, labelEn)}</label>
-      <label style={{ margin: 0, fontSize: '0.85rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', color: formData[key] === 'true' ? '#2e7d32' : '#888', fontWeight: 500, userSelect: 'none' }}>
+      <div 
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none' }}
+        onClick={(e) => {
+          if (e.target.tagName !== 'INPUT') {
+            const isChecked = formData[key] === 'true'
+            setFormData(prev => ({ ...prev, [key]: isChecked ? 'false' : 'true' }))
+            if (setIsDirty) setIsDirty(true)
+          }
+        }}
+      >
         <input
           type="checkbox"
           style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#B85C38', appearance: 'checkbox', WebkitAppearance: 'checkbox', opacity: 1, visibility: 'visible', margin: 0 }}
           checked={formData[key] === 'true'}
-          onChange={e => setFormData(prev => ({ ...prev, [key]: e.target.checked ? 'true' : 'false' }))}
+          onChange={e => {
+            const val = e.target.checked ? 'true' : 'false'
+            setFormData(prev => ({ ...prev, [key]: val }))
+            if (setIsDirty) setIsDirty(true)
+          }}
         />
-        {tLabel('साइट पर दिखाएं', 'Show on site')}
-      </label>
+        <span style={{ fontSize: '0.85rem', color: formData[key] === 'true' ? '#2e7d32' : '#888', fontWeight: 500 }}>
+          {tLabel('साइट पर दिखाएं', 'Show on site')}
+        </span>
+      </div>
     </div>
   )
 
