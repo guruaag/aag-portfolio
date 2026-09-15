@@ -30,7 +30,7 @@ function SocialShare({ url, title, description }) {
         shareUrl = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`
         break
       case 'whatsapp':
-        shareUrl = `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`
+        shareUrl = `https://api.whatsapp.com/send?text=${encodedTitle}%20${encodedUrl}`
         break
       case 'copy':
         try {

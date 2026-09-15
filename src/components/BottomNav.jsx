@@ -30,6 +30,18 @@ export default function BottomNav() {
       isActive: path === '/'
     },
     {
+      key: 'about',
+      label: isHi ? 'परिचय' : 'About',
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+      ),
+      path: '/category/about',
+      isActive: path.startsWith('/category/about') || path === '/about' || path === '/parichay'
+    },
+    {
       key: 'poems',
       label: isHi ? 'कविता' : 'Poems',
       icon: (

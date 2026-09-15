@@ -59,8 +59,7 @@ function HeroSection() {
  }
 
  const isValidHeroImg = heroConfig.imageUrl && 
- !heroConfig.imageUrl.toLowerCase().includes('screenshot') && 
- !heroConfig.imageUrl.includes('media_')
+ !heroConfig.imageUrl.toLowerCase().includes('screenshot')
 
  const authorImageUrl = isValidHeroImg
  ? getImageUrl(heroConfig.imageUrl)

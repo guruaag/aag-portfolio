@@ -74,8 +74,8 @@ function PoemDetail({ poem, allPoems }) {
         <BookReader
           title={poemTitle}
           content={poemContent}
-          author="गुरुप्रताप शर्मा 'आग'"
-          collection={poem.description || 'काव्य संग्रह: अग्नि कलश'}
+          author={i18n.language === 'hi' ? 'गुरुप्रताप शर्मा "आग"' : 'Guru Pratap Sharma "Aag"'}
+          collection={poem.description || (i18n.language === 'hi' ? 'काव्य संग्रह: अग्नि कलश' : 'Collection: Agni Kalash')}
           year={poem.created_at ? new Date(poem.created_at).getFullYear().toString() : '१९८५'}
           audioUrl={audioUrl}
         />

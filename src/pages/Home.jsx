@@ -98,10 +98,16 @@ function Home() {
  if (Array.isArray(featPoemIds) && featPoemIds.length > 0) {
  orderedPoems = featPoemIds.map(id => allCleanPoems.find(p => String(p.id) === String(id))).filter(Boolean)
  }
+ if (orderedPoems.length === 0) {
+ orderedPoems = allCleanPoems
+ }
 
  let orderedPubs = []
  if (Array.isArray(featPubIds) && featPubIds.length > 0) {
  orderedPubs = featPubIds.map(id => allCleanPubs.find(p => String(p.id) === String(id))).filter(Boolean)
+ }
+ if (orderedPubs.length === 0) {
+ orderedPubs = allCleanPubs
  }
 
  let orderedTimeline = []
