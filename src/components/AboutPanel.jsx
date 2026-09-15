@@ -1,13 +1,43 @@
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { marked } from 'marked'
 import { getImageUrl } from '../lib/imageUtils'
+import { getTimeline, getAwards } from '../lib/supabaseClient'
 import './AboutPanel.css'
 
 function AboutPanel({ aboutContent, categoryName }) {
   const { i18n } = useTranslation()
   const isHi = i18n.language === 'hi'
+
+  const [timeline, setTimeline] = useState(aboutContent?.timeline || [])
+  const [awards, setAwards] = useState(aboutContent?.awards || [])
+
+  useEffect(() => {
+    if (aboutContent?.timeline && aboutContent.timeline.length > 0) {
+      setTimeline(aboutContent.timeline)
+    }
+    if (aboutContent?.awards && aboutContent.awards.length > 0) {
+      setAwards(aboutContent.awards)
+    }
+
+    // Fallback load if not pre-attached to aboutContent
+    if ((!aboutContent?.timeline || aboutContent.timeline.length === 0) || 
+        (!aboutContent?.awards || aboutContent.awards.length === 0)) {
+      Promise.all([
+        getTimeline().catch(() => []),
+        getAwards().catch(() => [])
+      ]).then(([tData, aData]) => {
+        if ((!aboutContent?.timeline || aboutContent.timeline.length === 0) && tData) {
+          setTimeline(tData)
+        }
+        if ((!aboutContent?.awards || aboutContent.awards.length === 0) && aData) {
+          setAwards(aData)
+        }
+      })
+    }
+  }, [aboutContent])
 
   if (!aboutContent) return null
 
@@ -58,7 +88,7 @@ function AboutPanel({ aboutContent, categoryName }) {
                   alt={displayTitle}
                   className="phoenix-about-photo-image"
                   onError={(e) => {
-                e.target.onerror = null;
+                    e.target.onerror = null;
                     e.target.style.display = 'none'
                     const placeholder = e.target.nextElementSibling
                     if (placeholder) placeholder.style.display = 'flex'
@@ -84,6 +114,7 @@ function AboutPanel({ aboutContent, categoryName }) {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
           >
+            {/* 1. Main Bio Text */}
             {htmlContent ? (
               <div
                 className="phoenix-about-text"
@@ -104,6 +135,66 @@ function AboutPanel({ aboutContent, categoryName }) {
                 transition={{ delay: 0.4, duration: 0.5 }}
               >
                 {aboutContent.truncated_preview}
+              </motion.div>
+            )}
+
+            {/* 2. Timeline Section - जीवन यात्रा (मील के पत्थर) */}
+            {timeline && timeline.length > 0 && (
+              <motion.div
+                className="phoenix-about-timeline-section"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.45, duration: 0.5 }}
+              >
+                <h2 className="phoenix-about-subheading">
+                  {isHi ? 'जीवन यात्रा (मील के पत्थर)' : 'Life Journey & Timeline'}
+                </h2>
+                <div className="phoenix-about-timeline-list">
+                  {timeline.map((item, idx) => {
+                    const yearVal = item.year || item.year_period
+                    const itemTitle = item.title_hi || item.title || item.event_title || ''
+                    const itemDesc = item.description_hi || item.description || ''
+                    return (
+                      <div key={item.id || idx} className="phoenix-about-timeline-card">
+                        {yearVal && <span className="phoenix-about-year-badge">{yearVal}</span>}
+                        <div className="phoenix-about-timeline-details">
+                          <h3 className="phoenix-about-item-title">{itemTitle}</h3>
+                          {itemDesc && <p className="phoenix-about-item-desc">{itemDesc}</p>}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </motion.div>
+            )}
+
+            {/* 3. Awards & Honors Section - पुरस्कार व सम्मान */}
+            {awards && awards.length > 0 && (
+              <motion.div
+                className="phoenix-about-awards-section"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+              >
+                <h2 className="phoenix-about-subheading">
+                  {isHi ? 'पुरस्कार व सम्मान' : 'Awards & Honors'}
+                </h2>
+                <div className="phoenix-about-awards-list">
+                  {awards.map((award, idx) => {
+                    const yearVal = award.year || award.year_awarded
+                    const awardTitle = award.title_hi || award.title || award.award_name || ''
+                    const awardDesc = award.description_hi || award.description || award.conferred_by || award.given_by || ''
+                    return (
+                      <div key={award.id || idx} className="phoenix-about-award-card">
+                        {yearVal && <span className="phoenix-about-year-badge">{yearVal}</span>}
+                        <div className="phoenix-about-award-details">
+                          <h3 className="phoenix-about-item-title">{awardTitle}</h3>
+                          {awardDesc && <p className="phoenix-about-item-desc">{awardDesc}</p>}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
               </motion.div>
             )}
           </motion.div>

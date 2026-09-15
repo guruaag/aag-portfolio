@@ -65,11 +65,17 @@ function CategoryDetail() {
       setCategory(foundCategory)
 
       if (foundCategory.content_type === 'about') {
-        const aboutData = await getAboutContent()
-        setContent(aboutData ? {
-          ...aboutData,
-          truncated_preview: sanitizeText(aboutData.truncated_preview)
-        } : null)
+        const [aboutData, timelineData, awardsData] = await Promise.all([
+          getAboutContent().catch(() => null),
+          getTimeline().catch(() => []),
+          getAwards().catch(() => [])
+        ])
+        setContent({
+          ...(aboutData || {}),
+          truncated_preview: aboutData ? sanitizeText(aboutData.truncated_preview) : '',
+          timeline: timelineData || [],
+          awards: awardsData || []
+        })
       } else if (foundCategory.content_type === 'publications') {
         const pubsData = await getPublications()
         setContent((pubsData || []).map(sanitizePublication).filter(Boolean))

@@ -164,3 +164,92 @@
   line-height: 1;
 }
 
+/* Timeline & Awards Sections in About Panel */
+.phoenix-about-timeline-section,
+.phoenix-about-awards-section {
+  margin-top: var(--phoenix-space-2xl);
+  padding-top: var(--phoenix-space-lg);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.phoenix-about-subheading {
+  font-family: var(--phoenix-font-serif), var(--phoenix-font-hindi-serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--phoenix-charcoal);
+  margin-bottom: var(--phoenix-space-lg);
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.phoenix-about-subheading::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 48px;
+  height: 3px;
+  background: var(--phoenix-terracotta, #D95343);
+  border-radius: 2px;
+}
+
+.phoenix-about-timeline-list,
+.phoenix-about-awards-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--phoenix-space-md);
+}
+
+.phoenix-about-timeline-card,
+.phoenix-about-award-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--phoenix-space-md);
+  padding: var(--phoenix-space-md) var(--phoenix-space-lg);
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: var(--phoenix-radius-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.phoenix-about-timeline-card:hover,
+.phoenix-about-award-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+.phoenix-about-year-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background: rgba(217, 83, 67, 0.1);
+  color: #D95343;
+  font-family: var(--phoenix-font-sans);
+  font-size: 0.85rem;
+  font-weight: 700;
+  border-radius: 14px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.phoenix-about-timeline-details,
+.phoenix-about-award-details {
+  flex: 1;
+}
+
+.phoenix-about-item-title {
+  font-family: var(--phoenix-font-serif), var(--phoenix-font-hindi-serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--phoenix-charcoal);
+  margin-bottom: 4px;
+}
+
+.phoenix-about-item-desc {
+  font-family: var(--phoenix-font-sans), var(--phoenix-font-hindi-sans);
+  font-size: 0.95rem;
+  color: var(--phoenix-text-muted);
+  line-height: 1.5;
+}
+
+
