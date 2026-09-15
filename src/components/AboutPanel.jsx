@@ -137,68 +137,90 @@ function AboutPanel({ aboutContent, categoryName }) {
                 {aboutContent.truncated_preview}
               </motion.div>
             )}
-
-            {/* 2. Timeline Section - जीवन यात्रा (मील के पत्थर) */}
-            {timeline && timeline.length > 0 && (
-              <motion.div
-                className="phoenix-about-timeline-section"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.45, duration: 0.5 }}
-              >
-                <h2 className="phoenix-about-subheading">
-                  {isHi ? 'जीवन यात्रा (मील के पत्थर)' : 'Life Journey & Timeline'}
-                </h2>
-                <div className="phoenix-about-timeline-list">
-                  {timeline.map((item, idx) => {
-                    const yearVal = item.year || item.year_period
-                    const itemTitle = item.title_hi || item.title || item.event_title || ''
-                    const itemDesc = item.description_hi || item.description || ''
-                    return (
-                      <div key={item.id || idx} className="phoenix-about-timeline-card">
-                        {yearVal && <span className="phoenix-about-year-badge">{yearVal}</span>}
-                        <div className="phoenix-about-timeline-details">
-                          <h3 className="phoenix-about-item-title">{itemTitle}</h3>
-                          {itemDesc && <p className="phoenix-about-item-desc">{itemDesc}</p>}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </motion.div>
-            )}
-
-            {/* 3. Awards & Honors Section - पुरस्कार व सम्मान */}
-            {awards && awards.length > 0 && (
-              <motion.div
-                className="phoenix-about-awards-section"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
-              >
-                <h2 className="phoenix-about-subheading">
-                  {isHi ? 'पुरस्कार व सम्मान' : 'Awards & Honors'}
-                </h2>
-                <div className="phoenix-about-awards-list">
-                  {awards.map((award, idx) => {
-                    const yearVal = award.year || award.year_awarded
-                    const awardTitle = award.title_hi || award.title || award.award_name || ''
-                    const awardDesc = award.description_hi || award.description || award.conferred_by || award.given_by || ''
-                    return (
-                      <div key={award.id || idx} className="phoenix-about-award-card">
-                        {yearVal && <span className="phoenix-about-year-badge">{yearVal}</span>}
-                        <div className="phoenix-about-award-details">
-                          <h3 className="phoenix-about-item-title">{awardTitle}</h3>
-                          {awardDesc && <p className="phoenix-about-item-desc">{awardDesc}</p>}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </motion.div>
-            )}
           </motion.div>
         </div>
+
+        {/* 2. Timeline Section - Alternating Left & Right Vertical Flow */}
+        {timeline && timeline.length > 0 && (
+          <motion.div
+            className="phoenix-about-timeline-section"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+          >
+            <h2 className="phoenix-about-subheading">
+              {isHi ? 'जीवन यात्रा (मील के पत्थर)' : 'Life Journey & Timeline'}
+            </h2>
+            <div className="phoenix-timeline-container">
+              <div className="phoenix-timeline-spine"></div>
+              {timeline.map((item, idx) => {
+                const isEven = idx % 2 === 0
+                const yearVal = item.year || item.year_period
+                const itemTitle = item.title_hi || item.title || item.event_title || ''
+                const itemDesc = item.description_hi || item.description || ''
+                return (
+                  <motion.div
+                    key={item.id || idx}
+                    className={`phoenix-timeline-item ${isEven ? 'left' : 'right'}`}
+                    initial={{ opacity: 0, x: isEven ? -40 : 40 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: idx * 0.08 }}
+                  >
+                    <div className="phoenix-timeline-node">
+                      <span className="node-dot"></span>
+                    </div>
+                    <div className="phoenix-timeline-card">
+                      {yearVal && <span className="phoenix-about-year-badge">{yearVal}</span>}
+                      <h3 className="phoenix-about-item-title">{itemTitle}</h3>
+                      {itemDesc && <p className="phoenix-about-item-desc">{itemDesc}</p>}
+                    </div>
+                  </motion.div>
+                )
+              })}
+            </div>
+          </motion.div>
+        )}
+
+        {/* 3. Awards & Honors Section - Modern Card Grid */}
+        {awards && awards.length > 0 && (
+          <motion.div
+            className="phoenix-about-awards-section"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+          >
+            <h2 className="phoenix-about-subheading">
+              {isHi ? 'पुरस्कार व सम्मान' : 'Awards & Honors'}
+            </h2>
+            <div className="phoenix-about-awards-grid">
+              {awards.map((award, idx) => {
+                const yearVal = award.year || award.year_awarded
+                const awardTitle = award.title_hi || award.title || award.award_name || ''
+                const awardDesc = award.description_hi || award.description || award.conferred_by || award.given_by || ''
+                return (
+                  <motion.div
+                    key={award.id || idx}
+                    className="phoenix-about-award-card"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: idx * 0.06 }}
+                  >
+                    <div className="phoenix-award-card-header">
+                      {yearVal && <span className="phoenix-about-year-badge">{yearVal}</span>}
+                      <span className="phoenix-award-icon">🏆</span>
+                    </div>
+                    <h3 className="phoenix-about-item-title">{awardTitle}</h3>
+                    {awardDesc && <p className="phoenix-about-item-desc">{awardDesc}</p>}
+                  </motion.div>
+                )
+              })}
+            </div>
+          </motion.div>
+        )}
       </motion.div>
     </>
   )

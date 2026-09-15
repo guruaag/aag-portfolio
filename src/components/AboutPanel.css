@@ -165,91 +165,233 @@
 }
 
 /* Timeline & Awards Sections in About Panel */
-.phoenix-about-timeline-section,
-.phoenix-about-awards-section {
-  margin-top: var(--phoenix-space-2xl);
-  padding-top: var(--phoenix-space-lg);
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
+.phoenix-about-timeline-section {
+  margin-top: var(--phoenix-space-3xl);
+  padding-top: var(--phoenix-space-2xl);
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
+  width: 100%;
 }
 
 .phoenix-about-subheading {
   font-family: var(--phoenix-font-serif), var(--phoenix-font-hindi-serif);
-  font-size: 1.5rem;
+  font-size: var(--phoenix-text-2xl, 1.65rem);
   font-weight: 700;
   color: var(--phoenix-charcoal);
-  margin-bottom: var(--phoenix-space-lg);
+  text-align: center;
+  margin-bottom: var(--phoenix-space-2xl, 40px);
   position: relative;
-  padding-bottom: 8px;
+  letter-spacing: -0.01em;
 }
 
 .phoenix-about-subheading::after {
   content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 48px;
+  display: block;
+  width: 60px;
   height: 3px;
-  background: var(--phoenix-terracotta, #D95343);
+  background: linear-gradient(90deg, #D4AF37, #B85C38);
+  margin: 10px auto 0 auto;
   border-radius: 2px;
 }
 
-.phoenix-about-timeline-list,
-.phoenix-about-awards-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--phoenix-space-md);
+/* ── Alternating Timeline Flow ── */
+.phoenix-timeline-container {
+  position: relative;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 20px 0;
 }
 
-.phoenix-about-timeline-card,
-.phoenix-about-award-card {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--phoenix-space-md);
-  padding: var(--phoenix-space-md) var(--phoenix-space-lg);
+.phoenix-timeline-spine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 3px;
+  background: linear-gradient(180deg, rgba(212, 175, 55, 0.15) 0%, #D4AF37 15%, #B85C38 85%, rgba(184, 92, 56, 0.15) 100%);
+  transform: translateX(-50%);
+  border-radius: 2px;
+}
+
+.phoenix-timeline-item {
+  position: relative;
+  width: 50%;
+  padding: 10px 36px;
+  box-sizing: border-box;
+  margin-bottom: 24px;
+}
+
+.phoenix-timeline-item.left {
+  left: 0;
+  text-align: right;
+}
+
+.phoenix-timeline-item.right {
+  left: 50%;
+  text-align: left;
+}
+
+/* Center Node Dot on Spine */
+.phoenix-timeline-node {
+  position: absolute;
+  top: 24px;
+  width: 18px;
+  height: 18px;
   background: #FFFFFF;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  border-radius: var(--phoenix-radius-md);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 3px solid #D4AF37;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.2), 0 2px 8px rgba(0,0,0,0.1);
+  z-index: 2;
+  transition: all 0.3s ease;
 }
 
-.phoenix-about-timeline-card:hover,
-.phoenix-about-award-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+.phoenix-timeline-item.left .phoenix-timeline-node {
+  right: -9px;
+}
+
+.phoenix-timeline-item.right .phoenix-timeline-node {
+  left: -9px;
+}
+
+.phoenix-timeline-item:hover .phoenix-timeline-node {
+  background: #B85C38;
+  border-color: #B85C38;
+  transform: scale(1.3);
+  box-shadow: 0 0 0 6px rgba(184, 92, 56, 0.25);
+}
+
+/* Timeline Card */
+.phoenix-timeline-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 14px;
+  padding: 20px 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+  position: relative;
+  display: inline-block;
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.phoenix-timeline-card:hover {
+  border-color: #D4AF37;
+  box-shadow: 0 8px 28px rgba(212, 175, 55, 0.18);
+  transform: translateY(-3px);
+}
+
+.phoenix-timeline-item.left .phoenix-about-year-badge {
+  float: right;
+}
+
+.phoenix-timeline-item.right .phoenix-about-year-badge {
+  float: left;
 }
 
 .phoenix-about-year-badge {
   display: inline-block;
-  padding: 4px 12px;
-  background: rgba(217, 83, 67, 0.1);
-  color: #D95343;
+  padding: 4px 14px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(184, 92, 56, 0.12) 100%);
+  color: #B85C38;
   font-family: var(--phoenix-font-sans);
   font-size: 0.85rem;
   font-weight: 700;
-  border-radius: 14px;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.phoenix-about-timeline-details,
-.phoenix-about-award-details {
-  flex: 1;
+  border-radius: 20px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(184, 92, 56, 0.2);
 }
 
 .phoenix-about-item-title {
   font-family: var(--phoenix-font-serif), var(--phoenix-font-hindi-serif);
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--phoenix-charcoal);
-  margin-bottom: 4px;
+  margin: 0 0 6px 0;
+  line-height: 1.35;
+  clear: both;
 }
 
 .phoenix-about-item-desc {
   font-family: var(--phoenix-font-sans), var(--phoenix-font-hindi-sans);
   font-size: 0.95rem;
-  color: var(--phoenix-text-muted);
-  line-height: 1.5;
+  color: var(--phoenix-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Mobile Responsiveness for Timeline (< 768px) */
+@media (max-width: 767px) {
+  .phoenix-timeline-spine {
+    left: 20px;
+  }
+
+  .phoenix-timeline-item {
+    width: 100%;
+    padding-left: 48px;
+    padding-right: 10px;
+    margin-bottom: 20px;
+  }
+
+  .phoenix-timeline-item.left,
+  .phoenix-timeline-item.right {
+    left: 0;
+    text-align: left;
+  }
+
+  .phoenix-timeline-item.left .phoenix-about-year-badge,
+  .phoenix-timeline-item.right .phoenix-about-year-badge {
+    float: none;
+  }
+
+  .phoenix-timeline-item.left .phoenix-timeline-node,
+  .phoenix-timeline-item.right .phoenix-timeline-node {
+    left: 11px;
+    right: auto;
+  }
+}
+
+/* ── Awards Section Grid ── */
+.phoenix-about-awards-section {
+  margin-top: var(--phoenix-space-3xl);
+  padding-top: var(--phoenix-space-2xl);
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
+  width: 100%;
+}
+
+.phoenix-about-awards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.phoenix-about-award-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 14px;
+  padding: 20px 22px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.phoenix-about-award-card:hover {
+  border-color: #D4AF37;
+  box-shadow: 0 8px 24px rgba(212, 175, 55, 0.16);
+  transform: translateY(-3px);
+}
+
+.phoenix-award-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.phoenix-award-icon {
+  font-size: 1.25rem;
 }
 
 
