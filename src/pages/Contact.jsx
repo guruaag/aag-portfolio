@@ -9,12 +9,12 @@ function Contact() {
   const { t, i18n } = useTranslation()
   const isHi = i18n.language === 'hi'
   const [settings, setSettings] = useState({
-    phone: '',
-    whatsapp: '',
-    email: '',
-    facebook: '',
-    instagram: '',
-    youtube: ''
+    phone: '+91 76768 85989',
+    whatsapp: 'https://wa.me/917676885989',
+    email: 'contact@gurupratapsharma.com',
+    facebook: 'https://facebook.com',
+    instagram: 'https://instagram.com',
+    youtube: 'https://youtube.com/@gurupratapsharma'
   })
   const [loading, setLoading] = useState(true)
 
@@ -35,12 +35,14 @@ function Contact() {
   const loadContactInfo = async () => {
     try {
       const { data } = await supabase.from('settings').select('*')
-      if (data) {
+      if (data && data.length > 0) {
         const settingsMap = {}
         data.forEach(s => {
-          settingsMap[s.key] = s.value
+          if (s.value && s.value.trim() !== '') {
+            settingsMap[s.key] = s.value
+          }
         })
-        setSettings(settingsMap)
+        setSettings(prev => ({ ...prev, ...settingsMap }))
       }
     } catch (err) {
       console.error('Error loading contact info:', err)
