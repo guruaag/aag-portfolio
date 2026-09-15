@@ -1605,7 +1605,21 @@ function ContactSectionManager({ settings, initialSubTab, onUpdate, setIsDirty }
 }
 
 function ContactInfoForm({ settings, onUpdate, setIsDirty }) {
- const { tLabel } = useAdminLang()
+  const { tLabel } = useAdminLang()
+
+  const renderLabelWithToggle = (labelHi, labelEn, key) => (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+      <label style={{ margin: 0 }}>{tLabel(labelHi, labelEn)}</label>
+      <label style={{ margin: 0, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--admin-text-secondary, #666)' }}>
+        <input
+          type="checkbox"
+          checked={formData[key] === 'true'}
+          onChange={e => setFormData({ ...formData, [key]: e.target.checked ? 'true' : 'false' })}
+        />
+        {tLabel('साइट पर दिखाएं', 'Show on site')}
+      </label>
+    </div>
+  )
  const [formData, setFormData] = useState({
  phone: '',
  phone_text: '',
