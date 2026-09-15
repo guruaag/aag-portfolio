@@ -17,10 +17,19 @@ function Header() {
   // Load logo from settings
   useEffect(() => {
     loadLogo()
-    // Reload logo periodically in case it was updated
-    const interval = setInterval(loadLogo, 10000)
-    return () => clearInterval(interval)
   }, [])
+
+  // Body scroll lock when mobile menu is open
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [menuOpen])
 
   const loadLogo = async () => {
     try {

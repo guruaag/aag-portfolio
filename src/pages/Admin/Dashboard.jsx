@@ -688,7 +688,7 @@ function AdminDashboard({ tab, initialSubTab }) {
  setIsDirty={setIsDirty}
  />
  )}
- {activeTab === 'poems' && (
+ {(activeTab === 'categories' || activeTab === 'poems') && (
  <PoemsManager poems={data.poems} onUpdate={loadData} setIsDirty={setIsDirty} />
  )}
  {activeTab === 'publications' && (

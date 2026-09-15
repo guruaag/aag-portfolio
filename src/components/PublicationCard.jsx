@@ -9,6 +9,7 @@ function PublicationCard({ publication, index = 0, onOpenFocus = null }) {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const [isHovered, setIsHovered] = useState(false)
+  const [imgError, setImgError] = useState(false)
   
   const imageUrl = getImageUrl(publication.image_path)
 
@@ -56,7 +57,7 @@ function PublicationCard({ publication, index = 0, onOpenFocus = null }) {
       }}
     >
       <div className="phoenix-publication-image-wrapper">
-        {imageUrl ? (
+        {imageUrl && !imgError ? (
           <>
             <motion.img 
               src={imageUrl} 
@@ -67,8 +68,8 @@ function PublicationCard({ publication, index = 0, onOpenFocus = null }) {
                 filter: isHovered ? 'brightness(1.15)' : 'brightness(1)'
               }}
               transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-              onError={(e) => {
-                e.target.style.display = 'none'
+              onError={() => {
+                setImgError(true)
               }}
             />
             {/* Title Overlay - Elegant fade in */}

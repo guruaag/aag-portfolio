@@ -42,7 +42,7 @@
 
 /* Ensure content never touches edges on mobile */
 @media (max-width: 600px) {
-  .phoenix-main {
+  .phoenix-main:not(.admin-main-container) {
     padding-left: var(--phoenix-padding-mobile);
     padding-right: var(--phoenix-padding-mobile);
   }
