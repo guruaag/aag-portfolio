@@ -76,6 +76,7 @@ function Contact() {
 
  const handleFormSubmit = async (e) => {
  e.preventDefault()
+ if (submitting) return
  setFeedback(null)
 
  if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
@@ -86,6 +87,7 @@ function Contact() {
  return
  }
 
+ setSubmitting(true)
  try {
  const basePayload = {
  name: formData.name.trim(),

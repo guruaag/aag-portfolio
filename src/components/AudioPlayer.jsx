@@ -12,6 +12,10 @@ function AudioPlayer({ audioUrl, poemTitle }) {
   const audioRef = useRef(null)
 
   useEffect(() => {
+    setCurrentTime(0)
+    setDuration(0)
+    setIsPlaying(false)
+
     const audio = audioRef.current
     if (!audio) return
 
@@ -34,7 +38,7 @@ function AudioPlayer({ audioUrl, poemTitle }) {
       audio.removeEventListener('loadstart', handleLoadStart)
       audio.removeEventListener('canplay', handleCanPlay)
     }
-  }, [])
+  }, [audioUrl])
 
   const togglePlay = () => {
     const audio = audioRef.current

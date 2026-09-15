@@ -150,7 +150,7 @@ export default function BookReader({
   const shareWhatsApp = () => {
     const currentText = pages[currentIdx] || '';
     const shareText = `*${title || author}*\n\n"${currentText.trim()}"\n\n— ${author}\n\nगुरुप्रताप शर्मा 'आग' डिजिटल साहित्य ग्रंथालय`;
-    const url = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
     window.open(url, '_blank');
   };
 

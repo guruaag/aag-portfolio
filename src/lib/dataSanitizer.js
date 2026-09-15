@@ -9,8 +9,6 @@ export function sanitizeText(text) {
   let cleaned = text
     // Strip dirty test placeholder substrings
     .replace(/jjjpg|1jpg|test33tit|ssssss|2My Writings|33tit/gi, '')
-    // Strip leading digits like "2 ", "3 ", "1. " from titles
-    .replace(/^[0-9]+[\s\.\-]/, '')
     .trim();
 
   return cleaned;

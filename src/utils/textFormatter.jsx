@@ -75,7 +75,7 @@ function parseInlineFormatting(text) {
     if (token.startsWith('**') && token.endsWith('**') && token.length >= 4) {
       return <strong key={`b-${idx}`}>{token.slice(2, -2)}</strong>;
     }
-    if (token.startsWith('*') && token.endsWith('*') && token.length >= 2) {
+    if (token.startsWith('*') && token.endsWith('*') && token.length >= 3) {
       return <em key={`i-${idx}`}>{token.slice(1, -1)}</em>;
     }
     if (token.startsWith('<b>') && token.endsWith('</b>')) {
