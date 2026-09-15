@@ -37,23 +37,33 @@ function CategoryDetail() {
       setLoading(true)
       setError(null)
 
-      const categories = await getCategories()
-      let foundCategory = categories.find(c => c.id === categoryId)
+      const categories = await getCategories().catch(() => [])
+      let foundCategory = Array.isArray(categories) ? categories.find(c => c.id === categoryId) : null
       
+      const slugMap = {
+        'publications': 'publications',
+        'prakashan': 'publications',
+        'books': 'publications',
+        'about': 'about',
+        'parichay': 'about',
+        'poems': 'writings',
+        'kavya-sangrah': 'writings',
+        'poetry': 'writings'
+      }
+      const contentType = slugMap[categoryId] || categoryId
+
+      if (!foundCategory && contentType && Array.isArray(categories)) {
+        foundCategory = categories.find(c => c.content_type === contentType)
+      }
+      
+      // Fallback synthetic category objects for system routes
       if (!foundCategory) {
-        const slugMap = {
-          'publications': 'publications',
-          'prakashan': 'publications',
-          'books': 'publications',
-          'about': 'about',
-          'parichay': 'about',
-          'poems': 'writings',
-          'kavya-sangrah': 'writings',
-          'poetry': 'writings'
-        }
-        const contentType = slugMap[categoryId]
-        if (contentType) {
-          foundCategory = categories.find(c => c.content_type === contentType)
+        if (contentType === 'about' || categoryId === 'about' || categoryId === 'parichay') {
+          foundCategory = { id: 'about', content_type: 'about', name_display: 'कवि परिचय', name_hi: 'कवि परिचय', name_en: 'About' }
+        } else if (contentType === 'publications' || categoryId === 'publications' || categoryId === 'prakashan' || categoryId === 'books') {
+          foundCategory = { id: 'publications', content_type: 'publications', name_display: 'पुस्तकें', name_hi: 'पुस्तकें', name_en: 'Books' }
+        } else if (contentType === 'writings' || categoryId === 'poems' || categoryId === 'kavya-sangrah' || categoryId === 'poetry') {
+          foundCategory = { id: 'poems', content_type: 'writings', name_display: 'काव्य संग्रह', name_hi: 'काव्य संग्रह', name_en: 'Poetry' }
         }
       }
       
@@ -72,15 +82,15 @@ function CategoryDetail() {
         ])
         setContent({
           ...(aboutData || {}),
-          truncated_preview: aboutData ? sanitizeText(aboutData.truncated_preview) : '',
+          truncated_preview: aboutData?.truncated_preview ? sanitizeText(aboutData.truncated_preview) : '',
           timeline: timelineData || [],
           awards: awardsData || []
         })
       } else if (foundCategory.content_type === 'publications') {
-        const pubsData = await getPublications()
+        const pubsData = await getPublications().catch(() => [])
         setContent((pubsData || []).map(sanitizePublication).filter(Boolean))
       } else if (foundCategory.content_type === 'writings') {
-        const poemsData = await getPoems()
+        const poemsData = await getPoems().catch(() => [])
         setContent((poemsData || []).map(sanitizePoem).filter(Boolean))
       }
     } catch (err) {

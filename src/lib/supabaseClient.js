@@ -11,92 +11,110 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Helper functions
 export async function getCategories() {
-  const { data, error } = await supabase
-    .from('categories')
-    .select('*')
-    .order('sort_order', { ascending: true })
-  
-  if (error) throw error
-  
-  // Filter by is_active if column exists, otherwise return all
-  return data?.filter(cat => cat.is_active !== false) || data || []
+  try {
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .order('sort_order', { ascending: true })
+    if (!error && data) return data.filter(cat => cat.is_active !== false)
+  } catch (e) {
+    console.warn('Error fetching categories:', e)
+  }
+  return []
 }
 
 export async function getAboutContent() {
-  const { data, error } = await supabase
-    .from('about_content')
-    .select('*')
-    .limit(1)
-    .single()
-  
-  if (error) throw error
-  return data
+  try {
+    const { data, error } = await supabase
+      .from('about_content')
+      .select('*')
+      .limit(1)
+      .maybeSingle()
+    if (!error && data) return data
+  } catch (e) {
+    console.warn('Error fetching about content:', e)
+  }
+  return null
 }
 
 export async function getPublications() {
-  const { data, error } = await supabase
-    .from('publications')
-    .select('*')
-    .order('sort_order', { ascending: true })
-  
-  if (error) throw error
-  
-  // Filter by is_active if column exists, otherwise return all
-  return data?.filter(pub => pub.is_active !== false) || data || []
+  try {
+    const { data, error } = await supabase
+      .from('publications')
+      .select('*')
+      .order('sort_order', { ascending: true })
+    if (!error && data) return data.filter(pub => pub.is_active !== false)
+  } catch (e) {
+    console.warn('Error fetching publications:', e)
+  }
+  return []
 }
 
 export async function getPublication(id) {
-  const { data, error } = await supabase
-    .from('publications')
-    .select('*')
-    .eq('id', id)
-    .single()
-  
-  if (error) throw error
-  return data
+  try {
+    const { data, error } = await supabase
+      .from('publications')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle()
+    if (!error && data) return data
+  } catch (e) {
+    console.warn('Error fetching publication:', e)
+  }
+  return null
 }
 
 export async function getPoems() {
-  const { data, error } = await supabase
-    .from('poems')
-    .select('*')
-    .order('sort_order', { ascending: true })
-  
-  if (error) throw error
-  
-  // Filter by is_active if column exists, otherwise return all
-  return data?.filter(poem => poem.is_active !== false) || data || []
+  try {
+    const { data, error } = await supabase
+      .from('poems')
+      .select('*')
+      .order('sort_order', { ascending: true })
+    if (!error && data) return data.filter(poem => poem.is_active !== false)
+  } catch (e) {
+    console.warn('Error fetching poems:', e)
+  }
+  return []
 }
 
 export async function getPoem(id) {
-  const { data, error } = await supabase
-    .from('poems')
-    .select('*')
-    .eq('id', id)
-    .single()
-  
-  if (error) throw error
-  return data
+  try {
+    const { data, error } = await supabase
+      .from('poems')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle()
+    if (!error && data) return data
+  } catch (e) {
+    console.warn('Error fetching poem:', e)
+  }
+  return null
 }
 
 export async function getSetting(key) {
-  const { data, error } = await supabase
-    .from('settings')
-    .select('value')
-    .eq('key', key)
-    .single()
-  
-  if (error) throw error
-  return data?.value
+  try {
+    const { data, error } = await supabase
+      .from('settings')
+      .select('value')
+      .eq('key', key)
+      .maybeSingle()
+    if (!error && data) return data.value
+  } catch (e) {
+    console.warn('Error fetching setting:', e)
+  }
+  return null
 }
 
 export async function getAllSettings() {
-  const { data, error } = await supabase
-    .from('settings')
-    .select('*')
-  
-  if (error) throw error
-  return data || []
+  try {
+    const { data, error } = await supabase
+      .from('settings')
+      .select('*')
+    if (!error && data) return data
+  } catch (e) {
+    console.warn('Error fetching all settings:', e)
+  }
+  return []
 }
 
 export async function getTimeline() {
