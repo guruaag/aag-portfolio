@@ -874,41 +874,6 @@ function CategoriesManager({ categories, onUpdate, setIsDirty }) {
  {(showForm || editing) && (
  <form id="admin-active-form" onSubmit={handleSubmit} onChange={() => setIsDirty && setIsDirty(true)} onInput={() => setIsDirty && setIsDirty(true)} className="admin-form-container">
  <div className="admin-form-grid">
- {/* Home Manager Sub-Tab Navigation Bar */}
- <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', borderBottom: '2px solid rgba(226, 215, 197, 0.4)', paddingBottom: '12px', flexWrap: 'wrap' }}>
- <button
- type="button"
- className={`admin-btn ${activeTab === 'hero' || activeTab === 'banner' ? 'phoenix-btn-primary' : 'admin-btn-secondary'}`}
- onClick={() => setActiveTab('hero')}
- style={{ padding: '6px 16px', fontSize: '0.88rem', fontWeight: 600 }}
- >
- 1. {tLabel('बैनर', 'Banner')}
- </button>
- <button
- type="button"
- className={`admin-btn ${activeTab === 'about' || activeTab === 'intro' ? 'phoenix-btn-primary' : 'admin-btn-secondary'}`}
- onClick={() => setActiveTab('about')}
- style={{ padding: '6px 16px', fontSize: '0.88rem', fontWeight: 600 }}
- >
- 2. {tLabel('परिचय', 'About')}
- </button>
- <button
- type="button"
- className={`admin-btn ${activeTab === 'featured' || activeTab === 'poetry' ? 'phoenix-btn-primary' : 'admin-btn-secondary'}`}
- onClick={() => setActiveTab('featured')}
- style={{ padding: '6px 16px', fontSize: '0.88rem', fontWeight: 600 }}
- >
- 3. {tLabel('विशेष कविताएं', 'Featured Poetry')}
- </button>
- <button
- type="button"
- className={`admin-btn ${activeTab === 'books' ? 'phoenix-btn-primary' : 'admin-btn-secondary'}`}
- onClick={() => setActiveTab('books')}
- style={{ padding: '6px 16px', fontSize: '0.88rem', fontWeight: 600 }}
- >
- 4. {tLabel('विशेष पुस्तकें', 'Featured Books')}
- </button>
- </div>
  <div className="admin-form-group">
  <label>{tLabel('अनुभाग नाम (Slug) *', 'Section Key (Slug) *')}</label>
  <input
@@ -1045,8 +1010,8 @@ function HomeManager({ initialSubTab = 'hero', poems = [], publications = [], ab
  const fetchAuxiliaryData = async () => {
     try {
       const [{ data: tmData }, { data: awData }] = await Promise.all([
-        supabase.from('timeline').select('*').order('sort_order', { ascending: true }),
-        supabase.from('awards').select('*').order('sort_order', { ascending: true })
+        supabase.from('timeline_milestones').select('*').order('sort_order', { ascending: true }),
+        supabase.from('awards_honors').select('*').order('sort_order', { ascending: true })
       ])
       if (tmData) setTimelineItems(tmData)
       if (awData) setAwardsItems(awData)
@@ -1113,25 +1078,22 @@ function HomeManager({ initialSubTab = 'hero', poems = [], publications = [], ab
         custom_excerpt: settings.home_custom_excerpt || ''
       })
 
-      try {
-        if (settings.home_featured_poems) {
-          setFeaturedPoems(JSON.parse(settings.home_featured_poems))
-        } else if (Array.isArray(poems)) {
-          setFeaturedPoems(poems.slice(0, 4).map(p => p.id))
+      const safeArray = (val, fallback = []) => {
+        if (Array.isArray(val)) return val
+        if (typeof val === 'string' && val.trim()) {
+          try {
+            const parsed = JSON.parse(val)
+            if (Array.isArray(parsed)) return parsed
+          } catch (e) {}
         }
-      } catch (e) {
-        setFeaturedPoems(Array.isArray(poems) ? poems.slice(0, 4).map(p => p.id) : [])
+        return fallback
       }
 
-      try {
-        if (settings.home_featured_publications) {
-          setFeaturedPubs(JSON.parse(settings.home_featured_publications))
-        } else if (Array.isArray(publications)) {
-          setFeaturedPubs(publications.slice(0, 4).map(p => p.id))
-        }
-      } catch (e) {
-        setFeaturedPubs(Array.isArray(publications) ? publications.slice(0, 4).map(p => p.id) : [])
-      }
+      const defaultPoemIds = Array.isArray(poems) ? poems.slice(0, 4).map(p => p.id) : []
+      setFeaturedPoems(safeArray(settings.home_featured_poems, defaultPoemIds))
+
+      const defaultPubIds = Array.isArray(publications) ? publications.slice(0, 4).map(p => p.id) : []
+      setFeaturedPubs(safeArray(settings.home_featured_publications, defaultPubIds))
 
       if (settings.home_featured_poems_limit) {
         setPoemsLimit(parseInt(settings.home_featured_poems_limit, 10) || 3)
@@ -1140,17 +1102,8 @@ function HomeManager({ initialSubTab = 'hero', poems = [], publications = [], ab
         setPubsLimit(parseInt(settings.home_featured_publications_limit, 10) || 3)
       }
 
-      try {
-        if (settings.home_featured_timeline) {
-          setFeaturedTimeline(JSON.parse(settings.home_featured_timeline))
-        }
-      } catch (e) {}
-
-      try {
-        if (settings.home_featured_awards) {
-          setFeaturedAwards(JSON.parse(settings.home_featured_awards))
-        }
-      } catch (e) {}
+      setFeaturedTimeline(safeArray(settings.home_featured_timeline, []))
+      setFeaturedAwards(safeArray(settings.home_featured_awards, []))
     }
   }, [settings, poems.length, publications.length])
 
@@ -1940,7 +1893,7 @@ function AboutManager({ about, initialSubTab, onUpdate, setIsDirty }) {
 
  return (
  <div>
- {subTab === 'timeline' && <TimelineManager onUpdate={onUpdate} />}
+ {subTab === 'timeline' && <TimelineManager onUpdate={onUpdate} setIsDirty={setIsDirty} />}
  {subTab === 'awards' && <AwardsManager onUpdate={onUpdate} setIsDirty={setIsDirty} />}
 
  {subTab === 'bio' && (
@@ -2025,6 +1978,7 @@ function AboutManager({ about, initialSubTab, onUpdate, setIsDirty }) {
 
 function PoemsManager({ poems, onUpdate, setIsDirty }) {
  const { adminLang, tLabel } = useAdminLang()
+ const { isDirty } = useFormState()
  const { id: paramId } = useParams()
  const navigate = useNavigate()
 
@@ -2104,7 +2058,7 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
 
  const handleBackToList = () => {
  // Prompt if user has unsaved changes
- if (setIsDirty) {
+ if (isDirty) {
  const confirmLeave = window.confirm(
  tLabel(
  'आपके पास सहेजे न गए बदलाव हैं! क्या आप वाकई बिना सहेजे काव्य संग्रह सूची पर वापस जाना चाहते हैं?',
@@ -2112,7 +2066,7 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
  )
  )
  if (!confirmLeave) return
- setIsDirty(false)
+ if (setIsDirty) setIsDirty(false)
  }
  navigate('/admin/kavya-sangrah')
  }
