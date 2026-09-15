@@ -145,6 +145,12 @@ Whenever this skill is triggered, execute or offer the following modes:
 - **Fix Applied**: Dynamically construct `https://web.whatsapp.com/send` for desktop and `https://api.whatsapp.com/send` / `wa.me` for mobile devices (Commits `020ace5`, `4e88955`).
 - **Regression Rule**: WhatsApp sharing links must evaluate user agent to select between desktop web client and mobile deep-linking URLs.
 
+#### C7. Timeline & Life Journey Alternating Left-Right Layout Degradation
+- **Symptom**: About page (`/category/about`) timeline rendered as a simple narrow vertical column inside the sidebar instead of a full-width alternating left/right vertical spine.
+- **Root Cause**: Timeline section was nested inside `.phoenix-about-content` grid item rather than spanning full container width.
+- **Fix Applied**: Restructured `AboutPanel.jsx` and `AboutPanel.css` to render a full-width `.phoenix-timeline-container` with central gradient spine line (`.phoenix-timeline-spine`), alternating left/right milestone cards (`.left` / `.right`), glowing node dots (`.phoenix-timeline-node`), and responsive single-column mobile collapse (Commit `1194e87`).
+- **Regression Rule**: The Life Journey & Timeline section on `/category/about` MUST span full container width and render alternating left/right cards centered around the vertical spine line on desktop screens.
+
 ---
 
 ### Category D: Font Engine & PageMaker 5.0 (PM5) Archives
