@@ -11,31 +11,24 @@
 html {
   /* 17px = comfortable Devanagari reading + prevents iOS auto-zoom on inputs */
   font-size: 17px;
-  /* Smooth scroll for anchor jumps */
   scroll-behavior: smooth;
-  /* Prevent horizontal overflow globally */
   overflow-x: hidden;
 }
 
 body {
   overflow-x: hidden;
-  /* Remove tap highlight on all tappable elements */
   -webkit-tap-highlight-color: transparent;
-  /* Proper text rendering on mobile */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Minimum font size for readability */
   min-width: 320px;
 }
 
 /* ── 2. SAFE AREA INSETS (notch / home-indicator) ─────────── */
 .phoenix-header {
-  /* Push header content below notch */
   padding-top: env(safe-area-inset-top, 0px);
 }
 
 .phoenix-footer {
-  /* Push footer above home-indicator bar */
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
 }
 
@@ -50,11 +43,9 @@ label[for] {
   min-width: 44px;
 }
 
-/* Exceptions: decorative elements and icon containers */
 .pfv-close-btn,
 .phoenix-menu-action-icon,
 .social-icon-btn {
-  /* These already have explicit 44px sizing */
   min-height: 44px;
   min-width: 44px;
 }
@@ -67,7 +58,6 @@ button:active,
   transition: opacity 0.08s, transform 0.08s;
 }
 
-/* Cards get a press-down feel */
 .phoenix-poem-card:active,
 .phoenix-publication-card:active {
   transform: scale(0.98) !important;
@@ -83,15 +73,12 @@ img, video {
 
 /* ── 6. LAYOUT CONTAINERS ─────────────────────────────────── */
 .phoenix-main {
-  /* Account for fixed header + bottom nav on mobile */
   padding-top: var(--phoenix-header-height, 80px);
-  /* Bottom nav height + safe area */
   padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
   min-height: 100dvh;
   overflow-x: hidden;
 }
 
-/* Desktop: no bottom nav, no extra padding */
 @media (min-width: 769px) {
   .phoenix-main {
     padding-bottom: 0;
@@ -113,14 +100,67 @@ img, video {
   max-width: 100vw;
 }
 
-/* ── 8. SECTION SPACING — mobile-first ────────────────────── */
-@media (max-width: 600px) {
+/* ── 8. SYSTEMATIC MOBILE BREATHING SPACE (18px Side Padding) ─ */
+@media (max-width: 768px) {
+  /* Main content container horizontal padding */
+  .phoenix-content {
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Section Box framing with elegant side margins and borders */
   .phoenix-section-box {
-    padding: 1.5rem 0 !important;
-    margin: 0.5rem 0 !important;
-    border-radius: 0 !important;
-    border-left: none !important;
-    border-right: none !important;
+    padding: 1.75rem 18px !important;
+    margin: 1rem 0 !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Hero section side padding */
+  .phoenix-hero.leona-hero {
+    padding: 32px 18px 48px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Page level wrappers */
+  .phoenix-category-detail,
+  .phoenix-about-panel,
+  .phoenix-contact,
+  .phoenix-publication-page,
+  .phoenix-poem-detail,
+  .phoenix-home {
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Titles and headers inside padded wrappers */
+  .phoenix-category-header,
+  .phoenix-about-title,
+  .phoenix-contact-title,
+  .phoenix-contact-subtitle,
+  .phoenix-section-title {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* Contact form wrapper card */
+  .phoenix-contact-form-wrapper {
+    padding: 20px 16px !important;
+    border-radius: 12px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Nested grids/lists inside padded wrappers */
+  .phoenix-poems-list,
+  .phoenix-publications-grid-full,
+  .phoenix-about-layout,
+  .phoenix-highlights-grid,
+  .phoenix-contact-grid {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 
   .phoenix-section-title {
@@ -130,7 +170,6 @@ img, video {
 }
 
 /* ── 9. SCROLL ─────────────────────────────────────────────── */
-/* Momentum scrolling in scroll containers */
 .phoenix-publications-scroll,
 .pfv-poem-body,
 .phoenix-menu-list {
@@ -145,7 +184,6 @@ img, video {
   border-radius: 4px;
 }
 
-/* Remove focus ring for mouse users */
 :focus:not(:focus-visible) {
   outline: none;
 }
@@ -165,7 +203,7 @@ p {
 input,
 textarea,
 select {
-  font-size: 16px !important; /* Prevents iOS auto-zoom */
+  font-size: 16px !important;
   -webkit-appearance: none;
   appearance: none;
 }
