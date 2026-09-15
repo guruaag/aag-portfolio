@@ -101,6 +101,7 @@
   color: var(--leona-charcoal, #1E1B18);
   line-height: 1.8;
   margin: 0;
+  white-space: pre-line;
 }
 
 .leona-hero-actions {

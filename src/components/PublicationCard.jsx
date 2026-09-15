@@ -5,15 +5,19 @@ import { useTranslation } from 'react-i18next'
 import { getImageUrl } from '../lib/imageUtils'
 import './PublicationCard.css'
 
-function PublicationCard({ publication, index = 0 }) {
+function PublicationCard({ publication, index = 0, onOpenFocus = null }) {
   const navigate = useNavigate()
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const [isHovered, setIsHovered] = useState(false)
   
   const imageUrl = getImageUrl(publication.image_path)
 
   const handleClick = () => {
-    navigate(`/publication/${publication.id}`)
+    if (onOpenFocus) {
+      onOpenFocus(publication.id)
+    } else {
+      navigate(`/publication/${publication.id}`)
+    }
   }
 
   const handleBuyNow = (e) => {
@@ -25,7 +29,9 @@ function PublicationCard({ publication, index = 0 }) {
 
   const handleSample = (e) => {
     e.stopPropagation()
-    if (publication.sample_url) {
+    if (onOpenFocus) {
+      onOpenFocus(publication.id)
+    } else if (publication.sample_url) {
       window.open(publication.sample_url, '_blank')
     } else {
       navigate(`/publication/${publication.id}`)
@@ -94,7 +100,7 @@ function PublicationCard({ publication, index = 0 }) {
             />
             
             {/* CTAs on hover */}
-            {(publication.purchase_url || publication.sample_url) && (
+            {(publication.purchase_url || publication.sample_url || onOpenFocus) && (
               <motion.div
                 className="phoenix-publication-ctas"
                 initial={false}
@@ -114,16 +120,14 @@ function PublicationCard({ publication, index = 0 }) {
                     {t('public_actions.buy_now') || 'Buy Book'}
                   </motion.button>
                 )}
-                {publication.sample_url && (
-                  <motion.button
-                    className="phoenix-publication-cta phoenix-publication-cta-secondary"
-                    onClick={handleSample}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    {t('public_actions.sample') || 'Preview'}
-                  </motion.button>
-                )}
+                <motion.button
+                  className="phoenix-publication-cta phoenix-publication-cta-secondary"
+                  onClick={handleSample}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {t('public_actions.sample') || 'पढ़ें (Read)'}
+                </motion.button>
               </motion.div>
             )}
           </>

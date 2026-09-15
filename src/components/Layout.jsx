@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import Header from './Header'
 import Footer from './Footer'
+import BottomNav from './BottomNav'
 
 function Layout({ children }) {
   const location = useLocation()
@@ -19,9 +20,9 @@ function Layout({ children }) {
         {children}
       </main>
       {!isAdmin && <Footer />}
+      {!isAdmin && <BottomNav />}
     </div>
   )
 }
 
 export default Layout
-

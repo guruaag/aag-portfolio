@@ -1,0 +1,78 @@
+/* ============================================================
+   STICKY BOTTOM NAVIGATION BAR (MOBILE ONLY)
+   Native app feel, safe area support, smooth active state
+   ============================================================ */
+
+.phoenix-bottom-nav {
+  display: none; /* Hidden on desktop */
+}
+
+@media (max-width: 768px) {
+  .phoenix-bottom-nav {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(253, 251, 247, 0.94);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(212, 175, 55, 0.25);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .phoenix-bottom-nav-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    height: 58px;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 0 8px;
+  }
+
+  .phoenix-bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    height: 100%;
+    background: none;
+    border: none;
+    color: var(--phoenix-text-secondary, #7A6C5D);
+    padding: 4px 0;
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .phoenix-bottom-nav-item:active {
+    transform: scale(0.92);
+  }
+
+  .phoenix-bottom-nav-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+  }
+
+  .phoenix-bottom-nav-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    margin-top: 2px;
+    font-family: var(--phoenix-font-sans, system-ui, sans-serif);
+    letter-spacing: 0.2px;
+  }
+
+  .phoenix-bottom-nav-item.active {
+    color: var(--phoenix-ruby, #8C2D19);
+  }
+
+  .phoenix-bottom-nav-item.active .phoenix-bottom-nav-icon {
+    color: var(--phoenix-ruby, #8C2D19);
+  }
+}

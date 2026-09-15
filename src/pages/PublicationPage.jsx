@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { getPublication } from '../lib/supabaseClient'
 import { sanitizePublication } from '../lib/dataSanitizer'
 import { getImageUrl } from '../lib/imageUtils'
-import BookReader from '../components/BookReader'
+import BookFocusView from '../components/BookFocusView'
 import './PublicationPage.css'
 
 function PublicationPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const { i18n } = useTranslation()
   const [publication, setPublication] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -33,6 +34,10 @@ function PublicationPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleClose = () => {
+    navigate('/category/publications')
   }
 
   if (loading) {
@@ -61,7 +66,6 @@ function PublicationPage() {
 
   const imageUrl = getImageUrl(publication.image_path)
   const pageUrl = window.location.href
-  const pubContent = publication.pages || publication.description || publication.subtitle || 'No content available.'
 
   return (
     <>
@@ -79,24 +83,11 @@ function PublicationPage() {
         <meta name="twitter:image" content={imageUrl || ''} />
       </Helmet>
 
-      <motion.article
-        className="phoenix-publication-page"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="phoenix-content" style={{ paddingTop: 'var(--phoenix-space-lg)', maxWidth: '1400px' }}>
-          
-          {/* 100X Physical 3D Book Reader */}
-          <BookReader
-            title={publication.title}
-            content={pubContent}
-            author="गुरुप्रताप शर्मा 'आग'"
-            collection={publication.subtitle || 'प्रकाशित कृति'}
-            year={publication.publication_year ? publication.publication_year.toString() : '१९८५'}
-          />
-        </div>
-      </motion.article>
+      {/* Full-Screen Focus Reader Overlay matching PoetryFocusView */}
+      <BookFocusView
+        publication={publication}
+        onClose={handleClose}
+      />
     </>
   )
 }

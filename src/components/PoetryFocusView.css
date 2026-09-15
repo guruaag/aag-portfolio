@@ -1,0 +1,385 @@
+/* =====================================================
+   PoetryFocusView — Full-Screen Immersive Reader
+   Pure CSS — no animation conflicts with Framer Motion
+   ===================================================== */
+
+/* ── OVERLAY BACKDROP ─────────────────────────────── */
+.pfv-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  /* Rich layered dark with subtle warm vignette */
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 110%, rgba(154, 52, 18, 0.08) 0%, transparent 70%),
+    rgba(8, 10, 18, 0.97);
+  backdrop-filter: blur(10px) saturate(1.4);
+  -webkit-backdrop-filter: blur(10px) saturate(1.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+/* ── POEM CARD ─────────────────────────────────────── */
+.pfv-card {
+  position: relative;
+  /* Warm paper — not pure white, not cream, just right */
+  background: #fefcf8;
+  /* Outer border: barely-there warm gold */
+  border: 1px solid rgba(180, 83, 9, 0.12);
+  border-radius: 22px;
+  /* Layered shadows for 3D depth */
+  box-shadow:
+    0 2px  4px  rgba(0, 0, 0, 0.08),
+    0 8px  20px rgba(0, 0, 0, 0.18),
+    0 32px 80px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.04);
+  width: 100%;
+  max-width: 680px;
+  /* Full height minus overlay padding */
+  height: calc(100vh - 2rem);
+  max-height: calc(100vh - 2rem);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* Prevent text selection during swipes */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Allow text selection only inside the poem body */
+.pfv-poem-body {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* ── CARD HEADER ────────────────────────────────────── */
+.pfv-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* Generous top padding so title breathes below the border-radius */
+  padding: 1.2rem 1.5rem 1rem;
+  border-bottom: 1px solid rgba(180, 83, 9, 0.08);
+  flex-shrink: 0;
+  gap: 0.75rem;
+}
+
+/* Left spacer — mirrors close button width for perfect centering */
+.pfv-header-left {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+}
+
+/* Poem title — center */
+.pfv-poem-title {
+  font-family: var(--font-serif, 'Tiro Devanagari Hindi', serif);
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
+  font-weight: 700;
+  /* Saffron-gold — warm, literary, not harsh */
+  color: #a16207;
+  text-align: center;
+  flex: 1;
+  margin: 0;
+  line-height: 1.35;
+  /* Hard 2-line clamp so header never grows */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  /* Prevent layout jumps if title is short */
+  min-height: 0;
+}
+
+/* ✕ Close button — top right */
+.pfv-close-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(180, 83, 9, 0.2);
+  background: rgba(180, 83, 9, 0.05);
+  color: #92400e;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.15s ease;
+  flex-shrink: 0;
+  line-height: 1;
+  /* Remove default button outline — we style focus ourselves */
+  outline: none;
+}
+
+.pfv-close-btn:hover {
+  background: rgba(180, 83, 9, 0.12);
+  border-color: rgba(180, 83, 9, 0.45);
+  transform: scale(1.1) rotate(5deg);
+}
+
+.pfv-close-btn:focus-visible {
+  box-shadow: 0 0 0 2px rgba(180, 83, 9, 0.4);
+}
+
+/* ── DECORATIVE TITLE RULE ──────────────────────────── */
+.pfv-title-rule {
+  /* Thin gradient line — amber to saffron to transparent */
+  height: 1.5px;
+  background: linear-gradient(
+    90deg,
+    transparent      0%,
+    rgba(217,119,6,0.4) 25%,
+    rgba(154,52,18,0.55) 55%,
+    transparent      100%
+  );
+  margin: 0 2rem;
+  flex-shrink: 0;
+}
+
+/* ── POEM BODY ──────────────────────────────────────── */
+.pfv-poem-body {
+  flex: 1;
+  overflow-y: auto;
+  /* Generous padding — poem needs room to breathe */
+  padding: 2.25rem 3.5rem;
+  /* Smooth momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+  /* Allow vertical scroll, intercept horizontal for swipe */
+  touch-action: pan-y;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(154, 52, 18, 0.18) transparent;
+}
+
+.pfv-poem-body::-webkit-scrollbar {
+  width: 3px;
+}
+.pfv-poem-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.pfv-poem-body::-webkit-scrollbar-thumb {
+  background: rgba(154, 52, 18, 0.2);
+  border-radius: 99px;
+}
+
+/* The poem text itself */
+.pfv-poem-text {
+  font-family: var(--font-serif, 'Tiro Devanagari Hindi', serif);
+  /* Slightly larger than default — this is the hero content */
+  font-size: clamp(1.05rem, 2.2vw, 1.2rem);
+  /* Loose line-height — essential for poetry readability */
+  line-height: 2.15;
+  color: #1c1917;
+  white-space: pre-line;
+  text-align: center;
+  /* Letter-spacing tuned for Devanagari */
+  letter-spacing: 0.01em;
+}
+
+/* br tags from renderFormattedText should not add extra gap */
+.pfv-poem-text br {
+  display: block;
+  content: '';
+  margin: 0;
+}
+
+/* Stanza breaks (blank lines become paragraphs via pre-line) */
+.pfv-poem-text p {
+  margin: 0;
+}
+
+/* ── PAGE NAV FOOTER ────────────────────────────────── */
+.pfv-page-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* Generous horizontal padding, comfortable vertical */
+  padding: 1rem 2.25rem 1.35rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.055);
+  flex-shrink: 0;
+  gap: 1.25rem;
+}
+
+/* Single-page: hide the nav entirely */
+.pfv-page-nav.pfv-page-nav--hidden {
+  display: none;
+}
+
+/* Prev / Next page buttons */
+.pfv-page-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: transparent;
+  border: 1px solid rgba(154, 52, 18, 0.24);
+  border-radius: 99px;
+  color: #92400e;
+  font-size: 0.8rem;
+  font-weight: 600;
+  /* Symmetrical pill padding */
+  padding: 0.45rem 1.1rem;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.15s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  outline: none;
+  font-family: var(--font-sans, sans-serif);
+  letter-spacing: 0.01em;
+}
+
+.pfv-page-btn:hover:not(:disabled) {
+  background: rgba(154, 52, 18, 0.07);
+  border-color: rgba(154, 52, 18, 0.5);
+  transform: scale(1.04);
+}
+
+.pfv-page-btn:focus-visible {
+  box-shadow: 0 0 0 2px rgba(154, 52, 18, 0.35);
+}
+
+.pfv-page-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.pfv-page-btn:disabled {
+  opacity: 0.22;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Center: page number (prominent) + author (whisper) */
+.pfv-page-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.12rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.pfv-page-number {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #44403c;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.pfv-page-author {
+  font-size: 0.68rem;
+  font-weight: 400;
+  /* Muted warm tone — present but never competing */
+  color: #a8a29e;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+  font-style: italic;
+}
+
+/* ── KEYBOARD HINT ────────────────────────────────── */
+.pfv-keyboard-hint {
+  margin-top: 0.55rem;
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.22);
+  text-align: center;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+  pointer-events: none;
+  font-family: var(--font-sans, sans-serif);
+}
+
+/* ── PROGRESS BAR (thin amber line top of card) ────── */
+.pfv-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #d97706, #b45309);
+  border-radius: 22px 22px 0 0;
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+/* ── SWIPE NUDGE (applied via JS ref, not React state) */
+@keyframes pfv-nudge-left {
+  0%   { transform: translateX(0);    }
+  35%  { transform: translateX(-10px); }
+  100% { transform: translateX(0);    }
+}
+@keyframes pfv-nudge-right {
+  0%   { transform: translateX(0);   }
+  35%  { transform: translateX(10px); }
+  100% { transform: translateX(0);   }
+}
+
+.pfv-card[data-nudge="left"]  { animation: pfv-nudge-left  0.28s ease; }
+.pfv-card[data-nudge="right"] { animation: pfv-nudge-right 0.28s ease; }
+
+/* ── MOBILE ─────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .pfv-overlay {
+    padding: 0.5rem;
+    /* On mobile push card to take full screen */
+    justify-content: flex-end;
+  }
+
+  .pfv-card {
+    max-width: 100%;
+    height: calc(100dvh - 1rem);
+    max-height: calc(100dvh - 1rem);
+    border-radius: 20px 20px 14px 14px;
+  }
+
+  .pfv-card-header {
+    padding: 1rem 1.1rem 0.85rem;
+  }
+
+  .pfv-poem-body {
+    padding: 1.5rem 1.5rem;
+  }
+
+  .pfv-poem-text {
+    font-size: 1rem;
+    line-height: 2;
+  }
+
+  .pfv-poem-title {
+    font-size: 1.15rem;
+  }
+
+  .pfv-page-nav {
+    padding: 0.85rem 1.25rem 1rem;
+    gap: 0.75rem;
+  }
+
+  .pfv-page-btn {
+    padding: 0.4rem 0.85rem;
+    font-size: 0.76rem;
+  }
+
+  .pfv-page-author {
+    max-width: 130px;
+  }
+
+  .pfv-keyboard-hint {
+    display: none;
+  }
+}
+
+/* ── TABLET ─────────────────────────────────────────── */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .pfv-card {
+    max-width: 580px;
+  }
+
+  .pfv-poem-body {
+    padding: 2rem 2.5rem;
+  }
+}

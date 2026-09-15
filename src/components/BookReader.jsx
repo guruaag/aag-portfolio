@@ -1,48 +1,49 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { renderFormattedText } from '../utils/textFormatter';
 import './BookReader.css';
 
 export default function BookReader({
- title = '',
- content = '',
- author = "गुरुप्रताप शर्मा 'आग'",
- collection = 'काव्य संग्रह: अग्नि कलश',
- year = '१९८५',
- chapter = 'अध्याय १',
- part = 'भाग १',
- audioUrl = null
+  title = '',
+  content = '',
+  author = "गुरुप्रताप शर्मा 'आग'",
+  collection = 'प्रकाशित कृति',
+  year = '१९८५',
+  audioUrl = null,
+  onBack = null
 }) {
- // Convert English digits to Hindi Devanagari numerals
- const toHindiNumerals = (num) => {
- const hindiDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
- return String(num).replace(/[0-9]/g, (w) => hindiDigits[+w]);
- };
+  const navigate = useNavigate();
 
- // 1. DATABASE COMPATIBILITY ADAPTER
- // Automatically split plain string text into ~12 line pages if not already a structured page array
- const parsePages = (rawContent) => {
- if (Array.isArray(rawContent) && rawContent.length > 0) {
- return rawContent;
- }
- if (typeof rawContent === 'string' && rawContent.trim().length > 0) {
- const rawLines = rawContent.split('\n');
- const pages = [];
- let currentChunk = [];
+  // Convert English digits to Hindi Devanagari numerals
+  const toHindiNumerals = (num) => {
+    const hindiDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+    return String(num).replace(/[0-9]/g, (w) => hindiDigits[+w]);
+  };
 
- for (let i = 0; i < rawLines.length; i++) {
- currentChunk.push(rawLines[i]);
- if (currentChunk.length >= 12 || i === rawLines.length - 1) {
- pages.push(currentChunk.join('\n'));
- currentChunk = [];
- }
- }
- return pages.length > 0 ? pages : [rawContent];
- }
- return ['(कोई सामग्री नहीं)'];
- };
+  // Parse plain text or array into ~15 line pages
+  const parsePages = (rawContent) => {
+    if (Array.isArray(rawContent) && rawContent.length > 0) {
+      return rawContent;
+    }
+    if (typeof rawContent === 'string' && rawContent.trim().length > 0) {
+      const rawLines = rawContent.split('\n');
+      const pages = [];
+      let currentChunk = [];
 
- const pages = parsePages(content);
- const totalPages = pages.length;
+      for (let i = 0; i < rawLines.length; i++) {
+        currentChunk.push(rawLines[i]);
+        if (currentChunk.length >= 15 || i === rawLines.length - 1) {
+          pages.push(currentChunk.join('\n'));
+          currentChunk = [];
+        }
+      }
+      return pages.length > 0 ? pages : [rawContent];
+    }
+    return ['(कोई सामग्री नहीं)'];
+  };
+
+  const pages = parsePages(content);
+  const totalPages = pages.length;
 
   const [currentIdx, setCurrentIdx] = useState(0);
   const [theme, setTheme] = useState(() => localStorage.getItem('reader_theme') || 'parchment');
@@ -50,13 +51,11 @@ export default function BookReader({
     const saved = localStorage.getItem('reader_font_scale');
     return saved ? parseInt(saved, 10) : 100;
   });
-  const [focusActive, setFocusActive] = useState(false);
   const [showToc, setShowToc] = useState(false);
-  const [animClass, setAnimClass] = useState('turning-sheet');
   const [audioPlaying, setAudioPlaying] = useState(false);
 
   const audioRef = useRef(null);
-  const bookStageRef = useRef(null);
+  const bodyRef = useRef(null);
 
   const handleThemeChange = (newTheme) => {
     setTheme(newTheme);
@@ -68,281 +67,233 @@ export default function BookReader({
     localStorage.setItem('reader_font_scale', String(newScale));
   };
 
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
+  // Synthetic paper sound on page turn
+  const playPaperSound = () => {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
+
+      const sr = ctx.sampleRate;
+      const dur = 0.14;
+      const buffer = ctx.createBuffer(1, Math.floor(sr * dur), sr);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < data.length; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (data.length * 0.25));
       }
+
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = 1600;
+      filter.Q.value = 2.5;
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.25, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      noise.start();
+    } catch (e) {}
+  };
+
+  const turnPage = (dir) => {
+    const nextIdx = currentIdx + dir;
+    if (nextIdx < 0 || nextIdx >= totalPages) return;
+
+    playPaperSound();
+    setCurrentIdx(nextIdx);
+    if (bodyRef.current) {
+      bodyRef.current.scrollTo({ top: 0, behavior: 'instant' });
+    }
+  };
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const tag = document.activeElement ? document.activeElement.tagName.toUpperCase() : '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+      if (e.key === 'ArrowRight') turnPage(1);
+      if (e.key === 'ArrowLeft') turnPage(-1);
     };
-  }, []);
 
- const isMobile = () => typeof window !== 'undefined' && window.innerWidth <= 768;
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentIdx, totalPages]);
 
- // Web Audio API Synthetic Paper Sound
- const playPaperSound = () => {
- try {
- const AudioCtx = window.AudioContext || window.webkitAudioContext;
- if (!AudioCtx) return;
- const ctx = new AudioCtx();
- if (ctx.state === 'suspended') ctx.resume();
+  // Touch Swipe Gesture (horizontal threshold 45px)
+  const touchStartXRef = useRef(0);
+  const touchStartYRef = useRef(0);
 
- const bufferSize = ctx.sampleRate * 0.16;
- const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
- const data = buffer.getChannelData(0);
- for (let i = 0; i < bufferSize; i++) {
- data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.28));
- }
+  const handleTouchStart = (e) => {
+    touchStartXRef.current = e.changedTouches[0].screenX;
+    touchStartYRef.current = e.changedTouches[0].screenY;
+  };
 
- const noise = ctx.createBufferSource();
- noise.buffer = buffer;
- const filter = ctx.createBiquadFilter();
- filter.type = 'bandpass';
- filter.frequency.value = 1400;
- filter.Q.value = 3.0;
+  const handleTouchEnd = (e) => {
+    const touchEndX = e.changedTouches[0].screenX;
+    const touchEndY = e.changedTouches[0].screenY;
+    const dx = touchEndX - touchStartXRef.current;
+    const dy = touchEndY - touchStartYRef.current;
 
- const gain = ctx.createGain();
- gain.gain.setValueAtTime(0.35, ctx.currentTime);
- gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.16);
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 45) {
+      if (dx < 0) turnPage(1);
+      else turnPage(-1);
+    }
+  };
 
- noise.connect(filter);
- filter.connect(gain);
- gain.connect(ctx.destination);
- noise.start();
- } catch (e) {}
- };
+  const shareWhatsApp = () => {
+    const currentText = pages[currentIdx] || '';
+    const shareText = `*${title || author}*\n\n"${currentText.trim()}"\n\n— ${author}\n\nगुरुप्रताप शर्मा 'आग' डिजिटल साहित्य ग्रंथालय`;
+    const url = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+    window.open(url, '_blank');
+  };
 
- const turnPage = (dir) => {
- const step = 1; // Strictly one page at a time
- const maxIdx = totalPages - 1;
- const nextIdx = currentIdx + dir * step;
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      navigate(-1);
+    }
+  };
 
- if (nextIdx < 0 || nextIdx > maxIdx) return;
+  const toggleAudio = () => {
+    if (!audioRef.current) return;
+    if (audioPlaying) {
+      audioRef.current.pause();
+      setAudioPlaying(false);
+    } else {
+      audioRef.current.play();
+      setAudioPlaying(true);
+    }
+  };
 
- playPaperSound();
- setAnimClass('turning-sheet ' + (dir > 0 ? 'animate-corner-next' : 'animate-corner-prev'));
+  const progressPct = totalPages > 1 ? ((currentIdx + 1) / totalPages) * 100 : 100;
+  const currentText = pages[currentIdx] || '';
 
- setTimeout(() => {
- setCurrentIdx(nextIdx);
- setAnimClass('turning-sheet');
- }, 500);
- };
+  return (
+    <div className={`book-reader-root theme-${theme}`} style={{ fontSize: `${fontSizeScale}%` }}>
+      
+      {/* AMBER READING PROGRESS BAR */}
+      <div className="book-reader-progress" style={{ width: `${progressPct}%` }} aria-hidden="true" />
 
- const toggleUnifiedFocusMode = () => {
- const elem = bookStageRef.current;
- if (!focusActive) {
- if (elem && elem.requestFullscreen) elem.requestFullscreen();
- else if (elem && elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
- setFocusActive(true);
- } else {
- if (document.exitFullscreen) document.exitFullscreen();
- setFocusActive(false);
- }
- };
+      {/* TOP HEADER & CONTROLS BAR */}
+      <header className="book-reader-header">
+        {/* Left: Back Button */}
+        <button className="book-reader-back-btn" onClick={handleBack} title="वापस जाएं">
+          ← वापस
+        </button>
 
- useEffect(() => {
- const handleFullscreenChange = () => {
- if (!document.fullscreenElement) {
- setFocusActive(false);
- }
- };
- document.addEventListener('fullscreenchange', handleFullscreenChange);
- return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
- }, []);
+        {/* Center: Title & Collection */}
+        <div className="book-reader-title-center">
+          <h1 className="book-reader-title">{title}</h1>
+          {collection && <span className="book-reader-collection">{collection}</span>}
+        </div>
 
- // Keyboard navigation & lock inside inputs
- useEffect(() => {
- const handleKeyDown = (e) => {
- const tag = document.activeElement ? document.activeElement.tagName.toUpperCase() : '';
- if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+        {/* Right: Controls (Theme, Font, Share) */}
+        <div className="book-reader-controls-right">
+          <div className="theme-switcher">
+            <button className={`theme-btn parchment ${theme === 'parchment' ? 'active' : ''}`} onClick={() => handleThemeChange('parchment')} title="ग्रंथ थीम">ग्रंथ</button>
+            <button className={`theme-btn night ${theme === 'night' ? 'active' : ''}`} onClick={() => handleThemeChange('night')} title="रात्रि थीम">रात्रि</button>
+            <button className={`theme-btn ivory ${theme === 'ivory' ? 'active' : ''}`} onClick={() => handleThemeChange('ivory')} title="शाही थीम">शाही</button>
+          </div>
 
- if (e.key === 'ArrowRight') turnPage(1);
- if (e.key === 'ArrowLeft') turnPage(-1);
- if (e.key === 'Escape' && focusActive) setFocusActive(false);
- };
+          <div className="font-scaler">
+            <button className={`scale-btn ${fontSizeScale === 100 ? 'active' : ''}`} onClick={() => handleFontScaleChange(100)}>अ</button>
+            <button className={`scale-btn ${fontSizeScale === 115 ? 'active' : ''}`} onClick={() => handleFontScaleChange(115)}>अ+</button>
+          </div>
 
- window.addEventListener('keydown', handleKeyDown);
- return () => window.removeEventListener('keydown', handleKeyDown);
- }, [currentIdx, focusActive]);
+          <button className="util-btn whatsapp-share" onClick={shareWhatsApp} title="शेयर करें">
+            शेयर
+          </button>
+        </div>
+      </header>
 
- // Touch Swipe Gesture
- const touchStartXRef = useRef(0);
- const handleTouchStart = (e) => {
- touchStartXRef.current = e.changedTouches[0].screenX;
- };
- const handleTouchEnd = (e) => {
- const touchEndX = e.changedTouches[0].screenX;
- if (touchEndX < touchStartXRef.current - 40) turnPage(1);
- if (touchEndX > touchStartXRef.current + 40) turnPage(-1);
- };
+      {/* READING CANVAS STAGE */}
+      <main 
+        className="book-stage"
+        ref={bodyRef}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        <div className="book-page-canvas">
+          <div className="book-content-text">
+            {renderFormattedText(currentText)}
+          </div>
+        </div>
+      </main>
 
- const shareStanzaWhatsApp = () => {
- const currentText = pages[currentIdx] || '';
- const shareText = `*${title || author}*\n\n"${currentText.trim()}"\n\n— ${author}\n\n गुरुप्रताप शर्मा 'आग' डिजिटल साहित्य ग्रंथालय`;
- const url = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
- window.open(url, '_blank');
- };
+      {/* RECITATION AUDIO PLAYER BAR (IF AVAILABLE) */}
+      {audioUrl && (
+        <div className="book-audio-bar">
+          <audio ref={audioRef} src={audioUrl} onEnded={() => setAudioPlaying(false)} />
+          <button className="audio-play-btn" onClick={toggleAudio}>
+            {audioPlaying ? ' विराम दें' : ' काव्य पाठ सुनें (Listen)'}
+          </button>
+        </div>
+      )}
 
- const toggleAudio = () => {
- if (!audioRef.current) return;
- if (audioPlaying) {
- audioRef.current.pause();
- setAudioPlaying(false);
- } else {
- audioRef.current.play();
- setAudioPlaying(true);
- }
- };
+      {/* BOTTOM PAGE NAVIGATION (STANDARDIZED BADGE + PADDING) */}
+      {totalPages > 1 && (
+        <footer className="book-reader-footer">
+          <button
+            className="book-page-btn"
+            onClick={() => turnPage(-1)}
+            disabled={currentIdx === 0}
+            aria-label="पिछला पृष्ठ"
+          >
+            ← पिछला पृष्ठ
+          </button>
 
- // Render left and right page contents
- const leftPageText = pages[currentIdx] || '';
- const rightPageText = pages[currentIdx + 1];
+          <div className="book-badge-center">
+            <span className="book-badge-text">
+              {toHindiNumerals(currentIdx + 1)} / {toHindiNumerals(totalPages)} · {author}
+            </span>
+          </div>
 
- return (
- <div className={`book-reader-root theme-${theme}`} style={{ fontSize: `${fontSizeScale}%` }}>
- 
- {/* TOOLBAR CONTROLS ABOVE BOOK */}
- <div className="book-reader-top-controls">
-      {/* Paper Themes */}
-      <div className="theme-switcher">
-        <span className="control-label">कागज़ रंग:</span>
-        <button className={`theme-btn parchment ${theme === 'parchment' ? 'active' : ''}`} onClick={() => handleThemeChange('parchment')} title="ऋषि ग्रंथ" aria-label="ग्रंथ थीम चुनें"> ग्रंथ</button>
-        <button className={`theme-btn night ${theme === 'night' ? 'active' : ''}`} onClick={() => handleThemeChange('night')} title="रात्रि ध्यान" aria-label="रात्रि थीम चुनें"> रात्रि</button>
-        <button className={`theme-btn ivory ${theme === 'ivory' ? 'active' : ''}`} onClick={() => handleThemeChange('ivory')} title="शाही प्रपत्र" aria-label="शाही थीम चुनें"> शाही</button>
-      </div>
+          <button
+            className="book-page-btn"
+            onClick={() => turnPage(1)}
+            disabled={currentIdx >= totalPages - 1}
+            aria-label="अगला पृष्ठ"
+          >
+            अगला पृष्ठ →
+          </button>
+        </footer>
+      )}
 
-      {/* Text Scaler */}
-      <div className="font-scaler">
-        <span className="control-label">अक्षर आकार:</span>
-        <button className={`scale-btn ${fontSizeScale === 100 ? 'active' : ''}`} onClick={() => handleFontScaleChange(100)} aria-label="सामान्य अक्षर आकार">सामान्य</button>
-        <button className={`scale-btn ${fontSizeScale === 115 ? 'active' : ''}`} onClick={() => handleFontScaleChange(115)} aria-label="बड़ा अक्षर आकार">बड़ा</button>
-        <button className={`scale-btn ${fontSizeScale === 130 ? 'active' : ''}`} onClick={() => handleFontScaleChange(130)} aria-label="विशाल अक्षर आकार">विशाल</button>
-      </div>
+      {/* TABLE OF CONTENTS MODAL */}
+      {showToc && (
+        <div className="toc-modal-overlay" onClick={() => setShowToc(false)}>
+          <div className="toc-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="toc-header">
+              <h3>अनुक्रमणिका (Table of Contents)</h3>
+              <button className="toc-close-btn" onClick={() => setShowToc(false)}>✕</button>
+            </div>
+            <div className="toc-list">
+              {pages.map((pText, i) => (
+                <div
+                  key={i}
+                  className={`toc-item ${i === currentIdx ? 'active' : ''}`}
+                  onClick={() => {
+                    setCurrentIdx(i);
+                    setShowToc(false);
+                  }}
+                >
+                  <span className="toc-num">पृष्ठ {toHindiNumerals(i + 1)}</span>
+                  <span className="toc-snippet">{pText.trim().substring(0, 35)}...</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
- {/* Table of Contents & Share */}
- <div className="utility-btns">
- <button className="util-btn" onClick={() => setShowToc(true)} title="अनुक्रमणिका खोलें"> अनुक्रमणिका</button>
- <button className="util-btn whatsapp-share" onClick={shareStanzaWhatsApp} title="व्हाट्सएप पर शेयर करें"> व्हाट्सएप शेयर</button>
- </div>
- </div>
-
- {/* 3D BOOK CONTAINER STAGE */}
- <div className="book-stage" ref={bookStageRef}>
- <div className="book-spread" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
- <div className="book-spine-shadow"></div>
-
- {/* LEFT PAGE */}
- <div className="page left-page">
- <div className="page-head">
- <span>{author}</span>
- <span>{collection}</span>
- </div>
-
- <div className="page-body">
- {currentIdx === 0 && title && <div className="poem-title">{title}</div>}
- <div className="poem-stanzas">{renderFormattedText(leftPageText)}</div>
- </div>
-
- <div className="page-foot">
- <button
- className="corner-nav-btn"
- onClick={() => turnPage(-1)}
- disabled={currentIdx === 0}
- title="पिछला पृष्ठ"
- >
- &larr;
- </button>
- <span className="page-num">पृष्ठ {toHindiNumerals(currentIdx + 1)}</span>
- <span className="chapter-tag">{chapter}</span>
- </div>
- </div>
-
- {/* RIGHT PAGE (DESKTOP) */}
- <div className="page right-page">
- <div className="page-head">
- <span>प्रकाशन वर्ष: {year}</span>
- <span className="counter-text">
- {rightPageText
- ? `पृष्ठ ${toHindiNumerals(currentIdx + 1)} - ${toHindiNumerals(currentIdx + 2)} / ${toHindiNumerals(totalPages)}`
- : `पृष्ठ ${toHindiNumerals(currentIdx + 1)} / ${toHindiNumerals(totalPages)}`}
- </span>
- </div>
-
- <div className="page-body">
- {rightPageText ? (
- <div className="poem-stanzas">{renderFormattedText(rightPageText)}</div>
- ) : (
- <div className="poem-stanzas end-notice">
- {"\n\n— समाप्त —\n(अग्नि कलश संस्करण)"}
- </div>
- )}
- </div>
-
- <div className="page-foot">
- <span className="chapter-tag">{part}</span>
- <span className="page-num">{rightPageText ? `पृष्ठ ${toHindiNumerals(currentIdx + 2)}` : '—'}</span>
- <button
- className="corner-nav-btn"
- onClick={() => turnPage(1)}
- disabled={currentIdx + (isMobile() ? 1 : 2) >= totalPages}
- title="अगला पृष्ठ"
- >
- &rarr;
- </button>
- </div>
- </div>
-
- {/* 3D TURNING PAGE ANIMATION LAYER */}
- <div className={animClass}>
- <div className="turning-sheet-front"></div>
- <div className="turning-sheet-back"></div>
- </div>
- </div>
- </div>
-
- {/* OPTIONAL RECITATION AUDIO PLAYER BAR */}
- {audioUrl && (
- <div className="book-audio-bar">
- <audio ref={audioRef} src={audioUrl} onEnded={() => setAudioPlaying(false)} />
- <button className="audio-play-btn" onClick={toggleAudio}>
- {audioPlaying ? '⏸️ विराम दें' : '▶️ काव्य पाठ सुनें (Listen Recitation)'}
- </button>
- </div>
- )}
-
- {/* UNIFIED FOCUS MODE BUTTON IN DOCK TOOLBAR */}
- <div className="outer-book-dock">
- <button className="unified-focus-dock-btn" onClick={toggleUnifiedFocusMode}>
- {focusActive ? ' सामान्य मोड (Exit Focus)' : ' एकाग्र मोड (Focus View)'}
- </button>
- </div>
-
- {/* TABLE OF CONTENTS MODAL (अनुक्रमणिका) */}
- {showToc && (
- <div className="toc-modal-overlay" onClick={() => setShowToc(false)}>
- <div className="toc-modal-content" onClick={(e) => e.stopPropagation()}>
- <div className="toc-header">
- <h3> अनुक्रमणिका (Table of Contents)</h3>
- <button className="toc-close-btn" onClick={() => setShowToc(false)}></button>
- </div>
- <div className="toc-list">
- {pages.map((pText, i) => (
- <div
- key={i}
- className={`toc-item ${i === currentIdx ? 'active' : ''}`}
- onClick={() => {
- setCurrentIdx(i);
- setShowToc(false);
- }}
- >
- <span className="toc-num"> पृष्ठ {toHindiNumerals(i + 1)}</span>
- <span className="toc-snippet">{pText.trim().substring(0, 35)}...</span>
- </div>
- ))}
- </div>
- </div>
- </div>
- )}
-
- </div>
- );
+    </div>
+  );
 }

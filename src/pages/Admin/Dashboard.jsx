@@ -1043,314 +1043,315 @@ function HomeManager({ initialSubTab = 'hero', poems = [], publications = [], ab
  }, [])
 
  const fetchAuxiliaryData = async () => {
- try {
- const [{ data: tmData }, { data: awData }] = await Promise.all([
- supabase.from('timeline').select('*').order('sort_order', { ascending: true }),
- supabase.from('awards').select('*').order('sort_order', { ascending: true })
- ])
- if (tmData) setTimelineItems(tmData)
- if (awData) setAwardsItems(awData)
- } catch (e) {
- console.warn('Error fetching timeline/awards for HomeManager:', e)
- }
- }
+    try {
+      const [{ data: tmData }, { data: awData }] = await Promise.all([
+        supabase.from('timeline').select('*').order('sort_order', { ascending: true }),
+        supabase.from('awards').select('*').order('sort_order', { ascending: true })
+      ])
+      if (tmData) setTimelineItems(tmData)
+      if (awData) setAwardsItems(awData)
+    } catch (e) {
+      console.warn('Error fetching timeline/awards for HomeManager:', e)
+    }
+  }
 
- // Module 1: Hero State
- const [heroForm, setHeroForm] = useState({
- hero_title: '',
- hero_subtitle: '',
- hero_image_url: '',
- cta_primary_label: 'रचनाएं पढ़ें',
- cta_primary_url: '/kavya-sangrah',
- cta_secondary_label: 'परिचय',
- cta_secondary_url: '/parichay'
- })
- const [uploadingHeroImg, setUploadingHeroImg] = useState(false)
- const [heroImgPreview, setHeroImgPreview] = useState(null)
+  // Module 1: Hero State
+  const [heroForm, setHeroForm] = useState({
+    hero_badge: '',
+    hero_title: '',
+    hero_subtitle: '',
+    hero_image_url: '',
+    cta_primary_label: 'रचनाएं पढ़ें',
+    cta_primary_url: '/kavya-sangrah',
+    cta_secondary_label: 'परिचय',
+    cta_secondary_url: '/parichay'
+  })
+  const [uploadingHeroImg, setUploadingHeroImg] = useState(false)
+  const [heroImgPreview, setHeroImgPreview] = useState(null)
 
- // Module 2: Kavi Parichay Excerpt State
- const [aboutConfig, setAboutConfig] = useState({
- use_custom_excerpt: false,
- custom_excerpt: ''
- })
+  // Module 2: Kavi Parichay Excerpt State
+  const [aboutConfig, setAboutConfig] = useState({
+    use_custom_excerpt: false,
+    custom_excerpt: ''
+  })
 
- // Module 3: Featured Works State (Selected ID Arrays in 1st, 2nd, 3rd sequence)
- const [featuredPoems, setFeaturedPoems] = useState([])
- const [featuredPubs, setFeaturedPubs] = useState([])
- const [poemsLimit, setPoemsLimit] = useState(3)
- const [pubsLimit, setPubsLimit] = useState(3)
+  // Module 3: Featured Works State (Selected ID Arrays in 1st, 2nd, 3rd sequence)
+  const [featuredPoems, setFeaturedPoems] = useState([])
+  const [featuredPubs, setFeaturedPubs] = useState([])
+  const [poemsLimit, setPoemsLimit] = useState(3)
+  const [pubsLimit, setPubsLimit] = useState(3)
 
+  // Module 4: Highlights State (Selected ID Arrays in sequence)
+  const [featuredTimeline, setFeaturedTimeline] = useState([])
+  const [featuredAwards, setFeaturedAwards] = useState([])
 
- // Module 4: Highlights State (Selected ID Arrays in sequence)
- const [featuredTimeline, setFeaturedTimeline] = useState([])
- const [featuredAwards, setFeaturedAwards] = useState([])
+  // Search filter states for dropdown pickers
+  const [poemSearch, setPoemSearch] = useState('')
+  const [pubSearch, setPubSearch] = useState('')
+  const [timelineSearch, setTimelineSearch] = useState('')
+  const [awardSearch, setAwardSearch] = useState('')
 
- // Search filter states for dropdown pickers
- const [poemSearch, setPoemSearch] = useState('')
- const [pubSearch, setPubSearch] = useState('')
- const [timelineSearch, setTimelineSearch] = useState('')
- const [awardSearch, setAwardSearch] = useState('')
+  // Load existing configuration from settings
+  useEffect(() => {
+    if (settings) {
+      setHeroForm({
+        hero_badge: settings.home_hero_badge || '',
+        hero_title: settings.home_hero_title || 'अग्नि कलश',
+        hero_subtitle: settings.home_hero_subtitle || '"हिंदी काव्य और ओजस्वी चेतना की अमर गाथा"',
+        hero_image_url: settings.home_hero_image_url || '',
+        cta_primary_label: settings.home_cta_primary_label || 'रचनाएं पढ़ें',
+        cta_primary_url: settings.home_cta_primary_url || '/kavya-sangrah',
+        cta_secondary_label: settings.home_cta_secondary_label || 'परिचय',
+        cta_secondary_url: settings.home_cta_secondary_url || '/parichay'
+      })
+      if (settings.home_hero_image_url) {
+        setHeroImgPreview(getImageUrl(settings.home_hero_image_url))
+      }
 
- // Load existing configuration from settings
- useEffect(() => {
- if (settings) {
- setHeroForm({
- hero_title: settings.home_hero_title || 'अग्नि कलश',
- hero_subtitle: settings.home_hero_subtitle || '"हिंदी काव्य और ओजस्वी चेतना की अमर गाथा"',
- hero_image_url: settings.home_hero_image_url || '',
- cta_primary_label: settings.home_cta_primary_label || 'रचनाएं पढ़ें',
- cta_primary_url: settings.home_cta_primary_url || '/kavya-sangrah',
- cta_secondary_label: settings.home_cta_secondary_label || 'परिचय',
- cta_secondary_url: settings.home_cta_secondary_url || '/parichay'
- })
- if (settings.home_hero_image_url) {
- setHeroImgPreview(getImageUrl(settings.home_hero_image_url))
- }
+      setAboutConfig({
+        use_custom_excerpt: settings.home_use_custom_excerpt === 'true',
+        custom_excerpt: settings.home_custom_excerpt || ''
+      })
 
- setAboutConfig({
- use_custom_excerpt: settings.home_use_custom_excerpt === 'true',
- custom_excerpt: settings.home_custom_excerpt || ''
- })
+      try {
+        if (settings.home_featured_poems) {
+          setFeaturedPoems(JSON.parse(settings.home_featured_poems))
+        } else if (Array.isArray(poems)) {
+          setFeaturedPoems(poems.slice(0, 4).map(p => p.id))
+        }
+      } catch (e) {
+        setFeaturedPoems(Array.isArray(poems) ? poems.slice(0, 4).map(p => p.id) : [])
+      }
 
- try {
- if (settings.home_featured_poems) {
- setFeaturedPoems(JSON.parse(settings.home_featured_poems))
- } else if (Array.isArray(poems)) {
- setFeaturedPoems(poems.slice(0, 4).map(p => p.id))
- }
- } catch (e) {
- setFeaturedPoems(Array.isArray(poems) ? poems.slice(0, 4).map(p => p.id) : [])
- }
+      try {
+        if (settings.home_featured_publications) {
+          setFeaturedPubs(JSON.parse(settings.home_featured_publications))
+        } else if (Array.isArray(publications)) {
+          setFeaturedPubs(publications.slice(0, 4).map(p => p.id))
+        }
+      } catch (e) {
+        setFeaturedPubs(Array.isArray(publications) ? publications.slice(0, 4).map(p => p.id) : [])
+      }
 
- try {
- if (settings.home_featured_publications) {
- setFeaturedPubs(JSON.parse(settings.home_featured_publications))
- } else if (Array.isArray(publications)) {
- setFeaturedPubs(publications.slice(0, 4).map(p => p.id))
- }
- } catch (e) {
- setFeaturedPubs(Array.isArray(publications) ? publications.slice(0, 4).map(p => p.id) : [])
- }
+      if (settings.home_featured_poems_limit) {
+        setPoemsLimit(parseInt(settings.home_featured_poems_limit, 10) || 3)
+      }
+      if (settings.home_featured_publications_limit) {
+        setPubsLimit(parseInt(settings.home_featured_publications_limit, 10) || 3)
+      }
 
- if (settings.home_featured_poems_limit) {
- setPoemsLimit(parseInt(settings.home_featured_poems_limit, 10) || 3)
- }
- if (settings.home_featured_publications_limit) {
- setPubsLimit(parseInt(settings.home_featured_publications_limit, 10) || 3)
- }
+      try {
+        if (settings.home_featured_timeline) {
+          setFeaturedTimeline(JSON.parse(settings.home_featured_timeline))
+        }
+      } catch (e) {}
 
- try {
- if (settings.home_featured_timeline) {
- setFeaturedTimeline(JSON.parse(settings.home_featured_timeline))
- }
- } catch (e) {}
+      try {
+        if (settings.home_featured_awards) {
+          setFeaturedAwards(JSON.parse(settings.home_featured_awards))
+        }
+      } catch (e) {}
+    }
+  }, [settings, poems.length, publications.length])
 
- try {
- if (settings.home_featured_awards) {
- setFeaturedAwards(JSON.parse(settings.home_featured_awards))
- }
- } catch (e) {}
- }
- }, [settings, poems.length, publications.length])
+  // Hero Image Upload Handler
+  const handleHeroImageUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith('image/')) {
+      alert(tLabel('कृपया फोटो फाइल चुनें।', 'Please select an image file'))
+      return
+    }
+    try {
+      setUploadingHeroImg(true)
+      const fileName = `home-hero-${Date.now()}.${file.name.split('.').pop()}`
+      const path = await uploadImage(file, 'logos', fileName)
+      setHeroForm(prev => ({ ...prev, hero_image_url: path }))
+      setHeroImgPreview(URL.createObjectURL(file))
+      if (setIsDirty) setIsDirty(true)
+    } catch (err) {
+      alert('Upload error: ' + err.message)
+    } finally {
+      setUploadingHeroImg(false)
+    }
+  }
 
- // Hero Image Upload Handler
- const handleHeroImageUpload = async (e) => {
- const file = e.target.files?.[0]
- if (!file) return
- if (!file.type.startsWith('image/')) {
- alert(tLabel('कृपया फोटो फाइल चुनें।', 'Please select an image file'))
- return
- }
- try {
- setUploadingHeroImg(true)
- const fileName = `home-hero-${Date.now()}.${file.name.split('.').pop()}`
- const path = await uploadImage(file, 'logos', fileName)
- setHeroForm(prev => ({ ...prev, hero_image_url: path }))
- setHeroImgPreview(URL.createObjectURL(file))
- if (setIsDirty) setIsDirty(true)
- } catch (err) {
- alert('Upload error: ' + err.message)
- } finally {
- setUploadingHeroImg(false)
- }
- }
+  // Resequence Handlers (Move Up / Move Down) for Selected Featured Items
+  const moveItemInArray = (arr, index, direction) => {
+    const nextArr = [...arr]
+    const targetIdx = direction === 'up' ? index - 1 : index + 1
+    if (targetIdx < 0 || targetIdx >= nextArr.length) return nextArr
+    const temp = nextArr[index]
+    nextArr[index] = nextArr[targetIdx]
+    nextArr[targetIdx] = temp
+    return nextArr
+  }
 
- // Resequence Handlers (Move Up / Move Down) for Selected Featured Items
- const moveItemInArray = (arr, index, direction) => {
- const nextArr = [...arr]
- const targetIdx = direction === 'up' ? index - 1 : index + 1
- if (targetIdx < 0 || targetIdx >= nextArr.length) return nextArr
- const temp = nextArr[index]
- nextArr[index] = nextArr[targetIdx]
- nextArr[targetIdx] = temp
- return nextArr
- }
+  // Submit Handler for entire Home Manager view (Bound to form="admin-active-form")
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    let hasError = false
+    try {
+      const updates = [
+        { key: 'home_hero_badge', value: heroForm.hero_badge || '', display_label: 'Hero Badge' },
+        { key: 'home_hero_title', value: heroForm.hero_title, display_label: 'Hero Title' },
+        { key: 'home_hero_subtitle', value: heroForm.hero_subtitle, display_label: 'Hero Subtitle' },
+        { key: 'home_hero_image_url', value: heroForm.hero_image_url, display_label: 'Hero Image' },
+        { key: 'home_cta_primary_label', value: heroForm.cta_primary_label, display_label: 'CTA Primary Label' },
+        { key: 'home_cta_primary_url', value: heroForm.cta_primary_url, display_label: 'CTA Primary URL' },
+        { key: 'home_cta_secondary_label', value: heroForm.cta_secondary_label, display_label: 'CTA Secondary Label' },
+        { key: 'home_cta_secondary_url', value: heroForm.cta_secondary_url, display_label: 'CTA Secondary URL' },
+        { key: 'home_use_custom_excerpt', value: String(aboutConfig.use_custom_excerpt), display_label: 'Use Custom Excerpt' },
+        { key: 'home_custom_excerpt', value: aboutConfig.custom_excerpt, display_label: 'Custom Excerpt' },
+        { key: 'home_featured_poems', value: JSON.stringify(featuredPoems), display_label: 'Featured Poems' },
+        { key: 'home_featured_publications', value: JSON.stringify(featuredPubs), display_label: 'Featured Publications' },
+        { key: 'home_featured_poems_limit', value: String(poemsLimit), display_label: 'Featured Poems Limit' },
+        { key: 'home_featured_publications_limit', value: String(pubsLimit), display_label: 'Featured Publications Limit' },
+        { key: 'home_featured_timeline', value: JSON.stringify(featuredTimeline), display_label: 'Featured Timeline' },
+        { key: 'home_featured_awards', value: JSON.stringify(featuredAwards), display_label: 'Featured Awards' }
+      ]
 
- // Submit Handler for entire Home Manager view (Bound to form="admin-active-form")
- const handleSubmit = async (e) => {
- e.preventDefault()
- let hasError = false
- try {
- const updates = [
- { key: 'home_hero_title', value: heroForm.hero_title, display_label: 'Hero Title' },
- { key: 'home_hero_subtitle', value: heroForm.hero_subtitle, display_label: 'Hero Subtitle' },
- { key: 'home_hero_image_url', value: heroForm.hero_image_url, display_label: 'Hero Image' },
- { key: 'home_cta_primary_label', value: heroForm.cta_primary_label, display_label: 'CTA Primary Label' },
- { key: 'home_cta_primary_url', value: heroForm.cta_primary_url, display_label: 'CTA Primary URL' },
- { key: 'home_cta_secondary_label', value: heroForm.cta_secondary_label, display_label: 'CTA Secondary Label' },
- { key: 'home_cta_secondary_url', value: heroForm.cta_secondary_url, display_label: 'CTA Secondary URL' },
- { key: 'home_use_custom_excerpt', value: String(aboutConfig.use_custom_excerpt), display_label: 'Use Custom Excerpt' },
- { key: 'home_custom_excerpt', value: aboutConfig.custom_excerpt, display_label: 'Custom Excerpt' },
- { key: 'home_featured_poems', value: JSON.stringify(featuredPoems), display_label: 'Featured Poems' },
- { key: 'home_featured_publications', value: JSON.stringify(featuredPubs), display_label: 'Featured Publications' },
- { key: 'home_featured_poems_limit', value: String(poemsLimit), display_label: 'Featured Poems Limit' },
- { key: 'home_featured_publications_limit', value: String(pubsLimit), display_label: 'Featured Publications Limit' },
- { key: 'home_featured_timeline', value: JSON.stringify(featuredTimeline), display_label: 'Featured Timeline' },
- { key: 'home_featured_awards', value: JSON.stringify(featuredAwards), display_label: 'Featured Awards' }
- ]
+      const { error } = await supabase.from('settings').upsert(updates, { onConflict: 'key' })
+      if (error) {
+        console.error("Save failed:", error.message)
+      }
 
+      if (hasError) {
+        alert(tLabel('चेतावनी: मुख्य पृष्ठ की कुछ सेटिंग्स सहेजी नहीं जा सकीं।', 'Warning: Some Home page settings could not be saved.'))
+      } else {
+        alert(tLabel(' मुख्य पृष्ठ की समस्त सेटिंग्स सफलतापूर्वक सहेजी गईं!', ' Home page configurations saved successfully!'))
+      }
 
- const { error } = await supabase.from('settings').upsert(updates, { onConflict: 'key' })
- if (error) {
- console.error("Save failed:", error.message)
- }
+      if (setIsDirty) setIsDirty(false)
+      if (onUpdate) onUpdate()
+    } catch (err) {
+      console.error('Error saving home page configurations:', err)
+      alert(tLabel('त्रुटि: ', 'Error saving settings: ') + (err.message || 'Unknown error'))
+    }
+  }
 
- // Background attempt to update table columns if present
- try {
- if (featuredPoems.length > 0) {
- await supabase.from('poems').update({ is_featured_home: false }).neq('id', '0')
- await supabase.from('poems').update({ is_featured_home: true }).in('id', featuredPoems)
- }
- if (featuredPubs.length > 0) {
- await supabase.from('publications').update({ is_featured_home: false }).neq('id', '0')
- await supabase.from('publications').update({ is_featured_home: true }).in('id', featuredPubs)
- }
- } catch (e) {
- console.warn('Table flag sync warning (non-fatal):', e)
- }
+  // Safe arrays
+  const safePoems = Array.isArray(poems) ? poems : []
+  const safePubs = Array.isArray(publications) ? publications : []
+  const safeTimeline = Array.isArray(timelineItems) ? timelineItems : []
+  const safeAwards = Array.isArray(awardsItems) ? awardsItems : []
 
- if (hasError) {
- alert(tLabel('चेतावनी: मुख्य पृष्ठ की कुछ सेटिंग्स सहेजी नहीं जा सकीं।', 'Warning: Some Home page settings could not be saved.'))
- } else {
- alert(tLabel(' मुख्य पृष्ठ की समस्त सेटिंग्स सफलतापूर्वक सहेजी गईं!', ' Home page configurations saved successfully!'))
- }
+  return (
+    <div className="admin-card-panel">
+      {/* Single Form Container (Bound to sticky top header Save) */}
 
- if (setIsDirty) setIsDirty(false)
- if (onUpdate) onUpdate()
- } catch (err) {
- console.error('Error saving home page configurations:', err)
- alert(tLabel('त्रुटि: ', 'Error saving settings: ') + (err.message || 'Unknown error'))
- }
- }
+      <form
+        id="admin-active-form"
+        onSubmit={handleSubmit}
+        onChange={() => setIsDirty && setIsDirty(true)}
+        onInput={() => setIsDirty && setIsDirty(true)}
+        className="admin-form-container"
+      >
+        {/* MODULE 1: HERO & BANNER */}
+        {(activeTab === 'hero' || activeTab === 'banner') && (
+          <div>
+            <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', color: 'var(--leona-charcoal)', marginBottom: '16px' }}>
+              {tLabel('बैनर', 'Banner')}
+            </h3>
 
- // Safe arrays
- const safePoems = Array.isArray(poems) ? poems : []
- const safePubs = Array.isArray(publications) ? publications : []
- const safeTimeline = Array.isArray(timelineItems) ? timelineItems : []
- const safeAwards = Array.isArray(awardsItems) ? awardsItems : []
+            <div className="admin-form-grid">
+              <div className="admin-form-group full-width">
+                <label>{tLabel('बैज', 'Badge')}</label>
+                <input
+                  className="admin-input"
+                  value={heroForm.hero_badge}
+                  onChange={e => setHeroForm({ ...heroForm, hero_badge: e.target.value })}
+                  placeholder="कवि गुरु प्रताप शर्मा"
+                />
+              </div>
 
- return (
- <div className="admin-card-panel">
- {/* Single Form Container (Bound to sticky top header Save) */}
+              <div className="admin-form-group full-width">
+                <label>{tLabel('शीर्षक', 'Heading')}</label>
+                <input
+                  className="admin-input"
+                  value={heroForm.hero_title}
+                  onChange={e => setHeroForm({ ...heroForm, hero_title: e.target.value })}
+                  placeholder="अग्नि कलश"
+                  required
+                />
+              </div>
 
- <form
- id="admin-active-form"
- onSubmit={handleSubmit}
- onChange={() => setIsDirty && setIsDirty(true)}
- onInput={() => setIsDirty && setIsDirty(true)}
- className="admin-form-container"
- >
- {/* MODULE 1: HERO & BANNER */}
- {(activeTab === 'hero' || activeTab === 'banner') && (
- <div>
- <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', color: 'var(--leona-charcoal)', marginBottom: '16px' }}>
- {tLabel('बैनर', 'Banner')}
- </h3>
+              <div className="admin-form-group full-width">
+                <label>{tLabel('विवरण', 'Description')}</label>
+                <input
+                  className="admin-input"
+                  value={heroForm.hero_subtitle}
+                  onChange={e => setHeroForm({ ...heroForm, hero_subtitle: e.target.value })}
+                  placeholder='"हिंदी काव्य और ओजस्वी चेतना की अमर गाथा"'
+                  required
+                />
+              </div>
 
- <div className="admin-form-grid">
- <div className="admin-form-group full-width">
- <label>{tLabel('मुख्य पुस्तक / बैनर शीर्षक (Devanagari Heading)', 'Primary Hero Heading')}</label>
- <input
- className="admin-input"
- value={heroForm.hero_title}
- onChange={e => setHeroForm({ ...heroForm, hero_title: e.target.value })}
- placeholder="अग्नि कलश"
- required
- />
- </div>
+              <div className="admin-form-group full-width">
+                <label>{tLabel('इमेज', 'Image')}</label>
+                {heroImgPreview && (
+                  <div style={{ marginBottom: '12px' }}>
+                    <img
+                      src={heroImgPreview}
+                      alt="Hero Preview"
+                      style={{ maxHeight: '110px', borderRadius: '8px', border: '1px solid rgba(226, 215, 197, 0.8)', background: '#FFF' }}
+                    />
+                  </div>
+                )}
+                <input
+                  className="admin-input"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleHeroImageUpload}
+                  disabled={uploadingHeroImg}
+                />
+                {uploadingHeroImg && <div style={{ color: 'var(--leona-terracotta)', fontSize: '0.85rem' }}>{tLabel('अपलोड हो रहा है...', 'Uploading image...')}</div>}
+              </div>
 
- <div className="admin-form-group full-width">
- <label>{tLabel('उप-शीर्षक / टैगलाइन (Tagline Description)', 'Hero Subtitle / Tagline')}</label>
- <input
- className="admin-input"
- value={heroForm.hero_subtitle}
- onChange={e => setHeroForm({ ...heroForm, hero_subtitle: e.target.value })}
- placeholder='"हिंदी काव्य और ओजस्वी चेतना की अमर गाथा"'
- required
- />
- </div>
+              <div className="admin-form-group full-width" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '18px' }}>
+                <div className="admin-form-group">
+                  <label>{tLabel('प्राथमिक बटन टेक्स्ट (Primary CTA Label)', 'Primary Button Label')}</label>
+                  <input
+                    className="admin-input"
+                    value={heroForm.cta_primary_label}
+                    onChange={e => setHeroForm({ ...heroForm, cta_primary_label: e.target.value })}
+                  />
+                </div>
 
- <div className="admin-form-group full-width">
- <label>{tLabel('हीरो बैनर / पुस्तक कवर फोटो (Banner Image)', 'Hero Banner Image')}</label>
- {heroImgPreview && (
- <div style={{ marginBottom: '12px' }}>
- <img
- src={heroImgPreview}
- alt="Hero Preview"
- style={{ maxHeight: '110px', borderRadius: '8px', border: '1px solid rgba(226, 215, 197, 0.8)', background: '#FFF' }}
- />
- </div>
- )}
- <input
- className="admin-input"
- type="file"
- accept="image/*"
- onChange={handleHeroImageUpload}
- disabled={uploadingHeroImg}
- />
- {uploadingHeroImg && <div style={{ color: 'var(--leona-terracotta)', fontSize: '0.85rem' }}>{tLabel('अपलोड हो रहा है...', 'Uploading image...')}</div>}
- </div>
+                <div className="admin-form-group">
+                  <label>{tLabel('प्राथमिक बटन यूआरएल (Primary CTA URL)', 'Primary Button URL')}</label>
+                  <input
+                    className="admin-input"
+                    value={heroForm.cta_primary_url}
+                    onChange={e => setHeroForm({ ...heroForm, cta_primary_url: e.target.value })}
+                  />
+                </div>
+              </div>
 
- <div className="admin-form-group">
- <label>{tLabel('प्राथमिक बटन टेक्स्ट (Primary CTA Label)', 'Primary Button Label')}</label>
- <input
- className="admin-input"
- value={heroForm.cta_primary_label}
- onChange={e => setHeroForm({ ...heroForm, cta_primary_label: e.target.value })}
- />
- </div>
+              <div className="admin-form-group full-width" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '18px' }}>
+                <div className="admin-form-group">
+                  <label>{tLabel('द्वितीयक बटन टेक्स्ट (Secondary CTA Label)', 'Secondary Button Label')}</label>
+                  <input
+                    className="admin-input"
+                    value={heroForm.cta_secondary_label}
+                    onChange={e => setHeroForm({ ...heroForm, cta_secondary_label: e.target.value })}
+                  />
+                </div>
 
- <div className="admin-form-group">
- <label>{tLabel('प्राथमिक बटन यूआरएल (Primary CTA URL)', 'Primary Button URL')}</label>
- <input
- className="admin-input"
- value={heroForm.cta_primary_url}
- onChange={e => setHeroForm({ ...heroForm, cta_primary_url: e.target.value })}
- />
- </div>
+                <div className="admin-form-group">
+                  <label>{tLabel('द्वितीयक बटन यूआरएल (Secondary CTA URL)', 'Secondary Button URL')}</label>
+                  <input
+                    className="admin-input"
+                    value={heroForm.cta_secondary_url}
+                    onChange={e => setHeroForm({ ...heroForm, cta_secondary_url: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
- <div className="admin-form-group">
- <label>{tLabel('द्वितीयक बटन टेक्स्ट (Secondary CTA Label)', 'Secondary Button Label')}</label>
- <input
- className="admin-input"
- value={heroForm.cta_secondary_label}
- onChange={e => setHeroForm({ ...heroForm, cta_secondary_label: e.target.value })}
- />
- </div>
-
- <div className="admin-form-group">
- <label>{tLabel('द्वितीयक बटन यूआरएल (Secondary CTA URL)', 'Secondary Button URL')}</label>
- <input
- className="admin-input"
- value={heroForm.cta_secondary_url}
- onChange={e => setHeroForm({ ...heroForm, cta_secondary_url: e.target.value })}
- />
- </div>
- </div>
- </div>
- )}
-
- {/* MODULE 2: KAVI PARICHAY PREVIEW */}
+  {/* MODULE 2: KAVI PARICHAY PREVIEW */}
  {activeTab === 'about' && (
  <div>
  <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', color: 'var(--leona-charcoal)', marginBottom: '16px' }}>
@@ -1993,7 +1994,7 @@ function AboutManager({ about, initialSubTab, onUpdate, setIsDirty }) {
  />
  </div>
  <div className="admin-form-group full-width">
- <label>{tLabel('संक्षेप', 'Summary')}</label>
+ <label>{tLabel('संक्षेप (होम + परिचय)', 'Summary (Home + About)')}</label>
  <textarea
  className="admin-textarea"
  value={formData.truncated_preview}
@@ -2021,425 +2022,6 @@ function AboutManager({ about, initialSubTab, onUpdate, setIsDirty }) {
  </div>
  )
 }
-
-function PoemsArchiveManager({ poems, categories, initialSubTab, onUpdate, setIsDirty }) {
- const { tLabel } = useAdminLang()
- const [subTab, setSubTab] = useState(initialSubTab || 'poems') // 'poems' | 'categories'
-
- useEffect(() => {
- if (initialSubTab) {
- setSubTab(initialSubTab)
- }
- }, [initialSubTab])
-
- return (
- <div>
- {subTab === 'poems' && <PoemsManager poems={poems} onUpdate={onUpdate} setIsDirty={setIsDirty} />}
- {subTab === 'categories' && <CategoriesManager categories={categories} onUpdate={onUpdate} setIsDirty={setIsDirty} />}
- </div>
- )
-}
-
-
-function PublicationsManager({ publications, onUpdate, setIsDirty }) {
- const { adminLang, tLabel } = useAdminLang()
- const { id: paramId } = useParams()
- const navigate = useNavigate()
-
- const [editing, setEditing] = useState(null)
- const [showForm, setShowForm] = useState(false)
- const [showCanvasModal, setShowCanvasModal] = useState(false)
- const [formData, setFormData] = useState({
- title: '',
- subtitle: '',
- image_path: '',
- image_alt: '',
- description: '',
- stanzas: '',
- sort_order: 1,
- is_active: true
- })
- const [uploadingImage, setUploadingImage] = useState(false)
- const [imagePreview, setImagePreview] = useState(null)
- const [itemsList, setItemsList] = useState(Array.isArray(publications) ? publications : [])
-
- useEffect(() => {
- if (Array.isArray(publications)) {
- setItemsList(publications)
- }
- }, [publications])
-
- // Sync route param (standalone editor route: /admin/prakashan/:id or /admin/publications/:id)
- useEffect(() => {
- if (!paramId) {
- setShowForm(false)
- setEditing(null)
- setImagePreview(null)
- return
- }
-
- if (paramId === 'new') {
- setEditing(null)
- setFormData({ title: '', subtitle: '', image_path: '', image_alt: '', description: '', stanzas: '', sort_order: 1, is_active: true })
- setImagePreview(null)
- setShowForm(true)
- } else {
- const pub = (itemsList.length > 0 ? itemsList : publications)?.find(i => String(i.id) === String(paramId))
- if (pub) {
- setEditing(pub.id)
- setShowForm(true)
- setFormData({
- title: pub.title || '',
- subtitle: pub.subtitle || '',
- image_path: pub.image_path || pub.cover_image_url || '',
- image_alt: pub.image_alt || '',
- description: pub.description || '',
- stanzas: pub.stanzas || pub.full_text || pub.body_text || '',
- sort_order: pub.sort_order || 1,
- is_active: pub.is_active !== undefined ? pub.is_active : true
- })
- if (pub.image_path || pub.cover_image_url) {
- setImagePreview(getImageUrl(pub.image_path || pub.cover_image_url))
- }
- } else if (paramId) {
- // Direct URL paste fallback
- supabase.from('publications').select('*').eq('id', paramId).single().then(({ data }) => {
- if (data) {
- setEditing(data.id)
- setShowForm(true)
- setFormData({
- title: data.title || '',
- subtitle: data.subtitle || '',
- image_path: data.image_path || data.cover_image_url || '',
- image_alt: data.image_alt || '',
- description: data.description || '',
- stanzas: data.stanzas || data.full_text || data.body_text || '',
- sort_order: data.sort_order || 1,
- is_active: data.is_active !== undefined ? data.is_active : true
- })
- if (data.image_path || data.cover_image_url) {
- setImagePreview(getImageUrl(data.image_path || data.cover_image_url))
- }
- }
- })
- }
- }
- }, [paramId, publications, itemsList])
-
- const updateForm = (fields) => {
- setFormData(prev => ({ ...prev, ...fields }))
- if (setIsDirty) setIsDirty(true)
- }
-
- const displayList = itemsList.length > 0 ? itemsList : (Array.isArray(publications) ? publications : [])
-
- const handleCreate = () => {
- navigate('/admin/prakashan/new')
- }
-
- const handleImageUpload = async (e) => {
- const file = e.target.files?.[0]
- if (!file) return
- if (!file.type.startsWith('image/')) {
- alert('Please select an image file')
- return
- }
-
- try {
- setUploadingImage(true)
- const pubId = editing || `temp-${Date.now()}`
- const fileName = `cover.${file.name.split('.').pop()}`
- const path = await uploadImage(file, `publications/${pubId}`, fileName)
- setFormData(prev => ({ ...prev, image_path: path }))
- setImagePreview(URL.createObjectURL(file))
- if (setIsDirty) setIsDirty(true)
- alert('Cover image uploaded successfully!')
- } catch (err) {
- alert('Error uploading image: ' + err.message)
- } finally {
- setUploadingImage(false)
- }
- }
-
- const handleSubmit = async (e) => {
- e.preventDefault()
- try {
- const dataToSave = {
- title: formData.title || '',
- subtitle: formData.subtitle || '',
- image_path: formData.image_path || '',
- image_alt: formData.image_alt || '',
- description: formData.description || '',
- stanzas: formData.stanzas || '',
- sort_order: editing ? (parseInt(formData.sort_order) || 1) : 1
- }
- 
- if (editing) {
- const { error } = await supabase.from('publications').update(dataToSave).eq('id', editing)
- if (error) {
- alert('Error saving publication: ' + error.message)
- return
- }
- } else {
- const { data: newPub, error } = await supabase.from('publications').insert(dataToSave).select().single()
- if (error) {
- alert('Error saving publication: ' + error.message)
- return
- }
- if (formData.image_path && formData.image_path.includes('temp-') && newPub) {
- const oldPath = formData.image_path
- const newPath = oldPath.replace(/temp-\d+/, newPub.id)
- try {
- const { error: copyError } = await supabase.storage.from('public-assets').copy(oldPath, newPath)
- if (!copyError) {
- await supabase.from('publications').update({ image_path: newPath }).eq('id', newPub.id)
- await supabase.storage.from('public-assets').remove([oldPath])
- } else {
- await supabase.from('publications').update({ image_path: newPath }).eq('id', newPub.id)
- }
- } catch (moveError) {
- await supabase.from('publications').update({ image_path: newPath }).eq('id', newPub.id)
- }
- }
- }
-
- if (setIsDirty) setIsDirty(false)
- onUpdate()
- alert(adminLang === 'en' ? ' Publication saved successfully!' : ' पुस्तक विवरण सफलतापूर्वक सहेजा गया!')
- navigate('/admin/prakashan')
- } catch (err) {
- alert('Error saving publication: ' + (err.message || 'Unknown error'))
- }
- }
-
- const persistReorder = async (updated) => {
- updated.forEach((item, idx) => { item.sort_order = idx + 1 })
- setItemsList(updated)
- try {
- for (const item of updated) {
- await supabase.from('publications').update({ sort_order: item.sort_order }).eq('id', item.id)
- }
- } catch (e) {
- console.warn('Publication resequence error:', e)
- }
- // optimistic state update without full re-render flicker
- }
-
- const isStandalonePage = Boolean(paramId)
-
- return (
- <div className="admin-card-panel">
-
- {/* Main Standalone Form with Strict Field Order */}
- {(showForm || editing || isStandalonePage) && (
- <form id="admin-active-form" onSubmit={handleSubmit} onChange={() => setIsDirty && setIsDirty(true)} onInput={() => setIsDirty && setIsDirty(true)} className="admin-form-container">
- <div className="admin-form-grid">
- {/* Field 1: Book Title */}
- <div className="admin-form-group full-width">
- <label>{tLabel('पुस्तक शीर्षक *', 'Book Title *')}</label>
- <input
- className="admin-input"
- value={formData.title}
- onChange={(e) => updateForm({ title: e.target.value })}
- placeholder={tLabel('जैसे: ओजस्वी काव्य संग्रह', 'e.g. Ojaswi Kavya Sangrah')}
- required
- />
- </div>
-
- {/* Field 2: Description / Brief Overview */}
- <div className="admin-form-group full-width">
- <label>{tLabel('विवरण', 'Summary')}</label>
- <textarea
- className="admin-textarea"
- rows={3}
- value={formData.description}
- onChange={(e) => updateForm({ description: e.target.value })}
- placeholder={tLabel('पुस्तक का संक्षिप्त विवरण या भूमिका लिखें...', 'Write brief overview or preface of the publication...')}
- />
- </div>
-
- {/* Field 3: Book Cover Image Upload & Preview */}
- <div className="admin-form-group full-width">
- <label>{tLabel('कवर फोटो', 'Cover Photo')}</label>
- {imagePreview && (
- <div style={{ marginBottom: '12px' }}>
- <img 
- src={imagePreview} 
- alt="Cover Preview" 
- style={{ 
- width: '120px', 
- height: '170px', 
- objectFit: 'cover', 
- border: '2px solid var(--leona-gold)',
- borderRadius: '8px'
- }} 
- />
- </div>
- )}
- <input
- className="admin-input"
- type="file"
- accept="image/*"
- onChange={handleImageUpload}
- disabled={uploadingImage}
- />
- {uploadingImage && <div style={{ marginTop: '6px', color: 'var(--leona-terracotta)', fontSize: '0.85rem' }}>कवर फोटो अपलोड हो रही है...</div>}
- </div>
-
- {/* Field 4: PM5 PageMaker Canvas Fullscreen Trigger Button */}
- <div className="admin-form-group full-width" style={{ marginBottom: '16px' }}>
- <label style={{ fontWeight: 'bold', fontSize: '1rem', color: '#1E1B18', marginBottom: '8px', display: 'block' }}>
- {tLabel('पेजमेकर कैनवस (PM5)', 'PageMaker Canvas (PM5)')}
- </label>
- <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
- <button
- type="button"
- className="admin-btn-secondary"
- onClick={() => setShowCanvasModal(true)}
- >
- {tLabel('लेआउट बदलें', 'Edit Layout')}
- </button>
- <span style={{ fontSize: '0.85rem', color: '#6E665E' }}>
- {tLabel('कैनवस एडिटर खोलें', 'Open distraction-free canvas editor')}
- </span>
- </div>
- </div>
-
- {/* Fullscreen PM5 Canvas Portal Overlay */}
- {showCanvasModal && (
- <PM5WritingDesk
- initialPages={paginateTextIntoPages(formData.stanzas || '')}
- initialTitle={formData.title || ''}
- lang={adminLang}
- initialFullscreen={true}
- onClose={() => setShowCanvasModal(false)}
- onSave={(pagesArray, pageTitle) => {
- const joinedText = pagesArray.join('\n\n');
- if (setIsDirty) setIsDirty(true);
- setFormData(prev => ({
- ...prev,
- stanzas: joinedText,
- title: pageTitle || prev.title
- }));
- }}
- />
- )}
-
- {/* Field 5: Full Stanzas / Excerpt Text */}
- <div className="admin-form-group full-width">
- <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
- <label style={{ margin: 0 }}>{tLabel('काव्य अंश', 'Sample Stanzas')}</label>
- <button
- type="button"
- className="admin-btn-secondary"
- onClick={() => {
- if (!formData.stanzas) return;
- const converted = convertKrutiDevToUnicode(formData.stanzas);
- updateForm({ stanzas: converted });
- }}
- style={{ fontSize: '0.8rem', padding: '4px 10px' }}
- title={tLabel('कृतिदेव फॉन्ट टेक्स्ट को मानक यूनिकोड हिंदी में बदलें', 'Convert Kruti Dev text to Unicode Hindi')}
- >
- {tLabel('कृतिदेव > यूनिकोड', 'Kruti Dev > Unicode')}
- </button>
- </div>
- <textarea
- className="admin-textarea"
- value={formData.stanzas}
- onChange={(e) => updateForm({ stanzas: e.target.value })}
- onPaste={(e) => handleKrutiDevPaste(e, formData.stanzas, (text) => updateForm({ stanzas: text }))}
- placeholder={tLabel('पुस्तक के अंश या पद्य यहाँ दर्ज करें...', 'Enter stanzas or excerpt verses here...')}
- style={{ minHeight: '220px', fontFamily: 'Tiro Devanagari Hindi, Lora, serif', fontSize: '1.05rem', lineHeight: '1.7' }}
- />
- </div>
-
- {/* Field 6: Sort Order */}
- <div className="admin-form-group">
- <label>{tLabel('क्रम', 'Order')}</label>
- <input
- className="admin-input"
- type="number"
- value={formData.sort_order}
- onChange={(e) => updateForm({ sort_order: parseInt(e.target.value) || 1 })}
- />
- </div>
-
- {/* Field 7: Purchase URL */}
- <div className="admin-form-group full-width">
- <label>{tLabel('खरीद लिंक', 'Buy Link')}</label>
- <input
- className="admin-input"
- type="url"
- value={formData.purchase_url || ''}
- onChange={(e) => updateForm({ purchase_url: e.target.value })}
- placeholder="https://amazon.in/dp/example"
- />
- </div>
- </div>
- </form>
- )}
-
- {/* Publication List Grid - Hidden when in standalone edit page */}
- {!isStandalonePage && (
- <div>
- <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
- {tLabel('प्रकाशित पुस्तकों की सूची', 'Published Books List')} ({displayList.length})
- </h3>
- {displayList.length === 0 ? (
- <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई पुस्तक नहीं मिली। नई पुस्तक जोड़ने के लिए बटन दबाएं।', 'No books found. Click button to add new book.')}</p>
- ) : (
- <ul className="admin-item-list">
- {displayList.map((pub, idx) => (
- <ContentItemCard
- key={pub.id}
- id={pub.id}
- title={pub.title}
- subtitle={`${pub.subtitle || pub.description ? (pub.subtitle || pub.description).substring(0, 80) + '...' : ''} • ${tLabel('क्रम:', 'Order:')} ${pub.sort_order || 1}`}
- badgeText={pub.is_active === false ? tLabel('अप्रकाशित', 'Draft') : tLabel('प्रकाशित', 'Live')}
- badgeColor={pub.is_active === false ? '#D95343' : '#2C988F'}
- onEdit={() => navigate(`/admin/prakashan/${pub.id}`)}
- onMoveUp={() => {
- if (idx <= 0) return
- const updated = [...displayList]
- const temp = updated[idx]
- updated[idx] = updated[idx - 1]
- updated[idx - 1] = temp
- persistReorder(updated)
- }}
- onMoveDown={() => {
- if (idx >= displayList.length - 1) return
- const updated = [...displayList]
- const temp = updated[idx]
- updated[idx] = updated[idx + 1]
- updated[idx + 1] = temp
- persistReorder(updated)
- }}
- onDelete={async () => {
- if (!confirm(tLabel('क्या आप इस पुस्तक को हटाना चाहते हैं?', 'Are you sure you want to delete this book?'))) return
- const updated = displayList.filter(i => i.id !== pub.id)
- setItemsList(updated)
- try {
- await supabase.from('publications').delete().eq('id', pub.id)
- } catch (e) {
- console.warn('Delete publication error:', e)
- }
- onUpdate()
- }}
- canMoveUp={idx > 0}
- canMoveDown={idx < displayList.length - 1}
- lang={adminLang}
- />
- ))}
- </ul>
- )}
- </div>
- )}
- </div>
- )
-}
-
-
-// Poems Manager Component
 
 function PoemsManager({ poems, onUpdate, setIsDirty }) {
  const { adminLang, tLabel } = useAdminLang()
@@ -2546,29 +2128,21 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
  sort_order: editing ? (parseInt(formData.sort_order) || 1) : 1
  }
  
- let res = editing
- ? await supabase.from('poems').update(dataToSave).eq('id', editing)
- : await supabase.from('poems').insert(dataToSave)
-
- if (res.error) {
- console.warn('Standard poem save failed, trying legacy schema:', res.error)
- const legacyPayload = {
- heading_hi: formData.heading || '',
- heading_en: formData.heading || '',
- body_text_hi: formData.body_text || '',
- body_text_en: formData.body_text || '',
- description: formData.description || '',
- sort_order: editing ? (parseInt(formData.sort_order) || 1) : 1
- }
- res = editing
- ? await supabase.from('poems').update(legacyPayload).eq('id', editing)
- : await supabase.from('poems').insert(legacyPayload)
- }
-
- if (res.error) {
- alert((adminLang === 'en' ? 'Error saving poem: ' : 'कविता सहेजने में त्रुटि: ') + res.error.message)
- return
- }
+   let targetPoemId = editing
+   if (editing) {
+     const { error } = await supabase.from('poems').update(dataToSave).eq('id', editing)
+     if (error) {
+       alert((adminLang === 'en' ? 'Error saving poem: ' : 'कविता सहेजने में त्रुटि: ') + error.message)
+       return
+     }
+   } else {
+     const { data: newPoem, error } = await supabase.from('poems').insert(dataToSave).select().single()
+     if (error) {
+       alert((adminLang === 'en' ? 'Error saving poem: ' : 'कविता सहेजने में त्रुटि: ') + error.message)
+       return
+     }
+     if (newPoem) targetPoemId = newPoem.id
+   }
 
  if (setIsDirty) setIsDirty(false)
  onUpdate()
@@ -2848,6 +2422,436 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
 }
 
 
+// Publications Manager Component
+
+function PublicationsManager({ publications, onUpdate, setIsDirty }) {
+  const { tLabel, adminLang } = useAdminLang()
+  const { id: paramId } = useParams()
+  const navigate = useNavigate()
+  const [editing, setEditing] = useState(null)
+  const [showForm, setShowForm] = useState(false)
+  const [formData, setFormData] = useState({
+    title: '',
+    subtitle: '',
+    image_path: '',
+    image_alt: '',
+    description: '',
+    sort_order: 1
+  })
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [imagePreview, setImagePreview] = useState(null)
+  const [itemsList, setItemsList] = useState(Array.isArray(publications) ? publications : [])
+  const [selectedIds, setSelectedIds] = useState([])
+
+  useEffect(() => {
+    if (Array.isArray(publications)) {
+      setItemsList(publications)
+    }
+  }, [publications])
+
+  // Sync route param for standalone/nested editing (/admin/prakashan/:id or /admin/publications/:id)
+  useEffect(() => {
+    if (!paramId) {
+      setShowForm(false)
+      setEditing(null)
+      return
+    }
+
+    if (paramId === 'new') {
+      setEditing(null)
+      setFormData({ title: '', subtitle: '', image_path: '', image_alt: '', description: '', sort_order: 1, is_active: true })
+      setImagePreview(null)
+      setShowForm(true)
+    } else {
+      const pub = (itemsList.length > 0 ? itemsList : publications)?.find(i => String(i.id) === String(paramId))
+      if (pub) {
+        setEditing(pub.id)
+        setShowForm(true)
+        setFormData({
+          title: pub.title || '',
+          subtitle: pub.subtitle || '',
+          image_path: pub.image_path || '',
+          image_alt: pub.image_alt || '',
+          description: pub.description || '',
+          sort_order: pub.sort_order || 1,
+          is_active: pub.is_active !== undefined ? pub.is_active : true
+        })
+        if (pub.image_path) {
+          setImagePreview(getImageUrl(pub.image_path))
+        }
+      } else if (paramId) {
+        supabase.from('publications').select('*').eq('id', paramId).single().then(({ data }) => {
+          if (data) {
+            setEditing(data.id)
+            setShowForm(true)
+            setFormData({
+              title: data.title || '',
+              subtitle: data.subtitle || '',
+              image_path: data.image_path || '',
+              image_alt: data.image_alt || '',
+              description: data.description || '',
+              sort_order: data.sort_order || 1,
+              is_active: data.is_active !== undefined ? data.is_active : true
+            })
+            if (data.image_path) {
+              setImagePreview(getImageUrl(data.image_path))
+            }
+          }
+        })
+      }
+    }
+  }, [paramId, publications, itemsList])
+
+  const updateForm = (fields) => {
+    setFormData(prev => ({ ...prev, ...fields }))
+    if (setIsDirty) setIsDirty(true)
+  }
+
+  const toggleSelection = (id) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])
+  }
+
+  const clearSelection = () => setSelectedIds([])
+
+  const displayList = itemsList.length > 0 ? itemsList : (Array.isArray(publications) ? publications : [])
+  const singleSelectedId = selectedIds.length === 1 ? selectedIds[0] : null
+  const singleIndex = singleSelectedId ? displayList.findIndex(i => i.id === singleSelectedId) : -1
+
+  const handleCreate = () => {
+    navigate('/admin/prakashan/new')
+  }
+
+  const handleCancel = () => {
+    setEditing(null)
+    setShowForm(false)
+    setImagePreview(null)
+    if (setIsDirty) setIsDirty(false)
+    if (paramId) {
+      navigate('/admin/prakashan')
+    }
+  }
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file')
+      return
+    }
+
+    try {
+      setUploadingImage(true)
+      const pubId = editing || `temp-${Date.now()}`
+      const fileName = `cover.${file.name.split('.').pop()}`
+      const path = await uploadImage(file, `publications/${pubId}`, fileName)
+      setFormData({ ...formData, image_path: path })
+      setImagePreview(URL.createObjectURL(file))
+      alert('Image uploaded!')
+    } catch (err) {
+      alert('Error uploading image: ' + err.message)
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const dataToSave = {
+        title: formData.title || '',
+        subtitle: formData.subtitle || '',
+        image_path: formData.image_path || '',
+        image_alt: formData.image_alt || '',
+        description: formData.description || '',
+        sort_order: editing ? (parseInt(formData.sort_order) || 1) : 1
+      }
+      
+      if (editing) {
+        const { error } = await supabase.from('publications').update(dataToSave).eq('id', editing)
+        if (error) {
+          alert('Error saving publication: ' + error.message)
+          return
+        }
+      } else {
+        const { data: newPub, error } = await supabase.from('publications').insert(dataToSave).select().single()
+        if (error) {
+          alert('Error saving publication: ' + error.message)
+          return
+        }
+        if (formData.image_path && formData.image_path.includes('temp-') && newPub) {
+          const oldPath = formData.image_path
+          const newPath = oldPath.replace(/temp-\d+/, newPub.id)
+          try {
+            const { error: copyError } = await supabase.storage.from('public-assets').copy(oldPath, newPath)
+            if (!copyError) {
+              await supabase.from('publications').update({ image_path: newPath }).eq('id', newPub.id)
+              await supabase.storage.from('public-assets').remove([oldPath])
+            } else {
+              await supabase.from('publications').update({ image_path: newPath }).eq('id', newPub.id)
+            }
+          } catch (moveError) {
+            await supabase.from('publications').update({ image_path: newPath }).eq('id', newPub.id)
+          }
+        }
+      }
+
+      if (setIsDirty) setIsDirty(false)
+      onUpdate()
+      setEditing(null)
+      setShowForm(false)
+      clearSelection()
+      setImagePreview(null)
+      alert('✓ Publication saved successfully!')
+      if (paramId) {
+        navigate('/admin/prakashan')
+      }
+    } catch (err) {
+      alert('Error saving publication: ' + (err.message || 'Unknown error'))
+    }
+  }
+
+  const handleEditSelected = () => {
+    if (!singleSelectedId) return
+    navigate(`/admin/prakashan/${singleSelectedId}`)
+  }
+
+  const persistReorder = async (updated) => {
+    updated.forEach((item, idx) => { item.sort_order = idx + 1 })
+    setItemsList(updated)
+    try {
+      for (const item of updated) {
+        await supabase.from('publications').update({ sort_order: item.sort_order }).eq('id', item.id)
+      }
+    } catch (e) {
+      console.warn('Publication resequence error:', e)
+    }
+    onUpdate()
+  }
+
+  const handleMoveTop = () => {
+    if (singleIndex <= 0) return
+    const item = displayList[singleIndex]
+    const updated = [item, ...displayList.filter((_, i) => i !== singleIndex)]
+    persistReorder(updated)
+    clearSelection()
+  }
+
+  const handleMoveUp = () => {
+    if (singleIndex <= 0) return
+    const updated = [...displayList]
+    const temp = updated[singleIndex]
+    updated[singleIndex] = updated[singleIndex - 1]
+    updated[singleIndex - 1] = temp
+    persistReorder(updated)
+  }
+
+  const handleMoveDown = () => {
+    if (singleIndex < 0 || singleIndex >= displayList.length - 1) return
+    const updated = [...displayList]
+    const temp = updated[singleIndex]
+    updated[singleIndex] = updated[singleIndex + 1]
+    updated[singleIndex + 1] = temp
+    persistReorder(updated)
+  }
+
+  const handleMoveBottom = () => {
+    if (singleIndex < 0 || singleIndex >= displayList.length - 1) return
+    const item = displayList[singleIndex]
+    const updated = [...displayList.filter((_, i) => i !== singleIndex), item]
+    persistReorder(updated)
+    clearSelection()
+  }
+
+  const handleBatchDelete = async () => {
+    if (selectedIds.length === 0) return
+    if (!confirm(tLabel(`क्या आप चयनित ${selectedIds.length} पुस्तकें हटाना चाहते हैं?`, `Delete ${selectedIds.length} selected books?`))) return
+
+    const updated = displayList.filter(i => !selectedIds.includes(i.id))
+    setItemsList(updated)
+    clearSelection()
+
+    try {
+      await supabase.from('publications').delete().in('id', selectedIds)
+    } catch (e) {
+      console.warn('Batch delete publications error:', e)
+    }
+    onUpdate()
+  }
+
+  const handleCardMoveUp = (id) => {
+    const idx = displayList.findIndex(p => p.id === id)
+    if (idx <= 0) return
+    const updated = [...displayList]
+    const temp = updated[idx]
+    updated[idx] = updated[idx - 1]
+    updated[idx - 1] = temp
+    persistReorder(updated)
+  }
+
+  const handleCardMoveDown = (id) => {
+    const idx = displayList.findIndex(p => p.id === id)
+    if (idx < 0 || idx >= displayList.length - 1) return
+    const updated = [...displayList]
+    const temp = updated[idx]
+    updated[idx] = updated[idx + 1]
+    updated[idx + 1] = temp
+    persistReorder(updated)
+  }
+
+  const handleCardDelete = async (id) => {
+    if (!confirm(tLabel('क्या आप इस पुस्तक को हटाना चाहते हैं?', 'Delete this book?'))) return
+    const updated = displayList.filter(p => p.id !== id)
+    setItemsList(updated)
+    try {
+      await supabase.from('publications').delete().eq('id', id)
+    } catch (e) {
+      console.warn('Delete publication error:', e)
+    }
+    onUpdate()
+  }
+
+  return (
+    <div className="admin-card-panel">
+      <div className="admin-panel-header">
+        <h2 className="admin-panel-title">📚 {tLabel('प्रकाशन एवं पुस्तकें', 'Publications & Books')}</h2>
+        {!showForm && (
+          <button type="button" className="admin-btn-primary" onClick={handleCreate}>
+            + {tLabel('नई पुस्तक जोड़ें', 'Add Book')}
+          </button>
+        )}
+      </div>
+      
+      {(showForm || editing) && (
+        <form id="admin-active-form" onSubmit={handleSubmit} onChange={() => setIsDirty && setIsDirty(true)} onInput={() => setIsDirty && setIsDirty(true)} className="admin-form-container">
+          <div className="admin-form-grid">
+            <div className="admin-form-group">
+              <label>{tLabel('पुस्तक का नाम *', 'Book Title *')}</label>
+              <input
+                className="admin-input"
+                value={formData.title}
+                onChange={(e) => updateForm({ title: e.target.value })}
+                required
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>{tLabel('उप-शीर्षक', 'Subtitle')}</label>
+              <input
+                className="admin-input"
+                value={formData.subtitle}
+                onChange={(e) => updateForm({ subtitle: e.target.value })}
+              />
+            </div>
+            <div className="admin-form-group full-width">
+              <label>{tLabel('कवर चित्र', 'Book Cover Image')}</label>
+              {imagePreview && (
+                <div style={{ marginBottom: '12px' }}>
+                  <img 
+                    src={imagePreview} 
+                    alt="Cover Preview" 
+                    style={{ 
+                      width: '120px', 
+                      height: '170px', 
+                      objectFit: 'cover', 
+                      border: '2px solid var(--leona-gold)',
+                      borderRadius: '8px'
+                    }} 
+                  />
+                </div>
+              )}
+              <input
+                className="admin-input"
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                disabled={uploadingImage}
+              />
+              {uploadingImage && <div style={{ marginTop: '6px', color: 'var(--leona-terracotta)', fontSize: '0.85rem' }}>कवर फोटो अपलोड हो रही है...</div>}
+            </div>
+            <div className="admin-form-group full-width">
+              <label>{tLabel('पुस्तक विवरण', 'Book Description')}</label>
+              <textarea
+                className="admin-textarea"
+                value={formData.description}
+                onChange={(e) => updateForm({ description: e.target.value })}
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>{tLabel('क्रम संख्या', 'Sort Order')}</label>
+              <input
+                className="admin-input"
+                type="number"
+                value={formData.sort_order}
+                onChange={(e) => updateForm({ sort_order: parseInt(e.target.value) || 1 })}
+              />
+            </div>
+            <div className="admin-form-group full-width">
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={formData.is_active !== false}
+                  onChange={(e) => updateForm({ is_active: e.target.checked })}
+                />
+                {tLabel('वेबसाइट पर प्रकाशित रखें', 'Active on Website')}
+              </label>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+            <button type="submit" className="admin-btn-primary">
+              {editing ? tLabel('सहेजें', 'Update') : tLabel('प्रकाशित करें', 'Publish')}
+            </button>
+            <button type="button" className="admin-btn-secondary" onClick={handleCancel}>
+              {tLabel('रद्द करें', 'Cancel')}
+            </button>
+          </div>
+        </form>
+      )}
+
+      <div>
+        <ListContextualToolbar
+          selectedIds={selectedIds}
+          totalItems={displayList.length}
+          onClearSelection={clearSelection}
+          onEdit={handleEditSelected}
+          onMoveTop={handleMoveTop}
+          onMoveUp={handleMoveUp}
+          onMoveDown={handleMoveDown}
+          onMoveBottom={handleMoveBottom}
+          onBatchDelete={handleBatchDelete}
+          tLabel={tLabel}
+        />
+
+        <h3 style={{ fontFamily: 'Lora, serif', fontSize: '1.1rem', marginBottom: '16px', color: 'var(--leona-charcoal)' }}>
+          {tLabel('प्रकाशित पुस्तकों की सूची', 'Published Books List')} ({displayList.length})
+        </h3>
+        {displayList.length === 0 ? (
+          <p style={{ color: '#666', fontStyle: 'italic' }}>{tLabel('कोई पुस्तक नहीं मिली। नई पुस्तक जोड़ने के लिए बटन दबाएं।', 'No books found. Click button to add new book.')}</p>
+        ) : (
+          <ul className="admin-item-list">
+            {displayList.map((pub, idx) => {
+              const isSelected = selectedIds.includes(pub.id)
+              return (
+                <ContentItemCard
+                  key={pub.id}
+                  id={pub.id}
+                  title={pub.title}
+                  subtitle={`${pub.subtitle || pub.description ? (pub.subtitle || pub.description).substring(0, 50) + '...' : ''} • ${tLabel('क्रम:', 'Order:')} ${pub.sort_order || 1}`}
+                  onEdit={() => navigate(`/admin/publications/${pub.id}`)}
+                  onMoveUp={() => handleCardMoveUp(pub.id)}
+                  onMoveDown={() => handleCardMoveDown(pub.id)}
+                  onDelete={() => handleCardDelete(pub.id)}
+                  canMoveUp={idx > 0}
+                  canMoveDown={idx < displayList.length - 1}
+                  lang={adminLang}
+                />
+              )
+            })}
+          </ul>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // Settings Manager Component
 
 function SettingsManager({ settings, onUpdate, setIsDirty }) {
@@ -2928,20 +2932,20 @@ function SettingsManager({ settings, onUpdate, setIsDirty }) {
  display_label: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
  }))
 
- let hasError = false
- for (const update of updates) {
- const { error } = await supabase.from('settings').upsert(update, { onConflict: 'key' })
- if (error) {
- console.error('Error saving setting key ' + update.key + ':', error)
- hasError = true
- }
- }
+    let hasError = false
+    for (const update of updates) {
+      const { error } = await supabase.from('settings').upsert(update, { onConflict: 'key' })
+      if (error) {
+        console.error('Error saving setting key ' + update.key + ':', error)
+        hasError = true
+      }
+    }
 
- if (hasError) {
- alert(tLabel('चेतावनी: कुछ सेटिंग्स सहेजी नहीं जा सकीं।', 'Warning: Some settings could not be saved.'))
- } else {
- alert(tLabel(' वेबसाइट व एसईओ सेटिंग्स सफलतापूर्वक सहेजी गईं!', ' Website & SEO settings saved successfully!'))
- }
+    if (hasError) {
+      alert(tLabel('चेतावनी: कुछ सेटिंग्स सहेजी नहीं जा सकीं।', 'Warning: Some settings could not be saved.'))
+    } else {
+      alert(tLabel(' वेबसाइट व एसईओ सेटिंग्स सफलतापूर्वक सहेजी गईं!', ' Website & SEO settings saved successfully!'))
+    }
 
  if (setIsDirty) setIsDirty(false)
  if (onUpdate) onUpdate()
@@ -3186,28 +3190,26 @@ function TimelineManager({ onUpdate, setIsDirty }) {
  const newItem = { id: String(Date.now()), ...formData, sort_order: newSortOrder }
  updatedList = [newItem, ...items]
  }
+  updatedList.forEach((item, idx) => { item.sort_order = idx + 1 })
+  setItems(updatedList)
+  localStorage.setItem('app_timeline_milestones', JSON.stringify(updatedList))
 
- updatedList.forEach((item, idx) => { item.sort_order = idx + 1 })
- setItems(updatedList)
- localStorage.setItem('app_timeline_milestones', JSON.stringify(updatedList))
+  const cleanData = {
+    year_display: formData.year_display || '',
+    title: formData.title || '',
+    description: formData.description || '',
+    sort_order: newSortOrder
+  }
 
- const cleanData = {
- year_display: formData.year_display || '',
- title: formData.title || '',
- description: formData.description || '',
- sort_order: newSortOrder
- }
-
- try {
- if (editingId && editingId !== 'new') {
- await supabase.from('timeline_milestones').update(cleanData).eq('id', editingId)
- } else {
- await supabase.from('timeline_milestones').insert(cleanData)
- }
- } catch (err) {
- console.warn('Timeline DB save fallback:', err)
- }
-
+  try {
+    if (editingId && editingId !== 'new') {
+      await supabase.from('timeline_milestones').update(cleanData).eq('id', editingId)
+    } else {
+      await supabase.from('timeline_milestones').insert(cleanData)
+    }
+  } catch (err) {
+    console.warn('Timeline DB save fallback:', err)
+  }
  if (setIsDirty) setIsDirty(false)
  alert(' ' + tLabel('जीवन यात्रा सहेजी गई!', 'Timeline item saved!'))
  setShowForm(false)
@@ -3239,10 +3241,10 @@ function TimelineManager({ onUpdate, setIsDirty }) {
  const handleDeleteItem = async (id) => {
  if (!confirm(tLabel('क्या आप इस जीवन यात्रा आइटम को हटाना चाहते हैं?', 'Delete this timeline item?'))) return
  const updatedList = items.filter(i => i.id !== id)
- setItems(updatedList)
- localStorage.setItem('app_timeline_milestones', JSON.stringify(updatedList))
- try {
- await supabase.from('timeline_milestones').delete().eq('id', id)
+  setItems(updatedList)
+  localStorage.setItem('app_timeline_milestones', JSON.stringify(updatedList))
+  try {
+    await supabase.from('timeline_milestones').delete().eq('id', id)
  } catch (e) {}
  onUpdate()
  }
@@ -3362,40 +3364,30 @@ function AwardsManager({ onUpdate, setIsDirty }) {
  const newItem = { id: String(Date.now()), ...formData, sort_order: newSortOrder }
  updatedList = [newItem, ...items]
  }
+  updatedList.forEach((item, idx) => { item.sort_order = idx + 1 })
+  setItems(updatedList)
+  localStorage.setItem('app_awards_honors', JSON.stringify(updatedList))
 
- updatedList.forEach((item, idx) => { item.sort_order = idx + 1 })
- setItems(updatedList)
- localStorage.setItem('app_awards_honors', JSON.stringify(updatedList))
+  const cleanData = {
+    year_display: formData.year_display || '',
+    title: formData.title || '',
+    organization: formData.organization || '',
+    sort_order: newSortOrder
+  }
 
- const cleanData = {
- year_display: formData.year_display || '',
- title: formData.title || '',
- organization: formData.organization || '',
- sort_order: newSortOrder
- }
-
- try {
- const { error: dbErr } = (editingId && editingId !== 'new')
- ? await supabase.from('awards_honors').update(cleanData).eq('id', editingId)
- : await supabase.from('awards_honors').insert(cleanData)
-
- if (dbErr) {
- console.error("Save failed:", dbErr.message)
- }
-
- const { error: settingsErr } = await supabase.from('settings').upsert({
- key: 'awards_list',
- value: JSON.stringify(updatedList),
- display_label: 'Awards List'
- }, { onConflict: 'key' })
-
- if (settingsErr) {
- console.error("Save failed:", settingsErr.message)
- }
- } catch (err) {
- console.error('Save failed:', err.message || err)
- }
-
+  try {
+    const { error: dbErr } = (editingId && editingId !== 'new')
+      ? await supabase.from('awards_honors').update(cleanData).eq('id', editingId)
+      : await supabase.from('awards_honors').insert(cleanData)
+    if (dbErr) console.error('Save failed:', dbErr.message)
+    await supabase.from('settings').upsert({
+      key: 'awards_list',
+      value: JSON.stringify(updatedList),
+      display_label: 'Awards List'
+    }, { onConflict: 'key' })
+  } catch (err) {
+    console.error('Save failed:', err.message || err)
+  }
  if (setIsDirty) setIsDirty(false)
  alert(' ' + tLabel('पुरस्कार सहेजा गया!', 'Award saved!'))
  setShowForm(false)
@@ -3541,7 +3533,9 @@ function InboxManager({ onUpdate }) {
  const targetStatus = !msg.is_read
  setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, is_read: targetStatus } : m))
  try {
- await supabase.from('contact_submissions').update({ is_read: targetStatus }).eq('id', msg.id)
+  const readSet = JSON.parse(localStorage.getItem('read_contact_submissions') || '[]')
+  const updatedSet = targetStatus ? [...new Set([...readSet, msg.id])] : readSet.filter(id => id !== msg.id)
+  localStorage.setItem('read_contact_submissions', JSON.stringify(updatedSet))
  } catch (e) {
  console.warn('Mark read error:', e)
  }

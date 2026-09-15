@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
@@ -8,6 +8,8 @@ import { sanitizeText, sanitizePoem, sanitizePublication } from '../lib/dataSani
 import AboutPanel from '../components/AboutPanel'
 import PublicationCard from '../components/PublicationCard'
 import PoemCard from '../components/PoemCard'
+import PoetryFocusView from '../components/PoetryFocusView'
+import BookFocusView from '../components/BookFocusView'
 import './CategoryDetail.css'
 
 function CategoryDetail() {
@@ -17,6 +19,10 @@ function CategoryDetail() {
   const [content, setContent] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+
+  // Focus view states
+  const [focusPoemId, setFocusPoemId] = useState(null)
+  const [focusPubId, setFocusPubId] = useState(null)
 
   useEffect(() => {
     // Scroll to top when category changes
@@ -30,10 +36,8 @@ function CategoryDetail() {
       setError(null)
 
       const categories = await getCategories()
-      // Support both UUID and slug-based routing
       let foundCategory = categories.find(c => c.id === categoryId)
       
-      // If not found by ID, try to find by content_type slug
       if (!foundCategory) {
         const slugMap = {
           'publications': 'publications',
@@ -79,6 +83,24 @@ function CategoryDetail() {
     }
   }
 
+  // Focus view helpers
+  const sortedPoems = Array.isArray(content) && category?.content_type === 'writings'
+    ? [...content].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+    : []
+
+  const focusPoem = focusPoemId ? sortedPoems.find(p => p.id === focusPoemId) ?? null : null
+  const focusPub = focusPubId && Array.isArray(content) && category?.content_type === 'publications'
+    ? content.find(p => p.id === focusPubId) ?? null
+    : null
+
+  const openFocus = useCallback((poemId) => setFocusPoemId(poemId), [])
+  const closeFocus = useCallback(() => setFocusPoemId(null), [])
+  const goToPrevPoem = useCallback((id) => id && setFocusPoemId(id), [])
+  const goToNextPoem = useCallback((id) => id && setFocusPoemId(id), [])
+
+  const openPubFocus = useCallback((pubId) => setFocusPubId(pubId), [])
+  const closePubFocus = useCallback(() => setFocusPubId(null), [])
+
   if (loading) {
     return (
       <div className="phoenix-loading">
@@ -103,16 +125,15 @@ function CategoryDetail() {
     )
   }
 
-  // Get translated category name based on content_type
   const getCategoryName = () => {
     if (category.content_type === 'publications') {
-      return t('publications.title')
+      return t('nav.publications') || (i18n.language === 'hi' ? 'पुस्तकें' : 'Books')
     } else if (category.content_type === 'writings') {
-      return t('nav.poems')
+      return t('nav.poems') || (i18n.language === 'hi' ? 'काव्य संग्रह' : 'Poetry')
     } else if (category.content_type === 'about') {
-      return t('nav.about')
+      return t('nav.about') || (i18n.language === 'hi' ? 'कवि परिचय' : 'About')
     }
-    return category.name_display || category.name_en
+    return category.name_display || category.name_hi || category.name_en
   }
 
   const categoryName = getCategoryName()
@@ -138,7 +159,6 @@ function CategoryDetail() {
             >
               <h1 
                 className="phoenix-category-title phoenix-section-title-link"
-                onClick={() => navigate('/')}
                 style={{ cursor: 'pointer' }}
               >
                 {categoryName}
@@ -158,7 +178,7 @@ function CategoryDetail() {
               </div>
             )}
 
-            {/* Publications Grid */}
+            {/* Publications Grid — opens full-screen focus view on card click */}
             {category.content_type === 'publications' && Array.isArray(content) && content.length > 0 && (
               <motion.div
                 className="phoenix-publications-grid phoenix-publications-grid-full"
@@ -171,12 +191,13 @@ function CategoryDetail() {
                     key={pub.id}
                     publication={pub}
                     index={index}
+                    onOpenFocus={openPubFocus}
                   />
                 ))}
               </motion.div>
             )}
 
-            {/* Poems List */}
+            {/* Poems Grid — opens focus view on card click */}
             {category.content_type === 'writings' && Array.isArray(content) && content.length > 0 && (
               <motion.div
                 className="phoenix-poems-list"
@@ -184,14 +205,38 @@ function CategoryDetail() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2, duration: 0.5 }}
               >
-                {content.map((poem, index) => (
-                  <PoemCard key={poem.id} poem={poem} index={index} />
+                {sortedPoems.map((poem, index) => (
+                  <PoemCard
+                    key={poem.id}
+                    poem={poem}
+                    index={index}
+                    hideBadge={true}
+                    onOpenFocus={openFocus}
+                  />
                 ))}
               </motion.div>
             )}
           </>
         )}
       </div>
+
+      {/* Full-Screen Focus View Overlays */}
+      {focusPoem && (
+        <PoetryFocusView
+          poem={focusPoem}
+          poems={sortedPoems}
+          onClose={closeFocus}
+          onPrevPoem={goToPrevPoem}
+          onNextPoem={goToNextPoem}
+        />
+      )}
+
+      {focusPub && (
+        <BookFocusView
+          publication={focusPub}
+          onClose={closePubFocus}
+        />
+      )}
     </>
   )
 }

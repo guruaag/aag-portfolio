@@ -10,6 +10,8 @@
   border-bottom: none;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Safe area for notched phones */
+  padding-top: env(safe-area-inset-top, 0px);
 }
 
 .phoenix-header-scrolled {
@@ -21,12 +23,12 @@
 .phoenix-header-container {
   max-width: var(--phoenix-max-width);
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 16px;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--phoenix-space-lg);
+  gap: 0.5rem;
 }
 
 @media (min-width: 1025px) {
@@ -47,11 +49,18 @@
 
 .phoenix-header-logo-image {
   flex-shrink: 0;
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   object-fit: contain;
   border-radius: 4px;
   display: block;
+}
+
+@media (min-width: 769px) {
+  .phoenix-header-logo-image {
+    width: 48px;
+    height: 48px;
+  }
 }
 
 .phoenix-header-title-hidden {
@@ -60,13 +69,24 @@
 
 .phoenix-header-title {
   font-family: var(--phoenix-font-serif);
-  font-size: 1.225rem;
+  font-size: clamp(0.9rem, 3.5vw, 1.225rem);
   font-weight: 700;
   color: var(--phoenix-charcoal);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   line-height: 1.2;
   margin: 0;
   transition: all 0.3s ease;
+  /* Prevent long name from pushing hamburger off screen */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 50vw;
+}
+
+@media (min-width: 500px) {
+  .phoenix-header-title {
+    max-width: none;
+  }
 }
 
 .phoenix-header-title-inline {
@@ -143,7 +163,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
+  padding: 0.45rem 0.85rem;
   background: transparent;
   border: 1.5px solid var(--phoenix-charcoal);
   border-radius: var(--phoenix-radius-full);
@@ -153,11 +173,21 @@
   color: var(--phoenix-text-secondary);
   cursor: pointer;
   transition: all 0.3s ease;
+  /* Ensure 44px touch height */
+  min-height: 44px;
 }
 
 .phoenix-lang-toggle:hover {
   border-color: var(--phoenix-sienna);
   background: var(--phoenix-cream);
+}
+
+/* Hide text labels on very narrow screens, keep toggle button */
+@media (max-width: 399px) {
+  .phoenix-lang-divider,
+  .phoenix-lang-toggle span:not(.active) {
+    display: none;
+  }
 }
 
 .phoenix-lang-toggle span {
@@ -174,19 +204,20 @@
   opacity: 0.3;
 }
 
-/* Mobile Menu Button - Reduced by 25% */
+/* Mobile Menu Button — 44×44px minimum touch target */
 .phoenix-menu-button {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 30px;
-  height: 30px;
+  width: 44px;
+  height: 44px;
   background: transparent;
-  border: 1.5px solid var(--phoenix-charcoal);
-  border-radius: 6px;
+  border: 1.5px solid rgba(30, 27, 24, 0.3);
+  border-radius: 8px;
   cursor: pointer;
   padding: 0;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .phoenix-menu-button:hover {
@@ -194,9 +225,14 @@
   border-color: var(--phoenix-sienna);
 }
 
+.phoenix-menu-button:active {
+  background: var(--phoenix-cream);
+  transform: scale(0.94);
+}
+
 .phoenix-menu-button svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   color: var(--phoenix-charcoal);
   transition: color 0.3s ease;
 }

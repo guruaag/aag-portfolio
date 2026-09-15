@@ -53,10 +53,10 @@ const resources = {
  // 5. Admin Publications Manager
  pub: {
  section_header: 'Publications',
- title: 'Book Title *',
+ title: 'Title *',
  overview: 'Summary',
  cover_upload: 'Cover Photo',
- sample_stanzas: 'Sample Stanzas',
+ sample_stanzas: 'Description',
  purchase_link: 'Buy Link',
  price: 'Price',
  publisher: 'Publisher'
@@ -169,10 +169,10 @@ const resources = {
  // 5. Admin Publications Manager
  pub: {
  section_header: 'प्रकाशन',
- title: 'पुस्तक शीर्षक *',
- overview: 'विवरण',
+ title: 'शीर्षक *',
+ overview: 'संक्षेप',
  cover_upload: 'कवर फोटो',
- sample_stanzas: 'काव्य अंश',
+ sample_stanzas: 'विवरण',
  purchase_link: 'खरीद लिंक',
  price: 'कीमत',
  publisher: 'प्रकाशक'

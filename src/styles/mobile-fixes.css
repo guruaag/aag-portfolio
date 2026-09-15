@@ -1,179 +1,186 @@
-/* ============================================
-   CRITICAL MOBILE FIXES - Edge Spacing & Vertical Rhythm
-   Applied with !important to override all conflicting styles
-   ============================================ */
+/* ============================================================
+   MOBILE-FIRST FOUNDATION
+   Replaces all patch overrides with a clean, systematic base.
+   ============================================================ */
 
-/* CRITICAL: Force edge padding on mobile - NO CONTENT TOUCHING EDGES */
-@media (max-width: 768px) {
-  /* Main content wrapper - force padding */
+/* ── 1. BASE RESETS ───────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  /* 17px = comfortable Devanagari reading + prevents iOS auto-zoom on inputs */
+  font-size: 17px;
+  /* Smooth scroll for anchor jumps */
+  scroll-behavior: smooth;
+  /* Prevent horizontal overflow globally */
+  overflow-x: hidden;
+}
+
+body {
+  overflow-x: hidden;
+  /* Remove tap highlight on all tappable elements */
+  -webkit-tap-highlight-color: transparent;
+  /* Proper text rendering on mobile */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Minimum font size for readability */
+  min-width: 320px;
+}
+
+/* ── 2. SAFE AREA INSETS (notch / home-indicator) ─────────── */
+.phoenix-header {
+  /* Push header content below notch */
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.phoenix-footer {
+  /* Push footer above home-indicator bar */
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+}
+
+/* ── 3. TOUCH TARGETS — 44px minimum everywhere ───────────── */
+button,
+[role="button"],
+a,
+input[type="submit"],
+input[type="button"],
+label[for] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Exceptions: decorative elements and icon containers */
+.pfv-close-btn,
+.phoenix-menu-action-icon,
+.social-icon-btn {
+  /* These already have explicit 44px sizing */
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* ── 4. GLOBAL TOUCH FEEDBACK ─────────────────────────────── */
+button:active,
+[role="button"]:active {
+  opacity: 0.75;
+  transform: scale(0.97);
+  transition: opacity 0.08s, transform 0.08s;
+}
+
+/* Cards get a press-down feel */
+.phoenix-poem-card:active,
+.phoenix-publication-card:active {
+  transform: scale(0.98) !important;
+  transition: transform 0.1s ease !important;
+}
+
+/* ── 5. IMAGE SAFETY ──────────────────────────────────────── */
+img, video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ── 6. LAYOUT CONTAINERS ─────────────────────────────────── */
+.phoenix-main {
+  /* Account for fixed header + bottom nav on mobile */
+  padding-top: var(--phoenix-header-height, 80px);
+  /* Bottom nav height + safe area */
+  padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* Desktop: no bottom nav, no extra padding */
+@media (min-width: 769px) {
   .phoenix-main {
-    padding-left: 20px !important;
-    padding-right: 20px !important;
-    box-sizing: border-box !important;
+    padding-bottom: 0;
   }
-
-  /* All content containers */
-  .phoenix-content {
-    padding-left: 20px !important;
-    padding-right: 20px !important;
-    box-sizing: border-box !important;
-  }
-
-  /* Home page sections */
-  .phoenix-home,
-  .phoenix-section-box,
-  .phoenix-about-section-home,
-  .phoenix-poems-section-home,
-  .phoenix-publications-section-home {
-    padding-left: 20px !important;
-    padding-right: 20px !important;
-    box-sizing: border-box !important;
-  }
-
-  /* Category pages */
-  .phoenix-category-detail,
-  .phoenix-category-header,
-  .phoenix-publications-grid-full,
-  .phoenix-poems-list {
-    padding-left: 20px !important;
-    padding-right: 20px !important;
-    box-sizing: border-box !important;
-  }
-
-  /* Publication pages */
-  .phoenix-publication-page,
-  .phoenix-publication-header,
-  .phoenix-publication-cover,
-  .phoenix-publication-description {
-    padding-left: 20px !important;
-    padding-right: 20px !important;
-    box-sizing: border-box !important;
-  }
-
-  /* Poem pages */
-  .phoenix-poem-detail,
-  .phoenix-poem-header,
-  .phoenix-poem-text,
-  .phoenix-poem-content,
-  .phoenix-poem-navigation {
-    padding-left: 20px !important;
-    padding-right: 20px !important;
-    box-sizing: border-box !important;
-  }
-
-  /* About pages */
-  .phoenix-about-panel,
-  .phoenix-about-title,
-  .phoenix-about-layout {
-    padding-left: 20px !important;
-    padding-right: 20px !important;
-    box-sizing: border-box !important;
-  }
-
-  /* Settings and Contact pages */
-  .phoenix-settings,
-  .phoenix-contact {
-    padding-left: 20px !important;
-    padding-right: 20px !important;
-    box-sizing: border-box !important;
-  }
-
-  /* Section titles */
-  .phoenix-section-title,
-  .phoenix-category-title {
-    padding-left: 20px !important;
-    padding-right: 20px !important;
-    box-sizing: border-box !important;
-  }
-
-  /* Lists and grids */
-  .phoenix-poems-list-home,
-  .phoenix-about-home-layout,
-  .phoenix-publications-scroll {
-    padding-left: 20px !important;
-    padding-right: 20px !important;
-    box-sizing: border-box !important;
-  }
-  
-  /* Menu items padding */
-  .phoenix-menu-item {
-    padding-left: var(--phoenix-padding-mobile) !important;
-    padding-right: var(--phoenix-padding-mobile) !important;
-  }
-  
-  /* Language toggle padding */
-  .phoenix-lang-toggle-menu {
-    margin-left: var(--phoenix-padding-mobile) !important;
-    margin-right: var(--phoenix-padding-mobile) !important;
-  }
-
-  /* Images - ensure they don't break out */
-  img {
-    max-width: 100% !important;
-    height: auto !important;
-  }
-
-  /* CRITICAL: Reduce vertical spacing between sections */
-  .phoenix-section,
-  .phoenix-section-box {
-    margin-top: 30px !important;
-    margin-bottom: 30px !important;
-  }
-
-  /* Reduce spacing between list items */
-  .phoenix-poem-item-home,
-  .phoenix-poem-card {
-    margin-bottom: 12px !important;
-  }
-
-  .phoenix-poems-list-home {
-    gap: 8px !important;
-  }
-
-  /* Reduce spacing in category pages */
-  .phoenix-category-header {
-    margin-bottom: 20px !important;
-    padding-top: 20px !important;
-  }
-
-  .phoenix-publications-grid-full,
-  .phoenix-poems-list {
-    margin-top: 20px !important;
+  html {
+    font-size: 16px;
   }
 }
 
-/* Additional mobile-specific spacing reductions */
-@media (max-width: 600px) {
-  .phoenix-main {
-    padding-top: 12px !important;
-    padding-bottom: 100px !important;
-  }
+/* ── 7. HORIZONTAL OVERFLOW GUARD ─────────────────────────── */
+.phoenix-home,
+.phoenix-category-detail,
+.phoenix-about-panel,
+.phoenix-contact,
+.phoenix-publication-page,
+.phoenix-poem-detail {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
 
+/* ── 8. SECTION SPACING — mobile-first ────────────────────── */
+@media (max-width: 600px) {
   .phoenix-section-box {
-    padding-top: 16px !important;
-    padding-bottom: 16px !important;
-    margin-top: 24px !important;
-    margin-bottom: 24px !important;
+    padding: 1.5rem 0 !important;
+    margin: 0.5rem 0 !important;
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
   }
 
   .phoenix-section-title {
-    margin-bottom: 12px !important;
-    padding-bottom: 8px !important;
+    font-size: clamp(1.4rem, 6vw, 2rem) !important;
+    margin-bottom: 0.75rem !important;
   }
 }
 
-/* Ultra-small viewports (<360px) header & layout protection */
-@media (max-width: 360px) {
+/* ── 9. SCROLL ─────────────────────────────────────────────── */
+/* Momentum scrolling in scroll containers */
+.phoenix-publications-scroll,
+.pfv-poem-body,
+.phoenix-menu-list {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* ── 10. FOCUS VISIBLE — a11y ─────────────────────────────── */
+:focus-visible {
+  outline: 2px solid #b45309;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Remove focus ring for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ── 11. PREVENT TEXT OVERFLOW EVERYWHERE ─────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+p {
+  overflow-wrap: break-word;
+}
+
+/* ── 12. FORM INPUTS — zoom-safe on iOS ───────────────────── */
+input,
+textarea,
+select {
+  font-size: 16px !important; /* Prevents iOS auto-zoom */
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* ── 13. ULTRA-NARROW (< 360px) protection ────────────────── */
+@media (max-width: 359px) {
   .phoenix-header-container {
-    padding-left: 10px !important;
-    padding-right: 10px !important;
-  }
-  .phoenix-header-title {
-    font-size: 0.85rem !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
   }
   .btn-lang {
     padding: 4px 10px !important;
     font-size: 0.75rem !important;
   }
+  .phoenix-header-title {
+    font-size: 0.82rem !important;
+  }
 }
-

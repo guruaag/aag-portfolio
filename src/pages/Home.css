@@ -149,6 +149,7 @@
   color: #475569;
   margin-bottom: var(--phoenix-space-lg);
   text-align: left;
+  white-space: pre-line;
 }
 
 /* Single-Row Flex/Grid Container */

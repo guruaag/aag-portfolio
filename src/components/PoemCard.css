@@ -11,7 +11,7 @@
   transition: all 0.25s ease-in-out;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   height: 100%;
-  box-sizing: border-border-box;
+  box-sizing: border-box;
 }
 
 .phoenix-poem-card:hover {
@@ -58,8 +58,9 @@
   color: #475569;
   line-height: 1.6;
   margin-bottom: 1.5rem;
+  white-space: pre-line;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

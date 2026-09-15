@@ -41,6 +41,7 @@ function HeroSection() {
  }
 
  setHeroConfig({
+ badge: sMap.home_hero_badge !== undefined ? sMap.home_hero_badge : '',
  title: sMap.home_hero_title || 'अग्नि कलश',
  subtitle: sMap.home_hero_subtitle || '"हिंदी काव्य और ओजस्वी चेतना की अमर गाथा"',
  description: sMap.home_hero_description || '',
@@ -114,9 +115,11 @@ function HeroSection() {
  animate={{ opacity: 1, x: 0 }}
  transition={{ duration: 0.8, delay: 0.2 }}
  >
+ {heroConfig.badge ? (
  <span className="leona-featured-tag">
- {isHi ? 'कवि' : 'Poet'} {authorName} <span className="phoenix-hero-aag">{penName}</span>
+ {heroConfig.badge}
  </span>
+ ) : null}
 
  <h1 className="leona-hero-title">
  {heroConfig.title}
