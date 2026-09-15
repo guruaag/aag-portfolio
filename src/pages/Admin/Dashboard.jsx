@@ -3485,11 +3485,12 @@ function InboxManager({ onUpdate }) {
 
  const handleToggleRead = async (msg) => {
  const targetStatus = !msg.is_read
- setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, is_read: targetStatus } : m))
+ setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, is_read: targetStatus, status: targetStatus ? 'read' : 'unread' } : m))
  try {
   const readSet = JSON.parse(localStorage.getItem('read_contact_submissions') || '[]')
   const updatedSet = targetStatus ? [...new Set([...readSet, msg.id])] : readSet.filter(id => id !== msg.id)
   localStorage.setItem('read_contact_submissions', JSON.stringify(updatedSet))
+  await supabase.from('contact_submissions').update({ is_read: targetStatus, status: targetStatus ? 'read' : 'unread' }).eq('id', msg.id)
  } catch (e) {
  console.warn('Mark read error:', e)
  }

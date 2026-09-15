@@ -126,9 +126,11 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, onC
  useEffect(() => {
  const handleKeyDown = (e) => {
  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+ e.preventDefault();
  if (e.shiftKey) handleRedo();
  else handleUndo();
  } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+ e.preventDefault();
  handleRedo();
  }
  };
@@ -166,7 +168,6 @@ export default function PM5WritingDesk({ initialPages = [''], onSave = null, onC
  const updatedPages = [...pages];
  updatedPages[activeIdx] = text;
  setPages(updatedPages);
- pushHistory(updatedPages);
  setIsDirty(true);
  };
 

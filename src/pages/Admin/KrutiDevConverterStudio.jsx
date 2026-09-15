@@ -24,6 +24,7 @@ oukZ gj cPpk ik tkrk f'k{kk dk vf/kdkjA`);
     normalizeNukta: true,
     fixMatra: true,
     cleanControlChars: true,
+    formatStanzas: false,
     digitMode: 'original' // 'original', 'toDevanagari', 'toASCII'
   });
 
@@ -44,6 +45,14 @@ oukZ gj cPpk ik tkrk f'k{kk dk vf/kdkjA`);
       fixMatra: options.fixMatra,
       digits: options.digitMode
     });
+
+    if (options.formatStanzas) {
+      converted = converted
+        .split('\n')
+        .map(line => line.trim())
+        .join('\n')
+        .replace(/\n{3,}/g, '\n\n');
+    }
 
     setConvertedText(converted);
   }, [rawText, options]);
@@ -70,13 +79,7 @@ oukZ gj cPpk ik tkrk f'k{kk dk vf/kdkjA`);
 
   // Format Verse & Stanzas
   const handleFormatStanzas = () => {
-    if (!convertedText) return;
-    let formatted = convertedText
-      .split('\n')
-      .map(line => line.trim())
-      .join('\n')
-      .replace(/\n{3,}/g, '\n\n');
-    setConvertedText(formatted);
+    setOptions(prev => ({ ...prev, formatStanzas: !prev.formatStanzas }));
   };
 
   // Send Direct to Kavya Sangrah New Poem Editor
