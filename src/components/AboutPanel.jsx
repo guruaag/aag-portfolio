@@ -58,6 +58,7 @@ function AboutPanel({ aboutContent, categoryName }) {
                   alt={displayTitle}
                   className="phoenix-about-photo-image"
                   onError={(e) => {
+                e.target.onerror = null;
                     e.target.style.display = 'none'
                     const placeholder = e.target.nextElementSibling
                     if (placeholder) placeholder.style.display = 'flex'

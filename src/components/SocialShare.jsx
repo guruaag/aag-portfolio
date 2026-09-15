@@ -30,7 +30,9 @@ function SocialShare({ url, title, description }) {
         shareUrl = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`
         break
       case 'whatsapp':
-        shareUrl = `https://api.whatsapp.com/send?text=${encodedTitle}%20${encodedUrl}`
+        const isMobile = typeof navigator !== 'undefined' && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+        const waBase = isMobile ? 'whatsapp://send' : 'https://api.whatsapp.com/send'
+        shareUrl = `${waBase}?text=${encodedTitle}%20${encodedUrl}`
         break
       case 'copy':
         try {

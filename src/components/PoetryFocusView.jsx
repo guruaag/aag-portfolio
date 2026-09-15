@@ -85,7 +85,7 @@ function toHindi(n) {
 // ════════════════════════════════════════════════════════
 //  Component
 // ════════════════════════════════════════════════════════
-function PoetryFocusView({ poem, poems = [], onClose }) {
+function PoetryFocusView({ poem, poems = [], onClose, onPrevPoem, onNextPoem }) {
   const { i18n } = useTranslation()
   const isHi = i18n.language === 'hi'
 
@@ -101,6 +101,11 @@ function PoetryFocusView({ poem, poems = [], onClose }) {
   const totalPages = pages.length
 
   const [pageIdx, setPageIdx] = useState(0)
+
+  // Compute prev/next poem IDs
+  const poemIndex = Array.isArray(poems) ? poems.findIndex(p => p.id === poem?.id) : -1
+  const prevPoemId = poemIndex > 0 ? poems[poemIndex - 1].id : null
+  const nextPoemId = poemIndex !== -1 && poemIndex < poems.length - 1 ? poems[poemIndex + 1].id : null
 
   // Reset on poem change
   useEffect(() => {

@@ -25,8 +25,10 @@ function CategoryDetail() {
   const [focusPubId, setFocusPubId] = useState(null)
 
   useEffect(() => {
-    // Scroll to top when category changes
+    // Scroll to top and reset focus states when category changes
     window.scrollTo({ top: 0, behavior: 'instant' })
+    setFocusPoemId(null)
+    setFocusPubId(null)
     loadCategory()
   }, [categoryId])
 

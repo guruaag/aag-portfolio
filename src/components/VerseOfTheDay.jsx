@@ -27,12 +27,15 @@ function VerseOfTheDay() {
  const randomIndex = Math.floor(Math.random() * pool.length)
  const selectedPoem = pool[randomIndex]
  
- // Get first few lines as verse
- const content = i18n.language === 'hi' 
- ? (selectedPoem.body_text_hi || selectedPoem.body_text_en)
- : (selectedPoem.body_text_en || selectedPoem.body_text_hi)
- 
- const lines = content?.split('\n').filter(l => l.trim()).slice(0, 4) || []
+  // Get first few lines as verse with pages array & full text fallback
+  const rawText = Array.isArray(selectedPoem.pages)
+    ? selectedPoem.pages.join('\n')
+    : (i18n.language === 'hi' 
+      ? (selectedPoem.body_text_hi || selectedPoem.body_text_en || selectedPoem.full_text || selectedPoem.description)
+      : (selectedPoem.body_text_en || selectedPoem.body_text_hi || selectedPoem.full_text || selectedPoem.description))
+  const content = rawText || ''
+  
+  const lines = content.split('\n').filter(l => l.trim()).slice(0, 4) || []
  
  setVerse({
  title: i18n.language === 'hi'

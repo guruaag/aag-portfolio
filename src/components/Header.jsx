@@ -150,6 +150,7 @@ function Header() {
               }}
               transition={{ duration: 0.3 }}
               onError={(e) => {
+                e.target.onerror = null;
                 e.target.src = '/logo.png'
               }}
             />
