@@ -40,7 +40,7 @@ function FollowModal({ isOpen, onClose, socialLinks }) {
     )
   }
 
-  const activeSocialLinks = Object.entries(socialLinks || {}).filter(([_, url]) => url)
+  const activeSocialLinks = Object.entries(socialLinks || {}).filter(([key, url]) => url && url.trim() !== '' && socialLinks['enable_' + key] !== 'false')
 
   if (!isOpen) return null
 

@@ -1141,6 +1141,20 @@ function HomeManager({ initialSubTab = 'hero', poems = [], publications = [], ab
   }
 
   // Submit Handler for entire Home Manager view (Bound to form="admin-active-form")
+  const renderLabelWithToggle = (labelHi, labelEn, key) => (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+      <label style={{ margin: 0 }}>{tLabel(labelHi, labelEn)}</label>
+      <label style={{ margin: 0, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--admin-text-secondary, #666)' }}>
+        <input
+          type="checkbox"
+          checked={formData[key] === 'true'}
+          onChange={e => setFormData({ ...formData, [key]: e.target.checked ? 'true' : 'false' })}
+        />
+        {tLabel('साइट पर दिखाएं', 'Show on site')}
+      </label>
+    </div>
+  )
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     let hasError = false
@@ -1669,7 +1683,7 @@ function ContactInfoForm({ settings, onUpdate, setIsDirty }) {
  >
  <div className="admin-form-grid">
  <div className="admin-form-group">
- <label>{tLabel('फोन नंबर', 'Phone Number')}</label>
+ {renderLabelWithToggle('फोन नंबर', 'Phone Number', 'enable_phone')}
  <input
  className="admin-input"
  type="tel"
@@ -1688,7 +1702,7 @@ function ContactInfoForm({ settings, onUpdate, setIsDirty }) {
  />
  </div>
  <div className="admin-form-group">
- <label>{tLabel('व्हाट्सएप लिंक', 'WhatsApp Link')}</label>
+ {renderLabelWithToggle('व्हाट्सएप लिंक', 'WhatsApp Link', 'enable_whatsapp')}
  <input
  className="admin-input"
  value={formData.whatsapp}
@@ -1706,7 +1720,7 @@ function ContactInfoForm({ settings, onUpdate, setIsDirty }) {
  />
  </div>
  <div className="admin-form-group">
- <label>{tLabel('ईमेल पता', 'Email Address')}</label>
+ {renderLabelWithToggle('ईमेल पता', 'Email Address', 'enable_email')}
  <input
  className="admin-input"
  type="email"
@@ -1734,7 +1748,7 @@ function ContactInfoForm({ settings, onUpdate, setIsDirty }) {
  />
  </div>
  <div className="admin-form-group">
- <label>{tLabel('फेसबुक प्रोफाइल लिंक', 'Facebook Profile Link')}</label>
+ {renderLabelWithToggle('फेसबुक प्रोफाइल लिंक', 'Facebook Profile Link', 'enable_facebook')}
  <input
  className="admin-input"
  value={formData.facebook}
@@ -1743,7 +1757,7 @@ function ContactInfoForm({ settings, onUpdate, setIsDirty }) {
  />
  </div>
  <div className="admin-form-group">
- <label>{tLabel('इंस्टाग्राम प्रोफाइल लिंक', 'Instagram Profile Link')}</label>
+ {renderLabelWithToggle('इंस्टाग्राम प्रोफाइल लिंक', 'Instagram Profile Link', 'enable_instagram')}
  <input
  className="admin-input"
  value={formData.instagram}
@@ -1752,7 +1766,7 @@ function ContactInfoForm({ settings, onUpdate, setIsDirty }) {
  />
  </div>
  <div className="admin-form-group">
- <label>{tLabel('ट्विटर / एक्स प्रोफाइल लिंक', 'Twitter/X Profile Link')}</label>
+ {renderLabelWithToggle('ट्विटर / एक्स प्रोफाइल लिंक', 'Twitter/X Profile Link', 'enable_twitter')}
  <input
  className="admin-input"
  value={formData.twitter}
@@ -1761,7 +1775,7 @@ function ContactInfoForm({ settings, onUpdate, setIsDirty }) {
  />
  </div>
  <div className="admin-form-group">
- <label>{tLabel('लिंक्डइन प्रोफाइल लिंक', 'LinkedIn Profile Link')}</label>
+ {renderLabelWithToggle('लिंक्डइन प्रोफाइल लिंक', 'LinkedIn Profile Link', 'enable_linkedin')}
  <input
  className="admin-input"
  value={formData.linkedin}
@@ -1770,7 +1784,7 @@ function ContactInfoForm({ settings, onUpdate, setIsDirty }) {
  />
  </div>
  <div className="admin-form-group">
- <label>{tLabel('यूट्यूब चैनल लिंक', 'YouTube Channel Link')}</label>
+ {renderLabelWithToggle('यूट्यूब चैनल लिंक', 'YouTube Channel Link', 'enable_youtube')}
  <input
  className="admin-input"
  value={formData.youtube}
@@ -2507,6 +2521,20 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
       setUploadingImage(false)
     }
   }
+
+  const renderLabelWithToggle = (labelHi, labelEn, key) => (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+      <label style={{ margin: 0 }}>{tLabel(labelHi, labelEn)}</label>
+      <label style={{ margin: 0, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--admin-text-secondary, #666)' }}>
+        <input
+          type="checkbox"
+          checked={formData[key] === 'true'}
+          onChange={e => setFormData({ ...formData, [key]: e.target.checked ? 'true' : 'false' })}
+        />
+        {tLabel('साइट पर दिखाएं', 'Show on site')}
+      </label>
+    </div>
+  )
 
   const handleSubmit = async (e) => {
     e.preventDefault()

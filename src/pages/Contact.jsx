@@ -51,6 +51,12 @@ function Contact() {
     }
   }
 
+  const isChannelVisible = (key) => {
+    const val = settings[key]
+    const enabled = settings['enable_' + key]
+    return val && val.trim() !== '' && enabled !== 'false'
+  }
+
   const handleContactChannel = (type, value) => {
     if (!value) return
     switch (type) {
@@ -258,7 +264,7 @@ function Contact() {
           </h3>
 
           <div className="phoenix-contact-grid">
-            {settings.phone && (
+            {isChannelVisible('phone') && (
               <motion.button
                 className="phoenix-contact-card"
                 onClick={() => handleContactChannel('phone', settings.phone)}
@@ -278,7 +284,7 @@ function Contact() {
               </motion.button>
             )}
 
-            {settings.whatsapp && (
+            {isChannelVisible('whatsapp') && (
               <motion.button
                 className="phoenix-contact-card"
                 onClick={() => handleContactChannel('whatsapp', settings.whatsapp)}
@@ -298,7 +304,7 @@ function Contact() {
               </motion.button>
             )}
 
-            {settings.email && (
+            {isChannelVisible('email') && (
               <motion.button
                 className="phoenix-contact-card"
                 onClick={() => handleContactChannel('email', settings.email)}
@@ -319,7 +325,7 @@ function Contact() {
               </motion.button>
             )}
 
-            {settings.facebook && (
+            {isChannelVisible('facebook') && (
               <motion.button
                 className="phoenix-contact-card"
                 onClick={() => handleContactChannel('facebook', settings.facebook)}
@@ -339,7 +345,7 @@ function Contact() {
               </motion.button>
             )}
 
-            {settings.instagram && (
+            {isChannelVisible('instagram') && (
               <motion.button
                 className="phoenix-contact-card"
                 onClick={() => handleContactChannel('instagram', settings.instagram)}
@@ -361,7 +367,7 @@ function Contact() {
               </motion.button>
             )}
 
-            {settings.youtube && (
+            {isChannelVisible('youtube') && (
               <motion.button
                 className="phoenix-contact-card"
                 onClick={() => handleContactChannel('youtube', settings.youtube)}
