@@ -38,8 +38,8 @@ function Contact() {
       if (data && data.length > 0) {
         const settingsMap = {}
         data.forEach(s => {
-          if (s.value && s.value.trim() !== '') {
-            settingsMap[s.key] = s.value
+          if (s && s.key) {
+            settingsMap[s.key] = s.value !== undefined && s.value !== null ? s.value : ''
           }
         })
         setSettings(prev => ({ ...prev, ...settingsMap }))
@@ -54,7 +54,10 @@ function Contact() {
   const isChannelVisible = (key) => {
     const val = settings[key]
     const enabled = settings['enable_' + key]
-    return val && val.trim() !== '' && enabled !== 'false'
+    if (enabled !== undefined && enabled !== null && enabled !== '') {
+      return enabled === 'true' && val !== undefined && val !== null && val.trim() !== ''
+    }
+    return val !== undefined && val !== null && val.trim() !== ''
   }
 
   const handleContactChannel = (type, value) => {

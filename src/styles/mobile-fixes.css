@@ -200,12 +200,24 @@ p {
 }
 
 /* ── 12. FORM INPUTS — zoom-safe on iOS ───────────────────── */
-input,
+input:not([type="checkbox"]):not([type="radio"]),
 textarea,
 select {
   font-size: 16px !important;
   -webkit-appearance: none;
   appearance: none;
+}
+
+input[type="checkbox"] {
+  -webkit-appearance: checkbox !important;
+  appearance: checkbox !important;
+  width: 18px !important;
+  height: 18px !important;
+  cursor: pointer !important;
+  accent-color: #B85C38 !important;
+  display: inline-block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 /* ── 13. ULTRA-NARROW (< 360px) protection ────────────────── */

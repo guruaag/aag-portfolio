@@ -57,8 +57,8 @@ function Footer() {
       if (data) {
         const links = {}
         data.forEach(s => {
-          if (['facebook', 'instagram', 'twitter', 'linkedin', 'youtube', 'whatsapp'].includes(s.key)) {
-            links[s.key] = s.value || ''
+          if (s && s.key) {
+            links[s.key] = s.value !== undefined && s.value !== null ? s.value : ''
           }
         })
         setSocialLinks(links)
@@ -71,7 +71,10 @@ function Footer() {
   const isSocialVisible = (key) => {
     const val = socialLinks[key]
     const enabled = socialLinks['enable_' + key]
-    return val && val.trim() !== '' && enabled !== 'false'
+    if (enabled !== undefined && enabled !== null && enabled !== '') {
+      return enabled === 'true' && val !== undefined && val !== null && val.trim() !== ''
+    }
+    return val !== undefined && val !== null && val.trim() !== ''
   }
 
   const handleBack = () => {

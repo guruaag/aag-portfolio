@@ -184,7 +184,7 @@ function ContactModal({ isOpen, onClose }) {
  { key: 'twitter', label: 'Twitter', value: settings.twitter, icon: socialIcons.twitter },
  { key: 'linkedin', label: 'LinkedIn', value: settings.linkedin, icon: socialIcons.linkedin },
  { key: 'youtube', label: 'YouTube', value: settings.youtube, icon: socialIcons.youtube }
- ].filter(opt => opt.value)
+ ].filter(opt => opt.value && opt.value.trim() !== '' && settings['enable_' + opt.key] !== 'false')
 
  if (!isOpen) return null
 

@@ -1607,52 +1607,70 @@ function ContactSectionManager({ settings, initialSubTab, onUpdate, setIsDirty }
 function ContactInfoForm({ settings, onUpdate, setIsDirty }) {
   const { tLabel } = useAdminLang()
 
+  const [formData, setFormData] = useState({
+    phone: '',
+    phone_text: '',
+    enable_phone: 'true',
+    whatsapp: '',
+    whatsapp_text: '',
+    enable_whatsapp: 'true',
+    email: '',
+    email_text: '',
+    enable_email: 'true',
+    address: '',
+    facebook: '',
+    enable_facebook: 'true',
+    instagram: '',
+    enable_instagram: 'true',
+    twitter: '',
+    enable_twitter: 'true',
+    linkedin: '',
+    enable_linkedin: 'true',
+    youtube: '',
+    enable_youtube: 'true'
+  })
+
+  useEffect(() => {
+    if (settings) {
+      setFormData({
+        phone: settings.phone || '+91 76768 85989',
+        phone_text: settings.phone_text || 'कॉल करें',
+        enable_phone: settings.enable_phone !== undefined ? settings.enable_phone : 'true',
+        whatsapp: settings.whatsapp || 'https://wa.me/917676885989',
+        whatsapp_text: settings.whatsapp_text || 'व्हाट्सएप करें',
+        enable_whatsapp: settings.enable_whatsapp !== undefined ? settings.enable_whatsapp : 'true',
+        email: settings.email || 'contact@gurupratapsharma.com',
+        email_text: settings.email_text || 'ईमेल भेजें',
+        enable_email: settings.enable_email !== undefined ? settings.enable_email : 'true',
+        address: settings.address || 'साहित्य सदन, सिविल लाइन्स, जयपुर (राजस्थान), भारत - 302006',
+        facebook: settings.facebook || '',
+        enable_facebook: settings.enable_facebook !== undefined ? settings.enable_facebook : 'true',
+        instagram: settings.instagram || '',
+        enable_instagram: settings.enable_instagram !== undefined ? settings.enable_instagram : 'true',
+        twitter: settings.twitter || '',
+        enable_twitter: settings.enable_twitter !== undefined ? settings.enable_twitter : 'true',
+        linkedin: settings.linkedin || '',
+        enable_linkedin: settings.enable_linkedin !== undefined ? settings.enable_linkedin : 'true',
+        youtube: settings.youtube || '',
+        enable_youtube: settings.enable_youtube !== undefined ? settings.enable_youtube : 'true'
+      })
+    }
+  }, [settings])
+
   const renderLabelWithToggle = (labelHi, labelEn, key) => (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-      <label style={{ margin: 0 }}>{tLabel(labelHi, labelEn)}</label>
-      <label style={{ margin: 0, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--admin-text-secondary, #666)' }}>
+      <label style={{ margin: 0, fontWeight: 600 }}>{tLabel(labelHi, labelEn)}</label>
+      <label style={{ margin: 0, fontSize: '0.85rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', color: formData[key] === 'true' ? '#2e7d32' : '#888', fontWeight: 500, userSelect: 'none' }}>
         <input
           type="checkbox"
+          style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#B85C38', appearance: 'checkbox', WebkitAppearance: 'checkbox', opacity: 1, visibility: 'visible', margin: 0 }}
           checked={formData[key] === 'true'}
-          onChange={e => setFormData({ ...formData, [key]: e.target.checked ? 'true' : 'false' })}
+          onChange={e => setFormData(prev => ({ ...prev, [key]: e.target.checked ? 'true' : 'false' }))}
         />
         {tLabel('साइट पर दिखाएं', 'Show on site')}
       </label>
     </div>
   )
- const [formData, setFormData] = useState({
- phone: '',
- phone_text: '',
- whatsapp: '',
- whatsapp_text: '',
- email: '',
- email_text: '',
- address: '',
- facebook: '',
- instagram: '',
- twitter: '',
- linkedin: '',
- youtube: ''
- })
-
- useEffect(() => {
- if (settings) {
- setFormData({
- phone: settings.phone || '+91 76768 85989',
- phone_text: settings.phone_text || 'कॉल करें',
- whatsapp: settings.whatsapp || 'https://wa.me/917676885989',
- whatsapp_text: settings.whatsapp_text || 'व्हाट्सएप करें',
- email: settings.email || 'contact@gurupratapsharma.com',
- email_text: settings.email_text || 'ईमेल भेजें',
- address: settings.address || 'साहित्य सदन, सिविल लाइन्स, जयपुर (राजस्थान), भारत - 302006',
- facebook: settings.facebook || '',
- instagram: settings.instagram || '',
- twitter: settings.twitter || '',
- linkedin: settings.linkedin || '',
- youtube: settings.youtube || ''
- })
- }
- }, [settings])
 
  const handleSubmit = async (e) => {
  e.preventDefault()
