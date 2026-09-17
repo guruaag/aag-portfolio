@@ -171,6 +171,7 @@ function App() {
  <Route path="/admin/sampark" element={<AdminDashboard tab="contact" />} />
  <Route path="/admin/inbox" element={<AdminDashboard tab="inbox" />} />
  <Route path="/admin/settings" element={<AdminDashboard tab="settings" />} />
+ <Route path="/admin/trash" element={<AdminDashboard tab="trash" />} />
  <Route path="/admin/kruti-dev-converter" element={<KrutiDevConverterStudio />} />
  <Route path="/admin/converter" element={<KrutiDevConverterStudio />} />
  </Routes>

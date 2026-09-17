@@ -705,6 +705,9 @@ function AdminDashboard({ tab, initialSubTab }) {
  {activeTab === 'settings' && (
  <SettingsManager settings={data.settings} onUpdate={loadData} setIsDirty={setIsDirty} />
  )}
+ {activeTab === 'trash' && (
+ <TrashManager onUpdate={loadData} setIsDirty={setIsDirty} />
+ )}
  </div>
  </main>
 
@@ -970,7 +973,7 @@ function CategoriesManager({ categories, onUpdate, setIsDirty }) {
  const updated = displayList.filter(i => i.id !== cat.id)
  setItemsList(updated)
  try {
- await supabase.from('categories').delete().eq('id', cat.id)
+ await supabase.from('categories').update({ is_deleted: true, is_active: false }).eq('id', cat.id)
  } catch (e) {
  console.warn('Delete category error:', e)
  }
@@ -2206,7 +2209,7 @@ function PoemsManager({ poems, onUpdate, setIsDirty }) {
  const updated = displayList.filter(i => i.id !== id)
  setItemsList(updated)
  try {
- await supabase.from('poems').delete().eq('id', id)
+ await supabase.from('poems').update({ is_deleted: true, is_active: false }).eq('id', id)
  } catch (e) {
  console.warn('Delete poem error:', e)
  }
@@ -2701,7 +2704,7 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
     clearSelection()
 
     try {
-      await supabase.from('publications').delete().in('id', selectedIds)
+      await supabase.from('publications').update({ is_deleted: true, is_active: false }).in('id', selectedIds)
     } catch (e) {
       console.warn('Batch delete publications error:', e)
     }
@@ -2733,7 +2736,7 @@ function PublicationsManager({ publications, onUpdate, setIsDirty }) {
     const updated = displayList.filter(p => p.id !== id)
     setItemsList(updated)
     try {
-      await supabase.from('publications').delete().eq('id', id)
+      await supabase.from('publications').update({ is_deleted: true, is_active: false }).eq('id', id)
     } catch (e) {
       console.warn('Delete publication error:', e)
     }
@@ -3277,7 +3280,7 @@ function TimelineManager({ onUpdate, setIsDirty }) {
   setItems(updatedList)
   localStorage.setItem('app_timeline_milestones', JSON.stringify(updatedList))
   try {
-    await supabase.from('timeline_milestones').delete().eq('id', id)
+    await supabase.from('timeline_milestones').update({ is_deleted: true }).eq('id', id)
  } catch (e) {}
  onUpdate()
  }
@@ -3455,7 +3458,7 @@ function AwardsManager({ onUpdate, setIsDirty }) {
  setItems(updatedList)
  localStorage.setItem('app_awards_honors', JSON.stringify(updatedList))
  try {
- await supabase.from('awards_honors').delete().eq('id', id)
+ await supabase.from('awards_honors').update({ is_deleted: true }).eq('id', id)
  } catch (e) {}
  onUpdate()
  }
@@ -3652,3 +3655,110 @@ function InboxManager({ onUpdate }) {
 }
 
 export default AdminDashboard
+
+
+function TrashManager({ onUpdate }) {
+  const { tLabel } = useAdminLang()
+  const [deletedItems, setDeletedItems] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchDeletedItems()
+  }, [])
+
+  const fetchDeletedItems = async () => {
+    try {
+      setLoading(true)
+      const [cats, poems, pubs, timeline, awards] = await Promise.all([
+        supabase.from('categories').select('*').or('is_deleted.eq.true,is_active.eq.false'),
+        supabase.from('poems').select('*').or('is_deleted.eq.true,is_active.eq.false'),
+        supabase.from('publications').select('*').or('is_deleted.eq.true,is_active.eq.false'),
+        supabase.from('timeline_milestones').select('*').eq('is_deleted', true),
+        supabase.from('awards_honors').select('*').eq('is_deleted', true)
+      ])
+
+      const list = [
+        ...(cats.data || []).map(i => ({ ...i, item_type: 'category', label: tLabel('अनुभाग', 'Section'), title: i.title_hi || i.name })),
+        ...(poems.data || []).map(i => ({ ...i, item_type: 'poem', label: tLabel('कविता', 'Poem'), title: i.title_hi || i.title })),
+        ...(pubs.data || []).map(i => ({ ...i, item_type: 'publication', label: tLabel('पुस्तक', 'Book'), title: i.title_hi || i.title })),
+        ...(timeline.data || []).map(i => ({ ...i, item_type: 'timeline', label: tLabel('समयरेखा', 'Timeline'), title: i.title_hi || i.title })),
+        ...(awards.data || []).map(i => ({ ...i, item_type: 'award', label: tLabel('पुरस्कार', 'Award'), title: i.title_hi || i.title }))
+      ]
+      setDeletedItems(list)
+    } catch (err) {
+      console.error('Error fetching trash items:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleRestore = async (item) => {
+    try {
+      const tableMap = {
+        category: 'categories',
+        poem: 'poems',
+        publication: 'publications',
+        timeline: 'timeline_milestones',
+        award: 'awards_honors'
+      }
+      const table = tableMap[item.item_type]
+      if (!table) return
+
+      const updateObj = { is_deleted: false }
+      if (item.item_type === 'category' || item.item_type === 'poem' || item.item_type === 'publication') {
+        updateObj.is_active = true
+      }
+
+      const { error } = await supabase.from(table).update(updateObj).eq('id', item.id)
+      if (error) throw error
+
+      alert(tLabel('सामग्री सफलतापूर्वक पुनर्स्थापित की गई!', 'Item restored successfully!'))
+      fetchDeletedItems()
+      if (onUpdate) onUpdate()
+    } catch (err) {
+      alert(tLabel('पुनर्प्राप्ति त्रुटि: ' + err.message, 'Restore error: ' + err.message))
+    }
+  }
+
+  return (
+    <div className="admin-card-panel">
+      <div className="admin-panel-header" style={{ marginBottom: '20px' }}>
+        <h2 style={{ fontFamily: 'Lora, serif', fontSize: '1.25rem', margin: 0 }}>
+          🗑️ {tLabel('रीसाइक्लिंग बिन (सॉफ्ट-डिलीटेड सामग्री)', 'Trash Bin (Soft-Deleted Items)')}
+        </h2>
+        <span style={{ fontSize: '0.88rem', color: '#666' }}>
+          {tLabel('यहाँ हटाई गई सामग्री सुरक्षित है। आप इसे 1-क्लिक से वापस ला सकते हैं।', 'Items deleted are saved here. You can restore them with 1-click.')}
+        </span>
+      </div>
+
+      {loading ? (
+        <div style={{ padding: '30px', textAlign: 'center' }}>{tLabel('लोड हो रहा है...', 'Loading...')}</div>
+      ) : deletedItems.length === 0 ? (
+        <div style={{ padding: '40px', textAlign: 'center', color: '#888', fontStyle: 'italic', background: '#FAF8F5', borderRadius: '8px' }}>
+          {tLabel('ट्रैश खाली है! कोई हटाई गई सामग्री नहीं मिली।', 'Trash is empty! No deleted items found.')}
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {deletedItems.map(item => (
+            <div key={item.item_type + '-' + item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', background: '#FFFFFF', border: '1px solid #E2D7C5', borderRadius: '8px' }}>
+              <div>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '2px 8px', borderRadius: '4px', background: '#FFF3E0', color: '#B85C38', marginRight: '10px' }}>
+                  {item.label}
+                </span>
+                <span style={{ fontWeight: 600, fontSize: '0.98rem' }}>{item.title || 'शीर्षक रहित'}</span>
+              </div>
+              <button
+                type="button"
+                className="admin-btn-secondary"
+                onClick={() => handleRestore(item)}
+                style={{ background: '#E8F5E9', color: '#2E7D32', borderColor: '#A5D6A7', cursor: 'pointer' }}
+              >
+                ↩️ {tLabel('पुनर्स्थापित करें', 'Restore')}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
