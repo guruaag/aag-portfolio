@@ -74,6 +74,19 @@
   background: rgba(212, 175, 55, 0.1);
 }
 
+.footer-admin-mobile-icon {
+  color: #D4AF37 !important;
+  border: 1px solid rgba(212, 175, 55, 0.4) !important;
+  background: rgba(212, 175, 55, 0.1) !important;
+}
+
+.footer-admin-mobile-icon:hover {
+  color: #FFFFFF !important;
+  border-color: #D4AF37 !important;
+  background: #D4AF37 !important;
+  transform: translateY(-2px);
+}
+
 @media (max-width: 768px) {
   .phoenix-footer {
     padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
