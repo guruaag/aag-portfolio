@@ -37,7 +37,11 @@ function PublicationPage() {
   }
 
   const handleClose = () => {
-    navigate('/category/publications')
+    if (window.history.length > 2) {
+      navigate(-1)
+    } else {
+      navigate('/category/publications')
+    }
   }
 
   if (loading) {

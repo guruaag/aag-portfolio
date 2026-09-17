@@ -56,8 +56,8 @@ function PoemCard({ poem, index = 0, hideBadge = false, onOpenFocus }) {
             </div>
           )}
         </div>
-        <div className="phoenix-poem-card-footer">
-          <span className="phoenix-poem-read-more">
+        <div className="phoenix-chip-pill-container" style={{ marginTop: '16px' }}>
+          <span className="phoenix-chip-pill-link">
             {isHi ? 'पढ़ें →' : 'Read →'}
           </span>
         </div>

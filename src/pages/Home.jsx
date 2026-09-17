@@ -263,12 +263,14 @@ function Home() {
  {renderFormattedText(aboutContent.truncated_preview)}
  </p>
  )}
+ <div className="phoenix-chip-pill-container">
  <button
- className="phoenix-highlights-more-btn"
+ className="phoenix-chip-pill-link"
  onClick={() => navigate('/parichay')}
  >
- पूरा परिचय पढ़ें →
+ {isHi ? 'पूरा परिचय पढ़ें →' : 'Read Full Bio →'}
  </button>
+ </div>
  </motion.div>
  </div>
  
@@ -385,12 +387,14 @@ function Home() {
  )}
  </div>
  ))}
+ <div className="phoenix-chip-pill-container">
  <button
- className="phoenix-highlights-more-btn"
+ className="phoenix-chip-pill-link"
  onClick={() => navigate('/parichay')}
  >
- और देखें →
+ {isHi ? 'और देखें →' : 'See More →'}
  </button>
+ </div>
  </div>
  )}
 
@@ -415,12 +419,14 @@ function Home() {
  )}
  </div>
  ))}
+ <div className="phoenix-chip-pill-container">
  <button
- className="phoenix-highlights-more-btn"
+ className="phoenix-chip-pill-link"
  onClick={() => navigate('/parichay')}
  >
- और देखें →
+ {isHi ? 'और देखें →' : 'See More →'}
  </button>
+ </div>
  </div>
  )}
  </div>

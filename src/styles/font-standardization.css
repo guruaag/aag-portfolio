@@ -1,18 +1,21 @@
 /* ============================================
-   FONT STANDARDIZATION - Global Devanagari & Inter Stack
+   FONT STANDARDIZATION - Single Product-Wide Font Family for English & Hindi
    ============================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Tiro+Devanagari+Hindi&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap');
 
 :root {
-  --font-sans: 'Noto Sans Devanagari', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-serif: 'Tiro Devanagari Hindi', serif;
-  --phoenix-font-sans: var(--font-sans);
-  --phoenix-font-serif: var(--font-serif);
+  --font-product-unified: 'Noto Sans Devanagari', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: var(--font-product-unified);
+  --font-serif: var(--font-product-unified);
+  --phoenix-font-sans: var(--font-product-unified);
+  --phoenix-font-serif: var(--font-product-unified);
+  --phoenix-font-hindi: var(--font-product-unified);
 }
 
+*, *::before, *::after,
 body, input, button, select, textarea {
-  font-family: var(--font-sans) !important;
+  font-family: var(--font-product-unified) !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -32,26 +35,28 @@ h1, h2, h3, h4, h5, h6,
 .admin-panel-title,
 .admin-sidebar-brand,
 .admin-breadcrumb-title {
-  font-family: var(--font-sans) !important;
-  font-weight: 700 !important;
+  font-family: var(--font-product-unified) !important;
   letter-spacing: -0.01em;
 }
 
-/* Poetry & Excerpts Only */
+/* Poetry & Excerpts */
 .poem-content,
 .poem-excerpt,
 .phoenix-poem-content,
 .phoenix-poem-card-excerpt,
 .phoenix-poem-excerpt {
-  font-family: var(--font-serif) !important;
+  font-family: var(--font-product-unified) !important;
   line-height: 1.8;
 }
 
-/* Navigation & Buttons */
+/* Navigation, Buttons & Admin */
 button,
 nav,
 .phoenix-btn,
 .phoenix-nav-link,
-.phoenix-menu-item {
-  font-family: var(--font-sans) !important;
+.phoenix-menu-item,
+.admin-sidebar-link,
+.admin-btn {
+  font-family: var(--font-product-unified) !important;
 }
+

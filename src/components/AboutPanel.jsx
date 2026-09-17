@@ -156,7 +156,7 @@ function AboutPanel({ aboutContent, categoryName }) {
               <div className="phoenix-timeline-spine"></div>
               {timeline.map((item, idx) => {
                 const isEven = idx % 2 === 0
-                const yearVal = item.year || item.year_period
+                const yearVal = item.year_display || item.year || item.year_period
                 const itemTitle = item.title_hi || item.title || item.event_title || ''
                 const itemDesc = item.description_hi || item.description || ''
                 return (
@@ -197,7 +197,7 @@ function AboutPanel({ aboutContent, categoryName }) {
             </h2>
             <div className="phoenix-about-awards-grid">
               {awards.map((award, idx) => {
-                const yearVal = award.year || award.year_awarded
+                const yearVal = award.year_display || award.year || award.year_awarded
                 const awardTitle = award.title_hi || award.title || award.award_name || ''
                 const awardDesc = award.description_hi || award.description || award.conferred_by || award.given_by || ''
                 return (

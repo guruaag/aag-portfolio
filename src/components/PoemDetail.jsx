@@ -11,7 +11,11 @@ function PoemDetail({ poem, allPoems = [] }) {
   const { i18n } = useTranslation()
 
   const handleClose = () => {
-    navigate('/category/poems')
+    if (window.history.length > 2) {
+      navigate(-1)
+    } else {
+      navigate('/category/poems')
+    }
   }
 
   if (!poem) return null
