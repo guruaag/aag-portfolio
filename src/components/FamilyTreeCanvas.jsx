@@ -481,21 +481,62 @@ export default function FamilyTreeCanvas({
     return posMap
   }, [coupleContainers, collapsedNodeIds, maxDepthFilter, focalWindowInfo])
 
-  // Automatic Viewport Camera Centering on Focused Node
+  // Automatic Viewport Camera Centering & Auto-Fit for All 4 Directions (Parents, Siblings, Children)
   useEffect(() => {
+    if (!canvasRef.current) return
+
+    const viewW = canvasRef.current.clientWidth || 1000
+    const viewH = canvasRef.current.clientHeight || 700
+
+    if (isFocalMode && focalWindowInfo.isFocalActive && focalWindowInfo.visibleContainers.length > 0) {
+      // Find bounding box of all visible containers in focal window (Parents, Siblings, Children)
+      let minX = Infinity, maxX = -Infinity
+      let minY = Infinity, maxY = -Infinity
+
+      focalWindowInfo.visibleContainers.forEach(c => {
+        const pos = layoutPositions.get(c.id)
+        if (pos) {
+          minX = Math.min(minX, pos.x)
+          maxX = Math.max(maxX, pos.x + pos.width)
+          minY = Math.min(minY, pos.y)
+          maxY = Math.max(maxY, pos.y + pos.height)
+        }
+      })
+
+      if (minX !== Infinity && maxX > minX) {
+        const bboxWidth = maxX - minX
+        const bboxHeight = maxY - minY
+        const centerX = (minX + maxX) / 2
+        const centerY = (minY + maxY) / 2
+
+        // Compute optimal fit zoom level so ALL nodes in 4 directions fit inside view
+        const paddingX = 90
+        const paddingY = 90
+        const scaleX = (viewW - paddingX) / bboxWidth
+        const scaleY = (viewH - paddingY) / bboxHeight
+        const fitZoom = Math.max(0.42, Math.min(1.0, Math.min(scaleX, scaleY)))
+
+        // Center stage around the focal bounding box center
+        const targetX = viewW / 2 - centerX * fitZoom
+        const targetY = viewH / 2 - centerY * fitZoom
+
+        setZoomLevel(fitZoom)
+        setPanOffset({ x: targetX, y: targetY })
+        return
+      }
+    }
+
+    // Default single node centering for full tree mode
     const container = coupleContainers.find(c => c.primary.id === focusedId || (c.secondary && c.secondary.id === focusedId))
     if (container) {
       const pos = layoutPositions.get(container.id)
-      if (pos && canvasRef.current) {
-        const viewW = canvasRef.current.clientWidth || 1000
-        const viewH = canvasRef.current.clientHeight || 700
+      if (pos) {
         const targetX = viewW / 2 - (pos.x + pos.width / 2)
         const targetY = viewH / 2 - (pos.y + pos.height / 2)
         setPanOffset({ x: targetX, y: targetY })
-        setZoomLevel(1.0)
       }
     }
-  }, [focusedId, isFocalMode, layoutPositions, coupleContainers])
+  }, [focusedId, isFocalMode, focalWindowInfo, layoutPositions, coupleContainers])
 
   useEffect(() => {
     if (selectedNodeId) {
@@ -926,6 +967,7 @@ export default function FamilyTreeCanvas({
                   <span className={`focal-tier-badge ${pos.tier}`}>
                     {pos.tier === 'parents' ? (isHi ? '⬆️ माता-पिता (Parents)' : '⬆️ Parents') : null}
                     {pos.tier === 'center' ? (isHi ? '🎯 चयनित (Selected)' : '🎯 Selected') : null}
+                    {pos.tier === 'sibling' ? (isHi ? '◀▶ भाई-बहन (Sibling)' : '◀▶ Sibling') : null}
                     {pos.tier === 'children' ? (isHi ? '⬇️ संतान (Children)' : '⬇️ Children') : null}
                   </span>
                 )}
