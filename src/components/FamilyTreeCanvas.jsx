@@ -542,7 +542,8 @@ export default function FamilyTreeCanvas({
     if (selectedNodeId) {
       setFocusedId(selectedNodeId)
       setIsFocalMode(true)
-      setIsDrawerOpen(true)
+      // Profile drawer stays CLOSED on focus mode load; opens only when "More" button is clicked
+      setIsDrawerOpen(false)
     }
   }, [selectedNodeId])
 
