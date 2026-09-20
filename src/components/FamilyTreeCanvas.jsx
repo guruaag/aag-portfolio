@@ -544,16 +544,30 @@ export default function FamilyTreeCanvas({
     ).slice(0, 10)
   }, [searchQuery, data])
 
-  // Automatic Viewport Camera Centering & Auto-Fit for All 3 Tiers (Parents, Center/Siblings, Children)
+  // Automatic Viewport Camera Centering: Selected person is ALWAYS in the exact center of the screen
   useEffect(() => {
-    if (!canvasRef.current) return
+    if (!canvasRef.current || !focusedId) return
 
     const viewW = canvasRef.current.clientWidth || window.innerWidth || 1000
     const viewH = canvasRef.current.clientHeight || window.innerHeight || 700
     const isMobile = viewW < 640
 
+    // Find the container of the currently selected/focused person
+    const selectedContainer = coupleContainers.find(c => 
+      c.primary.id === focusedId || (c.secondary && c.secondary.id === focusedId)
+    )
+    if (!selectedContainer) return
+
+    const selectedPos = layoutPositions.get(selectedContainer.id)
+    if (!selectedPos) return
+
+    // Exact center coordinates of the selected person container
+    const selectedCenterX = selectedPos.x + selectedPos.width / 2
+    const selectedCenterY = selectedPos.y + selectedPos.height / 2
+
+    // Determine fit zoom level in focal mode so parents and children fit comfortably
+    let targetZoom = zoomLevel
     if (isFocalMode && focalWindowInfo.isFocalActive && focalWindowInfo.visibleContainers.length > 0) {
-      // Find bounding box encompassing ALL 3 TIERS in focal window (Parents top, Focal/Siblings center, Children bottom)
       let minX = Infinity, maxX = -Infinity
       let minY = Infinity, maxY = -Infinity
 
@@ -570,36 +584,21 @@ export default function FamilyTreeCanvas({
       if (minX !== Infinity && maxX > minX) {
         const bboxWidth = maxX - minX
         const bboxHeight = maxY - minY
-        const centerX = (minX + maxX) / 2
-        const centerY = (minY + maxY) / 2 // Center of all 3 tiers (Parents -> Center -> Children)
-
-        // Calculate fit zoom so that top Parents tier, middle Center tier, AND bottom Children tier ALL fit on screen
-        const paddingX = isMobile ? 24 : 90
-        const paddingY = isMobile ? 80 : 90
+        const paddingX = isMobile ? 30 : 100
+        const paddingY = isMobile ? 80 : 100
 
         const scaleX = (viewW - paddingX) / bboxWidth
         const scaleY = (viewH - paddingY) / bboxHeight
-        const fitZoom = Math.max(0.45, Math.min(isMobile ? 0.95 : 1.0, Math.min(scaleX, scaleY)))
-
-        const targetX = viewW / 2 - centerX * fitZoom
-        const targetY = viewH / 2 - centerY * fitZoom
-
-        setZoomLevel(fitZoom)
-        setPanOffset({ x: targetX, y: targetY })
-        return
+        targetZoom = Math.max(0.5, Math.min(isMobile ? 0.95 : 1.0, Math.min(scaleX, scaleY)))
       }
     }
 
-    // Default single node centering for full tree mode
-    const container = coupleContainers.find(c => c.primary.id === focusedId || (c.secondary && c.secondary.id === focusedId))
-    if (container) {
-      const pos = layoutPositions.get(container.id)
-      if (pos) {
-        const targetX = viewW / 2 - (pos.x + pos.width / 2)
-        const targetY = viewH / 2 - (pos.y + pos.height / 2)
-        setPanOffset({ x: targetX, y: targetY })
-      }
-    }
+    // ALWAYS position selected person directly in the screen center
+    const targetX = viewW / 2 - selectedCenterX * targetZoom
+    const targetY = viewH / 2 - selectedCenterY * targetZoom
+
+    setZoomLevel(targetZoom)
+    setPanOffset({ x: targetX, y: targetY })
   }, [focusedId, isFocalMode, focalWindowInfo, layoutPositions, coupleContainers])
 
   useEffect(() => {
