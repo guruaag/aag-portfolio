@@ -544,7 +544,7 @@ export default function FamilyTreeCanvas({
     ).slice(0, 10)
   }, [searchQuery, data])
 
-  // Automatic Viewport Camera Centering & Auto-Fit for All 4 Directions (Parents, Siblings, Children)
+  // Automatic Viewport Camera Centering & Auto-Fit for All 3 Tiers (Parents, Center/Siblings, Children)
   useEffect(() => {
     if (!canvasRef.current) return
 
@@ -553,7 +553,7 @@ export default function FamilyTreeCanvas({
     const isMobile = viewW < 640
 
     if (isFocalMode && focalWindowInfo.isFocalActive && focalWindowInfo.visibleContainers.length > 0) {
-      // Find bounding box of all visible containers in focal window (Parents, Siblings, Children)
+      // Find bounding box encompassing ALL 3 TIERS in focal window (Parents top, Focal/Siblings center, Children bottom)
       let minX = Infinity, maxX = -Infinity
       let minY = Infinity, maxY = -Infinity
 
@@ -571,32 +571,15 @@ export default function FamilyTreeCanvas({
         const bboxWidth = maxX - minX
         const bboxHeight = maxY - minY
         const centerX = (minX + maxX) / 2
-        const centerY = (minY + maxY) / 2
+        const centerY = (minY + maxY) / 2 // Center of all 3 tiers (Parents -> Center -> Children)
 
-        // Focused member position for precise centering
-        const focusedContainer = coupleContainers.find(c => c.primary.id === focusedId || (c.secondary && c.secondary.id === focusedId))
-        const focusedPos = focusedContainer ? layoutPositions.get(focusedContainer.id) : null
-        
-        const targetCenterX = focusedPos ? (focusedPos.x + focusedPos.width / 2) : centerX
-        const targetCenterY = focusedPos ? (focusedPos.y + focusedPos.height / 2) : centerY
+        // Calculate fit zoom so that top Parents tier, middle Center tier, AND bottom Children tier ALL fit on screen
+        const paddingX = isMobile ? 24 : 90
+        const paddingY = isMobile ? 80 : 90
 
-        if (isMobile) {
-          // Mobile Portrait: Scale to readable card size (0.85x - 1.05x) and center on selected focal card
-          const mobileZoom = Math.max(0.85, Math.min(1.05, (viewW - 24) / 340))
-          const targetX = viewW / 2 - targetCenterX * mobileZoom
-          const targetY = viewH / 2 - targetCenterY * mobileZoom
-
-          setZoomLevel(mobileZoom)
-          setPanOffset({ x: targetX, y: targetY })
-          return
-        }
-
-        // Desktop Fit Zoom Calculation
-        const paddingX = 90
-        const paddingY = 90
         const scaleX = (viewW - paddingX) / bboxWidth
         const scaleY = (viewH - paddingY) / bboxHeight
-        const fitZoom = Math.max(0.5, Math.min(1.0, Math.min(scaleX, scaleY)))
+        const fitZoom = Math.max(0.45, Math.min(isMobile ? 0.95 : 1.0, Math.min(scaleX, scaleY)))
 
         const targetX = viewW / 2 - centerX * fitZoom
         const targetY = viewH / 2 - centerY * fitZoom
