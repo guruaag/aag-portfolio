@@ -135,8 +135,7 @@ export default function FamilyTreeCanvas({
   const [collapsedNodeIds, setCollapsedNodeIds] = useState(new Set())
   const [maxDepthFilter, setMaxDepthFilter] = useState('all')
   const [branchFilter, setBranchFilter] = useState('all')
-  const [isFilterOpen, setIsFilterOpen] = useState(false)
-  const [isExportOpen, setIsExportOpen] = useState(false)
+  const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false)
 
   const wrapperRef = useRef(null)
   const canvasRef = useRef(null)
@@ -671,8 +670,7 @@ export default function FamilyTreeCanvas({
     setDragStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y })
     if (document.activeElement) document.activeElement.blur()
     setIsSearchDropdownOpen(false)
-    setIsFilterOpen(false)
-    setIsExportOpen(false)
+    setIsActionsMenuOpen(false)
   }
 
   const handleMouseMove = (e) => {
@@ -690,8 +688,7 @@ export default function FamilyTreeCanvas({
       setDragStart({ x: touch.clientX - panOffset.x, y: touch.clientY - panOffset.y })
       if (document.activeElement) document.activeElement.blur()
       setIsSearchDropdownOpen(false)
-      setIsFilterOpen(false)
-      setIsExportOpen(false)
+      setIsActionsMenuOpen(false)
     }
   }
 
@@ -732,21 +729,20 @@ export default function FamilyTreeCanvas({
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    setIsExportOpen(false)
+    setIsActionsMenuOpen(false)
   }
 
   const exportPNG = () => {
     window.print()
-    setIsExportOpen(false)
+    setIsActionsMenuOpen(false)
   }
 
   return (
     <div className={`family-canvas-wrapper ${isFullscreen ? 'is-fullscreen' : ''}`} ref={wrapperRef}>
       {/* 1. Top Enterprise Control Bar */}
       <div className="canvas-header-bar">
-        {/* Left Controls: Search Pill (English Only), Level-Up */}
+        {/* Left Controls: Clean Search Pill (English Only) */}
         <div className="header-left-group">
-          {/* Autocomplete Search Pill (English Only) */}
           <div className="canvas-search-box">
             <span className="search-icon">🔍</span>
             <input 
@@ -755,8 +751,10 @@ export default function FamilyTreeCanvas({
               placeholder="Search name (e.g. Sankalp)..."
               value={searchQuery}
               onChange={(e) => {
-                setSearchQuery(e.target.value)
-                setIsSearchDropdownOpen(true)
+                // Strict English-Only Sanitizer (Strips Devanagari/Hindi & Special non-English characters)
+                const sanitized = e.target.value.replace(/[\u0900-\u097F]/g, '').replace(/[^a-zA-Z0-9\s.,'-]/g, '')
+                setSearchQuery(sanitized)
+                setIsSearchDropdownOpen(sanitized.trim().length > 0)
               }}
               onFocus={() => {
                 if (searchQuery.trim().length > 0) {
@@ -766,6 +764,7 @@ export default function FamilyTreeCanvas({
               autoComplete="off"
               autoCorrect="off"
               spellCheck="false"
+              lang="en"
             />
             {searchQuery && (
               <button className="clear-search-btn" onClick={() => { setSearchQuery(''); setIsSearchDropdownOpen(false); }}>✕</button>
@@ -791,102 +790,84 @@ export default function FamilyTreeCanvas({
               </div>
             )}
           </div>
-
-          {/* Level Depth Selector (Active when not in Focal Isolation Mode) */}
-          {!isFocalMode && (
-            <div className="header-dropdown-wrapper">
-              <select 
-                className="header-select-btn"
-                value={maxDepthFilter}
-                onChange={(e) => setMaxDepthFilter(e.target.value)}
-                title="Filter Level Depth"
-              >
-                <option value="all">All Levels</option>
-                <option value="1">1 Level (Gen 1)</option>
-                <option value="2">2 Levels (Gen 1-2)</option>
-                <option value="3">3 Levels (Gen 1-3)</option>
-                <option value="4">4 Levels (Gen 1-4)</option>
-              </select>
-            </div>
-          )}
-
-          {/* Level-Up Button (`^`) */}
-          <button className="header-icon-btn" onClick={levelUp} title="Navigate Camera Up 1 Level">
-            ^
-          </button>
         </div>
 
-        {/* Right Controls: Show Full Tree, Filter Options Dropdown, Export Menu, Fullscreen Toggle */}
+        {/* Right Controls: Single Consolidated Top-Right Options Dropdown Menu */}
         <div className="header-right-group">
-          {/* Relocated "🌐 Show Full Tree" / "🎯 Focus Mode" Button right alongside Filter & Export */}
-          <button 
-            className={`header-action-btn ${!isFocalMode ? 'mode-fulltree-active' : ''}`}
-            onClick={isFocalMode ? resetToFullTree : () => setIsFocalMode(true)}
-            title={isFocalMode ? 'Show Full Family Tree' : 'Switch to Focus Mode'}
-          >
-            {isFocalMode ? '🌐 Show Full Tree' : '🎯 Focus Mode'}
-          </button>
-
-          {/* Filter Dropdown */}
           <div className="header-dropdown-wrapper">
             <button 
-              className="header-action-btn"
-              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              className={`header-action-btn primary-menu-btn ${isActionsMenuOpen ? 'menu-active' : ''}`}
+              onClick={() => setIsActionsMenuOpen(!isActionsMenuOpen)}
+              title="Tree Options & Actions"
             >
-              ⚙️ Filter ▾
+              ⚙️ Options ▾
             </button>
-            {isFilterOpen && (
-              <div className="header-menu-dropdown">
+
+            {isActionsMenuOpen && (
+              <div className="header-menu-dropdown right-aligned main-actions-menu">
+                {/* View Mode Toggle */}
+                <button 
+                  className={`menu-item ${!isFocalMode ? 'active' : ''}`}
+                  onClick={() => {
+                    if (isFocalMode) resetToFullTree(); else setIsFocalMode(true);
+                    setIsActionsMenuOpen(false);
+                  }}
+                >
+                  {isFocalMode ? '🌐 Show Full Tree' : '🎯 Focus Mode (1-Step)'}
+                </button>
+
+                {/* Level Up Camera */}
+                <button 
+                  className="menu-item"
+                  onClick={() => { levelUp(); setIsActionsMenuOpen(false); }}
+                >
+                  ⬆️ Level Up (Parent Gen)
+                </button>
+
+                {/* Fullscreen Toggle */}
+                <button 
+                  className="menu-item"
+                  onClick={() => { toggleFullscreen(); setIsActionsMenuOpen(false); }}
+                >
+                  {isFullscreen ? '↙↗ Exit Fullscreen' : '⛶ Enter Fullscreen'}
+                </button>
+
+                <div className="menu-divider" />
+
+                {/* Lineage Filter Options */}
+                <div className="menu-group-label">LINEAGE FILTER</div>
                 <button 
                   className={`menu-item ${branchFilter === 'all' ? 'active' : ''}`}
-                  onClick={() => { setBranchFilter('all'); setIsFilterOpen(false); }}
+                  onClick={() => { setBranchFilter('all'); setIsActionsMenuOpen(false); }}
                 >
-                  All Family Branches
+                  👥 All Family Branches
                 </button>
                 <button 
                   className={`menu-item ${branchFilter === 'paternal' ? 'active' : ''}`}
-                  onClick={() => { setBranchFilter('paternal'); setIsFilterOpen(false); }}
+                  onClick={() => { setBranchFilter('paternal'); setIsActionsMenuOpen(false); }}
                 >
-                  Paternal Lineage
+                  👨‍🦳 Paternal Lineage
                 </button>
                 <button 
                   className={`menu-item ${branchFilter === 'maternal' ? 'active' : ''}`}
-                  onClick={() => { setBranchFilter('maternal'); setIsFilterOpen(false); }}
+                  onClick={() => { setBranchFilter('maternal'); setIsActionsMenuOpen(false); }}
                 >
-                  Maternal Lineage
+                  👩‍🦳 Maternal Lineage
                 </button>
-              </div>
-            )}
-          </div>
 
-          {/* Export Dropdown */}
-          <div className="header-dropdown-wrapper">
-            <button 
-              className="header-action-btn primary-export-btn"
-              onClick={() => setIsExportOpen(!isExportOpen)}
-            >
-              📥 Export ▾
-            </button>
-            {isExportOpen && (
-              <div className="header-menu-dropdown right-aligned">
-                <button className="menu-item" onClick={exportPNG}>
+                <div className="menu-divider" />
+
+                {/* Export Options */}
+                <div className="menu-group-label">EXPORT DATA</div>
+                <button className="menu-item" onClick={() => { exportPNG(); setIsActionsMenuOpen(false); }}>
                   📸 Export PNG Image
                 </button>
-                <button className="menu-item" onClick={exportCSV}>
+                <button className="menu-item" onClick={() => { exportCSV(); setIsActionsMenuOpen(false); }}>
                   📄 Export CSV Dataset
                 </button>
               </div>
             )}
           </div>
-
-          {/* Fullscreen Toggle Button */}
-          <button 
-            className={`header-action-btn ${isFullscreen ? 'mode-fullscreen-active' : ''}`}
-            onClick={toggleFullscreen}
-            title={isFullscreen ? 'Exit Fullscreen' : 'Enter Full Screen View'}
-          >
-            {isFullscreen ? '↙↗ Exit Fullscreen' : '⛶ Fullscreen'}
-          </button>
 
           {onClose && (
             <button className="header-icon-btn close-modal-btn" onClick={onClose} title="Exit Family Tree">
