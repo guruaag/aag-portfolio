@@ -399,12 +399,60 @@ export default function FamilyTreeCanvas({
       const { focusedContainer, parentContainers = [], centerTierContainers = [], childContainers = [] } = focalWindowInfo
       const isMobile = window.innerWidth < 640
       const CENTER_X = 1200
-      const Y_PARENTS = isMobile ? 50 : 70
-      const Y_FOCUSED = isMobile ? 270 : 350
-      const Y_CHILDREN = isMobile ? 490 : 640
+      const Y_PARENTS = isMobile ? 60 : 70
+      const Y_FOCUSED = isMobile ? 310 : 350
+      const Y_CHILDREN = isMobile ? 560 : 630
       const X_GAP = isMobile ? 20 : 40
 
-      // 1. Position Parent Containers in Top Tier (Tier 1)
+      // 1. Position Focused Container EXACTLY centered at CENTER_X
+      if (focusedContainer) {
+        const fW = getWidth(focusedContainer)
+        const fX = CENTER_X - fW / 2
+        posMap.set(focusedContainer.id, {
+          x: fX,
+          y: Y_FOCUSED,
+          width: fW,
+          height: CONTAINER_HEIGHT,
+          tier: 'center'
+        })
+
+        // Position siblings evenly to the left and right of focusedContainer
+        const siblings = centerTierContainers.filter(c => c.id !== focusedContainer.id)
+        const leftSiblings = []
+        const rightSiblings = []
+        siblings.forEach((sC, i) => {
+          if (i % 2 === 0) leftSiblings.push(sC)
+          else rightSiblings.push(sC)
+        })
+
+        let currentLeftX = fX
+        leftSiblings.forEach(sC => {
+          const sW = getWidth(sC)
+          currentLeftX -= (sW + X_GAP)
+          posMap.set(sC.id, {
+            x: currentLeftX,
+            y: Y_FOCUSED,
+            width: sW,
+            height: CONTAINER_HEIGHT,
+            tier: 'sibling'
+          })
+        })
+
+        let currentRightX = fX + fW + X_GAP
+        rightSiblings.forEach(sC => {
+          const sW = getWidth(sC)
+          posMap.set(sC.id, {
+            x: currentRightX,
+            y: Y_FOCUSED,
+            width: sW,
+            height: CONTAINER_HEIGHT,
+            tier: 'sibling'
+          })
+          currentRightX += sW + X_GAP
+        })
+      }
+
+      // 2. Position Parent Containers in Top Tier (Tier 1) RIGHT ABOVE CENTER_X
       if (parentContainers.length > 0) {
         const totalW = parentContainers.reduce((sum, c) => sum + getWidth(c), 0) + (parentContainers.length - 1) * X_GAP
         let startX = CENTER_X - totalW / 2
@@ -421,25 +469,7 @@ export default function FamilyTreeCanvas({
         })
       }
 
-      // 2. Position Center Tier Containers (Siblings + Focused Node) in Middle Tier (Tier 2)
-      if (centerTierContainers.length > 0) {
-        const totalW = centerTierContainers.reduce((sum, c) => sum + getWidth(c), 0) + (centerTierContainers.length - 1) * X_GAP
-        let startX = CENTER_X - totalW / 2
-        centerTierContainers.forEach(cC => {
-          const w = getWidth(cC)
-          const isFocused = cC.id === focusedContainer?.id
-          posMap.set(cC.id, {
-            x: startX,
-            y: Y_FOCUSED,
-            width: w,
-            height: CONTAINER_HEIGHT,
-            tier: isFocused ? 'center' : 'sibling'
-          })
-          startX += w + X_GAP
-        })
-      }
-
-      // 3. Position Child Containers in Bottom Tier (Tier 3)
+      // 3. Position Child Containers in Bottom Tier (Tier 3) RIGHT BELOW CENTER_X
       if (childContainers.length > 0) {
         const totalW = childContainers.reduce((sum, c) => sum + getWidth(c), 0) + (childContainers.length - 1) * X_GAP
         let startX = CENTER_X - totalW / 2
