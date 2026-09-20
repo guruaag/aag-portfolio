@@ -112,7 +112,9 @@ export default function FamilyTreeCanvas({
   data = FAMILY_DATA_35, 
   rootId = 'f-201',
   selectedNodeId,
-  onNodeSelect
+  onNodeSelect,
+  autoFullscreen = false,
+  onClose
 }) {
   const { i18n } = useTranslation()
   const isHi = i18n.language !== 'en'
@@ -168,11 +170,23 @@ export default function FamilyTreeCanvas({
     }
     document.addEventListener('fullscreenchange', handleFSChange)
     document.addEventListener('webkitfullscreenchange', handleFSChange)
+
+    if (autoFullscreen) {
+      setIsFullscreen(true)
+      if (wrapperRef.current) {
+        if (wrapperRef.current.requestFullscreen) {
+          wrapperRef.current.requestFullscreen().catch(() => {})
+        } else if (wrapperRef.current.webkitRequestFullscreen) {
+          wrapperRef.current.webkitRequestFullscreen()
+        }
+      }
+    }
+
     return () => {
       document.removeEventListener('fullscreenchange', handleFSChange)
       document.removeEventListener('webkitfullscreenchange', handleFSChange)
     }
-  }, [])
+  }, [autoFullscreen])
 
   // Fast O(1) Member Map
   const memberMap = useMemo(() => {
@@ -611,6 +625,7 @@ export default function FamilyTreeCanvas({
   const focusMemberAndIsolate = (memberId) => {
     setFocusedId(memberId)
     setIsFocalMode(true) // Instantly collapse unrelated people & show 1-step up/down window
+    setIsDrawerOpen(false) // Guarantee profile drawer stays closed when focusing
     if (onNodeSelect) onNodeSelect(memberId)
   }
 
@@ -866,6 +881,12 @@ export default function FamilyTreeCanvas({
               </div>
             )}
           </div>
+
+          {onClose && (
+            <button className="header-icon-btn close-modal-btn" onClick={onClose} title="Exit Family Tree">
+              ✕
+            </button>
+          )}
         </div>
       </div>
 
