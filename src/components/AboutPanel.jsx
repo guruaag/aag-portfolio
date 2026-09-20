@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { marked } from 'marked'
 import { getImageUrl } from '../lib/imageUtils'
 import { getTimeline, getAwards } from '../lib/supabaseClient'
+import FamilyTreePanel from './FamilyTreePanel'
 import './AboutPanel.css'
 
 function AboutPanel({ aboutContent, categoryName }) {
@@ -102,7 +103,7 @@ function AboutPanel({ aboutContent, categoryName }) {
             ) : (
               <div className="phoenix-about-photo-placeholder">
                 <span className="phoenix-about-photo-initials">GS</span>
-                <span>{isHi ? 'चित्र' : 'Photo'}</span>
+                <span>{isHi ? 'चित्र उपलब्ध नहीं' : 'No photo'}</span>
               </div>
             )}
           </motion.div>
@@ -221,6 +222,22 @@ function AboutPanel({ aboutContent, categoryName }) {
             </div>
           </motion.div>
         )}
+
+        {/* 4. Family Tree & Lineage Section */}
+        <motion.div
+          className="phoenix-about-family-section"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.4, duration: 0.6 }}
+          style={{
+            marginTop: '48px',
+            paddingLeft: 'var(--phoenix-padding-mobile)',
+            paddingRight: 'var(--phoenix-padding-mobile)'
+          }}
+        >
+          <FamilyTreePanel />
+        </motion.div>
       </motion.div>
     </>
   )
