@@ -740,3 +740,108 @@
   color: #FFFFFF;
   border-color: var(--leona-terracotta, #B85C38);
 }
+
+/* 5. Focal Isolation Mode Specific Styling */
+.header-action-btn.mode-focal-active {
+  background: #FFF8F0;
+  border-color: var(--leona-terracotta, #B85C38);
+  color: var(--leona-terracotta, #B85C38);
+  font-weight: 700;
+  box-shadow: 0 0 0 2px rgba(184, 92, 56, 0.15);
+}
+
+.focal-banner-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(90deg, #FFFDF8 0%, #FAF4EB 100%);
+  border-bottom: 1.5px solid #E5DAC9;
+  padding: 8px 16px;
+  font-size: 0.8rem;
+  z-index: 55;
+  position: relative;
+}
+
+.focal-badge-tag {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  background: var(--leona-terracotta, #B85C38);
+  color: #FFFFFF;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.focal-info-text {
+  font-weight: 600;
+  color: #333;
+  margin: 0 12px;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.focal-reset-pill-btn {
+  background: #FFFFFF;
+  border: 1.5px solid var(--leona-terracotta, #B85C38);
+  color: var(--leona-terracotta, #B85C38);
+  border-radius: 14px;
+  padding: 3px 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.focal-reset-pill-btn:hover {
+  background: var(--leona-terracotta, #B85C38);
+  color: #FFFFFF;
+}
+
+.focal-tier-badge {
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.68rem;
+  font-weight: 700;
+  white-space: nowrap;
+  padding: 2px 8px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  z-index: 12;
+}
+
+.focal-tier-badge.parents {
+  background: #EBF3FA;
+  color: #1E5B94;
+  border: 1px solid #B8D4EE;
+}
+
+.focal-tier-badge.center {
+  background: #FFFDF5;
+  color: #8B6508;
+  border: 1px solid #D4AF37;
+}
+
+.focal-tier-badge.children {
+  background: #EBF7EE;
+  color: #1E7B34;
+  border: 1px solid #B5E2C0;
+}
+
+.pinned-zoom-btn.full-tree-btn {
+  font-size: 0.95rem;
+  background: #FAF5F0;
+  border-color: var(--leona-terracotta, #B85C38);
+}
+
+.drawer-name-hi {
+  margin: 0 0 4px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #666;
+}
+
