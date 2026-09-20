@@ -70,7 +70,7 @@ export default function FamilyTreeCanvas({
   
   // Focal Isolation Mode State (1-Step Up / 1-Step Down Isolation)
   const [focusedId, setFocusedId] = useState(selectedNodeId || rootId)
-  const [isFocalMode, setIsFocalMode] = useState(true) // Default true for clean uncluttered view
+  const [isFocalMode, setIsFocalMode] = useState(true)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false)
@@ -82,14 +82,6 @@ export default function FamilyTreeCanvas({
 
   const canvasRef = useRef(null)
   const stageRef = useRef(null)
-
-  useEffect(() => {
-    if (selectedNodeId) {
-      setFocusedId(selectedNodeId)
-      setIsFocalMode(true)
-      setIsDrawerOpen(true)
-    }
-  }, [selectedNodeId])
 
   // Fast O(1) Member Map
   const memberMap = useMemo(() => {
@@ -240,7 +232,7 @@ export default function FamilyTreeCanvas({
 
     const CONTAINER_WIDTH_SINGLE = 170
     const CONTAINER_WIDTH_COUPLE = 360
-    const CONTAINER_HEIGHT = 220
+    const CONTAINER_HEIGHT = 230
     const getWidth = (c) => c.isCouple ? CONTAINER_WIDTH_COUPLE : CONTAINER_WIDTH_SINGLE
 
     if (focalWindowInfo.isFocalActive) {
@@ -248,7 +240,7 @@ export default function FamilyTreeCanvas({
       const CENTER_X = 1200
       const Y_PARENTS = 70
       const Y_FOCUSED = 350
-      const Y_CHILDREN = 630
+      const Y_CHILDREN = 640
       const X_GAP = 40
 
       // 1. Position Focused Container in Center Tier (Tier 2)
@@ -307,7 +299,7 @@ export default function FamilyTreeCanvas({
       if (genTiers[c.generation]) genTiers[c.generation].push(c)
     })
 
-    const Y_GAP = 300
+    const Y_GAP = 310
     const X_GAP = 50
 
     // Gen 1 (Ancestors Root)
@@ -374,6 +366,30 @@ export default function FamilyTreeCanvas({
     return posMap
   }, [coupleContainers, collapsedNodeIds, maxDepthFilter, focalWindowInfo])
 
+  // Automatic Viewport Camera Centering on Focused Node
+  useEffect(() => {
+    const container = coupleContainers.find(c => c.primary.id === focusedId || (c.secondary && c.secondary.id === focusedId))
+    if (container) {
+      const pos = layoutPositions.get(container.id)
+      if (pos && canvasRef.current) {
+        const viewW = canvasRef.current.clientWidth || 1000
+        const viewH = canvasRef.current.clientHeight || 700
+        const targetX = viewW / 2 - (pos.x + pos.width / 2)
+        const targetY = viewH / 2 - (pos.y + pos.height / 2)
+        setPanOffset({ x: targetX, y: targetY })
+        setZoomLevel(1.0)
+      }
+    }
+  }, [focusedId, isFocalMode, layoutPositions, coupleContainers])
+
+  useEffect(() => {
+    if (selectedNodeId) {
+      setFocusedId(selectedNodeId)
+      setIsFocalMode(true)
+      setIsDrawerOpen(true)
+    }
+  }, [selectedNodeId])
+
   // Active Neighborhood Highlight
   const activeNeighborhood = useMemo(() => {
     const activeSet = new Set()
@@ -439,18 +455,6 @@ export default function FamilyTreeCanvas({
     setFocusedId(memberId)
     setIsFocalMode(true) // Instantly collapse unrelated people & show 1-step up/down window
     if (onNodeSelect) onNodeSelect(memberId)
-
-    // Center camera on target
-    setTimeout(() => {
-      const container = coupleContainers.find(c => c.primary.id === memberId || (c.secondary && c.secondary.id === memberId))
-      if (container) {
-        const pos = layoutPositions.get(container.id)
-        if (pos) {
-          setPanOffset({ x: 380 - pos.x, y: 150 - pos.y })
-          setZoomLevel(1.02)
-        }
-      }
-    }, 50)
   }
 
   // Open Detailed Profile Side Drawer
@@ -532,7 +536,6 @@ export default function FamilyTreeCanvas({
   const zoomOut = () => setZoomLevel(prev => Math.max(prev - 0.15, 0.4))
   const resetCamera = () => {
     setZoomLevel(1)
-    setPanOffset({ x: -450, y: 30 })
     setFocusedId(rootId)
     setIsFocalMode(true)
   }
