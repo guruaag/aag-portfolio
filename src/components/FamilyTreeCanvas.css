@@ -390,20 +390,19 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 8px 10px;
-  background: #FFFFFF;
-  border-radius: 14px;
-  border: 1.5px solid #E2D7C5;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+  padding: 0;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   position: absolute;
   z-index: 10;
 }
 
 .family-joint-card.couple-container {
-  border-style: dashed;
-  border-color: rgba(184, 92, 56, 0.45);
-  background: linear-gradient(135deg, #FFFFFF 0%, #FFFDFB 100%);
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 .family-joint-card.dimmed {
@@ -414,15 +413,14 @@
 .family-joint-card.neighborhood-active {
   opacity: 1;
   filter: none;
-  border-color: var(--leona-terracotta, #B85C38);
-  border-style: solid;
-  box-shadow: 0 6px 18px rgba(184, 92, 56, 0.2);
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .family-joint-card.focused-node {
-  border-color: #D4AF37 !important;
-  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.3) !important;
-  background: #FFFDF5 !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
 }
 
 .couple-wedding-ring {
