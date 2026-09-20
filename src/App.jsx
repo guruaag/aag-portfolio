@@ -110,7 +110,7 @@ function App() {
  <HelmetProvider>
  <I18nextProvider i18n={i18n}>
  <FontProvider>
- <BrowserRouter>
+ <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
  <Suspense fallback={<div style={{ 
  display: 'flex', 
  justifyContent: 'center', 

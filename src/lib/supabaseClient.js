@@ -159,18 +159,6 @@ export async function getAllSettings() {
 export async function getTimeline() {
   try {
     const { data, error } = await supabase
-      .from('timeline')
-      .select('*')
-      .order('sort_order', { ascending: true })
-    if (!error && data && data.length > 0) {
-      const active = data.filter(item => item.is_deleted !== true)
-      try { localStorage.setItem('cache_timeline', JSON.stringify(active)) } catch (e) {}
-      return active
-    }
-  } catch (e) {}
-
-  try {
-    const { data, error } = await supabase
       .from('timeline_milestones')
       .select('*')
       .order('sort_order', { ascending: true })
@@ -190,18 +178,6 @@ export async function getTimeline() {
 }
 
 export async function getAwards() {
-  try {
-    const { data, error } = await supabase
-      .from('awards')
-      .select('*')
-      .order('sort_order', { ascending: true })
-    if (!error && data && data.length > 0) {
-      const active = data.filter(item => item.is_deleted !== true)
-      try { localStorage.setItem('cache_awards', JSON.stringify(active)) } catch (e) {}
-      return active
-    }
-  } catch (e) {}
-
   try {
     const { data, error } = await supabase
       .from('awards_honors')
