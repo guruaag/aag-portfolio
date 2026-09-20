@@ -437,119 +437,79 @@
 }
 
 /* Member Boxed Card (Full Edge-to-Edge Photo, Name, and 2 Side-by-Side Action Buttons) */
-/* Member Boxed Card (Reference Design: Popped-Out Top Avatar, Crisp Blue Title, Relation Subtitle & Underlined More Link) */
 .member-boxed-card {
-  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-  width: 155px;
+  width: 165px;
   background: #FFFFFF;
   border-radius: 12px;
-  border: 1.5px solid #CBD5E1;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
-  padding: 26px 8px 10px 8px;
-  margin-top: 24px;
-  overflow: visible;
+  border: 1.5px solid #E5DAC9;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .member-boxed-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(30, 58, 138, 0.14);
-  border-color: #3B82F6;
+  box-shadow: 0 8px 20px rgba(184, 92, 56, 0.15);
+  border-color: var(--leona-terracotta, #B85C38);
 }
 
 .member-boxed-card.card-selected {
-  border-color: #2563EB;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
-  background: #F8FAFC;
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3);
+  background: #FFFDF8;
 }
 
-/* Top Chevron Parent Navigation Badge */
-.card-top-nav-btn {
-  position: absolute;
-  top: -12px;
-  right: 10px;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: #FFFFFF;
-  border: 1.5px solid #CBD5E1;
-  color: #475569;
-  font-weight: 800;
-  font-size: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 10;
-  transition: all 0.2s ease;
-}
-
-.card-top-nav-btn:hover {
-  background: #2563EB;
-  color: #FFFFFF;
-  border-color: #2563EB;
-}
-
-/* Popped-Out Top Avatar Container & Photo */
-.card-avatar-container {
-  position: absolute;
-  top: -26px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 52px;
-  height: 52px;
-  border-radius: 10px;
+/* Full Edge-to-Edge Boxed Photo Header */
+.boxed-photo-container {
+  position: relative;
+  width: 100%;
+  height: 105px;
   overflow: hidden;
-  border: 2px solid #FFFFFF;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
-  cursor: pointer;
-  background: #F1F5F9;
-  z-index: 5;
+  background: #F2ECE1;
 }
 
-.card-avatar-img {
+.boxed-card-photo {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.25s ease;
+  transition: transform 0.3s ease;
 }
 
-.card-avatar-container:hover .card-avatar-img {
-  transform: scale(1.08);
+.member-boxed-card:hover .boxed-card-photo {
+  transform: scale(1.05);
 }
 
 .deceased-lotus-badge {
   position: absolute;
-  top: 2px;
-  right: 2px;
-  font-size: 0.75rem;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 1px 4px;
-  border-radius: 8px;
+  top: 6px;
+  right: 6px;
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(4px);
+  padding: 2px 6px;
+  border-radius: 10px;
   border: 1px solid #D4AF37;
 }
 
-/* Card Content Body: Title, Subtitle, More Link */
-.card-content-body {
+/* Person Meta (Name & Relation) */
+.boxed-card-meta {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   width: 100%;
-  margin-top: 4px;
-  gap: 2px;
+  padding: 8px 6px 4px 6px;
 }
 
-.card-title-name {
-  font-size: 0.88rem;
+.boxed-card-name {
+  font-size: 0.8rem;
   font-weight: 700;
-  color: #1E3A8A;
+  color: #1E1B18;
   margin: 0;
   line-height: 1.25;
   width: 100%;
@@ -558,32 +518,72 @@
   text-overflow: ellipsis;
 }
 
-.card-subtitle-relation {
-  font-size: 0.75rem;
-  color: #64748B;
-  font-weight: 500;
-  margin: 0;
+.boxed-card-relation {
+  font-size: 0.7rem;
+  color: var(--leona-terracotta, #B85C38);
+  font-weight: 600;
+  margin-top: 2px;
   width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.card-more-link {
-  font-size: 0.75rem;
-  color: #2563EB;
-  font-weight: 600;
-  background: none;
-  border: none;
+/* Two Side-by-Side Action Buttons: "More" and "Call" (Touching Each Other & Outer Card Edges) */
+.boxed-card-actions {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  width: 100%;
   padding: 0;
-  margin-top: 2px;
-  cursor: pointer;
-  text-decoration: underline;
-  font-family: inherit;
+  margin-top: auto;
+  border-top: 1px solid #E5DAC9;
 }
 
-.card-more-link:hover {
-  color: #1D4ED8;
+.card-btn-action {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 0;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  border: none;
+}
+
+.card-btn-action.btn-details {
+  background: #FFF8F3;
+  color: var(--leona-terracotta, #B85C38);
+  border-right: 1px solid #E5DAC9;
+  border-bottom-left-radius: 10px;
+}
+
+.card-btn-action.btn-details:hover {
+  background: var(--leona-terracotta, #B85C38);
+  color: #FFFFFF;
+}
+
+.card-btn-action.btn-call {
+  background: #F4FAF5;
+  color: #1E7B34;
+  border-bottom-right-radius: 10px;
+}
+
+.card-btn-action.btn-call:hover {
+  background: #1E7B34;
+  color: #FFFFFF;
+}
+
+.card-btn-action.btn-call:hover {
+  background: #1E7B34;
+  color: #FFFFFF;
+  border-color: #1E7B34;
 }
 
 
@@ -1096,40 +1096,38 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
   }
 
-  /* Large, Bold Readable Member Cards on Mobile (Matching Reference Specs) */
+  /* Large, Bold Readable Member Cards on Mobile */
   .member-boxed-card {
-    width: 150px !important;
-    padding: 28px 8px 12px 8px !important;
-    margin-top: 26px !important;
-    border-width: 1.5px !important;
+    padding: 8px !important;
   }
 
-  .card-avatar-container {
-    width: 58px !important;
-    height: 58px !important;
-    top: -29px !important;
-    border-radius: 12px !important;
-    border-width: 2.5px !important;
+  .boxed-photo-container {
+    height: 75px !important;
   }
 
-  .card-title-name {
-    font-size: 0.95rem !important; /* Bold, high-contrast readable mobile typography */
+  .boxed-card-photo {
+    height: 75px !important;
+    object-fit: cover !alignment;
+  }
+
+  .boxed-card-name {
+    font-size: 0.95rem !important; /* 15px bold font */
     font-weight: 800 !important;
-    color: #1E3A8A !important;
-    margin-bottom: 2px !important;
+    color: #1E1B18 !important;
+    margin: 4px 0 !important;
+    line-height: 1.25 !important;
   }
 
-  .card-subtitle-relation {
+  .boxed-card-actions {
+    margin-top: 6px !important;
+    gap: 6px !important;
+  }
+
+  .card-btn-action {
+    padding: 6px 8px !important;
     font-size: 0.78rem !important;
-    color: #475569 !important;
-    font-weight: 600 !important;
-  }
-
-  .card-more-link {
-    font-size: 0.8rem !important;
     font-weight: 700 !important;
-    color: #2563EB !important;
-    margin-top: 4px !important;
+    min-height: 36px !important;
   }
 
   .family-drawer-overlay {
