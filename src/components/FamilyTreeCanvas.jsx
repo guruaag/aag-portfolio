@@ -73,6 +73,9 @@ export default function FamilyTreeCanvas({
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false)
 
   const canvasRef = useRef(null)
+  const stageRef = useRef(null)
+  const containerRefs = useRef({})
+  const [lines, setLines] = useState([])
 
   useEffect(() => {
     if (selectedNodeId) {
@@ -89,6 +92,57 @@ export default function FamilyTreeCanvas({
   }, [data])
 
   const selectedMember = memberMap.get(focusedId) || data[0]
+
+  // Dynamic SVG Connecting Line Calculation between Parents and Children
+  const updateLineCoordinates = () => {
+    if (!stageRef.current) return
+    const stageRect = stageRef.current.getBoundingClientRect()
+    const newLines = []
+
+    coupleContainers.forEach(parentContainer => {
+      const parentEl = containerRefs.current[parentContainer.id]
+      if (!parentEl) return
+      const pRect = parentEl.getBoundingClientRect()
+
+      const pX = (pRect.left + pRect.width / 2 - stageRect.left) / zoomLevel
+      const pY = (pRect.bottom - stageRect.top) / zoomLevel
+
+      ;(parentContainer.childrenIds || []).forEach(childId => {
+        const childContainer = coupleContainers.find(c => c.primary.id === childId || (c.secondary && c.secondary.id === childId))
+        if (!childContainer) return
+        const childEl = containerRefs.current[childContainer.id]
+        if (!childEl) return
+        const cRect = childEl.getBoundingClientRect()
+
+        const cX = (cRect.left + cRect.width / 2 - stageRect.left) / zoomLevel
+        const cY = (cRect.top - stageRect.top) / zoomLevel
+
+        const isParentActive = activeNeighborhood.has(parentContainer.primary.id) || (parentContainer.secondary && activeNeighborhood.has(parentContainer.secondary.id))
+        const isChildActive = activeNeighborhood.has(childId)
+        const isActiveLine = isParentActive && isChildActive
+
+        const midY = (pY + cY) / 2
+        const pathD = `M ${pX} ${pY} C ${pX} ${midY}, ${cX} ${midY}, ${cX} ${cY}`
+
+        newLines.push({
+          id: `line-${parentContainer.id}-${childContainer.id}`,
+          pathD,
+          isActiveLine
+        })
+      })
+    })
+
+    setLines(newLines)
+  }
+
+  useEffect(() => {
+    const timer = setTimeout(updateLineCoordinates, 100)
+    window.addEventListener('resize', updateLineCoordinates)
+    return () => {
+      clearTimeout(timer)
+      window.removeEventListener('resize', updateLineCoordinates)
+    }
+  }, [coupleContainers, zoomLevel, panOffset, focusedId, isFocusMode])
 
   // Phase 3 Search Autocomplete Filtering
   const searchResults = useMemo(() => {
@@ -308,9 +362,21 @@ export default function FamilyTreeCanvas({
       >
         <motion.div 
           className="family-canvas-stage"
+          ref={stageRef}
           animate={{ x: panOffset.x, y: panOffset.y, scale: zoomLevel }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
         >
+          {/* SVG Tree Connector Lines Overlay */}
+          <svg className="family-tree-svg-canvas">
+            {lines.map(line => (
+              <path 
+                key={line.id}
+                d={line.pathD}
+                className={`tree-connector-line ${line.isActiveLine ? 'line-active' : 'line-dimmed'}`}
+              />
+            ))}
+          </svg>
+
           {/* Generation Tiers / Horizontal Swimlane Bands */}
           {[1, 2, 3, 4].map(genTier => {
             const containers = containersByGen[genTier] || []
@@ -347,7 +413,8 @@ export default function FamilyTreeCanvas({
 
                     return (
                       <div 
-                        key={container.id} 
+                        key={container.id}
+                        ref={el => containerRefs.current[container.id] = el}
                         className={`family-joint-card ${isCouple ? 'couple-container' : 'single-container'} ${isContainerActive ? 'neighborhood-active' : 'dimmed'} ${(isP1Selected || isP2Selected) ? 'focused-node' : ''}`}
                       >
                         {/* Primary Member Card */}
