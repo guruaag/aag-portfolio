@@ -261,7 +261,7 @@ export default function FamilyTreeCanvas({
     })
   }
 
-  // 1-STEP UP / 1-STEP DOWN FOCAL ISOLATION SET COMPUTATION
+  // 1-STEP UP / 1-STEP DOWN + SIBLINGS FOCAL ISOLATION SET COMPUTATION
   const focalWindowInfo = useMemo(() => {
     if (!isFocalMode || !focusedId) {
       return { 
@@ -269,6 +269,7 @@ export default function FamilyTreeCanvas({
         visibleContainers: coupleContainers,
         focusedContainer: null,
         parentContainers: [],
+        centerTierContainers: [],
         childContainers: []
       }
     }
@@ -283,6 +284,7 @@ export default function FamilyTreeCanvas({
         visibleContainers: coupleContainers,
         focusedContainer: null,
         parentContainers: [],
+        centerTierContainers: [],
         childContainers: []
       }
     }
@@ -296,23 +298,39 @@ export default function FamilyTreeCanvas({
       parentIds.has(c.primary.id) || (c.secondary && parentIds.has(c.secondary.id))
     )
 
+    // Center Tier: Focused Container + Sibling Containers (Brothers & Sisters sharing parents)
+    let centerTierContainers = [focusedContainer]
+    if (parentContainers.length > 0) {
+      const allParentChildrenIds = new Set()
+      parentContainers.forEach(pC => {
+        (pC.childrenIds || []).forEach(childId => allParentChildrenIds.add(childId))
+      })
+
+      const siblingAndFocused = coupleContainers.filter(c => 
+        allParentChildrenIds.has(c.primary.id) || (c.secondary && allParentChildrenIds.has(c.secondary.id))
+      )
+      if (siblingAndFocused.length > 0) {
+        centerTierContainers = siblingAndFocused
+      }
+    }
+
     // 1 Generation Below: Direct Children of selected couple
     const childIds = new Set(focusedContainer.childrenIds || [])
     const childContainers = coupleContainers.filter(c => 
       childIds.has(c.primary.id) || (c.secondary && childIds.has(c.secondary.id))
     )
 
-    const visibleContainers = [
-      ...parentContainers,
-      focusedContainer,
-      ...childContainers
-    ]
+    const visibleMap = new Map()
+    parentContainers.forEach(c => visibleMap.set(c.id, c))
+    centerTierContainers.forEach(c => visibleMap.set(c.id, c))
+    childContainers.forEach(c => visibleMap.set(c.id, c))
 
     return {
       isFocalActive: true,
-      visibleContainers,
+      visibleContainers: Array.from(visibleMap.values()),
       focusedContainer,
       parentContainers,
+      centerTierContainers,
       childContainers
     }
   }, [isFocalMode, focusedId, coupleContainers])
@@ -327,7 +345,7 @@ export default function FamilyTreeCanvas({
     const getWidth = (c) => c.isCouple ? CONTAINER_WIDTH_COUPLE : CONTAINER_WIDTH_SINGLE
 
     if (focalWindowInfo.isFocalActive) {
-      const { focusedContainer, parentContainers, centerTierContainers, childContainers } = focalWindowInfo
+      const { focusedContainer, parentContainers = [], centerTierContainers = [], childContainers = [] } = focalWindowInfo
       const CENTER_X = 1200
       const Y_PARENTS = 70
       const Y_FOCUSED = 350
@@ -357,7 +375,7 @@ export default function FamilyTreeCanvas({
         let startX = CENTER_X - totalW / 2
         centerTierContainers.forEach(cC => {
           const w = getWidth(cC)
-          const isFocused = cC.id === focusedContainer.id
+          const isFocused = cC.id === focusedContainer?.id
           posMap.set(cC.id, {
             x: startX,
             y: Y_FOCUSED,
