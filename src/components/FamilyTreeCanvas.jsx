@@ -312,36 +312,64 @@ export default function FamilyTreeCanvas({
       }
     }
 
-    // 1 Generation Above: Parents of primary or spouse
-    const parentIds = new Set([
+    const focusedMemberIds = [focusedContainer.primary.id, focusedContainer.secondary?.id].filter(Boolean)
+
+    // 1 Generation Above: Parent Containers of primary or spouse
+    const directParentIds = new Set([
       ...(focusedContainer.primary.parentIds || []),
       ...(focusedContainer.secondary ? (focusedContainer.secondary.parentIds || []) : [])
     ])
-    const parentContainers = coupleContainers.filter(c => 
-      parentIds.has(c.primary.id) || (c.secondary && parentIds.has(c.secondary.id))
-    )
 
-    // Center Tier: Focused Container + Sibling Containers (Brothers & Sisters sharing parents)
+    const parentContainers = coupleContainers.filter(c => {
+      if (c.id === focusedContainer.id) return false
+      const cMemberIds = [c.primary.id, c.secondary?.id].filter(Boolean)
+
+      const hasDirectParentMatch = cMemberIds.some(id => directParentIds.has(id))
+      const hasReverseChildMatch = (c.childrenIds && c.childrenIds.some(childId => focusedMemberIds.includes(childId))) ||
+        (c.primary.childrenIds && c.primary.childrenIds.some(childId => focusedMemberIds.includes(childId))) ||
+        (c.secondary?.childrenIds && c.secondary.childrenIds.some(childId => focusedMemberIds.includes(childId)))
+
+      return hasDirectParentMatch || hasReverseChildMatch
+    })
+
+    // Center Tier: Focused Container + Sibling Containers (sharing parents)
     let centerTierContainers = [focusedContainer]
-    if (parentContainers.length > 0) {
-      const allParentChildrenIds = new Set()
-      parentContainers.forEach(pC => {
-        (pC.childrenIds || []).forEach(childId => allParentChildrenIds.add(childId))
-      })
+    const siblingIds = new Set()
+    parentContainers.forEach(pC => {
+      ;(pC.childrenIds || []).forEach(cId => siblingIds.add(cId))
+      ;(pC.primary.childrenIds || []).forEach(cId => siblingIds.add(cId))
+      if (pC.secondary?.childrenIds) {
+        pC.secondary.childrenIds.forEach(cId => siblingIds.add(cId))
+      }
+    })
 
-      const siblingAndFocused = coupleContainers.filter(c => 
-        allParentChildrenIds.has(c.primary.id) || (c.secondary && allParentChildrenIds.has(c.secondary.id))
-      )
-      if (siblingAndFocused.length > 0) {
-        centerTierContainers = siblingAndFocused
+    if (siblingIds.size > 0) {
+      const siblings = coupleContainers.filter(c => {
+        const cMemberIds = [c.primary.id, c.secondary?.id].filter(Boolean)
+        return cMemberIds.some(id => siblingIds.has(id))
+      })
+      if (siblings.length > 0) {
+        centerTierContainers = siblings
       }
     }
 
-    // 1 Generation Below: Direct Children of selected couple
-    const childIds = new Set(focusedContainer.childrenIds || [])
-    const childContainers = coupleContainers.filter(c => 
-      childIds.has(c.primary.id) || (c.secondary && childIds.has(c.secondary.id))
-    )
+    // 1 Generation Below: Direct Child Containers of selected couple
+    const directChildIds = new Set([
+      ...(focusedContainer.childrenIds || []),
+      ...(focusedContainer.primary.childrenIds || []),
+      ...(focusedContainer.secondary ? (focusedContainer.secondary.childrenIds || []) : [])
+    ])
+
+    const childContainers = coupleContainers.filter(c => {
+      if (c.id === focusedContainer.id) return false
+      const cMemberIds = [c.primary.id, c.secondary?.id].filter(Boolean)
+
+      const hasDirectChildMatch = cMemberIds.some(id => directChildIds.has(id))
+      const hasReverseParentMatch = (c.primary.parentIds && c.primary.parentIds.some(pId => focusedMemberIds.includes(pId))) ||
+        (c.secondary?.parentIds && c.secondary.parentIds.some(pId => focusedMemberIds.includes(pId)))
+
+      return hasDirectChildMatch || hasReverseParentMatch
+    })
 
     const visibleMap = new Map()
     parentContainers.forEach(c => visibleMap.set(c.id, c))
@@ -616,9 +644,10 @@ export default function FamilyTreeCanvas({
   // Orthogonal SVG Tree Edges Generator
   const svgTreeEdges = useMemo(() => {
     const edges = []
-    const visibleSet = new Set(focalWindowInfo.visibleContainers.map(c => c.id))
+    const visibleContainers = focalWindowInfo.visibleContainers || []
+    const visibleSet = new Set(visibleContainers.map(c => c.id))
 
-    focalWindowInfo.visibleContainers.forEach(parentC => {
+    visibleContainers.forEach(parentC => {
       if (collapsedNodeIds.has(parentC.id)) return
 
       const parentPos = layoutPositions.get(parentC.id)
@@ -626,34 +655,51 @@ export default function FamilyTreeCanvas({
 
       const pX = parentPos.x + parentPos.width / 2
       const pY = parentPos.y + parentPos.height
-      const midY = pY + 45
 
-      ;(parentC.childrenIds || []).forEach(childId => {
-        const childC = coupleContainers.find(c => c.primary.id === childId || (c.secondary && c.secondary.id === childId))
-        if (!childC || !visibleSet.has(childC.id)) return
+      const parentMemberIds = [parentC.primary.id, parentC.secondary?.id].filter(Boolean)
+      const parentChildrenIds = new Set([
+        ...(parentC.childrenIds || []),
+        ...(parentC.primary.childrenIds || []),
+        ...(parentC.secondary ? (parentC.secondary.childrenIds || []) : [])
+      ])
+
+      visibleContainers.forEach(childC => {
+        if (childC.id === parentC.id || !visibleSet.has(childC.id)) return
 
         const childPos = layoutPositions.get(childC.id)
-        if (!childPos) return
+        if (!childPos || childPos.y <= parentPos.y) return
 
-        const cX = childPos.x + childPos.width / 2
-        const cY = childPos.y
+        const childMemberIds = [childC.primary.id, childC.secondary?.id].filter(Boolean)
+        const childParentIds = new Set([
+          ...(childC.primary.parentIds || []),
+          ...(childC.secondary ? (childC.secondary.parentIds || []) : [])
+        ])
 
-        const isParentActive = activeNeighborhood.has(parentC.primary.id) || (parentC.secondary && activeNeighborhood.has(parentC.secondary.id))
-        const isChildActive = activeNeighborhood.has(childId)
-        const isActive = isParentActive && isChildActive
+        const isChild = childMemberIds.some(id => parentChildrenIds.has(id)) ||
+                        parentMemberIds.some(id => childParentIds.has(id))
 
-        const pathD = `M ${pX} ${pY} V ${midY} H ${cX} V ${cY}`
+        if (isChild) {
+          const cX = childPos.x + childPos.width / 2
+          const cY = childPos.y
+          const midY = (pY + cY) / 2
 
-        edges.push({
-          id: `edge-${parentC.id}-${childC.id}`,
-          pathD,
-          pX,
-          pY,
-          cX,
-          cY,
-          midY,
-          isActive
-        })
+          const isParentActive = parentMemberIds.some(id => activeNeighborhood.has(id))
+          const isChildActive = childMemberIds.some(id => activeNeighborhood.has(id))
+          const isActive = isParentActive && isChildActive
+
+          const pathD = `M ${pX} ${pY} V ${midY} H ${cX} V ${cY}`
+
+          edges.push({
+            id: `edge-${parentC.id}-${childC.id}`,
+            pathD,
+            pX,
+            pY,
+            cX,
+            cY,
+            midY,
+            isActive
+          })
+        }
       })
     })
 
