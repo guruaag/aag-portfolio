@@ -896,3 +896,38 @@
   color: #666;
 }
 
+
+
+/* Fullscreen Mode Styling */
+.family-canvas-wrapper.is-fullscreen {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 99999 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: #FAF8F5 !important;
+}
+
+.family-canvas-wrapper.is-fullscreen .family-canvas-viewport {
+  height: calc(100vh - 54px) !important;
+  min-height: auto !important;
+}
+
+.family-canvas-wrapper.is-fullscreen .canvas-header-bar {
+  border-radius: 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.header-action-btn.mode-fullscreen-active {
+  background: var(--leona-terracotta, #B85C38) !important;
+  color: #FFFFFF !important;
+  border-color: var(--leona-terracotta, #B85C38) !important;
+}
+
+.pinned-zoom-btn.fullscreen-btn {
+  font-size: 1rem;
+}

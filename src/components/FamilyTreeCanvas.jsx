@@ -122,6 +122,7 @@ export default function FamilyTreeCanvas({
   const [panOffset, setPanOffset] = useState({ x: -450, y: 30 })
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+  const [isFullscreen, setIsFullscreen] = useState(false)
   
   // Focal Isolation Mode State (1-Step Up / 1-Step Down Isolation)
   const [focusedId, setFocusedId] = useState(selectedNodeId || rootId)
@@ -135,8 +136,43 @@ export default function FamilyTreeCanvas({
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [isExportOpen, setIsExportOpen] = useState(false)
 
+  const wrapperRef = useRef(null)
   const canvasRef = useRef(null)
   const stageRef = useRef(null)
+
+  // Fullscreen Handler
+  const toggleFullscreen = () => {
+    if (!isFullscreen) {
+      if (wrapperRef.current) {
+        if (wrapperRef.current.requestFullscreen) {
+          wrapperRef.current.requestFullscreen().catch(() => {})
+        } else if (wrapperRef.current.webkitRequestFullscreen) {
+          wrapperRef.current.webkitRequestFullscreen()
+        }
+      }
+      setIsFullscreen(true)
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {})
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen()
+      }
+      setIsFullscreen(false)
+    }
+  }
+
+  useEffect(() => {
+    const handleFSChange = () => {
+      const fsElem = document.fullscreenElement || document.webkitFullscreenElement
+      setIsFullscreen(!!fsElem)
+    }
+    document.addEventListener('fullscreenchange', handleFSChange)
+    document.addEventListener('webkitfullscreenchange', handleFSChange)
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFSChange)
+      document.removeEventListener('webkitfullscreenchange', handleFSChange)
+    }
+  }, [])
 
   // Fast O(1) Member Map
   const memberMap = useMemo(() => {
@@ -626,7 +662,7 @@ export default function FamilyTreeCanvas({
   }
 
   return (
-    <div className="family-canvas-wrapper">
+    <div className={`family-canvas-wrapper ${isFullscreen ? 'is-fullscreen' : ''}`} ref={wrapperRef}>
       {/* 1. Top Enterprise Control Bar */}
       <div className="canvas-header-bar">
         {/* Left Controls: Search Pill (English & Hindi), Focal Mode Toggle, Level-Up */}
@@ -703,8 +739,16 @@ export default function FamilyTreeCanvas({
           </button>
         </div>
 
-        {/* Right Controls: Filter Options Dropdown & Export Menu */}
+        {/* Right Controls: Fullscreen Toggle, Filter Options Dropdown & Export Menu */}
         <div className="header-right-group">
+          {/* Fullscreen Toggle Button */}
+          <button 
+            className={`header-action-btn ${isFullscreen ? 'mode-fullscreen-active' : ''}`}
+            onClick={toggleFullscreen}
+            title={isFullscreen ? 'Exit Fullscreen' : 'Enter Full Screen View'}
+          >
+            {isFullscreen ? (isHi ? '↙↗ सामान्य स्क्रीन' : '↙↗ Exit Fullscreen') : (isHi ? '⛶ फुलस्क्रीन' : '⛶ Fullscreen')}
+          </button>
           {/* Filter Dropdown */}
           <div className="header-dropdown-wrapper">
             <button 
@@ -791,6 +835,9 @@ export default function FamilyTreeCanvas({
           <button className="pinned-zoom-btn" onClick={zoomIn} title="Zoom In">+</button>
           <button className="pinned-zoom-btn" onClick={zoomOut} title="Zoom Out">-</button>
           <button className="pinned-zoom-btn reset-btn" onClick={resetCamera} title="Reset Focal Center">🎯</button>
+          <button className="pinned-zoom-btn fullscreen-btn" onClick={toggleFullscreen} title={isFullscreen ? "Exit Fullscreen" : "Full Screen Mode"}>
+            {isFullscreen ? "↙↗" : "⛶"}
+          </button>
           {isFocalMode && (
             <button className="pinned-zoom-btn full-tree-btn" onClick={resetToFullTree} title="Show Full Tree (All 35 Members)">
               🌐
