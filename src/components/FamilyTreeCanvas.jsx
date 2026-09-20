@@ -327,26 +327,14 @@ export default function FamilyTreeCanvas({
     const getWidth = (c) => c.isCouple ? CONTAINER_WIDTH_COUPLE : CONTAINER_WIDTH_SINGLE
 
     if (focalWindowInfo.isFocalActive) {
-      const { focusedContainer, parentContainers, childContainers } = focalWindowInfo
+      const { focusedContainer, parentContainers, centerTierContainers, childContainers } = focalWindowInfo
       const CENTER_X = 1200
       const Y_PARENTS = 70
       const Y_FOCUSED = 350
       const Y_CHILDREN = 640
       const X_GAP = 40
 
-      // 1. Position Focused Container in Center Tier (Tier 2)
-      if (focusedContainer) {
-        const w = getWidth(focusedContainer)
-        posMap.set(focusedContainer.id, {
-          x: CENTER_X - w / 2,
-          y: Y_FOCUSED,
-          width: w,
-          height: CONTAINER_HEIGHT,
-          tier: 'center'
-        })
-      }
-
-      // 2. Position Parent Containers in Top Tier (Tier 1)
+      // 1. Position Parent Containers in Top Tier (Tier 1)
       if (parentContainers.length > 0) {
         const totalW = parentContainers.reduce((sum, c) => sum + getWidth(c), 0) + (parentContainers.length - 1) * X_GAP
         let startX = CENTER_X - totalW / 2
@@ -358,6 +346,24 @@ export default function FamilyTreeCanvas({
             width: w,
             height: CONTAINER_HEIGHT,
             tier: 'parents'
+          })
+          startX += w + X_GAP
+        })
+      }
+
+      // 2. Position Center Tier Containers (Siblings + Focused Node) in Middle Tier (Tier 2)
+      if (centerTierContainers.length > 0) {
+        const totalW = centerTierContainers.reduce((sum, c) => sum + getWidth(c), 0) + (centerTierContainers.length - 1) * X_GAP
+        let startX = CENTER_X - totalW / 2
+        centerTierContainers.forEach(cC => {
+          const w = getWidth(cC)
+          const isFocused = cC.id === focusedContainer.id
+          posMap.set(cC.id, {
+            x: startX,
+            y: Y_FOCUSED,
+            width: w,
+            height: CONTAINER_HEIGHT,
+            tier: isFocused ? 'center' : 'sibling'
           })
           startX += w + X_GAP
         })
@@ -917,12 +923,11 @@ export default function FamilyTreeCanvas({
                     {p1.isDeceased && <span className="deceased-lotus-badge" title="In Reverent Memory">🪷</span>}
                   </div>
 
-                  {/* Person's Name & Relation */}
+                  {/* Person's Name */}
                   <div className="boxed-card-meta">
                     <h4 className="boxed-card-name" title={isHi ? p1.name_hi : p1.name_en}>
                       {isHi ? p1.name_hi : p1.name_en}
                     </h4>
-                    <span className="boxed-card-relation">{isHi ? p1.relation_hi : p1.relation_en}</span>
                   </div>
 
                   {/* Two Side-by-Side Action Buttons: "More Details" and "Call" */}
@@ -959,12 +964,11 @@ export default function FamilyTreeCanvas({
                         {p2.isDeceased && <span className="deceased-lotus-badge" title="In Reverent Memory">🪷</span>}
                       </div>
 
-                      {/* Person's Name & Relation */}
+                      {/* Person's Name */}
                       <div className="boxed-card-meta">
                         <h4 className="boxed-card-name" title={isHi ? p2.name_hi : p2.name_en}>
                           {isHi ? p2.name_hi : p2.name_en}
                         </h4>
-                        <span className="boxed-card-relation">{isHi ? p2.relation_hi : p2.relation_en}</span>
                       </div>
 
                       {/* Two Side-by-Side Action Buttons: "More Details" and "Call" */}
