@@ -369,11 +369,12 @@ export default function FamilyTreeCanvas({
 
     if (focalWindowInfo.isFocalActive) {
       const { focusedContainer, parentContainers = [], centerTierContainers = [], childContainers = [] } = focalWindowInfo
+      const isMobile = window.innerWidth < 640
       const CENTER_X = 1200
-      const Y_PARENTS = 70
-      const Y_FOCUSED = 350
-      const Y_CHILDREN = 640
-      const X_GAP = 40
+      const Y_PARENTS = isMobile ? 50 : 70
+      const Y_FOCUSED = isMobile ? 270 : 350
+      const Y_CHILDREN = isMobile ? 490 : 640
+      const X_GAP = isMobile ? 20 : 40
 
       // 1. Position Parent Containers in Top Tier (Tier 1)
       if (parentContainers.length > 0) {
@@ -875,6 +876,25 @@ export default function FamilyTreeCanvas({
                   }}
                 >
                   {isFocalMode ? '🌐 Show Full Tree' : '🎯 Focus Mode (1-Step)'}
+                </button>
+
+                {/* Fit Mobile Screen Width */}
+                <button 
+                  className="menu-item"
+                  onClick={() => {
+                    const viewW = canvasRef.current?.clientWidth || window.innerWidth
+                    const viewH = canvasRef.current?.clientHeight || window.innerHeight
+                    const mobileZoom = Math.max(0.85, Math.min(1.05, (viewW - 24) / 340))
+                    const focusedContainer = coupleContainers.find(c => c.primary.id === focusedId || (c.secondary && c.secondary.id === focusedId))
+                    const focusedPos = focusedContainer ? layoutPositions.get(focusedContainer.id) : null
+                    if (focusedPos) {
+                      setPanOffset({ x: viewW / 2 - (focusedPos.x + focusedPos.width / 2) * mobileZoom, y: viewH / 2 - (focusedPos.y + focusedPos.height / 2) * mobileZoom })
+                    }
+                    setZoomLevel(mobileZoom)
+                    setIsActionsMenuOpen(false)
+                  }}
+                >
+                  📱 Fit Mobile Screen Width
                 </button>
 
                 {/* Level Up Camera */}
