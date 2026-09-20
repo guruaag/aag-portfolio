@@ -1,0 +1,349 @@
+/* FamilyTreeCanvas.css - Phase 1 Canvas & Joint Couple Node Styling */
+
+.family-canvas-wrapper {
+  position: relative;
+  width: 100%;
+  min-height: 600px;
+  background: #FAF8F5;
+  border-radius: 16px;
+  border: 1.5px solid #E2D7C5;
+  overflow: hidden;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+/* Floating Toolbar (Zoom + Reset) */
+.family-canvas-toolbar {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid #E2D7C5;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+/* Phase 3 Autocomplete Search Box */
+.canvas-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #FAF8F5;
+  border: 1.5px solid #E2D7C5;
+  border-radius: 16px;
+  padding: 4px 10px;
+  width: 220px;
+  transition: all 0.2s ease;
+}
+
+.canvas-search-box:focus-within {
+  border-color: var(--leona-terracotta, #B85C38);
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(184, 92, 56, 0.15);
+  width: 260px;
+}
+
+.canvas-search-box .search-icon {
+  font-size: 0.85rem;
+  margin-right: 6px;
+  color: #888;
+}
+
+.canvas-search-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.82rem;
+  color: #1E1B18;
+  width: 100%;
+}
+
+.clear-search-btn {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.clear-search-btn:hover {
+  color: var(--leona-terracotta, #B85C38);
+}
+
+.canvas-search-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  min-width: 280px;
+  max-height: 280px;
+  overflow-y: auto;
+  background: #FFFFFF;
+  border: 1px solid #E2D7C5;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+}
+
+.search-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #F5EFE6;
+  transition: background 0.15s ease;
+}
+
+.search-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.search-dropdown-item:hover {
+  background: rgba(184, 92, 56, 0.08);
+}
+
+.search-item-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #E2D7C5;
+}
+
+.search-item-meta {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.search-item-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1E1B18;
+}
+
+.search-item-relation {
+  font-size: 0.72rem;
+  color: var(--leona-terracotta, #B85C38);
+}
+
+.search-item-gen {
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: #F0E6D8;
+  color: #555;
+  padding: 2px 6px;
+  border-radius: 8px;
+}
+
+.canvas-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(184, 92, 56, 0.3);
+  background: #FFFFFF;
+  color: var(--leona-terracotta, #B85C38);
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.canvas-btn:hover {
+  background: var(--leona-terracotta, #B85C38);
+  color: #FFFFFF;
+}
+
+.reset-btn {
+  width: auto;
+  padding: 0 12px;
+  border-radius: 16px;
+  font-size: 0.82rem;
+}
+
+.zoom-badge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #666;
+  margin-left: 4px;
+}
+
+/* Viewport Stage */
+.family-canvas-viewport {
+  width: 100%;
+  height: 680px;
+  overflow: hidden;
+  position: relative;
+}
+
+.family-canvas-viewport.grab { cursor: grab; }
+.family-canvas-viewport.grabbing { cursor: grabbing; }
+
+.family-canvas-stage {
+  padding: 40px;
+  transform-origin: 50% 20%;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* Generation Swimlane Tiers */
+.canvas-swimlane-tier {
+  position: relative;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px dashed rgba(226, 215, 197, 0.8);
+  border-radius: 14px;
+  padding: 36px 20px 20px 20px;
+  margin-bottom: 20px;
+}
+
+.tier-1 { background: rgba(254, 249, 231, 0.5); border-color: rgba(212, 175, 55, 0.4); }
+.tier-2 { background: rgba(255, 245, 239, 0.5); border-color: rgba(184, 92, 56, 0.4); }
+.tier-3 { background: rgba(240, 244, 248, 0.5); border-color: rgba(49, 130, 206, 0.4); }
+.tier-4 { background: rgba(247, 250, 252, 0.5); border-color: rgba(160, 174, 192, 0.4); }
+
+.swimlane-label-badge {
+  position: absolute;
+  top: -12px;
+  left: 20px;
+  background: #FFFFFF;
+  padding: 3px 12px;
+  border-radius: 12px;
+  border: 1px solid #E2D7C5;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--leona-terracotta, #B85C38);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+
+.swimlane-nodes-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+}
+
+/* Joint Couple Node Container */
+.family-joint-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #FFFFFF;
+  border-radius: 14px;
+  border: 2px solid #E2D7C5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.family-joint-card.couple-container {
+  border-style: dashed;
+  border-color: rgba(184, 92, 56, 0.4);
+  background: linear-gradient(135deg, #FFFFFF 0%, #FFFDFB 100%);
+}
+
+.family-joint-card.dimmed {
+  opacity: 0.45;
+  filter: grayscale(40%);
+}
+
+.family-joint-card.neighborhood-active {
+  opacity: 1;
+  filter: none;
+  border-color: var(--leona-terracotta, #B85C38);
+  border-style: solid;
+  box-shadow: 0 6px 18px rgba(184, 92, 56, 0.2);
+}
+
+.family-joint-card.focused-node {
+  border-color: #D4AF37 !important;
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.3) !important;
+  background: #FFFDF5 !important;
+}
+
+.couple-wedding-ring {
+  font-size: 1.1rem;
+  padding: 0 4px;
+  animation: pulseRing 2s infinite ease-in-out;
+}
+
+@keyframes pulseRing {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+/* Individual Mini Card inside Joint Container */
+.member-mini-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: #FAF8F5;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.member-mini-card:hover {
+  background: rgba(184, 92, 56, 0.08);
+  border-color: rgba(184, 92, 56, 0.3);
+}
+
+.member-mini-card.card-selected {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: #D4AF37;
+}
+
+.mini-avatar-box {
+  position: relative;
+}
+
+.mini-avatar-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.deceased-lotus-icon {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  font-size: 0.75rem;
+}
+
+.mini-node-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.mini-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1E1B18;
+  white-space: nowrap;
+}
+
+.mini-relation {
+  font-size: 0.74rem;
+  color: #B85C38;
+  font-weight: 500;
+  white-space: nowrap;
+}
