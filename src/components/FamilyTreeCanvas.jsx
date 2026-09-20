@@ -125,6 +125,8 @@ export default function FamilyTreeCanvas({
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [lastTouchDist, setLastTouchDist] = useState(null)
+  const [lastTapTime, setLastTapTime] = useState(0)
   
   // Focal Isolation Mode State (1-Step Up / 1-Step Down Isolation)
   const [focusedId, setFocusedId] = useState(selectedNodeId || rootId)
@@ -681,7 +683,14 @@ export default function FamilyTreeCanvas({
   const handleMouseUp = () => setIsDragging(false)
 
   const handleTouchStart = (e) => {
-    if (e.touches.length === 1) {
+    if (e.touches.length === 2) {
+      // Two-finger pinch-to-zoom gesture
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      )
+      setLastTouchDist(dist)
+    } else if (e.touches.length === 1) {
       if (e.target.closest('.family-joint-card') || e.target.closest('.canvas-btn') || e.target.closest('.canvas-header-bar')) return
       setIsDragging(true)
       const touch = e.touches[0]
@@ -689,13 +698,39 @@ export default function FamilyTreeCanvas({
       if (document.activeElement) document.activeElement.blur()
       setIsSearchDropdownOpen(false)
       setIsActionsMenuOpen(false)
+
+      // Double-Tap to Reset Camera Gesture
+      const now = Date.now()
+      if (now - lastTapTime < 300) {
+        setZoomLevel(1)
+        setFocusedId(rootId)
+        setIsFocalMode(true)
+      }
+      setLastTapTime(now)
     }
   }
 
   const handleTouchMove = (e) => {
-    if (!isDragging || e.touches.length !== 1) return
-    const touch = e.touches[0]
-    setPanOffset({ x: touch.clientX - dragStart.x, y: touch.clientY - dragStart.y })
+    if (e.touches.length === 2 && lastTouchDist) {
+      // Pinch to Zoom scaling
+      const newDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      )
+      const delta = newDist - lastTouchDist
+      if (Math.abs(delta) > 4) {
+        setZoomLevel(prev => Math.max(0.4, Math.min(1.8, prev + delta * 0.005)))
+        setLastTouchDist(newDist)
+      }
+    } else if (isDragging && e.touches.length === 1) {
+      const touch = e.touches[0]
+      setPanOffset({ x: touch.clientX - dragStart.x, y: touch.clientY - dragStart.y })
+    }
+  }
+
+  const handleTouchEnd = () => {
+    setIsDragging(false)
+    setLastTouchDist(null)
   }
 
   // Zoom Controls
@@ -887,18 +922,18 @@ export default function FamilyTreeCanvas({
         onMouseLeave={handleMouseUp}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
-        onTouchEnd={handleMouseUp}
+        onTouchEnd={handleTouchEnd}
       >
         {/* Pinned Floating Zoom & Reset View Controls */}
         <div className="pinned-zoom-controls">
-          <button className="pinned-zoom-btn" onClick={zoomIn} title="Zoom In">+</button>
-          <button className="pinned-zoom-btn" onClick={zoomOut} title="Zoom Out">-</button>
-          <button className="pinned-zoom-btn reset-btn" onClick={resetCamera} title="Reset Focal Center">🎯</button>
-          <button className="pinned-zoom-btn fullscreen-btn" onClick={toggleFullscreen} title={isFullscreen ? "Exit Fullscreen" : "Full Screen Mode"}>
+          <button className="pinned-zoom-btn" onClick={zoomIn} title="Zoom In" aria-label="Zoom In">+</button>
+          <button className="pinned-zoom-btn" onClick={zoomOut} title="Zoom Out" aria-label="Zoom Out">-</button>
+          <button className="pinned-zoom-btn reset-btn" onClick={resetCamera} title="Reset Focal Center" aria-label="Reset Camera Position">🎯</button>
+          <button className="pinned-zoom-btn fullscreen-btn" onClick={toggleFullscreen} title={isFullscreen ? "Exit Fullscreen" : "Full Screen Mode"} aria-label="Toggle Fullscreen">
             {isFullscreen ? "↙↗" : "⛶"}
           </button>
           {isFocalMode && (
-            <button className="pinned-zoom-btn full-tree-btn" onClick={resetToFullTree} title="Show Full Tree (All 35 Members)">
+            <button className="pinned-zoom-btn full-tree-btn" onClick={resetToFullTree} title="Show Full Tree (All 35 Members)" aria-label="Show Full Tree">
               🌐
             </button>
           )}
@@ -926,7 +961,7 @@ export default function FamilyTreeCanvas({
             ))}
           </svg>
 
-          {/* Explicitly Positioned Boxed Node Cards (Full Edge-to-Edge Photo + Name + 2 Side-by-Side Action Buttons) */}
+          {/* Explicitly Positioned Boxed Node Cards */}
           {focalWindowInfo.visibleContainers.map(container => {
             const pos = layoutPositions.get(container.id)
             if (!pos) return null
@@ -966,7 +1001,7 @@ export default function FamilyTreeCanvas({
                   </span>
                 )}
 
-                {/* Primary Member Boxed Card (Edge-to-Edge Photo + Name + 2 Side-by-Side Buttons) */}
+                {/* Primary Member Boxed Card */}
                 <div 
                   className={`member-boxed-card ${isP1Selected ? 'card-selected' : ''}`}
                   onClick={(e) => { e.stopPropagation(); focusMemberAndIsolate(p1.id); }}
@@ -984,11 +1019,12 @@ export default function FamilyTreeCanvas({
                     </h4>
                   </div>
 
-                  {/* Two Side-by-Side Action Buttons: "More Details" and "Call" */}
+                  {/* Two Side-by-Side Action Buttons: "More" and "Call" */}
                   <div className="boxed-card-actions">
                     <button 
                       className="card-btn-action btn-details"
                       onClick={(e) => { e.stopPropagation(); openProfileDrawer(p1.id); }}
+                      aria-label={`View details for ${p1.name_en}`}
                     >
                       {isHi ? 'अधिक' : 'More'}
                     </button>
@@ -996,6 +1032,7 @@ export default function FamilyTreeCanvas({
                       href={p1.phone ? `tel:${p1.phone}` : '#'} 
                       className="card-btn-action btn-call"
                       onClick={(e) => { e.stopPropagation(); if (!p1.phone) openProfileDrawer(p1.id); }}
+                      aria-label={`Call ${p1.name_en}`}
                     >
                       📞 {isHi ? 'कॉल' : 'Call'}
                     </a>
@@ -1025,11 +1062,12 @@ export default function FamilyTreeCanvas({
                         </h4>
                       </div>
 
-                      {/* Two Side-by-Side Action Buttons: "More Details" and "Call" */}
+                      {/* Two Side-by-Side Action Buttons */}
                       <div className="boxed-card-actions">
                         <button 
                           className="card-btn-action btn-details"
                           onClick={(e) => { e.stopPropagation(); openProfileDrawer(p2.id); }}
+                          aria-label={`View details for ${p2.name_en}`}
                         >
                           {isHi ? 'अधिक' : 'More'}
                         </button>
@@ -1037,6 +1075,7 @@ export default function FamilyTreeCanvas({
                           href={p2.phone ? `tel:${p2.phone}` : '#'} 
                           className="card-btn-action btn-call"
                           onClick={(e) => { e.stopPropagation(); if (!p2.phone) openProfileDrawer(p2.id); }}
+                          aria-label={`Call ${p2.name_en}`}
                         >
                           📞 {isHi ? 'कॉल' : 'Call'}
                         </a>
@@ -1062,7 +1101,7 @@ export default function FamilyTreeCanvas({
         </motion.div>
       </div>
 
-      {/* 3. Slide-Out Side Drawer for Full Member Profile */}
+      {/* 3. Slide-Out Side Drawer / Mobile Bottom Sheet for Full Member Profile */}
       <AnimatePresence>
         {isDrawerOpen && selectedMember && (
           <>
@@ -1080,9 +1119,12 @@ export default function FamilyTreeCanvas({
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 220 }}
             >
+              {/* Mobile Bottom Sheet Drag Handle */}
+              <div className="drawer-drag-handle" />
+
               <div className="family-drawer-header">
                 <h3>{isHi ? 'सदस्य पूर्ण विवरण' : 'Member Profile'}</h3>
-                <button className="drawer-close-btn" onClick={() => setIsDrawerOpen(false)}>✕</button>
+                <button className="drawer-close-btn" onClick={() => setIsDrawerOpen(false)} aria-label="Close profile">✕</button>
               </div>
 
               <div className="family-drawer-body">
@@ -1106,6 +1148,23 @@ export default function FamilyTreeCanvas({
                     {isHi ? `पीढ़ी ${selectedMember.generation}` : `Generation ${selectedMember.generation}`}
                   </span>
                 </div>
+
+                {/* Direct Action Bar: Phone Call & WhatsApp */}
+                {selectedMember.phone && (
+                  <div className="drawer-quick-actions">
+                    <a href={`tel:${selectedMember.phone}`} className="drawer-action-btn btn-call">
+                      📞 {isHi ? 'कॉल करें' : 'Call Phone'}
+                    </a>
+                    <a 
+                      href={`https://wa.me/${selectedMember.phone.replace(/[^0-9]/g, '')}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="drawer-action-btn btn-whatsapp"
+                    >
+                      💬 WhatsApp
+                    </a>
+                  </div>
+                )}
 
                 <div className="drawer-meta-section">
                   <div className="meta-row">

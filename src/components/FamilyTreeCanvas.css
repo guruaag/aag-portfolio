@@ -964,3 +964,136 @@
 .pinned-zoom-btn.fullscreen-btn {
   font-size: 1rem;
 }
+
+/* Touch Action & Performance Optimizations */
+.family-canvas-viewport {
+  touch-action: none;
+  will-change: transform;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.family-canvas-stage {
+  will-change: transform;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+/* Active Press Scale Feedback for Touch Interaction */
+.member-boxed-card:active,
+.card-btn-action:active,
+.header-action-btn:active,
+.pinned-zoom-btn:active,
+.relative-pill:active {
+  transform: scale(0.96) !important;
+  transition: transform 0.08s ease;
+}
+
+/* Drawer Direct Action Quick Bar */
+.drawer-quick-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.drawer-action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.drawer-action-btn.btn-call {
+  background: #FFF5EE;
+  color: #B85C38;
+  border: 1.5px solid #B85C38;
+}
+
+.drawer-action-btn.btn-call:hover {
+  background: #B85C38;
+  color: #FFFFFF;
+}
+
+.drawer-action-btn.btn-whatsapp {
+  background: #25D366;
+  color: #FFFFFF;
+  border: 1.5px solid #25D366;
+}
+
+.drawer-action-btn.btn-whatsapp:hover {
+  background: #1DA851;
+  border-color: #1DA851;
+}
+
+/* Mobile Bottom Sheet & Responsive Rules (< 640px) */
+@media (max-width: 640px) {
+  .canvas-header-bar {
+    padding: 8px 12px;
+  }
+
+  .canvas-search-box {
+    width: 100%;
+    max-width: 220px;
+  }
+
+  .header-action-btn {
+    min-height: 42px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+
+  .pinned-zoom-controls {
+    bottom: 16px;
+    right: 12px;
+  }
+
+  .pinned-zoom-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 1.1rem;
+  }
+
+  .family-drawer-overlay {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.45);
+  }
+
+  .family-drawer-panel {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: 82vh !important;
+    max-height: 85vh !important;
+    border-radius: 24px 24px 0 0 !important;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.2) !important;
+    z-index: 1000 !important;
+  }
+
+  .drawer-drag-handle {
+    width: 40px;
+    height: 5px;
+    background: #D5C8B4;
+    border-radius: 3px;
+    margin: 10px auto 4px auto;
+  }
+
+  .family-drawer-header {
+    padding: 10px 16px;
+  }
+
+  .family-drawer-body {
+    padding: 16px;
+  }
+}
