@@ -194,10 +194,7 @@
 
 .family-canvas-stage {
   padding: 40px;
-  transform-origin: 50% 20%;
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
+  transform-origin: 20% 10%;
   position: relative;
 }
 
@@ -209,7 +206,7 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 2;
+  z-index: 5;
 }
 
 .tree-connector-line {
@@ -228,16 +225,50 @@
 }
 
 .tree-connector-line.line-dimmed {
-  opacity: 0.25;
+  opacity: 0.2;
 }
 
-/* Generation Swimlane Tiers */
-.canvas-swimlane-tier {
-  position: relative;
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px dashed rgba(226, 215, 197, 0.8);
-  border-radius: 14px;
-  padding: 36px 20px 20px 20px;
+.junction-dot {
+  fill: #C5B5A0;
+  transition: all 0.3s ease;
+}
+
+.junction-dot.dot-active {
+  fill: var(--leona-terracotta, #B85C38);
+  r: 5px;
+  filter: drop-shadow(0 0 4px rgba(184, 92, 56, 0.5));
+}
+
+/* Generation Background Swimlane Bands */
+.tree-gen-band-bg {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  border-radius: 16px;
+  border: 1px dashed rgba(226, 215, 197, 0.7);
+  background: rgba(255, 255, 255, 0.45);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.tier-bg-1 { background: rgba(254, 249, 231, 0.55); border-color: rgba(212, 175, 55, 0.45); }
+.tier-bg-2 { background: rgba(255, 245, 239, 0.55); border-color: rgba(184, 92, 56, 0.45); }
+.tier-bg-3 { background: rgba(240, 244, 248, 0.55); border-color: rgba(49, 130, 206, 0.45); }
+.tier-bg-4 { background: rgba(247, 250, 252, 0.55); border-color: rgba(160, 174, 192, 0.45); }
+
+.gen-band-tag {
+  position: absolute;
+  top: 10px;
+  left: 20px;
+  background: #FFFFFF;
+  padding: 3px 12px;
+  border-radius: 12px;
+  border: 1px solid #E2D7C5;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--leona-terracotta, #B85C38);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
   margin-bottom: 20px;
 }
 

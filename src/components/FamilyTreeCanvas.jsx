@@ -93,56 +93,145 @@ export default function FamilyTreeCanvas({
 
   const selectedMember = memberMap.get(focusedId) || data[0]
 
-  // Dynamic SVG Connecting Line Calculation between Parents and Children
-  const updateLineCoordinates = () => {
-    if (!stageRef.current) return
-    const stageRect = stageRef.current.getBoundingClientRect()
-    const newLines = []
+  // Dynamic 2D Hierarchical Tree Layout Calculator
+  const layoutPositions = useMemo(() => {
+    const posMap = new Map()
+    const genTiers = { 1: [], 2: [], 3: [], 4: [] }
+    coupleContainers.forEach(c => {
+      if (genTiers[c.generation]) genTiers[c.generation].push(c)
+    })
 
-    coupleContainers.forEach(parentContainer => {
-      const parentEl = containerRefs.current[parentContainer.id]
-      if (!parentEl) return
-      const pRect = parentEl.getBoundingClientRect()
+    const CONTAINER_WIDTH_COUPLE = 330
+    const CONTAINER_WIDTH_SINGLE = 175
+    const CONTAINER_HEIGHT = 70
+    const Y_GAP = 180
+    const X_GAP = 40
 
-      const pX = (pRect.left + pRect.width / 2 - stageRect.left) / zoomLevel
-      const pY = (pRect.bottom - stageRect.top) / zoomLevel
+    const getWidth = (c) => c.isCouple ? CONTAINER_WIDTH_COUPLE : CONTAINER_WIDTH_SINGLE
 
-      ;(parentContainer.childrenIds || []).forEach(childId => {
-        const childContainer = coupleContainers.find(c => c.primary.id === childId || (c.secondary && c.secondary.id === childId))
-        if (!childContainer) return
-        const childEl = containerRefs.current[childContainer.id]
-        if (!childEl) return
-        const cRect = childEl.getBoundingClientRect()
+    // Gen 1 (Ancestors): Position centered at X: 1100
+    let gen1X = 1100
+    genTiers[1].forEach(c => {
+      const w = getWidth(c)
+      posMap.set(c.id, { x: gen1X, y: 50, width: w, height: CONTAINER_HEIGHT })
+      gen1X += w + X_GAP
+    })
 
-        const cX = (cRect.left + cRect.width / 2 - stageRect.left) / zoomLevel
-        const cY = (cRect.top - stageRect.top) / zoomLevel
+    // Layout Gen 2, 3, 4 recursively beneath parents
+    ;[2, 3, 4].forEach(genLevel => {
+      const levelContainers = genTiers[genLevel] || []
+      const parentGenContainers = genTiers[genLevel - 1] || []
 
-        const isParentActive = activeNeighborhood.has(parentContainer.primary.id) || (parentContainer.secondary && activeNeighborhood.has(parentContainer.secondary.id))
+      const childrenByParent = new Map()
+      const unassigned = []
+
+      levelContainers.forEach(childC => {
+        const parentC = parentGenContainers.find(pC => {
+          const pIds = [pC.primary.id, pC.secondary?.id].filter(Boolean)
+          const cPIds = [...(childC.primary.parentIds || []), ...(childC.secondary?.parentIds || [])]
+          return cPIds.some(id => pIds.includes(id))
+        })
+
+        if (parentC) {
+          if (!childrenByParent.has(parentC.id)) childrenByParent.set(parentC.id, [])
+          childrenByParent.get(parentC.id).push(childC)
+        } else {
+          unassigned.push(childC)
+        }
+      })
+
+      let currentRightX = 120
+      parentGenContainers.forEach(parentC => {
+        const parentPos = posMap.get(parentC.id) || { x: 800, y: (genLevel - 2) * Y_GAP + 50, width: 300, height: 70 }
+        const children = childrenByParent.get(parentC.id) || []
+
+        if (children.length > 0) {
+          const totalChildrenWidth = children.reduce((sum, c) => sum + getWidth(c), 0) + (children.length - 1) * X_GAP
+          const parentCenterX = parentPos.x + parentPos.width / 2
+          let startX = Math.max(currentRightX, parentCenterX - totalChildrenWidth / 2)
+
+          children.forEach(childC => {
+            const w = getWidth(childC)
+            posMap.set(childC.id, { x: startX, y: (genLevel - 1) * Y_GAP + 50, width: w, height: CONTAINER_HEIGHT })
+            startX += w + X_GAP
+          })
+          currentRightX = startX + X_GAP
+        }
+      })
+
+      unassigned.forEach(childC => {
+        const w = getWidth(childC)
+        posMap.set(childC.id, { x: currentRightX, y: (genLevel - 1) * Y_GAP + 50, width: w, height: CONTAINER_HEIGHT })
+        currentRightX += w + X_GAP
+      })
+    })
+
+    return posMap
+  }, [coupleContainers])
+
+  // Orthogonal SVG Step-Line Edge Path Generator (Parent Couple -> Child Nodes)
+  const svgTreeEdges = useMemo(() => {
+    const edges = []
+
+    coupleContainers.forEach(parentC => {
+      const parentPos = layoutPositions.get(parentC.id)
+      if (!parentPos) return
+
+      const pX = parentPos.x + parentPos.width / 2
+      const pY = parentPos.y + parentPos.height
+      const midY = pY + 45
+
+      ;(parentC.childrenIds || []).forEach(childId => {
+        const childC = coupleContainers.find(c => c.primary.id === childId || (c.secondary && c.secondary.id === childId))
+        if (!childC) return
+        const childPos = layoutPositions.get(childC.id)
+        if (!childPos) return
+
+        const cX = childPos.x + childPos.width / 2
+        const cY = childPos.y
+
+        const isParentActive = activeNeighborhood.has(parentC.primary.id) || (parentC.secondary && activeNeighborhood.has(parentC.secondary.id))
         const isChildActive = activeNeighborhood.has(childId)
-        const isActiveLine = isParentActive && isChildActive
+        const isActive = isParentActive && isChildActive
 
-        const midY = (pY + cY) / 2
-        const pathD = `M ${pX} ${pY} C ${pX} ${midY}, ${cX} ${midY}, ${cX} ${cY}`
+        // Orthogonal Trunk-and-Branch path (Down, Across, Down)
+        const pathD = `M ${pX} ${pY} V ${midY} H ${cX} V ${cY}`
 
-        newLines.push({
-          id: `line-${parentContainer.id}-${childContainer.id}`,
+        edges.push({
+          id: `edge-${parentC.id}-${childC.id}`,
           pathD,
-          isActiveLine
+          pX,
+          pY,
+          cX,
+          cY,
+          midY,
+          isActive
         })
       })
     })
 
-    setLines(newLines)
-  }
+    return edges
+  }, [coupleContainers, layoutPositions, activeNeighborhood])
 
-  useEffect(() => {
-    const timer = setTimeout(updateLineCoordinates, 100)
-    window.addEventListener('resize', updateLineCoordinates)
-    return () => {
-      clearTimeout(timer)
-      window.removeEventListener('resize', updateLineCoordinates)
+  // Camera Centering on Node
+  const focusMemberAndCenter = (memberId) => {
+    const container = coupleContainers.find(c => c.primary.id === memberId || (c.secondary && c.secondary.id === memberId))
+    if (container) {
+      const pos = layoutPositions.get(container.id)
+      if (pos) {
+        setPanOffset({ x: 380 - pos.x, y: 180 - pos.y })
+        setZoomLevel(1.1)
+      }
     }
-  }, [coupleContainers, zoomLevel, panOffset, focusedId, isFocusMode])
+
+    setFocusedId(memberId)
+    setIsDrawerOpen(true)
+    if (onNodeSelect) onNodeSelect(memberId)
+
+    if (document.activeElement) document.activeElement.blur()
+    setSearchQuery('')
+    setIsSearchDropdownOpen(false)
+  }
 
   // Phase 3 Search Autocomplete Filtering
   const searchResults = useMemo(() => {
@@ -156,101 +245,11 @@ export default function FamilyTreeCanvas({
     ).slice(0, 8)
   }, [searchQuery, data])
 
-  // Phase 3 Viewport Auto-Centering on Selected Member
-  const focusMemberAndCenter = (memberId) => {
-    const target = memberMap.get(memberId)
-    if (!target) return
-
-    setFocusedId(memberId)
-    setIsDrawerOpen(true)
-    if (onNodeSelect) onNodeSelect(memberId)
-
-    // Calculate vertical generation Y alignment
-    const targetGenY = -((target.generation - 1) * 180 - 60)
-    setPanOffset({ x: 0, y: targetGenY })
-    setZoomLevel(1.15)
-
-    // Blur active virtual keyboard on mobile
-    if (document.activeElement) document.activeElement.blur()
-    setSearchQuery('')
-    setIsSearchDropdownOpen(false)
-  }
-
-  // Group Married Couples into Structural Joint Couple Containers
-  const coupleContainers = useMemo(() => {
-    const processedSpouses = new Set()
-    const containers = []
-
-    data.forEach(member => {
-      if (processedSpouses.has(member.id)) return
-
-      if (member.spouseIds && member.spouseIds.length > 0) {
-        const spouse = memberMap.get(member.spouseIds[0])
-        if (spouse) {
-          processedSpouses.add(member.id)
-          processedSpouses.add(spouse.id)
-
-          const primary = member.gender === 'male' ? member : spouse
-          const secondary = member.gender === 'male' ? spouse : member
-
-          const childrenIds = Array.from(new Set([...(member.childrenIds || []), ...(spouse.childrenIds || [])]))
-
-          containers.push({
-            id: `couple-${primary.id}-${secondary.id}`,
-            primary,
-            secondary,
-            isCouple: true,
-            generation: primary.generation,
-            childrenIds
-          })
-          return
-        }
-      }
-
-      processedSpouses.add(member.id)
-      containers.push({
-        id: `single-${member.id}`,
-        primary: member,
-        secondary: null,
-        isCouple: false,
-        generation: member.generation,
-        childrenIds: member.childrenIds || []
-      })
-    })
-
-    return containers
-  }, [data, memberMap])
-
-  // Containers grouped by Generation
-  const containersByGen = useMemo(() => {
-    const genMap = { 1: [], 2: [], 3: [], 4: [] }
-    coupleContainers.forEach(c => {
-      if (genMap[c.generation]) {
-        genMap[c.generation].push(c)
-      }
-    })
-    return genMap
-  }, [coupleContainers])
-
-  // Phase 2: Active 1st-Degree Neighborhood Relative Set
-  const activeNeighborhood = useMemo(() => {
-    const activeSet = new Set()
-    const current = memberMap.get(focusedId)
-    if (!current) return activeSet
-
-    activeSet.add(current.id)
-    ;(current.parentIds || []).forEach(id => activeSet.add(id))
-    ;(current.spouseIds || []).forEach(id => activeSet.add(id))
-    ;(current.childrenIds || []).forEach(id => activeSet.add(id))
-    return activeSet
-  }, [focusedId, memberMap])
-
-  // Canvas Mouse & Touch Pan Controls with Mobile Keyboard Optimization
+  // Canvas Mouse & Touch Pan Controls
   const handleMouseDown = (e) => {
     if (e.target.closest('.family-joint-card') || e.target.closest('.canvas-btn') || e.target.closest('.canvas-search-box')) return
     setIsDragging(true)
     setDragStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y })
-    // Blur virtual keyboard on canvas pan
     if (document.activeElement) document.activeElement.blur()
     setIsSearchDropdownOpen(false)
   }
@@ -281,10 +280,10 @@ export default function FamilyTreeCanvas({
 
   // Zoom Actions
   const zoomIn = () => setZoomLevel(prev => Math.min(prev + 0.15, 1.8))
-  const zoomOut = () => setZoomLevel(prev => Math.max(prev - 0.15, 0.5))
+  const zoomOut = () => setZoomLevel(prev => Math.max(prev - 0.15, 0.4))
   const resetCamera = () => {
     setZoomLevel(1)
-    setPanOffset({ x: 0, y: 0 })
+    setPanOffset({ x: -650, y: 20 })
     setFocusedId(rootId)
   }
 
@@ -296,7 +295,7 @@ export default function FamilyTreeCanvas({
     <div className="family-canvas-wrapper">
       {/* Canvas Header, Search & Focus Mode Bar */}
       <div className="family-canvas-toolbar">
-        {/* Phase 3 Autocomplete Search Input */}
+        {/* Autocomplete Search Input */}
         <div className="canvas-search-box">
           <span className="search-icon">🔍</span>
           <input 
@@ -348,7 +347,7 @@ export default function FamilyTreeCanvas({
         <span className="zoom-badge">{Math.round(zoomLevel * 100)}%</span>
       </div>
 
-      {/* Interactive Graph Canvas Area */}
+      {/* Interactive 2D Graph Canvas Area */}
       <div 
         className={`family-canvas-viewport ${isDragging ? 'grabbing' : 'grab'}`}
         ref={canvasRef}
@@ -365,98 +364,109 @@ export default function FamilyTreeCanvas({
           ref={stageRef}
           animate={{ x: panOffset.x, y: panOffset.y, scale: zoomLevel }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+          style={{ width: '2800px', height: '850px', position: 'relative' }}
         >
-          {/* SVG Tree Connector Lines Overlay */}
-          <svg className="family-tree-svg-canvas">
-            {lines.map(line => (
-              <path 
-                key={line.id}
-                d={line.pathD}
-                className={`tree-connector-line ${line.isActiveLine ? 'line-active' : 'line-dimmed'}`}
-              />
-            ))}
-          </svg>
-
-          {/* Generation Tiers / Horizontal Swimlane Bands */}
+          {/* Generation Background Swimlane Bands */}
           {[1, 2, 3, 4].map(genTier => {
-            const containers = containersByGen[genTier] || []
-            if (containers.length === 0) return null
-
+            const tierY = (genTier - 1) * 180 + 20
             const tierNames = {
               1: isHi ? 'प्रथम पीढ़ी — मूल पूर्वज (Gen 1 Ancestors)' : 'Gen 1 — Ancestors & Progenitors',
               2: isHi ? 'द्वितीय पीढ़ी — कवि "आग" एवं वरिष्ठ परिजन' : 'Gen 2 — Kavi "Aag" & Elders',
               3: isHi ? 'तृतीय पीढ़ी — सुपुत्र, सुपुत्री एवं सम्बंधी' : 'Gen 3 — Children & Spouses',
               4: isHi ? 'चतुर्थ पीढ़ी — पौत्र, पौत्री एवं युवा वर्ग' : 'Gen 4 — Grandchildren & Youth'
             }
+            return (
+              <div 
+                key={`band-${genTier}`}
+                className={`tree-gen-band-bg tier-bg-${genTier}`}
+                style={{ top: `${tierY}px`, height: '140px' }}
+              >
+                <span className="gen-band-tag">{tierNames[genTier]}</span>
+              </div>
+            )
+          })}
+
+          {/* SVG Orthogonal Tree Connector Edge Paths Overlay */}
+          <svg className="family-tree-svg-canvas" width="2800" height="850">
+            {svgTreeEdges.map(edge => (
+              <g key={edge.id}>
+                <path 
+                  d={edge.pathD}
+                  className={`tree-connector-line ${edge.isActive ? 'line-active' : 'line-dimmed'}`}
+                />
+                <circle cx={edge.pX} cy={edge.midY} r="4" className={`junction-dot ${edge.isActive ? 'dot-active' : ''}`} />
+                <circle cx={edge.cX} cy={edge.midY} r="3" className={`junction-dot ${edge.isActive ? 'dot-active' : ''}`} />
+              </g>
+            ))}
+          </svg>
+
+          {/* Explicitly Positioned Joint Couple Node Cards */}
+          {coupleContainers.map(container => {
+            const pos = layoutPositions.get(container.id)
+            if (!pos) return null
+
+            const isCouple = container.isCouple
+            const p1 = container.primary
+            const p2 = container.secondary
+
+            const isP1Active = activeNeighborhood.has(p1.id)
+            const isP2Active = p2 && activeNeighborhood.has(p2.id)
+            const isContainerActive = isP1Active || isP2Active
+
+            if (isFocusMode && !isContainerActive) return null
+
+            const isP1Selected = focusedId === p1.id
+            const isP2Selected = p2 && focusedId === p2.id
 
             return (
-              <div key={`tier-${genTier}`} className={`canvas-swimlane-tier tier-${genTier}`}>
-                <div className="swimlane-label-badge">{tierNames[genTier]}</div>
-
-                <div className="swimlane-nodes-row">
-                  {containers.map(container => {
-                    const isCouple = container.isCouple
-                    const p1 = container.primary
-                    const p2 = container.secondary
-
-                    const isP1Active = activeNeighborhood.has(p1.id)
-                    const isP2Active = p2 && activeNeighborhood.has(p2.id)
-                    const isContainerActive = isP1Active || isP2Active
-
-                    // Phase 2: Focus Mode Sub-Tree Isolation
-                    if (isFocusMode && !isContainerActive) {
-                      return null
-                    }
-
-                    const isP1Selected = focusedId === p1.id
-                    const isP2Selected = p2 && focusedId === p2.id
-
-                    return (
-                      <div 
-                        key={container.id}
-                        ref={el => containerRefs.current[container.id] = el}
-                        className={`family-joint-card ${isCouple ? 'couple-container' : 'single-container'} ${isContainerActive ? 'neighborhood-active' : 'dimmed'} ${(isP1Selected || isP2Selected) ? 'focused-node' : ''}`}
-                      >
-                        {/* Primary Member Card */}
-                        <div 
-                          className={`member-mini-card ${isP1Selected ? 'card-selected' : ''}`}
-                          onClick={(e) => { e.stopPropagation(); handleCardClick(p1.id); }}
-                        >
-                          <div className="mini-avatar-box">
-                            <img src={p1.photoUrl} alt={p1.name_en} className="mini-avatar-img" />
-                            {p1.isDeceased && <span className="deceased-lotus-icon" title="In Reverent Memory">🪷</span>}
-                          </div>
-                          <div className="mini-node-meta">
-                            <span className="mini-name">{isHi ? p1.name_hi : p1.name_en}</span>
-                            <span className="mini-relation">{isHi ? p1.relation_hi : p1.relation_en}</span>
-                          </div>
-                        </div>
-
-                        {/* Spousal Connection Ring */}
-                        {isCouple && p2 && (
-                          <>
-                            <div className="couple-wedding-ring" title="Marriage Bond">💍</div>
-
-                            {/* Secondary Spouse Card */}
-                            <div 
-                              className={`member-mini-card ${isP2Selected ? 'card-selected' : ''}`}
-                              onClick={(e) => { e.stopPropagation(); handleCardClick(p2.id); }}
-                            >
-                              <div className="mini-avatar-box">
-                                <img src={p2.photoUrl} alt={p2.name_en} className="mini-avatar-img" />
-                                {p2.isDeceased && <span className="deceased-lotus-icon" title="In Reverent Memory">🪷</span>}
-                              </div>
-                              <div className="mini-node-meta">
-                                <span className="mini-name">{isHi ? p2.name_hi : p2.name_en}</span>
-                                <span className="mini-relation">{isHi ? p2.relation_hi : p2.relation_en}</span>
-                              </div>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    )
-                  })}
+              <div 
+                key={container.id}
+                ref={el => containerRefs.current[container.id] = el}
+                className={`family-joint-card ${isCouple ? 'couple-container' : 'single-container'} ${isContainerActive ? 'neighborhood-active' : 'dimmed'} ${(isP1Selected || isP2Selected) ? 'focused-node' : ''}`}
+                style={{ 
+                  position: 'absolute', 
+                  left: `${pos.x}px`, 
+                  top: `${pos.y}px`,
+                  width: `${pos.width}px`,
+                  height: `${pos.height}px`
+                }}
+              >
+                {/* Primary Member Card */}
+                <div 
+                  className={`member-mini-card ${isP1Selected ? 'card-selected' : ''}`}
+                  onClick={(e) => { e.stopPropagation(); handleCardClick(p1.id); }}
+                >
+                  <div className="mini-avatar-box">
+                    <img src={p1.photoUrl} alt={p1.name_en} className="mini-avatar-img" />
+                    {p1.isDeceased && <span className="deceased-lotus-icon" title="In Reverent Memory">🪷</span>}
+                  </div>
+                  <div className="mini-node-meta">
+                    <span className="mini-name">{isHi ? p1.name_hi : p1.name_en}</span>
+                    <span className="mini-relation">{isHi ? p1.relation_hi : p1.relation_en}</span>
+                  </div>
                 </div>
+
+                {/* Spousal Connection Ring */}
+                {isCouple && p2 && (
+                  <>
+                    <div className="couple-wedding-ring" title="Marriage Bond">💍</div>
+
+                    {/* Secondary Spouse Card */}
+                    <div 
+                      className={`member-mini-card ${isP2Selected ? 'card-selected' : ''}`}
+                      onClick={(e) => { e.stopPropagation(); handleCardClick(p2.id); }}
+                    >
+                      <div className="mini-avatar-box">
+                        <img src={p2.photoUrl} alt={p2.name_en} className="mini-avatar-img" />
+                        {p2.isDeceased && <span className="deceased-lotus-icon" title="In Reverent Memory">🪷</span>}
+                      </div>
+                      <div className="mini-node-meta">
+                        <span className="mini-name">{isHi ? p2.name_hi : p2.name_en}</span>
+                        <span className="mini-relation">{isHi ? p2.relation_hi : p2.relation_en}</span>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             )
           })}
