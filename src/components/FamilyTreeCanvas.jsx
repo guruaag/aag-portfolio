@@ -5,52 +5,52 @@ import './FamilyTreeCanvas.css'
 
 export const FAMILY_DATA_35 = [
   // Generation 1: Progenitors
-  { id: 'f-101', name_hi: 'पंडित रामचन्द्र शर्मा', name_en: 'Pt. Ramchandra Sharma', relation_hi: 'परम पूज्य दादाजी (प्रपितामह)', relation_en: 'Great Grandfather', generation: 1, gender: 'male', isDeceased: true, birthDate: '15 Aug 1915', deathDate: '10 May 1998', marriageAnniversaryDate: '20 May 1934', phone: '+91 98290 11001', photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80', parentIds: [], spouseIds: ['f-102'], childrenIds: ['f-201', 'f-203', 'f-205'], bio: 'संस्कृत एवं ज्योतिष के प्रकांड विद्वान, वंश परंपरा के मूल संस्थापक।' },
-  { id: 'f-102', name_hi: 'श्रीमती सावित्री देवी शर्मा', name_en: 'Smt. Savitri Devi', relation_hi: 'परम पूज्या दादीजी (प्रपितामही)', relation_en: 'Great Grandmother', generation: 1, gender: 'female', isDeceased: true, birthDate: '10 Oct 1920', deathDate: '14 Nov 2002', marriageAnniversaryDate: '20 May 1934', phone: '+91 98290 11002', photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80', parentIds: [], spouseIds: ['f-101'], childrenIds: ['f-201', 'f-203', 'f-205'], bio: 'धर्मपरायण एवं परिवार की मुख्य संरक्षिका।' },
+  { id: 'f-101', name_hi: 'पंडित रामचन्द्र शर्मा', name_en: 'Pt. Ramchandra Sharma', relation_hi: 'परम पूज्य दादाजी (प्रपितामह)', relation_en: 'Great Grandfather', generation: 1, gender: 'male', isDeceased: true, birthDate: '15 Aug 1915', deathDate: '10 May 1998', marriageAnniversaryDate: '20 May 1934', phone: '+91 98290 11001', photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-102'], childrenIds: ['f-201', 'f-203', 'f-205'], bio: 'संस्कृत एवं ज्योतिष के प्रकांड विद्वान, वंश परंपरा के मूल संस्थापक।' },
+  { id: 'f-102', name_hi: 'श्रीमती सावित्री देवी शर्मा', name_en: 'Smt. Savitri Devi', relation_hi: 'परम पूज्या दादीजी (प्रपितामही)', relation_en: 'Great Grandmother', generation: 1, gender: 'female', isDeceased: true, birthDate: '10 Oct 1920', deathDate: '14 Nov 2002', marriageAnniversaryDate: '20 May 1934', phone: '+91 98290 11002', photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-101'], childrenIds: ['f-201', 'f-203', 'f-205'], bio: 'धर्मपरायण एवं परिवार की मुख्य संरक्षिका।' },
 
   // Generation 2: Kavi Aag & Siblings/Spouses
-  { id: 'f-201', name_hi: 'कवि गुरुप्रताप शर्मा "आग"', name_en: 'Kavi Gurupratap Sharma "Aag"', relation_hi: 'मुख्य साहित्यकार (पिताश्री)', relation_en: 'Patriarch & Renowned Poet', generation: 2, gender: 'male', isDeceased: false, birthDate: '26 Jan 1945', marriageAnniversaryDate: '12 Feb 1968', phone: '+91 98290 55432', photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80', parentIds: ['f-101', 'f-102'], spouseIds: ['f-202'], childrenIds: ['f-301', 'f-303', 'f-305'], bio: 'हिंदी काव्य जगत के तेजस्वी हस्ताक्षर एवं वरिष्ठ साहित्यकार।' },
-  { id: 'f-202', name_hi: 'श्रीमती कमला शर्मा', name_en: 'Smt. Kamla Sharma', relation_hi: 'माताश्री (धर्मपत्नी)', relation_en: 'Matriarch', generation: 2, gender: 'female', isDeceased: false, birthDate: '14 Mar 1950', marriageAnniversaryDate: '12 Feb 1968', phone: '+91 98290 55433', photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80', parentIds: [], spouseIds: ['f-201'], childrenIds: ['f-301', 'f-303', 'f-305'], bio: 'साहित्य साधना की प्रेरणास्रोत एवं गृह स्वामिनी।' },
-  { id: 'f-203', name_hi: 'श्री हरिशंकर शर्मा', name_en: 'Shri Harishankar Sharma', relation_hi: 'चाचाजी (अनुज)', relation_en: 'Uncle (Younger Brother)', generation: 2, gender: 'male', isDeceased: false, birthDate: '05 Nov 1948', marriageAnniversaryDate: '18 Apr 1972', phone: '+91 94140 12345', photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80', parentIds: ['f-101', 'f-102'], spouseIds: ['f-204'], childrenIds: ['f-307', 'f-309'], bio: 'सेवानिवृत्त शिक्षाविद् एवं समाजसेवी।' },
-  { id: 'f-204', name_hi: 'श्रीमती सुशीला शर्मा', name_en: 'Smt. Sushila Sharma', relation_hi: 'चाचीजी', relation_en: 'Aunt', generation: 2, gender: 'female', isDeceased: false, birthDate: '22 Aug 1953', marriageAnniversaryDate: '18 Apr 1972', phone: '+91 94140 12346', photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80', parentIds: [], spouseIds: ['f-203'], childrenIds: ['f-307', 'f-309'], bio: 'गृहणी एवं धार्मिक विचारधारा।' },
-  { id: 'f-205', name_hi: 'श्रीमती भगवती देवी', name_en: 'Smt. Bhagwati Devi', relation_hi: 'बुआजी (भगिनी)', relation_en: 'Aunt (Sister)', generation: 2, gender: 'female', isDeceased: false, birthDate: '12 Jun 1952', marriageAnniversaryDate: '05 May 1974', phone: '+91 98280 99887', photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80', parentIds: ['f-101', 'f-102'], spouseIds: ['f-206'], childrenIds: ['f-311'], bio: 'जयपुर निवासी वरिष्ठ परिजनों की प्रिय बहन।' },
-  { id: 'f-206', name_hi: 'श्री रामेश्वर प्रसाद व्यास', name_en: 'Shri Rameshwar Prasad Vyas', relation_hi: 'फूफाजी', relation_en: 'Uncle-in-law', generation: 2, gender: 'male', isDeceased: false, birthDate: '10 Jan 1946', marriageAnniversaryDate: '05 May 1974', phone: '+91 98280 99888', photoUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80', parentIds: [], spouseIds: ['f-205'], childrenIds: ['f-311'], bio: 'वरिष्ठ अधिवक्ता एवं समाजसेवी।' },
+  { id: 'f-201', name_hi: 'कवि गुरुप्रताप शर्मा "आग"', name_en: 'Kavi Gurupratap Sharma "Aag"', relation_hi: 'मुख्य साहित्यकार (पिताश्री)', relation_en: 'Patriarch & Renowned Poet', generation: 2, gender: 'male', isDeceased: false, birthDate: '26 Jan 1945', marriageAnniversaryDate: '12 Feb 1968', phone: '+91 98290 55432', photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80', parentIds: ['f-101', 'f-102'], spouseIds: ['f-202'], childrenIds: ['f-301', 'f-303', 'f-305'], bio: 'हिंदी काव्य जगत के तेजस्वी हस्ताक्षर एवं वरिष्ठ साहित्यकार।' },
+  { id: 'f-202', name_hi: 'श्रीमती कमला शर्मा', name_en: 'Smt. Kamla Sharma', relation_hi: 'माताश्री (धर्मपत्नी)', relation_en: 'Matriarch', generation: 2, gender: 'female', isDeceased: false, birthDate: '14 Mar 1950', marriageAnniversaryDate: '12 Feb 1968', phone: '+91 98290 55433', photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-201'], childrenIds: ['f-301', 'f-303', 'f-305'], bio: 'साहित्य साधना की प्रेरणास्रोत एवं गृह स्वामिनी।' },
+  { id: 'f-203', name_hi: 'श्री हरिशंकर शर्मा', name_en: 'Shri Harishankar Sharma', relation_hi: 'चाचाजी (अनुज)', relation_en: 'Uncle (Younger Brother)', generation: 2, gender: 'male', isDeceased: false, birthDate: '05 Nov 1948', marriageAnniversaryDate: '18 Apr 1972', phone: '+91 94140 12345', photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80', parentIds: ['f-101', 'f-102'], spouseIds: ['f-204'], childrenIds: ['f-307', 'f-309'], bio: 'सेवानिवृत्त शिक्षाविद् एवं समाजसेवी।' },
+  { id: 'f-204', name_hi: 'श्रीमती सुशीला शर्मा', name_en: 'Smt. Sushila Sharma', relation_hi: 'चाचीजी', relation_en: 'Aunt', generation: 2, gender: 'female', isDeceased: false, birthDate: '22 Aug 1953', marriageAnniversaryDate: '18 Apr 1972', phone: '+91 94140 12346', photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-203'], childrenIds: ['f-307', 'f-309'], bio: 'गृहणी एवं धार्मिक विचारधारा।' },
+  { id: 'f-205', name_hi: 'श्रीमती भगवती देवी', name_en: 'Smt. Bhagwati Devi', relation_hi: 'बुआजी (भगिनी)', relation_en: 'Aunt (Sister)', generation: 2, gender: 'female', isDeceased: false, birthDate: '12 Jun 1952', marriageAnniversaryDate: '05 May 1974', phone: '+91 98280 99887', photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80', parentIds: ['f-101', 'f-102'], spouseIds: ['f-206'], childrenIds: ['f-311'], bio: 'जयपुर निवासी वरिष्ठ परिजनों की प्रिय बहन।' },
+  { id: 'f-206', name_hi: 'श्री रामेश्वर प्रसाद व्यास', name_en: 'Shri Rameshwar Prasad Vyas', relation_hi: 'फूफाजी', relation_en: 'Uncle-in-law', generation: 2, gender: 'male', isDeceased: false, birthDate: '10 Jan 1946', marriageAnniversaryDate: '05 May 1974', phone: '+91 98280 99888', photoUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-205'], childrenIds: ['f-311'], bio: 'वरिष्ठ अधिवक्ता एवं समाजसेवी।' },
 
   // Generation 3: Children & Spouses
-  { id: 'f-301', name_hi: 'श्री संकल्प शर्मा', name_en: 'Shri Sankalp Sharma', relation_hi: 'ज्येष्ठ पुत्र', relation_en: 'Elder Son (Architect)', generation: 3, gender: 'male', isDeceased: false, birthDate: '18 Sep 1972', marriageAnniversaryDate: '21 Nov 1998', phone: '+91 98290 77665', photoUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&q=80', parentIds: ['f-201', 'f-202'], spouseIds: ['f-302'], childrenIds: ['f-401', 'f-402'], bio: 'वरिष्ठ सॉफ्टवेयर इंजीनियर एवं डिजिटल आर्किटेक्ट।' },
-  { id: 'f-302', name_hi: 'श्रीमती प्रज्ञा शर्मा', name_en: 'Smt. Pragya Sharma', relation_hi: 'ज्येष्ठ पुत्रवधू', relation_en: 'Daughter-in-law', generation: 3, gender: 'female', isDeceased: false, birthDate: '04 Apr 1976', marriageAnniversaryDate: '21 Nov 1998', phone: '+91 98290 77666', photoUrl: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=200&q=80', parentIds: [], spouseIds: ['f-301'], childrenIds: ['f-401', 'f-402'], bio: 'उच्च माध्यमिक शिक्षिका एवं चित्रकार।' },
-  { id: 'f-303', name_hi: 'श्री राघव शर्मा', name_en: 'Shri Raghav Sharma', relation_hi: 'द्वितीय पुत्र', relation_en: 'Second Son', generation: 3, gender: 'male', isDeceased: false, birthDate: '11 Dec 1975', marriageAnniversaryDate: '03 Dec 2002', phone: '+91 98290 44332', photoUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80', parentIds: ['f-201', 'f-202'], spouseIds: ['f-304'], childrenIds: ['f-403', 'f-404'], bio: 'प्रशासनिक अधिकारी (राजस्थान राज्य सेवा)।' },
-  { id: 'f-304', name_hi: 'श्रीमती अल्पना शर्मा', name_en: 'Smt. Alpana Sharma', relation_hi: 'पुत्रवधू', relation_en: 'Daughter-in-law', generation: 3, gender: 'female', isDeceased: false, birthDate: '09 Aug 1979', marriageAnniversaryDate: '03 Dec 2002', phone: '+91 98290 44333', photoUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&q=80', parentIds: [], spouseIds: ['f-303'], childrenIds: ['f-403', 'f-404'], bio: 'बैंक प्रबंधक (भारतीय स्टेट बैंक)।' },
-  { id: 'f-305', name_hi: 'श्रीमती नीरजा शर्मा (जोशी)', name_en: 'Smt. Neerja Sharma', relation_hi: 'पुत्री', relation_en: 'Daughter', generation: 3, gender: 'female', isDeceased: false, birthDate: '02 Feb 1980', marriageAnniversaryDate: '20 Feb 2005', phone: '+91 94141 88776', photoUrl: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=200&q=80', parentIds: ['f-201', 'f-202'], spouseIds: ['f-306'], childrenIds: ['f-405'], bio: 'असिस्टेंट प्रोफेसर (हिंदी साहित्य)।' },
-  { id: 'f-306', name_hi: 'डाॅ. आनंद जोशी', name_en: 'Dr. Anand Joshi', relation_hi: 'दामाद (जामातृ)', relation_en: 'Son-in-law', generation: 3, gender: 'male', isDeceased: false, birthDate: '14 Jul 1977', marriageAnniversaryDate: '20 Feb 2005', phone: '+91 94141 88777', photoUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=200&q=80', parentIds: [], spouseIds: ['f-305'], childrenIds: ['f-405'], bio: 'वरिष्ठ हृदय रोग विशेषज्ञ (SMS अस्पताल)।' },
-  { id: 'f-307', name_hi: 'श्री मयंक शर्मा', name_en: 'Shri Mayank Sharma', relation_hi: 'चचेरा भाई', relation_en: 'Cousin Brother', generation: 3, gender: 'male', isDeceased: false, birthDate: '25 Sep 1981', marriageAnniversaryDate: '15 Jan 2008', phone: '+91 98291 11223', photoUrl: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&w=200&q=80', parentIds: ['f-203', 'f-204'], spouseIds: ['f-308'], childrenIds: ['f-406', 'f-407'], bio: 'आईटी समाधान उद्यमी।' },
-  { id: 'f-308', name_hi: 'श्रीमती ऋचा शर्मा', name_en: 'Smt. Richa Sharma', relation_hi: 'भाभी', relation_en: 'Sister-in-law', generation: 3, gender: 'female', isDeceased: false, birthDate: '30 May 1985', marriageAnniversaryDate: '15 Jan 2008', phone: '+91 98291 11224', photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80', parentIds: [], spouseIds: ['f-307'], childrenIds: ['f-406', 'f-407'], bio: 'फैशन डिज़ाइनर।' },
-  { id: 'f-309', name_hi: 'श्रीमती गरिमा शर्मा', name_en: 'Smt. Garima Sharma', relation_hi: 'चचेरी बहन', relation_en: 'Cousin Sister', generation: 3, gender: 'female', isDeceased: false, birthDate: '08 Nov 1984', marriageAnniversaryDate: '10 Feb 2010', phone: '+91 94142 33445', photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80', parentIds: ['f-203', 'f-204'], spouseIds: ['f-310'], childrenIds: ['f-408'], bio: 'चार्टर्ड अकाउंटेंट (CA)।' },
-  { id: 'f-310', name_hi: 'श्री सिद्धार्थ द्विवेदी', name_en: 'Shri Siddharth Dwivedi', relation_hi: 'बहनोई', relation_en: 'Brother-in-law', generation: 3, gender: 'male', isDeceased: false, birthDate: '16 Mar 1980', marriageAnniversaryDate: '10 Feb 2010', phone: '+91 94142 33446', photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80', parentIds: [], spouseIds: ['f-309'], childrenIds: ['f-408'], bio: 'वरिष्ठ प्रबंधक (इन्फोसिस)।' },
-  { id: 'f-311', name_hi: 'श्री गौरव व्यास', name_en: 'Shri Gaurav Vyas', relation_hi: 'फूपेरा भाई', relation_en: 'Cousin Brother', generation: 3, gender: 'male', isDeceased: false, birthDate: '14 Apr 1983', marriageAnniversaryDate: '24 Nov 2011', phone: '+91 98281 66554', photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80', parentIds: ['f-205', 'f-206'], spouseIds: ['f-312'], childrenIds: ['f-409'], bio: 'सिविल इंजीनियर (PWD)।' },
-  { id: 'f-312', name_hi: 'श्रीमती नम्रता व्यास', name_en: 'Smt. Namrata Vyas', relation_hi: 'भ्रातृजाया', relation_en: 'Sister-in-law', generation: 3, gender: 'female', isDeceased: false, birthDate: '01 Jul 1987', marriageAnniversaryDate: '24 Nov 2011', phone: '+91 98281 66555', photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80', parentIds: [], spouseIds: ['f-311'], childrenIds: ['f-409'], bio: 'वास्तुविद एवं गृह सज्जा विशेषज्ञ।' },
+  { id: 'f-301', name_hi: 'श्री संकल्प शर्मा', name_en: 'Shri Sankalp Sharma', relation_hi: 'ज्येष्ठ पुत्र', relation_en: 'Elder Son (Architect)', generation: 3, gender: 'male', isDeceased: false, birthDate: '18 Sep 1972', marriageAnniversaryDate: '21 Nov 1998', phone: '+91 98290 77665', photoUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80', parentIds: ['f-201', 'f-202'], spouseIds: ['f-302'], childrenIds: ['f-401', 'f-402'], bio: 'वरिष्ठ सॉफ्टवेयर इंजीनियर एवं डिजिटल आर्किटेक्ट।' },
+  { id: 'f-302', name_hi: 'श्रीमती प्रज्ञा शर्मा', name_en: 'Smt. Pragya Sharma', relation_hi: 'ज्येष्ठ पुत्रवधू', relation_en: 'Daughter-in-law', generation: 3, gender: 'female', isDeceased: false, birthDate: '04 Apr 1976', marriageAnniversaryDate: '21 Nov 1998', phone: '+91 98290 77666', photoUrl: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-301'], childrenIds: ['f-401', 'f-402'], bio: 'उच्च माध्यमिक शिक्षिका एवं चित्रकार।' },
+  { id: 'f-303', name_hi: 'श्री राघव शर्मा', name_en: 'Shri Raghav Sharma', relation_hi: 'द्वितीय पुत्र', relation_en: 'Second Son', generation: 3, gender: 'male', isDeceased: false, birthDate: '11 Dec 1975', marriageAnniversaryDate: '03 Dec 2002', phone: '+91 98290 44332', photoUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&q=80', parentIds: ['f-201', 'f-202'], spouseIds: ['f-304'], childrenIds: ['f-403', 'f-404'], bio: 'प्रशासनिक अधिकारी (राजस्थान राज्य सेवा)।' },
+  { id: 'f-304', name_hi: 'श्रीमती अल्पना शर्मा', name_en: 'Smt. Alpana Sharma', relation_hi: 'पुत्रवधू', relation_en: 'Daughter-in-law', generation: 3, gender: 'female', isDeceased: false, birthDate: '09 Aug 1979', marriageAnniversaryDate: '03 Dec 2002', phone: '+91 98290 44333', photoUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-303'], childrenIds: ['f-403', 'f-404'], bio: 'बैंक प्रबंधक (भारतीय स्टेट बैंक)।' },
+  { id: 'f-305', name_hi: 'श्रीमती नीरजा शर्मा (जोशी)', name_en: 'Smt. Neerja Sharma', relation_hi: 'पुत्री', relation_en: 'Daughter', generation: 3, gender: 'female', isDeceased: false, birthDate: '02 Feb 1980', marriageAnniversaryDate: '20 Feb 2005', phone: '+91 94141 88776', photoUrl: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=300&q=80', parentIds: ['f-201', 'f-202'], spouseIds: ['f-306'], childrenIds: ['f-405'], bio: 'असिस्टेंट प्रोफेसर (हिंदी साहित्य)।' },
+  { id: 'f-306', name_hi: 'डाॅ. आनंद जोशी', name_en: 'Dr. Anand Joshi', relation_hi: 'दामाद (जामातृ)', relation_en: 'Son-in-law', generation: 3, gender: 'male', isDeceased: false, birthDate: '14 Jul 1977', marriageAnniversaryDate: '20 Feb 2005', phone: '+91 94141 88777', photoUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-305'], childrenIds: ['f-405'], bio: 'वरिष्ठ हृदय रोग विशेषज्ञ (SMS अस्पताल)।' },
+  { id: 'f-307', name_hi: 'श्री मयंक शर्मा', name_en: 'Shri Mayank Sharma', relation_hi: 'चचेरा भाई', relation_en: 'Cousin Brother', generation: 3, gender: 'male', isDeceased: false, birthDate: '25 Sep 1981', marriageAnniversaryDate: '15 Jan 2008', phone: '+91 98291 11223', photoUrl: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&w=300&q=80', parentIds: ['f-203', 'f-204'], spouseIds: ['f-308'], childrenIds: ['f-406', 'f-407'], bio: 'आईटी समाधान उद्यमी।' },
+  { id: 'f-308', name_hi: 'श्रीमती ऋचा शर्मा', name_en: 'Smt. Richa Sharma', relation_hi: 'भाभी', relation_en: 'Sister-in-law', generation: 3, gender: 'female', isDeceased: false, birthDate: '30 May 1985', marriageAnniversaryDate: '15 Jan 2008', phone: '+91 98291 11224', photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-307'], childrenIds: ['f-406', 'f-407'], bio: 'फैशन डिज़ाइनर।' },
+  { id: 'f-309', name_hi: 'श्रीमती गरिमा शर्मा', name_en: 'Smt. Garima Sharma', relation_hi: 'चचेरी बहन', relation_en: 'Cousin Sister', generation: 3, gender: 'female', isDeceased: false, birthDate: '08 Nov 1984', marriageAnniversaryDate: '10 Feb 2010', phone: '+91 94142 33445', photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80', parentIds: ['f-203', 'f-204'], spouseIds: ['f-310'], childrenIds: ['f-408'], bio: 'चार्टर्ड अकाउंटेंट (CA)।' },
+  { id: 'f-310', name_hi: 'श्री सिद्धार्थ द्विवेदी', name_en: 'Shri Siddharth Dwivedi', relation_hi: 'बहनोई', relation_en: 'Brother-in-law', generation: 3, gender: 'male', isDeceased: false, birthDate: '16 Mar 1980', marriageAnniversaryDate: '10 Feb 2010', phone: '+91 94142 33446', photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-309'], childrenIds: ['f-408'], bio: 'वरिष्ठ प्रबंधक (इन्फोसिस)।' },
+  { id: 'f-311', name_hi: 'श्री गौरव व्यास', name_en: 'Shri Gaurav Vyas', relation_hi: 'फूपेरा भाई', relation_en: 'Cousin Brother', generation: 3, gender: 'male', isDeceased: false, birthDate: '14 Apr 1983', marriageAnniversaryDate: '24 Nov 2011', phone: '+91 98281 66554', photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80', parentIds: ['f-205', 'f-206'], spouseIds: ['f-312'], childrenIds: ['f-409'], bio: 'सिविल इंजीनियर (PWD)।' },
+  { id: 'f-312', name_hi: 'श्रीमती नम्रता व्यास', name_en: 'Smt. Namrata Vyas', relation_hi: 'भ्रातृजाया', relation_en: 'Sister-in-law', generation: 3, gender: 'female', isDeceased: false, birthDate: '01 Jul 1987', marriageAnniversaryDate: '24 Nov 2011', phone: '+91 98281 66555', photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-311'], childrenIds: ['f-409'], bio: 'वास्तुविद एवं गृह सज्जा विशेषज्ञ।' },
 
   // Generation 4: Grandchildren
-  { id: 'f-401', name_hi: 'वेदांत शर्मा', name_en: 'Vedant Sharma', relation_hi: 'पौत्र (संकल्प जी के पुत्र)', relation_en: 'Grandson', generation: 4, gender: 'male', isDeceased: false, birthDate: '14 Oct 2002', phone: '+91 98290 88990', photoUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=200&q=80', parentIds: ['f-301', 'f-302'], spouseIds: [], childrenIds: [], bio: 'B.Tech छात्र (IIT दिल्ली)।' },
-  { id: 'f-402', name_hi: 'अनन्या शर्मा', name_en: 'Ananya Sharma', relation_hi: 'पौत्री (संकल्प जी की पुत्री)', relation_en: 'Granddaughter', generation: 4, gender: 'female', isDeceased: false, birthDate: '09 May 2006', phone: '+91 98290 88991', photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80', parentIds: ['f-301', 'f-302'], spouseIds: [], childrenIds: [], bio: 'मेडिकल छात्रा (NEET)।' },
-  { id: 'f-403', name_hi: 'शौर्य शर्मा', name_en: 'Shaurya Sharma', relation_hi: 'पौत्र (राघव जी के पुत्र)', relation_en: 'Grandson', generation: 4, gender: 'male', isDeceased: false, birthDate: '21 Aug 2005', phone: '+91 98290 22110', photoUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80', parentIds: ['f-303', 'f-304'], spouseIds: [], childrenIds: [], bio: 'कक्षा १२ का छात्र।' },
-  { id: 'f-404', name_hi: 'अवनी शर्मा', name_en: 'Avani Sharma', relation_hi: 'पौत्री (राघव जी की पुत्री)', relation_en: 'Granddaughter', generation: 4, gender: 'female', isDeceased: false, birthDate: '16 Dec 2010', phone: '+91 98290 22111', photoUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&q=80', parentIds: ['f-303', 'f-304'], spouseIds: [], childrenIds: [], bio: 'कक्षा ८ की छात्रा।' },
-  { id: 'f-405', name_hi: 'कबीर जोशी', name_en: 'Kabir Joshi', relation_hi: 'दोहित (नीरजा जी के पुत्र)', relation_en: 'Grandson (Daughter Son)', generation: 4, gender: 'male', isDeceased: false, birthDate: '03 Mar 2009', phone: '+91 94141 99001', photoUrl: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&w=200&q=80', parentIds: ['f-305', 'f-306'], spouseIds: [], childrenIds: [], bio: 'कक्षा ९ का छात्र।' },
-  { id: 'f-406', name_hi: 'आरव शर्मा', name_en: 'Aarav Sharma', relation_hi: 'भतीजे का पुत्र', relation_en: 'Grandnephew', generation: 4, gender: 'male', isDeceased: false, birthDate: '18 Jun 2012', phone: '+91 98291 55443', photoUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&q=80', parentIds: ['f-307', 'f-308'], spouseIds: [], childrenIds: [], bio: 'कक्षा ६ का छात्र।' },
-  { id: 'f-407', name_hi: 'सिया शर्मा', name_en: 'Siya Sharma', relation_hi: 'भतीजे की पुत्री', relation_en: 'Grandniece', generation: 4, gender: 'female', isDeceased: false, birthDate: '22 Nov 2015', phone: '+91 98291 55444', photoUrl: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=200&q=80', parentIds: ['f-307', 'f-308'], spouseIds: [], childrenIds: [], bio: 'कक्षा ३ की छात्रा।' },
-  { id: 'f-408', name_hi: 'अथर्व द्विवेदी', name_en: 'Atharva Dwivedi', relation_hi: 'भांजी का पुत्र', relation_en: 'Grandnephew', generation: 4, gender: 'male', isDeceased: false, birthDate: '05 Apr 2014', phone: '+91 94142 77889', photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80', parentIds: ['f-309', 'f-310'], spouseIds: [], childrenIds: [], bio: 'कक्षा ४ का छात्र।' },
-  { id: 'f-409', name_hi: 'दिया व्यास', name_en: 'Diya Vyas', relation_hi: 'भांजे की पुत्री', relation_en: 'Grandniece', generation: 4, gender: 'female', isDeceased: false, birthDate: '30 Jan 2016', phone: '+91 98281 88990', photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80', parentIds: ['f-311', 'f-312'], spouseIds: [], childrenIds: [], bio: 'प्राथमिक छात्र।' },
-  { id: 'f-410', name_hi: 'देव शर्मा', name_en: 'Dev Sharma', relation_hi: 'परिजन', relation_en: 'Family Member', generation: 4, gender: 'male', isDeceased: false, birthDate: '2018', phone: '+91 98290 00010', photoUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=200&q=80', parentIds: [], spouseIds: [], childrenIds: [], bio: 'बालक।' },
-  { id: 'f-411', name_hi: 'ईशा शर्मा', name_en: 'Isha Sharma', relation_hi: 'परिजन', relation_en: 'Family Member', generation: 4, gender: 'female', isDeceased: false, birthDate: '2020', phone: '+91 98290 00011', photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80', parentIds: [], spouseIds: [], childrenIds: [], bio: 'बालिका।' },
-  { id: 'f-412', name_hi: 'श्री पुरुषोत्तम शर्मा', name_en: 'Shri Purushottam Sharma', relation_hi: 'पितृव्य', relation_en: 'Senior Relative', generation: 2, gender: 'male', isDeceased: true, birthDate: '1940', deathDate: '2015', marriageAnniversaryDate: '1965', phone: '+91 98290 00012', photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80', parentIds: ['f-101'], spouseIds: ['f-413'], childrenIds: ['f-414', 'f-418'], bio: 'वरिष्ठ सम्पादक।' },
-  { id: 'f-413', name_hi: 'श्रीमती कौशल्या शर्मा', name_en: 'Smt. Kaushalya Sharma', relation_hi: 'पितृव्य पत्नी', relation_en: 'Senior Aunt', generation: 2, gender: 'female', isDeceased: false, birthDate: '1945', marriageAnniversaryDate: '1965', phone: '+91 98290 00013', photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80', parentIds: [], spouseIds: ['f-412'], childrenIds: ['f-414', 'f-418'], bio: 'वरिष्ठ महिला।' },
-  { id: 'f-414', name_hi: 'श्री विकास शर्मा', name_en: 'Shri Vikas Sharma', relation_hi: 'अनुज', relation_en: 'Cousin', generation: 3, gender: 'male', isDeceased: false, birthDate: '1988', marriageAnniversaryDate: '2015', phone: '+91 98290 00014', photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80', parentIds: ['f-412', 'f-413'], spouseIds: ['f-415'], childrenIds: ['f-416', 'f-417'], bio: 'सॉफ्टवेयर इंजीनियर।' },
-  { id: 'f-415', name_hi: 'श्रीमती पूजा शर्मा', name_en: 'Smt. Pooja Sharma', relation_hi: 'भ्रातृजाया', relation_en: 'Sister-in-law', generation: 3, gender: 'female', isDeceased: false, birthDate: '1990', marriageAnniversaryDate: '2015', phone: '+91 98290 00015', photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80', parentIds: [], spouseIds: ['f-414'], childrenIds: ['f-416', 'f-417'], bio: 'वास्तुविद।' },
-  { id: 'f-416', name_hi: 'वीर शर्मा', name_en: 'Veer Sharma', relation_hi: 'पौत्र', relation_en: 'Grandson', generation: 4, gender: 'male', isDeceased: false, birthDate: '2017', phone: '+91 98290 00016', photoUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80', parentIds: ['f-414', 'f-415'], spouseIds: [], childrenIds: [], bio: 'छात्र।' },
-  { id: 'f-417', name_hi: 'मीरा शर्मा', name_en: 'Meera Sharma', relation_hi: 'पौत्री', relation_en: 'Granddaughter', generation: 4, gender: 'female', isDeceased: false, birthDate: '2019', phone: '+91 98290 00017', photoUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&q=80', parentIds: ['f-414', 'f-415'], spouseIds: [], childrenIds: [], bio: 'बालिका।' },
-  { id: 'f-418', name_hi: 'श्री दिनेश शर्मा', name_en: 'Shri Dinesh Sharma', relation_hi: 'कुटुंबीजन', relation_en: 'Relative', generation: 3, gender: 'male', isDeceased: false, birthDate: '1986', anniversary_date: '2012', phone: '+91 98290 00018', photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80', parentIds: ['f-412', 'f-413'], spouseIds: ['f-419'], childrenIds: ['f-420'], bio: 'उद्योगपति।' },
-  { id: 'f-419', name_hi: 'श्रीमती निशा शर्मा', name_en: 'Smt. Nisha Sharma', relation_hi: 'कुटुंबीजन', relation_en: 'Relative', generation: 3, gender: 'female', isDeceased: false, birthDate: '1989', anniversary_date: '2012', phone: '+91 98290 00019', photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80', parentIds: [], spouseIds: ['f-418'], childrenIds: ['f-420'], bio: 'शिक्षिका।' },
-  { id: 'f-420', name_hi: 'तेजस शर्मा', name_en: 'Tejas Sharma', relation_hi: 'पौत्र', relation_en: 'Grandson', generation: 4, gender: 'male', isDeceased: false, birthDate: '2014', phone: '+91 98290 00020', photoUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&q=80', parentIds: ['f-418', 'f-419'], spouseIds: [], childrenIds: [], bio: 'बालक।' }
+  { id: 'f-401', name_hi: 'वेदांत शर्मा', name_en: 'Vedant Sharma', relation_hi: 'पौत्र (संकल्प जी के पुत्र)', relation_en: 'Grandson', generation: 4, gender: 'male', isDeceased: false, birthDate: '14 Oct 2002', phone: '+91 98290 88990', photoUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=300&q=80', parentIds: ['f-301', 'f-302'], spouseIds: [], childrenIds: [], bio: 'B.Tech छात्र (IIT दिल्ली)।' },
+  { id: 'f-402', name_hi: 'अनन्या शर्मा', name_en: 'Ananya Sharma', relation_hi: 'पौत्री (संकल्प जी की पुत्री)', relation_en: 'Granddaughter', generation: 4, gender: 'female', isDeceased: false, birthDate: '09 May 2006', phone: '+91 98290 88991', photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80', parentIds: ['f-301', 'f-302'], spouseIds: [], childrenIds: [], bio: 'मेडिकल छात्रा (NEET)।' },
+  { id: 'f-403', name_hi: 'शौर्य शर्मा', name_en: 'Shaurya Sharma', relation_hi: 'पौत्र (राघव जी के पुत्र)', relation_en: 'Grandson', generation: 4, gender: 'male', isDeceased: false, birthDate: '21 Aug 2005', phone: '+91 98290 22110', photoUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&q=80', parentIds: ['f-303', 'f-304'], spouseIds: [], childrenIds: [], bio: 'कक्षा १२ का छात्र।' },
+  { id: 'f-404', name_hi: 'अवनी शर्मा', name_en: 'Avani Sharma', relation_hi: 'पौत्री (राघव जी की पुत्री)', relation_en: 'Granddaughter', generation: 4, gender: 'female', isDeceased: false, birthDate: '16 Dec 2010', phone: '+91 98290 22111', photoUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&q=80', parentIds: ['f-303', 'f-304'], spouseIds: [], childrenIds: [], bio: 'कक्षा ८ की छात्रा।' },
+  { id: 'f-405', name_hi: 'कबीर जोशी', name_en: 'Kabir Joshi', relation_hi: 'दोहित (नीरजा जी के पुत्र)', relation_en: 'Grandson (Daughter Son)', generation: 4, gender: 'male', isDeceased: false, birthDate: '03 Mar 2009', phone: '+91 94141 99001', photoUrl: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&w=300&q=80', parentIds: ['f-305', 'f-306'], spouseIds: [], childrenIds: [], bio: 'कक्षा ९ का छात्र।' },
+  { id: 'f-406', name_hi: 'आरव शर्मा', name_en: 'Aarav Sharma', relation_hi: 'भतीजे का पुत्र', relation_en: 'Grandnephew', generation: 4, gender: 'male', isDeceased: false, birthDate: '18 Jun 2012', phone: '+91 98291 55443', photoUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80', parentIds: ['f-307', 'f-308'], spouseIds: [], childrenIds: [], bio: 'कक्षा ६ का छात्र।' },
+  { id: 'f-407', name_hi: 'सिया शर्मा', name_en: 'Siya Sharma', relation_hi: 'भतीजे की पुत्री', relation_en: 'Grandniece', generation: 4, gender: 'female', isDeceased: false, birthDate: '22 Nov 2015', phone: '+91 98291 55444', photoUrl: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=300&q=80', parentIds: ['f-307', 'f-308'], spouseIds: [], childrenIds: [], bio: 'कक्षा ३ की छात्रा।' },
+  { id: 'f-408', name_hi: 'अथर्व द्विवेदी', name_en: 'Atharva Dwivedi', relation_hi: 'भांजी का पुत्र', relation_en: 'Grandnephew', generation: 4, gender: 'male', isDeceased: false, birthDate: '05 Apr 2014', phone: '+91 94142 77889', photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80', parentIds: ['f-309', 'f-310'], spouseIds: [], childrenIds: [], bio: 'कक्षा ४ का छात्र।' },
+  { id: 'f-409', name_hi: 'दिया व्यास', name_en: 'Diya Vyas', relation_hi: 'भांजे की पुत्री', relation_en: 'Grandniece', generation: 4, gender: 'female', isDeceased: false, birthDate: '30 Jan 2016', phone: '+91 98281 88990', photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80', parentIds: ['f-311', 'f-312'], spouseIds: [], childrenIds: [], bio: 'प्राथमिक छात्र।' },
+  { id: 'f-410', name_hi: 'देव शर्मा', name_en: 'Dev Sharma', relation_hi: 'परिजन', relation_en: 'Family Member', generation: 4, gender: 'male', isDeceased: false, birthDate: '2018', phone: '+91 98290 00010', photoUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: [], childrenIds: [], bio: 'बालक।' },
+  { id: 'f-411', name_hi: 'ईशा शर्मा', name_en: 'Isha Sharma', relation_hi: 'परिजन', relation_en: 'Family Member', generation: 4, gender: 'female', isDeceased: false, birthDate: '2020', phone: '+91 98290 00011', photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: [], childrenIds: [], bio: 'बालिका।' },
+  { id: 'f-412', name_hi: 'श्री पुरुषोत्तम शर्मा', name_en: 'Shri Purushottam Sharma', relation_hi: 'पितृव्य', relation_en: 'Senior Relative', generation: 2, gender: 'male', isDeceased: true, birthDate: '1940', deathDate: '2015', marriageAnniversaryDate: '1965', phone: '+91 98290 00012', photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80', parentIds: ['f-101'], spouseIds: ['f-413'], childrenIds: ['f-414', 'f-418'], bio: 'वरिष्ठ सम्पादक।' },
+  { id: 'f-413', name_hi: 'श्रीमती कौशल्या शर्मा', name_en: 'Smt. Kaushalya Sharma', relation_hi: 'पितृव्य पत्नी', relation_en: 'Senior Aunt', generation: 2, gender: 'female', isDeceased: false, birthDate: '1945', marriageAnniversaryDate: '1965', phone: '+91 98290 00013', photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-412'], childrenIds: ['f-414', 'f-418'], bio: 'वरिष्ठ महिला।' },
+  { id: 'f-414', name_hi: 'श्री विकास शर्मा', name_en: 'Shri Vikas Sharma', relation_hi: 'अनुज', relation_en: 'Cousin', generation: 3, gender: 'male', isDeceased: false, birthDate: '1988', marriageAnniversaryDate: '2015', phone: '+91 98290 00014', photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80', parentIds: ['f-412', 'f-413'], spouseIds: ['f-415'], childrenIds: ['f-416', 'f-417'], bio: 'सॉफ्टवेयर इंजीनियर।' },
+  { id: 'f-415', name_hi: 'श्रीमती पूजा शर्मा', name_en: 'Smt. Pooja Sharma', relation_hi: 'भ्रातृजाया', relation_en: 'Sister-in-law', generation: 3, gender: 'female', isDeceased: false, birthDate: '1990', marriageAnniversaryDate: '2015', phone: '+91 98290 00015', photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-414'], childrenIds: ['f-416', 'f-417'], bio: 'वास्तुविद।' },
+  { id: 'f-416', name_hi: 'वीर शर्मा', name_en: 'Veer Sharma', relation_hi: 'पौत्र', relation_en: 'Grandson', generation: 4, gender: 'male', isDeceased: false, birthDate: '2017', phone: '+91 98290 00016', photoUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&q=80', parentIds: ['f-414', 'f-415'], spouseIds: [], childrenIds: [], bio: 'छात्र।' },
+  { id: 'f-417', name_hi: 'मीरा शर्मा', name_en: 'Meera Sharma', relation_hi: 'पौत्री', relation_en: 'Granddaughter', generation: 4, gender: 'female', isDeceased: false, birthDate: '2019', phone: '+91 98290 00017', photoUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&q=80', parentIds: ['f-414', 'f-415'], spouseIds: [], childrenIds: [], bio: 'बालिका।' },
+  { id: 'f-418', name_hi: 'श्री दिनेश शर्मा', name_en: 'Shri Dinesh Sharma', relation_hi: 'कुटुंबीजन', relation_en: 'Relative', generation: 3, gender: 'male', isDeceased: false, birthDate: '1986', anniversary_date: '2012', phone: '+91 98290 00018', photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80', parentIds: ['f-412', 'f-413'], spouseIds: ['f-419'], childrenIds: ['f-420'], bio: 'उद्योगपति।' },
+  { id: 'f-419', name_hi: 'श्रीमती निशा शर्मा', name_en: 'Smt. Nisha Sharma', relation_hi: 'कुटुंबीजन', relation_en: 'Relative', generation: 3, gender: 'female', isDeceased: false, birthDate: '1989', anniversary_date: '2012', phone: '+91 98290 00019', photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-418'], childrenIds: ['f-420'], bio: 'शिक्षिका।' },
+  { id: 'f-420', name_hi: 'तेजस शर्मा', name_en: 'Tejas Sharma', relation_hi: 'पौत्र', relation_en: 'Grandson', generation: 4, gender: 'male', isDeceased: false, birthDate: '2014', phone: '+91 98290 00020', photoUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80', parentIds: ['f-418', 'f-419'], spouseIds: [], childrenIds: [], bio: 'बालक।' }
 ]
 
 export default function FamilyTreeCanvas({ 
@@ -75,8 +75,8 @@ export default function FamilyTreeCanvas({
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false)
   const [collapsedNodeIds, setCollapsedNodeIds] = useState(new Set())
-  const [maxDepthFilter, setMaxDepthFilter] = useState('all') // '1', '2', '3', '4', 'all'
-  const [branchFilter, setBranchFilter] = useState('all') // 'all', 'paternal', 'maternal'
+  const [maxDepthFilter, setMaxDepthFilter] = useState('all')
+  const [branchFilter, setBranchFilter] = useState('all')
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [isExportOpen, setIsExportOpen] = useState(false)
 
@@ -100,7 +100,7 @@ export default function FamilyTreeCanvas({
 
   const selectedMember = memberMap.get(focusedId) || data[0]
 
-  // Structural Married Couple Containers & Subtree Descendant Counts
+  // Structural Married Couple Containers
   const { coupleContainers, containerDescendantCounts } = useMemo(() => {
     const processedSpouses = new Set()
     const containers = []
@@ -142,7 +142,7 @@ export default function FamilyTreeCanvas({
       })
     })
 
-    // Compute Recursive Descendant Count for Each Container
+    // Compute Recursive Descendant Count
     const descCounts = new Map()
     const countDescendants = (containerId) => {
       if (descCounts.has(containerId)) return descCounts.get(containerId)
@@ -234,21 +234,21 @@ export default function FamilyTreeCanvas({
     }
   }, [isFocalMode, focusedId, coupleContainers])
 
-  // 2D Layout Calculation (Computes exact X, Y coordinates for Full Tree or Focal Window)
+  // 2D Layout Calculation (Boxed Card Layout Dimensions)
   const layoutPositions = useMemo(() => {
     const posMap = new Map()
 
-    const CONTAINER_WIDTH_COUPLE = 330
-    const CONTAINER_WIDTH_SINGLE = 175
-    const CONTAINER_HEIGHT = 150
+    const CONTAINER_WIDTH_SINGLE = 170
+    const CONTAINER_WIDTH_COUPLE = 360
+    const CONTAINER_HEIGHT = 220
     const getWidth = (c) => c.isCouple ? CONTAINER_WIDTH_COUPLE : CONTAINER_WIDTH_SINGLE
 
     if (focalWindowInfo.isFocalActive) {
       const { focusedContainer, parentContainers, childContainers } = focalWindowInfo
       const CENTER_X = 1200
-      const Y_PARENTS = 80
-      const Y_FOCUSED = 340
-      const Y_CHILDREN = 600
+      const Y_PARENTS = 70
+      const Y_FOCUSED = 350
+      const Y_CHILDREN = 630
       const X_GAP = 40
 
       // 1. Position Focused Container in Center Tier (Tier 2)
@@ -307,10 +307,10 @@ export default function FamilyTreeCanvas({
       if (genTiers[c.generation]) genTiers[c.generation].push(c)
     })
 
-    const Y_GAP = 240
-    const X_GAP = 45
+    const Y_GAP = 300
+    const X_GAP = 50
 
-    // Gen 1 (Ancestors Root): Centered at X = 1200
+    // Gen 1 (Ancestors Root)
     let gen1X = 1200
     genTiers[1].forEach(c => {
       const w = getWidth(c)
@@ -318,7 +318,7 @@ export default function FamilyTreeCanvas({
       gen1X += w + X_GAP
     })
 
-    // Layout Gen 2, 3, 4 recursively beneath parent nodes
+    // Layout Gen 2, 3, 4 recursively
     ;[2, 3, 4].forEach(genLevel => {
       const levelContainers = genTiers[genLevel] || []
       const parentGenContainers = genTiers[genLevel - 1] || []
@@ -374,7 +374,7 @@ export default function FamilyTreeCanvas({
     return posMap
   }, [coupleContainers, collapsedNodeIds, maxDepthFilter, focalWindowInfo])
 
-  // Active 1st-Degree Relative Neighborhood
+  // Active Neighborhood Highlight
   const activeNeighborhood = useMemo(() => {
     const activeSet = new Set()
     const current = memberMap.get(focusedId)
@@ -390,7 +390,6 @@ export default function FamilyTreeCanvas({
   // Orthogonal SVG Tree Edges Generator
   const svgTreeEdges = useMemo(() => {
     const edges = []
-
     const visibleSet = new Set(focalWindowInfo.visibleContainers.map(c => c.id))
 
     focalWindowInfo.visibleContainers.forEach(parentC => {
@@ -435,49 +434,50 @@ export default function FamilyTreeCanvas({
     return edges
   }, [coupleContainers, layoutPositions, activeNeighborhood, collapsedNodeIds, focalWindowInfo])
 
-  // Camera Navigation & Progressive Focal Exploration
-  const focusMemberAndCenter = (memberId, openDrawer = true) => {
+  // 1-Click Instant Focal Isolation Mode Handler
+  const focusMemberAndIsolate = (memberId) => {
     setFocusedId(memberId)
-    setIsFocalMode(true) // Ensure focal isolation is active
-    if (openDrawer) setIsDrawerOpen(true)
+    setIsFocalMode(true) // Instantly collapse unrelated people & show 1-step up/down window
     if (onNodeSelect) onNodeSelect(memberId)
 
-    // Smoothly re-center camera on the target node
+    // Center camera on target
     setTimeout(() => {
       const container = coupleContainers.find(c => c.primary.id === memberId || (c.secondary && c.secondary.id === memberId))
       if (container) {
         const pos = layoutPositions.get(container.id)
         if (pos) {
           setPanOffset({ x: 380 - pos.x, y: 150 - pos.y })
-          setZoomLevel(1.05)
+          setZoomLevel(1.02)
         }
       }
     }, 50)
-
-    if (document.activeElement) document.activeElement.blur()
-    setSearchQuery('')
-    setIsSearchDropdownOpen(false)
   }
 
-  // Level Up Button Action (`^`)
+  // Open Detailed Profile Side Drawer
+  const openProfileDrawer = (memberId) => {
+    focusMemberAndIsolate(memberId)
+    setIsDrawerOpen(true)
+  }
+
+  // Level Up Button (`^`)
   const levelUp = () => {
     const current = memberMap.get(focusedId)
     if (current && current.parentIds && current.parentIds.length > 0) {
-      focusMemberAndCenter(current.parentIds[0], false)
+      focusMemberAndIsolate(current.parentIds[0])
     } else {
-      focusMemberAndCenter(rootId, false)
+      focusMemberAndIsolate(rootId)
     }
   }
 
-  // Reset Focal Mode / Show Full Tree
+  // Reset View / Show Full Tree
   const resetToFullTree = () => {
     setIsFocalMode(false)
-    setZoomLevel(0.95)
+    setZoomLevel(0.9)
     setPanOffset({ x: -450, y: 30 })
     setIsDrawerOpen(false)
   }
 
-  // Robust Search Autocomplete (Supports English & Hindi Names / Relations / Bios)
+  // English & Hindi Autocomplete Search
   const searchResults = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
     if (!q) return []
@@ -579,7 +579,7 @@ export default function FamilyTreeCanvas({
             <input 
               type="text"
               className="canvas-search-input"
-              placeholder={isHi ? 'नाम खोजें (Search English/Hindi)...' : 'Search in English or Hindi (e.g., Sankalp)...'}
+              placeholder={isHi ? 'नाम खोजें (Search English/Hindi)...' : 'Search in English or Hindi (e.g. Sankalp)...'}
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value)
@@ -598,7 +598,7 @@ export default function FamilyTreeCanvas({
                   <div 
                     key={member.id} 
                     className="search-dropdown-item"
-                    onClick={() => focusMemberAndCenter(member.id, true)}
+                    onClick={() => { focusMemberAndIsolate(member.id); setIsSearchDropdownOpen(false); setSearchQuery(''); }}
                   >
                     <img src={member.photoUrl} alt={member.name_en} className="search-item-avatar" />
                     <div className="search-item-meta">
@@ -701,14 +701,14 @@ export default function FamilyTreeCanvas({
         </div>
       </div>
 
-      {/* Active Focal Mode Exploration Indicator Bar */}
+      {/* Active Focal Mode Indicator Bar */}
       {isFocalMode && selectedMember && (
         <div className="focal-banner-bar">
           <span className="focal-badge-tag">🎯 FOCAL ISOLATION WINDOW</span>
           <span className="focal-info-text">
             {isHi 
-              ? `केन्द्रित: ${selectedMember.name_hi} (${selectedMember.relation_hi}) — केवल १ पीढ़ी ऊपर (माता-पिता) एवं १ पीढ़ी नीचे (संतान) दृश्यमान`
-              : `Focus: ${selectedMember.name_en} (${selectedMember.relation_en}) — Showing 1-Gen Above (Parents) & 1-Gen Below (Children)`}
+              ? `केन्द्रित: ${selectedMember.name_hi} (${selectedMember.relation_hi}) — फोटो पर क्लिक करके १-स्टेप ऊपर/नीचे नेविगेट करें`
+              : `Focus: ${selectedMember.name_en} (${selectedMember.relation_en}) — Click any card photo to isolate 1-Step Up/Down`}
           </span>
           <button className="focal-reset-pill-btn" onClick={resetToFullTree}>
             🌐 {isHi ? 'पूरा वृक्ष देखें (Show Full Tree)' : 'Show Full Tree'}
@@ -746,10 +746,10 @@ export default function FamilyTreeCanvas({
           ref={stageRef}
           animate={{ x: panOffset.x, y: panOffset.y, scale: zoomLevel }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          style={{ width: '3200px', height: '950px', position: 'relative' }}
+          style={{ width: '3200px', height: '1050px', position: 'relative' }}
         >
           {/* Orthogonal SVG Tree Connector Step-Lines */}
-          <svg className="family-tree-svg-canvas" width="3200" height="950">
+          <svg className="family-tree-svg-canvas" width="3200" height="1050">
             {svgTreeEdges.map(edge => (
               <g key={edge.id}>
                 <path 
@@ -762,7 +762,7 @@ export default function FamilyTreeCanvas({
             ))}
           </svg>
 
-          {/* Explicitly Positioned Vertical Node Cards */}
+          {/* Explicitly Positioned Boxed Node Cards (Full Edge-to-Edge Photo + Name + 2 Side-by-Side Action Buttons) */}
           {focalWindowInfo.visibleContainers.map(container => {
             const pos = layoutPositions.get(container.id)
             if (!pos) return null
@@ -801,25 +801,40 @@ export default function FamilyTreeCanvas({
                   </span>
                 )}
 
-                {/* Primary Member Card */}
+                {/* Primary Member Boxed Card (Edge-to-Edge Photo + Name + 2 Side-by-Side Buttons) */}
                 <div 
-                  className={`member-vertical-card ${isP1Selected ? 'card-selected' : ''}`}
-                  onClick={(e) => { e.stopPropagation(); focusMemberAndCenter(p1.id, true); }}
+                  className={`member-boxed-card ${isP1Selected ? 'card-selected' : ''}`}
+                  onClick={(e) => { e.stopPropagation(); focusMemberAndIsolate(p1.id); }}
                 >
-                  <div className="vertical-avatar-wrapper">
-                    <img src={p1.photoUrl} alt={p1.name_en} className="vertical-avatar-img" />
-                    {p1.isDeceased && <span className="deceased-lotus-icon" title="In Reverent Memory">🪷</span>}
+                  {/* Full Edge-to-Edge Boxed Photo Header */}
+                  <div className="boxed-photo-container">
+                    <img src={p1.photoUrl} alt={p1.name_en} className="boxed-card-photo" />
+                    {p1.isDeceased && <span className="deceased-lotus-badge" title="In Reverent Memory">🪷</span>}
                   </div>
 
-                  <div className="vertical-card-meta">
-                    <h4 className="vertical-name">{isHi ? p1.name_hi : p1.name_en}</h4>
-                    <span className="vertical-relation">{isHi ? p1.relation_hi : p1.relation_en}</span>
+                  {/* Person's Name & Relation */}
+                  <div className="boxed-card-meta">
+                    <h4 className="boxed-card-name" title={isHi ? p1.name_hi : p1.name_en}>
+                      {isHi ? p1.name_hi : p1.name_en}
+                    </h4>
+                    <span className="boxed-card-relation">{isHi ? p1.relation_hi : p1.relation_en}</span>
+                  </div>
+
+                  {/* Two Side-by-Side Action Buttons: "More Details" and "Call" */}
+                  <div className="boxed-card-actions">
                     <button 
-                      className="more-details-link"
-                      onClick={(e) => { e.stopPropagation(); focusMemberAndCenter(p1.id, true); }}
+                      className="card-btn-action btn-details"
+                      onClick={(e) => { e.stopPropagation(); openProfileDrawer(p1.id); }}
                     >
-                      {isHi ? 'विवरण... ' : 'More...'}
+                      {isHi ? 'विवरण' : 'More Details'}
                     </button>
+                    <a 
+                      href={p1.phone ? `tel:${p1.phone}` : '#'} 
+                      className="card-btn-action btn-call"
+                      onClick={(e) => { e.stopPropagation(); if (!p1.phone) openProfileDrawer(p1.id); }}
+                    >
+                      📞 {isHi ? 'कॉल' : 'Call'}
+                    </a>
                   </div>
                 </div>
 
@@ -828,25 +843,40 @@ export default function FamilyTreeCanvas({
                   <>
                     <div className="couple-wedding-ring" title="Marriage Bond">💍</div>
 
-                    {/* Secondary Spouse Vertical Card */}
+                    {/* Secondary Spouse Boxed Card */}
                     <div 
-                      className={`member-vertical-card ${isP2Selected ? 'card-selected' : ''}`}
-                      onClick={(e) => { e.stopPropagation(); focusMemberAndCenter(p2.id, true); }}
+                      className={`member-boxed-card ${isP2Selected ? 'card-selected' : ''}`}
+                      onClick={(e) => { e.stopPropagation(); focusMemberAndIsolate(p2.id); }}
                     >
-                      <div className="vertical-avatar-wrapper">
-                        <img src={p2.photoUrl} alt={p2.name_en} className="vertical-avatar-img" />
-                        {p2.isDeceased && <span className="deceased-lotus-icon" title="In Reverent Memory">🪷</span>}
+                      {/* Full Edge-to-Edge Boxed Photo Header */}
+                      <div className="boxed-photo-container">
+                        <img src={p2.photoUrl} alt={p2.name_en} className="boxed-card-photo" />
+                        {p2.isDeceased && <span className="deceased-lotus-badge" title="In Reverent Memory">🪷</span>}
                       </div>
 
-                      <div className="vertical-card-meta">
-                        <h4 className="vertical-name">{isHi ? p2.name_hi : p2.name_en}</h4>
-                        <span className="vertical-relation">{isHi ? p2.relation_hi : p2.relation_en}</span>
+                      {/* Person's Name & Relation */}
+                      <div className="boxed-card-meta">
+                        <h4 className="boxed-card-name" title={isHi ? p2.name_hi : p2.name_en}>
+                          {isHi ? p2.name_hi : p2.name_en}
+                        </h4>
+                        <span className="boxed-card-relation">{isHi ? p2.relation_hi : p2.relation_en}</span>
+                      </div>
+
+                      {/* Two Side-by-Side Action Buttons: "More Details" and "Call" */}
+                      <div className="boxed-card-actions">
                         <button 
-                          className="more-details-link"
-                          onClick={(e) => { e.stopPropagation(); focusMemberAndCenter(p2.id, true); }}
+                          className="card-btn-action btn-details"
+                          onClick={(e) => { e.stopPropagation(); openProfileDrawer(p2.id); }}
                         >
-                          {isHi ? 'विवरण... ' : 'More...'}
+                          {isHi ? 'विवरण' : 'More Details'}
                         </button>
+                        <a 
+                          href={p2.phone ? `tel:${p2.phone}` : '#'} 
+                          className="card-btn-action btn-call"
+                          onClick={(e) => { e.stopPropagation(); if (!p2.phone) openProfileDrawer(p2.id); }}
+                        >
+                          📞 {isHi ? 'कॉल' : 'Call'}
+                        </a>
                       </div>
                     </div>
                   </>
@@ -950,7 +980,7 @@ export default function FamilyTreeCanvas({
 
                 {/* Direct Links / Interactive Pills to Relatives */}
                 <div className="drawer-relatives-section">
-                  <h4>{isHi ? 'प्रत्यक्ष पारिवारिक संबंध (1-Click Exploration):' : 'Direct Relatives (1-Click Explore):'}</h4>
+                  <h4>{isHi ? 'प्रत्यक्ष पारिवारिक संबंध (1-Click Explore):' : 'Direct Relatives (1-Click Explore):'}</h4>
                   
                   {/* Parents */}
                   {selectedMember.parentIds && selectedMember.parentIds.length > 0 && (
@@ -961,7 +991,7 @@ export default function FamilyTreeCanvas({
                           const p = memberMap.get(pId)
                           if (!p) return null
                           return (
-                            <button key={pId} className="relative-pill" onClick={() => focusMemberAndCenter(pId, true)}>
+                            <button key={pId} className="relative-pill" onClick={() => openProfileDrawer(pId)}>
                               {p.name_en} ({p.name_hi})
                             </button>
                           )
@@ -979,7 +1009,7 @@ export default function FamilyTreeCanvas({
                           const s = memberMap.get(sId)
                           if (!s) return null
                           return (
-                            <button key={sId} className="relative-pill" onClick={() => focusMemberAndCenter(sId, true)}>
+                            <button key={sId} className="relative-pill" onClick={() => openProfileDrawer(sId)}>
                               {s.name_en} ({s.name_hi})
                             </button>
                           )
@@ -997,7 +1027,7 @@ export default function FamilyTreeCanvas({
                           const c = memberMap.get(cId)
                           if (!c) return null
                           return (
-                            <button key={cId} className="relative-pill" onClick={() => focusMemberAndCenter(cId, true)}>
+                            <button key={cId} className="relative-pill" onClick={() => openProfileDrawer(cId)}>
                               {c.name_en} ({c.name_hi})
                             </button>
                           )

@@ -411,98 +411,149 @@
   50% { transform: scale(1.15); }
 }
 
-/* Vertical Node Card (1:1 Reference UI Layout) */
-.member-vertical-card {
+/* Member Boxed Card (Full Edge-to-Edge Photo, Name, and 2 Side-by-Side Action Buttons) */
+.member-boxed-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 165px;
+  background: #FFFFFF;
+  border-radius: 12px;
+  border: 1.5px solid #E5DAC9;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.member-boxed-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(184, 92, 56, 0.15);
+  border-color: var(--leona-terracotta, #B85C38);
+}
+
+.member-boxed-card.card-selected {
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3);
+  background: #FFFDF8;
+}
+
+/* Full Edge-to-Edge Boxed Photo Header */
+.boxed-photo-container {
+  position: relative;
+  width: 100%;
+  height: 105px;
+  overflow: hidden;
+  background: #F2ECE1;
+}
+
+.boxed-card-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.member-boxed-card:hover .boxed-card-photo {
+  transform: scale(1.05);
+}
+
+.deceased-lotus-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(4px);
+  padding: 2px 6px;
+  border-radius: 10px;
+  border: 1px solid #D4AF37;
+}
+
+/* Person Meta (Name & Relation) */
+.boxed-card-meta {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  width: 145px;
-  padding: 6px 4px;
-  border-radius: 10px;
-  background: #FAF8F5;
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.member-vertical-card:hover {
-  background: rgba(184, 92, 56, 0.08);
-  border-color: rgba(184, 92, 56, 0.3);
-}
-
-.member-vertical-card.card-selected {
-  background: rgba(212, 175, 55, 0.15);
-  border-color: #D4AF37;
-}
-
-.vertical-avatar-wrapper {
-  position: relative;
-  margin-bottom: 6px;
-}
-
-.vertical-avatar-img {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #FFFFFF;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-.deceased-lotus-icon {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  font-size: 0.75rem;
-}
-
-.vertical-card-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   width: 100%;
+  padding: 8px 6px 4px 6px;
 }
 
-.vertical-name {
-  font-size: 0.78rem;
+.boxed-card-name {
+  font-size: 0.8rem;
   font-weight: 700;
   color: #1E1B18;
   margin: 0;
   line-height: 1.25;
-  max-width: 135px;
+  width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.vertical-relation {
+.boxed-card-relation {
   font-size: 0.7rem;
   color: var(--leona-terracotta, #B85C38);
-  font-weight: 500;
+  font-weight: 600;
   margin-top: 2px;
+  width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 135px;
 }
 
-.more-details-link {
+/* Two Side-by-Side Action Buttons: "More Details" and "Call" */
+.boxed-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 6px 6px 8px 6px;
+}
+
+.card-btn-action {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 2px;
   font-size: 0.68rem;
-  color: #888;
-  background: none;
-  border: none;
+  font-weight: 700;
+  border-radius: 6px;
   cursor: pointer;
-  margin-top: 4px;
-  padding: 0;
-  text-decoration: underline;
-  transition: color 0.15s ease;
+  text-decoration: none;
   font-family: inherit;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  border: 1px solid transparent;
 }
 
-.more-details-link:hover {
+.card-btn-action.btn-details {
+  background: #FFF5EE;
   color: var(--leona-terracotta, #B85C38);
+  border-color: rgba(184, 92, 56, 0.3);
 }
+
+.card-btn-action.btn-details:hover {
+  background: var(--leona-terracotta, #B85C38);
+  color: #FFFFFF;
+  border-color: var(--leona-terracotta, #B85C38);
+}
+
+.card-btn-action.btn-call {
+  background: #F0F9F2;
+  color: #1E7B34;
+  border-color: rgba(30, 123, 52, 0.3);
+}
+
+.card-btn-action.btn-call:hover {
+  background: #1E7B34;
+  color: #FFFFFF;
+  border-color: #1E7B34;
+}
+
 
 /* Bottom Subtree Expand/Collapse Chevron Pill (Matching Reference UI 14 ∨) */
 .subtree-chevron-btn {
