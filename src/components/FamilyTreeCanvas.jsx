@@ -48,8 +48,8 @@ export const FAMILY_DATA_35 = [
   { id: 'f-415', name_hi: 'श्रीमती पूजा शर्मा', name_en: 'Smt. Pooja Sharma', relation_hi: 'भ्रातृजाया', relation_en: 'Sister-in-law', generation: 3, gender: 'female', isDeceased: false, birthDate: '1990', marriageAnniversaryDate: '2015', phone: '+91 98290 00015', photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80', parentIds: [], spouseIds: ['f-414'], childrenIds: ['f-416', 'f-417'], bio: 'वास्तुविद।' },
   { id: 'f-416', name_hi: 'वीर शर्मा', name_en: 'Veer Sharma', relation_hi: 'पौत्र', relation_en: 'Grandson', generation: 4, gender: 'male', isDeceased: false, birthDate: '2017', phone: '+91 98290 00016', photoUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80', parentIds: ['f-414', 'f-415'], spouseIds: [], childrenIds: [], bio: 'छात्र।' },
   { id: 'f-417', name_hi: 'मीरा शर्मा', name_en: 'Meera Sharma', relation_hi: 'पौत्री', relation_en: 'Granddaughter', generation: 4, gender: 'female', isDeceased: false, birthDate: '2019', phone: '+91 98290 00017', photoUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&q=80', parentIds: ['f-414', 'f-415'], spouseIds: [], childrenIds: [], bio: 'बालिका।' },
-  { id: 'f-418', name_hi: 'श्री दिनेश शर्मा', name_en: 'Shri Dinesh Sharma', relation_hi: 'कुटुंबीजन', relation_en: 'Relative', generation: 3, gender: 'male', isDeceased: false, birthDate: '1986', marriageAnniversaryDate: '2012', phone: '+91 98290 00018', photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80', parentIds: ['f-412', 'f-413'], spouseIds: ['f-419'], childrenIds: ['f-420'], bio: 'उद्योगपति।' },
-  { id: 'f-419', name_hi: 'श्रीमती निशा शर्मा', name_en: 'Smt. Nisha Sharma', relation_hi: 'कुटुंबीजन', relation_en: 'Relative', generation: 3, gender: 'female', isDeceased: false, birthDate: '1989', marriageAnniversaryDate: '2012', phone: '+91 98290 00019', photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80', parentIds: [], spouseIds: ['f-418'], childrenIds: ['f-420'], bio: 'शिक्षिका।' },
+  { id: 'f-418', name_hi: 'श्री दिनेश शर्मा', name_en: 'Shri Dinesh Sharma', relation_hi: 'कुटुंबीजन', relation_en: 'Relative', generation: 3, gender: 'male', isDeceased: false, birthDate: '1986', anniversary_date: '2012', phone: '+91 98290 00018', photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80', parentIds: ['f-412', 'f-413'], spouseIds: ['f-419'], childrenIds: ['f-420'], bio: 'उद्योगपति।' },
+  { id: 'f-419', name_hi: 'श्रीमती निशा शर्मा', name_en: 'Smt. Nisha Sharma', relation_hi: 'कुटुंबीजन', relation_en: 'Relative', generation: 3, gender: 'female', isDeceased: false, birthDate: '1989', anniversary_date: '2012', phone: '+91 98290 00019', photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80', parentIds: [], spouseIds: ['f-418'], childrenIds: ['f-420'], bio: 'शिक्षिका।' },
   { id: 'f-420', name_hi: 'तेजस शर्मा', name_en: 'Tejas Sharma', relation_hi: 'पौत्र', relation_en: 'Grandson', generation: 4, gender: 'male', isDeceased: false, birthDate: '2014', phone: '+91 98290 00020', photoUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&q=80', parentIds: ['f-418', 'f-419'], spouseIds: [], childrenIds: [], bio: 'बालक।' }
 ]
 
@@ -62,20 +62,25 @@ export default function FamilyTreeCanvas({
   const { i18n } = useTranslation()
   const isHi = i18n.language !== 'en'
 
+  // Viewport & Camera State
   const [zoomLevel, setZoomLevel] = useState(1)
-  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 })
+  const [panOffset, setPanOffset] = useState({ x: -450, y: 30 })
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+  
+  // Interactive Tree & Traversal State
   const [focusedId, setFocusedId] = useState(selectedNodeId || rootId)
-  const [isFocusMode, setIsFocusMode] = useState(false)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false)
+  const [collapsedNodeIds, setCollapsedNodeIds] = useState(new Set())
+  const [maxDepthFilter, setMaxDepthFilter] = useState('all') // '1', '2', '3', '4', 'all'
+  const [branchFilter, setBranchFilter] = useState('all') // 'all', 'paternal', 'maternal'
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [isExportOpen, setIsExportOpen] = useState(false)
 
   const canvasRef = useRef(null)
   const stageRef = useRef(null)
-  const containerRefs = useRef({})
-  const [lines, setLines] = useState([])
 
   useEffect(() => {
     if (selectedNodeId) {
@@ -93,31 +98,112 @@ export default function FamilyTreeCanvas({
 
   const selectedMember = memberMap.get(focusedId) || data[0]
 
-  // Dynamic 2D Hierarchical Tree Layout Calculator
+  // Structural Married Couple Containers & Subtree Descendant Counts
+  const { coupleContainers, containerDescendantCounts } = useMemo(() => {
+    const processedSpouses = new Set()
+    const containers = []
+
+    data.forEach(member => {
+      if (processedSpouses.has(member.id)) return
+
+      if (member.spouseIds && member.spouseIds.length > 0) {
+        const spouse = memberMap.get(member.spouseIds[0])
+        if (spouse) {
+          processedSpouses.add(member.id)
+          processedSpouses.add(spouse.id)
+
+          const primary = member.gender === 'male' ? member : spouse
+          const secondary = member.gender === 'male' ? spouse : member
+
+          const childrenIds = Array.from(new Set([...(member.childrenIds || []), ...(spouse.childrenIds || [])]))
+
+          containers.push({
+            id: `couple-${primary.id}-${secondary.id}`,
+            primary,
+            secondary,
+            isCouple: true,
+            generation: primary.generation,
+            childrenIds
+          })
+          return
+        }
+      }
+
+      processedSpouses.add(member.id)
+      containers.push({
+        id: `single-${member.id}`,
+        primary: member,
+        secondary: null,
+        isCouple: false,
+        generation: member.generation,
+        childrenIds: member.childrenIds || []
+      })
+    })
+
+    // Compute Recursive Descendant Count for Each Container
+    const descCounts = new Map()
+    const countDescendants = (containerId) => {
+      if (descCounts.has(containerId)) return descCounts.get(containerId)
+      const container = containers.find(c => c.id === containerId)
+      if (!container || !container.childrenIds || container.childrenIds.length === 0) {
+        descCounts.set(containerId, 0)
+        return 0
+      }
+
+      let sum = 0
+      container.childrenIds.forEach(childId => {
+        const childContainer = containers.find(c => c.primary.id === childId || (c.secondary && c.secondary.id === childId))
+        if (childContainer) {
+          sum += 1 + countDescendants(childContainer.id)
+        }
+      })
+      descCounts.set(containerId, sum)
+      return sum
+    }
+
+    containers.forEach(c => countDescendants(c.id))
+
+    return { coupleContainers: containers, containerDescendantCounts: descCounts }
+  }, [data, memberMap])
+
+  // Subtree Collapse Toggle
+  const toggleSubtreeCollapse = (containerId) => {
+    setCollapsedNodeIds(prev => {
+      const next = new Set(prev)
+      if (next.has(containerId)) next.delete(containerId)
+      else next.add(containerId)
+      return next
+    })
+  }
+
+  // Pure 2D Tree Layout Calculation (Computes exact X, Y coordinates)
   const layoutPositions = useMemo(() => {
     const posMap = new Map()
     const genTiers = { 1: [], 2: [], 3: [], 4: [] }
+
     coupleContainers.forEach(c => {
+      // Check depth filter
+      if (maxDepthFilter !== 'all' && c.generation > parseInt(maxDepthFilter)) return
       if (genTiers[c.generation]) genTiers[c.generation].push(c)
     })
 
     const CONTAINER_WIDTH_COUPLE = 330
     const CONTAINER_WIDTH_SINGLE = 175
-    const CONTAINER_HEIGHT = 70
-    const Y_GAP = 180
-    const X_GAP = 40
+    const CONTAINER_HEIGHT = 150
+    const Y_GAP = 240
+    const X_GAP = 45
 
     const getWidth = (c) => c.isCouple ? CONTAINER_WIDTH_COUPLE : CONTAINER_WIDTH_SINGLE
 
-    // Gen 1 (Ancestors): Position centered at X: 1100
-    let gen1X = 1100
+    // Gen 1 (Ancestors Root): Centered at X = 1200
+    let gen1X = 1200
     genTiers[1].forEach(c => {
       const w = getWidth(c)
-      posMap.set(c.id, { x: gen1X, y: 50, width: w, height: CONTAINER_HEIGHT })
+      posMap.set(c.id, { x: gen1X, y: 60, width: w, height: CONTAINER_HEIGHT })
       gen1X += w + X_GAP
     })
 
-    // Layout Gen 2, 3, 4 recursively beneath parents
+    // Layout Gen 2, 3, 4 recursively beneath parent nodes
     ;[2, 3, 4].forEach(genLevel => {
       const levelContainers = genTiers[genLevel] || []
       const parentGenContainers = genTiers[genLevel - 1] || []
@@ -127,6 +213,7 @@ export default function FamilyTreeCanvas({
 
       levelContainers.forEach(childC => {
         const parentC = parentGenContainers.find(pC => {
+          if (collapsedNodeIds.has(pC.id)) return false // Hidden if parent collapsed
           const pIds = [pC.primary.id, pC.secondary?.id].filter(Boolean)
           const cPIds = [...(childC.primary.parentIds || []), ...(childC.secondary?.parentIds || [])]
           return cPIds.some(id => pIds.includes(id))
@@ -136,13 +223,17 @@ export default function FamilyTreeCanvas({
           if (!childrenByParent.has(parentC.id)) childrenByParent.set(parentC.id, [])
           childrenByParent.get(parentC.id).push(childC)
         } else {
-          unassigned.push(childC)
+          // Check if parent exists in higher levels but collapsed
+          const isCollapsedAncestor = parentGenContainers.some(pC => collapsedNodeIds.has(pC.id))
+          if (!isCollapsedAncestor) unassigned.push(childC)
         }
       })
 
-      let currentRightX = 120
+      let currentRightX = 140
       parentGenContainers.forEach(parentC => {
-        const parentPos = posMap.get(parentC.id) || { x: 800, y: (genLevel - 2) * Y_GAP + 50, width: 300, height: 70 }
+        if (collapsedNodeIds.has(parentC.id)) return // Skip laying out children if collapsed
+
+        const parentPos = posMap.get(parentC.id) || { x: 1000, y: (genLevel - 2) * Y_GAP + 60, width: 300, height: CONTAINER_HEIGHT }
         const children = childrenByParent.get(parentC.id) || []
 
         if (children.length > 0) {
@@ -152,7 +243,7 @@ export default function FamilyTreeCanvas({
 
           children.forEach(childC => {
             const w = getWidth(childC)
-            posMap.set(childC.id, { x: startX, y: (genLevel - 1) * Y_GAP + 50, width: w, height: CONTAINER_HEIGHT })
+            posMap.set(childC.id, { x: startX, y: (genLevel - 1) * Y_GAP + 60, width: w, height: CONTAINER_HEIGHT })
             startX += w + X_GAP
           })
           currentRightX = startX + X_GAP
@@ -161,25 +252,40 @@ export default function FamilyTreeCanvas({
 
       unassigned.forEach(childC => {
         const w = getWidth(childC)
-        posMap.set(childC.id, { x: currentRightX, y: (genLevel - 1) * Y_GAP + 50, width: w, height: CONTAINER_HEIGHT })
+        posMap.set(childC.id, { x: currentRightX, y: (genLevel - 1) * Y_GAP + 60, width: w, height: CONTAINER_HEIGHT })
         currentRightX += w + X_GAP
       })
     })
 
     return posMap
-  }, [coupleContainers])
+  }, [coupleContainers, collapsedNodeIds, maxDepthFilter])
 
-  // Orthogonal SVG Step-Line Edge Path Generator (Parent Couple -> Child Nodes)
+  // Active 1st-Degree Relative Neighborhood
+  const activeNeighborhood = useMemo(() => {
+    const activeSet = new Set()
+    const current = memberMap.get(focusedId)
+    if (!current) return activeSet
+
+    activeSet.add(current.id)
+    ;(current.parentIds || []).forEach(id => activeSet.add(id))
+    ;(current.spouseIds || []).forEach(id => activeSet.add(id))
+    ;(current.childrenIds || []).forEach(id => activeSet.add(id))
+    return activeSet
+  }, [focusedId, memberMap])
+
+  // Orthogonal SVG Bus Edge Generator (Parent Couple -> Children)
   const svgTreeEdges = useMemo(() => {
     const edges = []
 
     coupleContainers.forEach(parentC => {
+      if (collapsedNodeIds.has(parentC.id)) return
+
       const parentPos = layoutPositions.get(parentC.id)
       if (!parentPos) return
 
       const pX = parentPos.x + parentPos.width / 2
       const pY = parentPos.y + parentPos.height
-      const midY = pY + 45
+      const midY = pY + 50
 
       ;(parentC.childrenIds || []).forEach(childId => {
         const childC = coupleContainers.find(c => c.primary.id === childId || (c.secondary && c.secondary.id === childId))
@@ -194,7 +300,6 @@ export default function FamilyTreeCanvas({
         const isChildActive = activeNeighborhood.has(childId)
         const isActive = isParentActive && isChildActive
 
-        // Orthogonal Trunk-and-Branch path (Down, Across, Down)
         const pathD = `M ${pX} ${pY} V ${midY} H ${cX} V ${cY}`
 
         edges.push({
@@ -211,16 +316,16 @@ export default function FamilyTreeCanvas({
     })
 
     return edges
-  }, [coupleContainers, layoutPositions, activeNeighborhood])
+  }, [coupleContainers, layoutPositions, activeNeighborhood, collapsedNodeIds])
 
-  // Camera Centering on Node
+  // Camera Navigation Controls
   const focusMemberAndCenter = (memberId) => {
     const container = coupleContainers.find(c => c.primary.id === memberId || (c.secondary && c.secondary.id === memberId))
     if (container) {
       const pos = layoutPositions.get(container.id)
       if (pos) {
-        setPanOffset({ x: 380 - pos.x, y: 180 - pos.y })
-        setZoomLevel(1.1)
+        setPanOffset({ x: 400 - pos.x, y: 160 - pos.y })
+        setZoomLevel(1.05)
       }
     }
 
@@ -233,7 +338,17 @@ export default function FamilyTreeCanvas({
     setIsSearchDropdownOpen(false)
   }
 
-  // Phase 3 Search Autocomplete Filtering
+  // Level Up Button Action (`^`)
+  const levelUp = () => {
+    const current = memberMap.get(focusedId)
+    if (current && current.parentIds && current.parentIds.length > 0) {
+      focusMemberAndCenter(current.parentIds[0])
+    } else {
+      focusMemberAndCenter(rootId)
+    }
+  }
+
+  // Search Autocomplete Results
   const searchResults = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
     if (!q) return []
@@ -245,13 +360,15 @@ export default function FamilyTreeCanvas({
     ).slice(0, 8)
   }, [searchQuery, data])
 
-  // Canvas Mouse & Touch Pan Controls
+  // Canvas Mouse & Touch Dragging
   const handleMouseDown = (e) => {
-    if (e.target.closest('.family-joint-card') || e.target.closest('.canvas-btn') || e.target.closest('.canvas-search-box')) return
+    if (e.target.closest('.family-joint-card') || e.target.closest('.canvas-btn') || e.target.closest('.canvas-header-bar')) return
     setIsDragging(true)
     setDragStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y })
     if (document.activeElement) document.activeElement.blur()
     setIsSearchDropdownOpen(false)
+    setIsFilterOpen(false)
+    setIsExportOpen(false)
   }
 
   const handleMouseMove = (e) => {
@@ -263,12 +380,14 @@ export default function FamilyTreeCanvas({
 
   const handleTouchStart = (e) => {
     if (e.touches.length === 1) {
-      if (e.target.closest('.family-joint-card') || e.target.closest('.canvas-btn') || e.target.closest('.canvas-search-box')) return
+      if (e.target.closest('.family-joint-card') || e.target.closest('.canvas-btn') || e.target.closest('.canvas-header-bar')) return
       setIsDragging(true)
       const touch = e.touches[0]
       setDragStart({ x: touch.clientX - panOffset.x, y: touch.clientY - panOffset.y })
       if (document.activeElement) document.activeElement.blur()
       setIsSearchDropdownOpen(false)
+      setIsFilterOpen(false)
+      setIsExportOpen(false)
     }
   }
 
@@ -278,76 +397,170 @@ export default function FamilyTreeCanvas({
     setPanOffset({ x: touch.clientX - dragStart.x, y: touch.clientY - dragStart.y })
   }
 
-  // Zoom Actions
+  // Zoom Controls
   const zoomIn = () => setZoomLevel(prev => Math.min(prev + 0.15, 1.8))
   const zoomOut = () => setZoomLevel(prev => Math.max(prev - 0.15, 0.4))
   const resetCamera = () => {
     setZoomLevel(1)
-    setPanOffset({ x: -650, y: 20 })
+    setPanOffset({ x: -450, y: 30 })
     setFocusedId(rootId)
   }
 
-  const handleCardClick = (memberId) => {
-    focusMemberAndCenter(memberId)
+  // Export CSV Handler
+  const exportCSV = () => {
+    const headers = ['ID', 'Name (Hindi)', 'Name (English)', 'Relation', 'Generation', 'Gender', 'Birth Date', 'Phone', 'Bio']
+    const rows = data.map(m => [
+      m.id,
+      `"${m.name_hi}"`,
+      `"${m.name_en}"`,
+      `"${m.relation_en}"`,
+      m.generation,
+      m.gender,
+      `"${m.birthDate || ''}"`,
+      `"${m.phone || ''}"`,
+      `"${(m.bio || '').replace(/"/g, '""')}"`
+    ])
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n')
+    const encodedUri = encodeURI(csvContent)
+    const link = document.createElement('a')
+    link.setAttribute('href', encodedUri)
+    link.setAttribute('download', 'gurupratap_sharma_family_tree.csv')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    setIsExportOpen(false)
+  }
+
+  // Export PNG Image Handler
+  const exportPNG = () => {
+    window.print()
+    setIsExportOpen(false)
   }
 
   return (
     <div className="family-canvas-wrapper">
-      {/* Canvas Header, Search & Focus Mode Bar */}
-      <div className="family-canvas-toolbar">
-        {/* Autocomplete Search Input */}
-        <div className="canvas-search-box">
-          <span className="search-icon">🔍</span>
-          <input 
-            type="text"
-            className="canvas-search-input"
-            placeholder={isHi ? 'नाम या संबंध खोजें...' : 'Search member...'}
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value)
-              setIsSearchDropdownOpen(true)
-            }}
-            onFocus={() => setIsSearchDropdownOpen(true)}
-          />
-          {searchQuery && (
-            <button className="clear-search-btn" onClick={() => { setSearchQuery(''); setIsSearchDropdownOpen(false); }}>✕</button>
-          )}
+      {/* 1. Top Enterprise Control Bar (Matching Reference Image 1:1) */}
+      <div className="canvas-header-bar">
+        {/* Left Controls: Search Pill, Level Depth Dropdown, Level-Up Button */}
+        <div className="header-left-group">
+          {/* Autocomplete Search Pill */}
+          <div className="canvas-search-box">
+            <span className="search-icon">👤</span>
+            <input 
+              type="text"
+              className="canvas-search-input"
+              placeholder={isHi ? 'सदस्य का नाम खोजें...' : 'Jump to a family member...'}
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value)
+                setIsSearchDropdownOpen(true)
+              }}
+              onFocus={() => setIsSearchDropdownOpen(true)}
+            />
+            {searchQuery && (
+              <button className="clear-search-btn" onClick={() => { setSearchQuery(''); setIsSearchDropdownOpen(false); }}>✕</button>
+            )}
 
-          {/* Autocomplete Dropdown */}
-          {isSearchDropdownOpen && searchResults.length > 0 && (
-            <div className="canvas-search-dropdown">
-              {searchResults.map(member => (
-                <div 
-                  key={member.id} 
-                  className="search-dropdown-item"
-                  onClick={() => focusMemberAndCenter(member.id)}
-                >
-                  <img src={member.photoUrl} alt={member.name_en} className="search-item-avatar" />
-                  <div className="search-item-meta">
-                    <span className="search-item-name">{isHi ? member.name_hi : member.name_en}</span>
-                    <span className="search-item-relation">{isHi ? member.relation_hi : member.relation_en}</span>
+            {/* Search Dropdown */}
+            {isSearchDropdownOpen && searchResults.length > 0 && (
+              <div className="canvas-search-dropdown">
+                {searchResults.map(member => (
+                  <div 
+                    key={member.id} 
+                    className="search-dropdown-item"
+                    onClick={() => focusMemberAndCenter(member.id)}
+                  >
+                    <img src={member.photoUrl} alt={member.name_en} className="search-item-avatar" />
+                    <div className="search-item-meta">
+                      <span className="search-item-name">{isHi ? member.name_hi : member.name_en}</span>
+                      <span className="search-item-relation">{isHi ? member.relation_hi : member.relation_en}</span>
+                    </div>
+                    <span className="search-item-gen">Gen {member.generation}</span>
                   </div>
-                  <span className="search-item-gen">Gen {member.generation}</span>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Level Depth Selector Dropdown */}
+          <div className="header-dropdown-wrapper">
+            <select 
+              className="header-select-btn"
+              value={maxDepthFilter}
+              onChange={(e) => setMaxDepthFilter(e.target.value)}
+              title="Filter Level Depth"
+            >
+              <option value="all">{isHi ? 'सभी पीढ़ियाँ (All Levels)' : 'All Levels'}</option>
+              <option value="1">{isHi ? '१ पीढ़ी (1 Level)' : '1 Level (Gen 1)'}</option>
+              <option value="2">{isHi ? '२ पीढ़ियाँ (2 Levels)' : '2 Levels (Gen 1-2)'}</option>
+              <option value="3">{isHi ? '३ पीढ़ियाँ (3 Levels)' : '3 Levels (Gen 1-3)'}</option>
+              <option value="4">{isHi ? '४ पीढ़ियाँ (4 Levels)' : '4 Levels (Gen 1-4)'}</option>
+            </select>
+          </div>
+
+          {/* Level-Up Button (`^`) */}
+          <button className="header-icon-btn" onClick={levelUp} title="Navigate Camera Up 1 Level">
+            ^
+          </button>
         </div>
 
-        <button 
-          className={`canvas-btn mode-btn ${isFocusMode ? 'mode-active' : ''}`}
-          onClick={() => setIsFocusMode(!isFocusMode)}
-          title="Toggle Sub-Tree Focus Mode"
-        >
-          {isFocusMode ? '🎯 Focus Mode (Active)' : '👁️ Show All'}
-        </button>
-        <button className="canvas-btn" onClick={zoomIn} title="Zoom In">+</button>
-        <button className="canvas-btn" onClick={zoomOut} title="Zoom Out">-</button>
-        <button className="canvas-btn reset-btn" onClick={resetCamera} title="Reset Center">🎯 Center</button>
-        <span className="zoom-badge">{Math.round(zoomLevel * 100)}%</span>
+        {/* Right Controls: Filter Options Dropdown & Export Menu */}
+        <div className="header-right-group">
+          {/* Filter Dropdown */}
+          <div className="header-dropdown-wrapper">
+            <button 
+              className="header-action-btn"
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+            >
+              ⚙️ {isHi ? 'फ़िल्टर' : 'Filter'} ▾
+            </button>
+            {isFilterOpen && (
+              <div className="header-menu-dropdown">
+                <button 
+                  className={`menu-item ${branchFilter === 'all' ? 'active' : ''}`}
+                  onClick={() => { setBranchFilter('all'); setIsFilterOpen(false); }}
+                >
+                  {isHi ? 'सभी वंश शाखाएं (All Branches)' : 'All Family Branches'}
+                </button>
+                <button 
+                  className={`menu-item ${branchFilter === 'paternal' ? 'active' : ''}`}
+                  onClick={() => { setBranchFilter('paternal'); setIsFilterOpen(false); }}
+                >
+                  {isHi ? 'पितृ पक्ष (Paternal Lineage)' : 'Paternal Lineage'}
+                </button>
+                <button 
+                  className={`menu-item ${branchFilter === 'maternal' ? 'active' : ''}`}
+                  onClick={() => { setBranchFilter('maternal'); setIsFilterOpen(false); }}
+                >
+                  {isHi ? 'मातृ पक्ष (Maternal Lineage)' : 'Maternal Lineage'}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Export Dropdown */}
+          <div className="header-dropdown-wrapper">
+            <button 
+              className="header-action-btn primary-export-btn"
+              onClick={() => setIsExportOpen(!isExportOpen)}
+            >
+              📥 {isHi ? 'निर्यात' : 'Export'} ▾
+            </button>
+            {isExportOpen && (
+              <div className="header-menu-dropdown right-aligned">
+                <button className="menu-item" onClick={exportPNG}>
+                  📸 {isHi ? 'PNG चित्र डाउनलोड करें (Image)' : 'Export PNG Image'}
+                </button>
+                <button className="menu-item" onClick={exportCSV}>
+                  📄 {isHi ? 'CSV डेटा फ़ाइल (CSV Data)' : 'Export CSV Dataset'}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Interactive 2D Graph Canvas Area */}
+      {/* 2. Interactive Graph Viewport Canvas */}
       <div 
         className={`family-canvas-viewport ${isDragging ? 'grabbing' : 'grab'}`}
         ref={canvasRef}
@@ -359,35 +572,23 @@ export default function FamilyTreeCanvas({
         onTouchMove={handleTouchMove}
         onTouchEnd={handleMouseUp}
       >
+        {/* Pinned Top-Right Floating Zoom Controls */}
+        <div className="pinned-zoom-controls">
+          <button className="pinned-zoom-btn" onClick={zoomIn} title="Zoom In">+</button>
+          <button className="pinned-zoom-btn" onClick={zoomOut} title="Zoom Out">-</button>
+          <button className="pinned-zoom-btn reset-btn" onClick={resetCamera} title="Reset Center">🎯</button>
+        </div>
+
+        {/* 2D Stage Board */}
         <motion.div 
           className="family-canvas-stage"
           ref={stageRef}
           animate={{ x: panOffset.x, y: panOffset.y, scale: zoomLevel }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          style={{ width: '2800px', height: '850px', position: 'relative' }}
+          style={{ width: '3200px', height: '950px', position: 'relative' }}
         >
-          {/* Generation Background Swimlane Bands */}
-          {[1, 2, 3, 4].map(genTier => {
-            const tierY = (genTier - 1) * 180 + 20
-            const tierNames = {
-              1: isHi ? 'प्रथम पीढ़ी — मूल पूर्वज (Gen 1 Ancestors)' : 'Gen 1 — Ancestors & Progenitors',
-              2: isHi ? 'द्वितीय पीढ़ी — कवि "आग" एवं वरिष्ठ परिजन' : 'Gen 2 — Kavi "Aag" & Elders',
-              3: isHi ? 'तृतीय पीढ़ी — सुपुत्र, सुपुत्री एवं सम्बंधी' : 'Gen 3 — Children & Spouses',
-              4: isHi ? 'चतुर्थ पीढ़ी — पौत्र, पौत्री एवं युवा वर्ग' : 'Gen 4 — Grandchildren & Youth'
-            }
-            return (
-              <div 
-                key={`band-${genTier}`}
-                className={`tree-gen-band-bg tier-bg-${genTier}`}
-                style={{ top: `${tierY}px`, height: '140px' }}
-              >
-                <span className="gen-band-tag">{tierNames[genTier]}</span>
-              </div>
-            )
-          })}
-
-          {/* SVG Orthogonal Tree Connector Edge Paths Overlay */}
-          <svg className="family-tree-svg-canvas" width="2800" height="850">
+          {/* Orthogonal SVG Tree Connector Step-Lines */}
+          <svg className="family-tree-svg-canvas" width="3200" height="950">
             {svgTreeEdges.map(edge => (
               <g key={edge.id}>
                 <path 
@@ -400,7 +601,7 @@ export default function FamilyTreeCanvas({
             ))}
           </svg>
 
-          {/* Explicitly Positioned Joint Couple Node Cards */}
+          {/* Explicitly Positioned Vertical Node Cards */}
           {coupleContainers.map(container => {
             const pos = layoutPositions.get(container.id)
             if (!pos) return null
@@ -413,15 +614,14 @@ export default function FamilyTreeCanvas({
             const isP2Active = p2 && activeNeighborhood.has(p2.id)
             const isContainerActive = isP1Active || isP2Active
 
-            if (isFocusMode && !isContainerActive) return null
-
             const isP1Selected = focusedId === p1.id
             const isP2Selected = p2 && focusedId === p2.id
+            const isCollapsed = collapsedNodeIds.has(container.id)
+            const descendantCount = containerDescendantCounts.get(container.id) || 0
 
             return (
               <div 
                 key={container.id}
-                ref={el => containerRefs.current[container.id] = el}
                 className={`family-joint-card ${isCouple ? 'couple-container' : 'single-container'} ${isContainerActive ? 'neighborhood-active' : 'dimmed'} ${(isP1Selected || isP2Selected) ? 'focused-node' : ''}`}
                 style={{ 
                   position: 'absolute', 
@@ -431,41 +631,67 @@ export default function FamilyTreeCanvas({
                   height: `${pos.height}px`
                 }}
               >
-                {/* Primary Member Card */}
+                {/* Primary Member Card (Vertical Layout 1:1 Match) */}
                 <div 
-                  className={`member-mini-card ${isP1Selected ? 'card-selected' : ''}`}
-                  onClick={(e) => { e.stopPropagation(); handleCardClick(p1.id); }}
+                  className={`member-vertical-card ${isP1Selected ? 'card-selected' : ''}`}
+                  onClick={(e) => { e.stopPropagation(); focusMemberAndCenter(p1.id); }}
                 >
-                  <div className="mini-avatar-box">
-                    <img src={p1.photoUrl} alt={p1.name_en} className="mini-avatar-img" />
+                  <div className="vertical-avatar-wrapper">
+                    <img src={p1.photoUrl} alt={p1.name_en} className="vertical-avatar-img" />
                     {p1.isDeceased && <span className="deceased-lotus-icon" title="In Reverent Memory">🪷</span>}
                   </div>
-                  <div className="mini-node-meta">
-                    <span className="mini-name">{isHi ? p1.name_hi : p1.name_en}</span>
-                    <span className="mini-relation">{isHi ? p1.relation_hi : p1.relation_en}</span>
+
+                  <div className="vertical-card-meta">
+                    <h4 className="vertical-name">{isHi ? p1.name_hi : p1.name_en}</h4>
+                    <span className="vertical-relation">{isHi ? p1.relation_hi : p1.relation_en}</span>
+                    <button 
+                      className="more-details-link"
+                      onClick={(e) => { e.stopPropagation(); focusMemberAndCenter(p1.id); }}
+                    >
+                      {isHi ? 'विवरण... ' : 'More...'}
+                    </button>
                   </div>
                 </div>
 
-                {/* Spousal Connection Ring */}
+                {/* Spousal Wedding Ring */}
                 {isCouple && p2 && (
                   <>
                     <div className="couple-wedding-ring" title="Marriage Bond">💍</div>
 
-                    {/* Secondary Spouse Card */}
+                    {/* Secondary Spouse Vertical Card */}
                     <div 
-                      className={`member-mini-card ${isP2Selected ? 'card-selected' : ''}`}
-                      onClick={(e) => { e.stopPropagation(); handleCardClick(p2.id); }}
+                      className={`member-vertical-card ${isP2Selected ? 'card-selected' : ''}`}
+                      onClick={(e) => { e.stopPropagation(); focusMemberAndCenter(p2.id); }}
                     >
-                      <div className="mini-avatar-box">
-                        <img src={p2.photoUrl} alt={p2.name_en} className="mini-avatar-img" />
+                      <div className="vertical-avatar-wrapper">
+                        <img src={p2.photoUrl} alt={p2.name_en} className="vertical-avatar-img" />
                         {p2.isDeceased && <span className="deceased-lotus-icon" title="In Reverent Memory">🪷</span>}
                       </div>
-                      <div className="mini-node-meta">
-                        <span className="mini-name">{isHi ? p2.name_hi : p2.name_en}</span>
-                        <span className="mini-relation">{isHi ? p2.relation_hi : p2.relation_en}</span>
+
+                      <div className="vertical-card-meta">
+                        <h4 className="vertical-name">{isHi ? p2.name_hi : p2.name_en}</h4>
+                        <span className="vertical-relation">{isHi ? p2.relation_hi : p2.relation_en}</span>
+                        <button 
+                          className="more-details-link"
+                          onClick={(e) => { e.stopPropagation(); focusMemberAndCenter(p2.id); }}
+                        >
+                          {isHi ? 'विवरण... ' : 'More...'}
+                        </button>
                       </div>
                     </div>
                   </>
+                )}
+
+                {/* Bottom Subtree Expand/Collapse Chevron Pill (Matching 14 ∨ in Reference UI) */}
+                {descendantCount > 0 && (
+                  <button 
+                    className={`subtree-chevron-btn ${isCollapsed ? 'collapsed' : 'expanded'}`}
+                    onClick={(e) => { e.stopPropagation(); toggleSubtreeCollapse(container.id); }}
+                    title={isCollapsed ? `Expand ${descendantCount} descendants` : `Collapse subtree`}
+                  >
+                    <span>{descendantCount}</span>
+                    <span className="chevron-arrow">{isCollapsed ? '∨' : '∧'}</span>
+                  </button>
                 )}
               </div>
             )
@@ -473,7 +699,7 @@ export default function FamilyTreeCanvas({
         </motion.div>
       </div>
 
-      {/* Phase 2: Slide-Out Side Drawer / Mobile Bottom Sheet */}
+      {/* 3. Slide-Out Side Drawer for Full Member Profile */}
       <AnimatePresence>
         {isDrawerOpen && selectedMember && (
           <>
@@ -551,7 +777,7 @@ export default function FamilyTreeCanvas({
                   </div>
                 )}
 
-                {/* Direct Links / Interactive Pills to 1st-Degree Relatives */}
+                {/* Direct Links / Interactive Pills to Relatives */}
                 <div className="drawer-relatives-section">
                   <h4>{isHi ? 'प्रत्यक्ष पारिवारिक संबंध (1-Click Jump):' : 'Direct Relatives:'}</h4>
                   
@@ -564,7 +790,7 @@ export default function FamilyTreeCanvas({
                           const p = memberMap.get(pId)
                           if (!p) return null
                           return (
-                            <button key={pId} className="relative-pill" onClick={() => handleCardClick(pId)}>
+                            <button key={pId} className="relative-pill" onClick={() => focusMemberAndCenter(pId)}>
                               {isHi ? p.name_hi : p.name_en}
                             </button>
                           )
@@ -582,7 +808,7 @@ export default function FamilyTreeCanvas({
                           const s = memberMap.get(sId)
                           if (!s) return null
                           return (
-                            <button key={sId} className="relative-pill" onClick={() => handleCardClick(sId)}>
+                            <button key={sId} className="relative-pill" onClick={() => focusMemberAndCenter(sId)}>
                               {isHi ? s.name_hi : s.name_en}
                             </button>
                           )
@@ -600,7 +826,7 @@ export default function FamilyTreeCanvas({
                           const c = memberMap.get(cId)
                           if (!c) return null
                           return (
-                            <button key={cId} className="relative-pill" onClick={() => handleCardClick(cId)}>
+                            <button key={cId} className="relative-pill" onClick={() => focusMemberAndCenter(cId)}>
                               {isHi ? c.name_hi : c.name_en}
                             </button>
                           )
