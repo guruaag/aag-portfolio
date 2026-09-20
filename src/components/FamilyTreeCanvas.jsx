@@ -495,6 +495,17 @@ export default function FamilyTreeCanvas({
     return posMap
   }, [coupleContainers, collapsedNodeIds, maxDepthFilter, focalWindowInfo])
 
+  // English Autocomplete Search
+  const searchResults = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase()
+    if (!q) return []
+    return data.filter(m => 
+      (m.name_en && m.name_en.toLowerCase().includes(q)) ||
+      (m.relation_en && m.relation_en.toLowerCase().includes(q)) ||
+      (m.bio && m.bio.toLowerCase().includes(q))
+    ).slice(0, 10)
+  }, [searchQuery, data])
+
   // Automatic Viewport Camera Centering & Auto-Fit for All 4 Directions (Parents, Siblings, Children)
   useEffect(() => {
     if (!canvasRef.current) return
@@ -653,19 +664,6 @@ export default function FamilyTreeCanvas({
     setIsDrawerOpen(false)
   }
 
-  // English & Hindi Autocomplete Search
-  const searchResults = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase()
-    if (!q) return []
-    return data.filter(m => 
-      (m.name_en && m.name_en.toLowerCase().includes(q)) ||
-      (m.name_hi && m.name_hi.toLowerCase().includes(q)) ||
-      (m.relation_en && m.relation_en.toLowerCase().includes(q)) ||
-      (m.relation_hi && m.relation_hi.toLowerCase().includes(q)) ||
-      (m.bio && m.bio.toLowerCase().includes(q))
-    ).slice(0, 10)
-  }, [searchQuery, data])
-
   // Canvas Mouse & Touch Dragging
   const handleMouseDown = (e) => {
     if (e.target.closest('.family-joint-card') || e.target.closest('.canvas-btn') || e.target.closest('.canvas-header-bar')) return
@@ -746,28 +744,35 @@ export default function FamilyTreeCanvas({
     <div className={`family-canvas-wrapper ${isFullscreen ? 'is-fullscreen' : ''}`} ref={wrapperRef}>
       {/* 1. Top Enterprise Control Bar */}
       <div className="canvas-header-bar">
-        {/* Left Controls: Search Pill (English & Hindi), Focal Mode Toggle, Level-Up */}
+        {/* Left Controls: Search Pill (English Only), Level-Up */}
         <div className="header-left-group">
-          {/* Autocomplete Search Pill supporting English & Hindi */}
+          {/* Autocomplete Search Pill (English Only) */}
           <div className="canvas-search-box">
             <span className="search-icon">🔍</span>
             <input 
               type="text"
               className="canvas-search-input"
-              placeholder={isHi ? 'नाम खोजें (Search English/Hindi)...' : 'Search in English or Hindi (e.g. Sankalp)...'}
+              placeholder="Search name (e.g. Sankalp)..."
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value)
                 setIsSearchDropdownOpen(true)
               }}
-              onFocus={() => setIsSearchDropdownOpen(true)}
+              onFocus={() => {
+                if (searchQuery.trim().length > 0) {
+                  setIsSearchDropdownOpen(true)
+                }
+              }}
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck="false"
             />
             {searchQuery && (
               <button className="clear-search-btn" onClick={() => { setSearchQuery(''); setIsSearchDropdownOpen(false); }}>✕</button>
             )}
 
             {/* Search Dropdown */}
-            {isSearchDropdownOpen && searchResults.length > 0 && (
+            {isSearchDropdownOpen && searchQuery.trim().length > 0 && searchResults.length > 0 && (
               <div className="canvas-search-dropdown">
                 {searchResults.map(member => (
                   <div 
@@ -777,8 +782,8 @@ export default function FamilyTreeCanvas({
                   >
                     <img src={member.photoUrl} alt={member.name_en} className="search-item-avatar" />
                     <div className="search-item-meta">
-                      <span className="search-item-name">{member.name_en} / {member.name_hi}</span>
-                      <span className="search-item-relation">{isHi ? member.relation_hi : member.relation_en}</span>
+                      <span className="search-item-name">{member.name_en}</span>
+                      <span className="search-item-relation">{member.relation_en}</span>
                     </div>
                     <span className="search-item-gen">Gen {member.generation}</span>
                   </div>
@@ -786,15 +791,6 @@ export default function FamilyTreeCanvas({
               </div>
             )}
           </div>
-
-          {/* Mode Switcher: 3-Gen Focal Window vs Full Tree */}
-          <button 
-            className={`header-action-btn ${isFocalMode ? 'mode-focal-active' : ''}`}
-            onClick={() => setIsFocalMode(!isFocalMode)}
-            title={isFocalMode ? 'Switch to Full Tree View' : 'Switch to 3-Generation Focal Isolation Mode'}
-          >
-            {isFocalMode ? '🎯 3-Gen Focus' : '🌐 Full Tree'}
-          </button>
 
           {/* Level Depth Selector (Active when not in Focal Isolation Mode) */}
           {!isFocalMode && (
@@ -805,11 +801,11 @@ export default function FamilyTreeCanvas({
                 onChange={(e) => setMaxDepthFilter(e.target.value)}
                 title="Filter Level Depth"
               >
-                <option value="all">{isHi ? 'सभी पीढ़ियाँ (All Levels)' : 'All Levels'}</option>
-                <option value="1">{isHi ? '१ पीढ़ी (Gen 1)' : '1 Level (Gen 1)'}</option>
-                <option value="2">{isHi ? '२ पीढ़ियाँ (Gen 1-2)' : '2 Levels (Gen 1-2)'}</option>
-                <option value="3">{isHi ? '३ पीढ़ियाँ (Gen 1-3)' : '3 Levels (Gen 1-3)'}</option>
-                <option value="4">{isHi ? '४ पीढ़ियाँ (Gen 1-4)' : '4 Levels (Gen 1-4)'}</option>
+                <option value="all">All Levels</option>
+                <option value="1">1 Level (Gen 1)</option>
+                <option value="2">2 Levels (Gen 1-2)</option>
+                <option value="3">3 Levels (Gen 1-3)</option>
+                <option value="4">4 Levels (Gen 1-4)</option>
               </select>
             </div>
           )}
@@ -820,23 +816,24 @@ export default function FamilyTreeCanvas({
           </button>
         </div>
 
-        {/* Right Controls: Fullscreen Toggle, Filter Options Dropdown & Export Menu */}
+        {/* Right Controls: Show Full Tree, Filter Options Dropdown, Export Menu, Fullscreen Toggle */}
         <div className="header-right-group">
-          {/* Fullscreen Toggle Button */}
+          {/* Relocated "🌐 Show Full Tree" / "🎯 Focus Mode" Button right alongside Filter & Export */}
           <button 
-            className={`header-action-btn ${isFullscreen ? 'mode-fullscreen-active' : ''}`}
-            onClick={toggleFullscreen}
-            title={isFullscreen ? 'Exit Fullscreen' : 'Enter Full Screen View'}
+            className={`header-action-btn ${!isFocalMode ? 'mode-fulltree-active' : ''}`}
+            onClick={isFocalMode ? resetToFullTree : () => setIsFocalMode(true)}
+            title={isFocalMode ? 'Show Full Family Tree' : 'Switch to Focus Mode'}
           >
-            {isFullscreen ? (isHi ? '↙↗ सामान्य स्क्रीन' : '↙↗ Exit Fullscreen') : (isHi ? '⛶ फुलस्क्रीन' : '⛶ Fullscreen')}
+            {isFocalMode ? '🌐 Show Full Tree' : '🎯 Focus Mode'}
           </button>
+
           {/* Filter Dropdown */}
           <div className="header-dropdown-wrapper">
             <button 
               className="header-action-btn"
               onClick={() => setIsFilterOpen(!isFilterOpen)}
             >
-              ⚙️ {isHi ? 'फ़िल्टर' : 'Filter'} ▾
+              ⚙️ Filter ▾
             </button>
             {isFilterOpen && (
               <div className="header-menu-dropdown">
@@ -844,19 +841,19 @@ export default function FamilyTreeCanvas({
                   className={`menu-item ${branchFilter === 'all' ? 'active' : ''}`}
                   onClick={() => { setBranchFilter('all'); setIsFilterOpen(false); }}
                 >
-                  {isHi ? 'सभी वंश शाखाएं (All Branches)' : 'All Family Branches'}
+                  All Family Branches
                 </button>
                 <button 
                   className={`menu-item ${branchFilter === 'paternal' ? 'active' : ''}`}
                   onClick={() => { setBranchFilter('paternal'); setIsFilterOpen(false); }}
                 >
-                  {isHi ? 'पितृ पक्ष (Paternal Lineage)' : 'Paternal Lineage'}
+                  Paternal Lineage
                 </button>
                 <button 
                   className={`menu-item ${branchFilter === 'maternal' ? 'active' : ''}`}
                   onClick={() => { setBranchFilter('maternal'); setIsFilterOpen(false); }}
                 >
-                  {isHi ? 'मातृ पक्ष (Maternal Lineage)' : 'Maternal Lineage'}
+                  Maternal Lineage
                 </button>
               </div>
             )}
@@ -868,19 +865,28 @@ export default function FamilyTreeCanvas({
               className="header-action-btn primary-export-btn"
               onClick={() => setIsExportOpen(!isExportOpen)}
             >
-              📥 {isHi ? 'निर्यात' : 'Export'} ▾
+              📥 Export ▾
             </button>
             {isExportOpen && (
               <div className="header-menu-dropdown right-aligned">
                 <button className="menu-item" onClick={exportPNG}>
-                  📸 {isHi ? 'PNG चित्र डाउनलोड करें (Image)' : 'Export PNG Image'}
+                  📸 Export PNG Image
                 </button>
                 <button className="menu-item" onClick={exportCSV}>
-                  📄 {isHi ? 'CSV डेटा फ़ाइल (CSV Data)' : 'Export CSV Dataset'}
+                  📄 Export CSV Dataset
                 </button>
               </div>
             )}
           </div>
+
+          {/* Fullscreen Toggle Button */}
+          <button 
+            className={`header-action-btn ${isFullscreen ? 'mode-fullscreen-active' : ''}`}
+            onClick={toggleFullscreen}
+            title={isFullscreen ? 'Exit Fullscreen' : 'Enter Full Screen View'}
+          >
+            {isFullscreen ? '↙↗ Exit Fullscreen' : '⛶ Fullscreen'}
+          </button>
 
           {onClose && (
             <button className="header-icon-btn close-modal-btn" onClick={onClose} title="Exit Family Tree">
@@ -889,21 +895,6 @@ export default function FamilyTreeCanvas({
           )}
         </div>
       </div>
-
-      {/* Active Focal Mode Indicator Bar */}
-      {isFocalMode && selectedMember && (
-        <div className="focal-banner-bar">
-          <span className="focal-badge-tag">🎯 FOCAL ISOLATION WINDOW</span>
-          <span className="focal-info-text">
-            {isHi 
-              ? `केन्द्रित: ${selectedMember.name_hi} (${selectedMember.relation_hi}) — फोटो पर क्लिक करके १-स्टेप ऊपर/नीचे नेविगेट करें`
-              : `Focus: ${selectedMember.name_en} (${selectedMember.relation_en}) — Click any card photo to isolate 1-Step Up/Down`}
-          </span>
-          <button className="focal-reset-pill-btn" onClick={resetToFullTree}>
-            🌐 {isHi ? 'पूरा वृक्ष देखें (Show Full Tree)' : 'Show Full Tree'}
-          </button>
-        </div>
-      )}
 
       {/* 2. Interactive Graph Viewport Canvas */}
       <div 

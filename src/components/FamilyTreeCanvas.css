@@ -799,8 +799,9 @@
   border-color: var(--leona-terracotta, #B85C38);
 }
 
-/* 5. Focal Isolation Mode Specific Styling */
-.header-action-btn.mode-focal-active {
+/* 5. Focal Isolation Mode & Full Tree Specific Styling */
+.header-action-btn.mode-focal-active,
+.header-action-btn.mode-fulltree-active {
   background: #FFF8F0;
   border-color: var(--leona-terracotta, #B85C38);
   color: var(--leona-terracotta, #B85C38);
