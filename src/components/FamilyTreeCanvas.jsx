@@ -1064,38 +1064,45 @@ export default function FamilyTreeCanvas({
                 {/* Primary Member Boxed Card */}
                 <div 
                   className={`member-boxed-card ${isP1Selected ? 'card-selected' : ''}`}
-                  onClick={(e) => { e.stopPropagation(); focusMemberAndIsolate(p1.id); }}
+                  onClick={(e) => { e.stopPropagation(); openProfileDrawer(p1.id); }}
                 >
-                  {/* Full Edge-to-Edge Boxed Photo Header */}
-                  <div className="boxed-photo-container">
-                    <img src={p1.photoUrl} alt={p1.name_en} className="boxed-card-photo" />
+                  {/* Top Chevron Nav Badge (Parent Level Up) */}
+                  {p1.parentIds && p1.parentIds.length > 0 && (
+                    <button 
+                      className="card-top-nav-btn"
+                      onClick={(e) => { e.stopPropagation(); focusMemberAndIsolate(p1.parentIds[0]); }}
+                      title="Navigate to Parent"
+                      aria-label={`Navigate to parent of ${p1.name_en}`}
+                    >
+                      ∧
+                    </button>
+                  )}
+
+                  {/* Floating Top Avatar Photo */}
+                  <div 
+                    className="card-avatar-container"
+                    onClick={(e) => { e.stopPropagation(); focusMemberAndIsolate(p1.id); }}
+                    title={`Focus on ${p1.name_en}`}
+                  >
+                    <img src={p1.photoUrl} alt={p1.name_en} className="card-avatar-img" />
                     {p1.isDeceased && <span className="deceased-lotus-badge" title="In Reverent Memory">🪷</span>}
                   </div>
 
-                  {/* Person's Name */}
-                  <div className="boxed-card-meta">
-                    <h4 className="boxed-card-name" title={isHi ? p1.name_hi : p1.name_en}>
-                      {isHi ? p1.name_hi : p1.name_en}
+                  {/* Person Meta: Name, Relation, More Link */}
+                  <div className="card-content-body">
+                    <h4 className="card-title-name" title={p1.name_en}>
+                      {p1.name_en}
                     </h4>
-                  </div>
-
-                  {/* Two Side-by-Side Action Buttons: "More" and "Call" */}
-                  <div className="boxed-card-actions">
+                    <span className="card-subtitle-relation">
+                      {p1.relation_en}
+                    </span>
                     <button 
-                      className="card-btn-action btn-details"
+                      className="card-more-link"
                       onClick={(e) => { e.stopPropagation(); openProfileDrawer(p1.id); }}
                       aria-label={`View details for ${p1.name_en}`}
                     >
-                      {isHi ? 'अधिक' : 'More'}
+                      More...
                     </button>
-                    <a 
-                      href={p1.phone ? `tel:${p1.phone}` : '#'} 
-                      className="card-btn-action btn-call"
-                      onClick={(e) => { e.stopPropagation(); if (!p1.phone) openProfileDrawer(p1.id); }}
-                      aria-label={`Call ${p1.name_en}`}
-                    >
-                      📞 {isHi ? 'कॉल' : 'Call'}
-                    </a>
                   </div>
                 </div>
 
@@ -1107,38 +1114,45 @@ export default function FamilyTreeCanvas({
                     {/* Secondary Spouse Boxed Card */}
                     <div 
                       className={`member-boxed-card ${isP2Selected ? 'card-selected' : ''}`}
-                      onClick={(e) => { e.stopPropagation(); focusMemberAndIsolate(p2.id); }}
+                      onClick={(e) => { e.stopPropagation(); openProfileDrawer(p2.id); }}
                     >
-                      {/* Full Edge-to-Edge Boxed Photo Header */}
-                      <div className="boxed-photo-container">
-                        <img src={p2.photoUrl} alt={p2.name_en} className="boxed-card-photo" />
+                      {/* Top Chevron Nav Badge */}
+                      {p2.parentIds && p2.parentIds.length > 0 && (
+                        <button 
+                          className="card-top-nav-btn"
+                          onClick={(e) => { e.stopPropagation(); focusMemberAndIsolate(p2.parentIds[0]); }}
+                          title="Navigate to Parent"
+                          aria-label={`Navigate to parent of ${p2.name_en}`}
+                        >
+                          ∧
+                        </button>
+                      )}
+
+                      {/* Floating Top Avatar Photo */}
+                      <div 
+                        className="card-avatar-container"
+                        onClick={(e) => { e.stopPropagation(); focusMemberAndIsolate(p2.id); }}
+                        title={`Focus on ${p2.name_en}`}
+                      >
+                        <img src={p2.photoUrl} alt={p2.name_en} className="card-avatar-img" />
                         {p2.isDeceased && <span className="deceased-lotus-badge" title="In Reverent Memory">🪷</span>}
                       </div>
 
-                      {/* Person's Name */}
-                      <div className="boxed-card-meta">
-                        <h4 className="boxed-card-name" title={isHi ? p2.name_hi : p2.name_en}>
-                          {isHi ? p2.name_hi : p2.name_en}
+                      {/* Person Meta */}
+                      <div className="card-content-body">
+                        <h4 className="card-title-name" title={p2.name_en}>
+                          {p2.name_en}
                         </h4>
-                      </div>
-
-                      {/* Two Side-by-Side Action Buttons */}
-                      <div className="boxed-card-actions">
+                        <span className="card-subtitle-relation">
+                          {p2.relation_en}
+                        </span>
                         <button 
-                          className="card-btn-action btn-details"
+                          className="card-more-link"
                           onClick={(e) => { e.stopPropagation(); openProfileDrawer(p2.id); }}
                           aria-label={`View details for ${p2.name_en}`}
                         >
-                          {isHi ? 'अधिक' : 'More'}
+                          More...
                         </button>
-                        <a 
-                          href={p2.phone ? `tel:${p2.phone}` : '#'} 
-                          className="card-btn-action btn-call"
-                          onClick={(e) => { e.stopPropagation(); if (!p2.phone) openProfileDrawer(p2.id); }}
-                          aria-label={`Call ${p2.name_en}`}
-                        >
-                          📞 {isHi ? 'कॉल' : 'Call'}
-                        </a>
                       </div>
                     </div>
                   </>
