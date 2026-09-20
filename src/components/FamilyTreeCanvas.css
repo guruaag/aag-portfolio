@@ -1033,32 +1033,101 @@
   border-color: #1DA851;
 }
 
+/* Mobile Toast Gesture Notification */
+.mobile-gesture-toast {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(30, 27, 24, 0.88);
+  color: #FFFFFF;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 90;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
 /* Mobile Bottom Sheet & Responsive Rules (< 640px) */
 @media (max-width: 640px) {
   .canvas-header-bar {
-    padding: 8px 12px;
+    padding: 6px 10px;
+    height: 48px;
   }
 
   .canvas-search-box {
     width: 100%;
-    max-width: 220px;
+    max-width: 200px;
+    padding: 3px 10px;
+  }
+
+  .canvas-search-input {
+    font-size: 0.82rem;
   }
 
   .header-action-btn {
-    min-height: 42px;
-    padding: 6px 12px;
-    font-size: 0.8rem;
+    min-height: 40px;
+    padding: 5px 10px;
+    font-size: 0.78rem;
   }
 
+  /* Pinned Zoom Controls - Compact Stack on Mobile */
   .pinned-zoom-controls {
     bottom: 16px;
     right: 12px;
+    gap: 6px;
   }
 
-  .pinned-zoom-btn {
-    width: 44px;
-    height: 44px;
+  /* Hide numeric + and - buttons on touch devices where pinch zoom is native */
+  .pinned-zoom-btn:not(.reset-btn):not(.fullscreen-btn) {
+    display: none !important;
+  }
+
+  .pinned-zoom-btn.reset-btn,
+  .pinned-zoom-btn.fullscreen-btn {
+    width: 42px;
+    height: 42px;
     font-size: 1.1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  }
+
+  /* Large, Bold Readable Member Cards on Mobile */
+  .member-boxed-card {
+    padding: 8px !important;
+  }
+
+  .boxed-photo-container {
+    height: 75px !important;
+  }
+
+  .boxed-card-photo {
+    height: 75px !important;
+    object-fit: cover !alignment;
+  }
+
+  .boxed-card-name {
+    font-size: 0.95rem !important; /* 15px bold font */
+    font-weight: 800 !important;
+    color: #1E1B18 !important;
+    margin: 4px 0 !important;
+    line-height: 1.25 !important;
+  }
+
+  .boxed-card-actions {
+    margin-top: 6px !important;
+    gap: 6px !important;
+  }
+
+  .card-btn-action {
+    padding: 6px 8px !important;
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    min-height: 36px !important;
   }
 
   .family-drawer-overlay {

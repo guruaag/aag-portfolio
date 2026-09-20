@@ -136,8 +136,16 @@ export default function FamilyTreeCanvas({
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false)
   const [collapsedNodeIds, setCollapsedNodeIds] = useState(new Set())
   const [maxDepthFilter, setMaxDepthFilter] = useState('all')
-  const [branchFilter, setBranchFilter] = useState('all')
   const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false)
+  const [showMobileHint, setShowMobileHint] = useState(false)
+
+  useEffect(() => {
+    if (window.innerWidth < 640) {
+      setShowMobileHint(true)
+      const timer = setTimeout(() => setShowMobileHint(false), 3500)
+      return () => clearTimeout(timer)
+    }
+  }, [])
 
   const wrapperRef = useRef(null)
   const canvasRef = useRef(null)
@@ -511,8 +519,9 @@ export default function FamilyTreeCanvas({
   useEffect(() => {
     if (!canvasRef.current) return
 
-    const viewW = canvasRef.current.clientWidth || 1000
-    const viewH = canvasRef.current.clientHeight || 700
+    const viewW = canvasRef.current.clientWidth || window.innerWidth || 1000
+    const viewH = canvasRef.current.clientHeight || window.innerHeight || 700
+    const isMobile = viewW < 640
 
     if (isFocalMode && focalWindowInfo.isFocalActive && focalWindowInfo.visibleContainers.length > 0) {
       // Find bounding box of all visible containers in focal window (Parents, Siblings, Children)
@@ -535,14 +544,31 @@ export default function FamilyTreeCanvas({
         const centerX = (minX + maxX) / 2
         const centerY = (minY + maxY) / 2
 
-        // Compute optimal fit zoom level so ALL nodes in 4 directions fit inside view
+        // Focused member position for precise centering
+        const focusedContainer = coupleContainers.find(c => c.primary.id === focusedId || (c.secondary && c.secondary.id === focusedId))
+        const focusedPos = focusedContainer ? layoutPositions.get(focusedContainer.id) : null
+        
+        const targetCenterX = focusedPos ? (focusedPos.x + focusedPos.width / 2) : centerX
+        const targetCenterY = focusedPos ? (focusedPos.y + focusedPos.height / 2) : centerY
+
+        if (isMobile) {
+          // Mobile Portrait: Scale to readable card size (0.85x - 1.05x) and center on selected focal card
+          const mobileZoom = Math.max(0.85, Math.min(1.05, (viewW - 24) / 340))
+          const targetX = viewW / 2 - targetCenterX * mobileZoom
+          const targetY = viewH / 2 - targetCenterY * mobileZoom
+
+          setZoomLevel(mobileZoom)
+          setPanOffset({ x: targetX, y: targetY })
+          return
+        }
+
+        // Desktop Fit Zoom Calculation
         const paddingX = 90
         const paddingY = 90
         const scaleX = (viewW - paddingX) / bboxWidth
         const scaleY = (viewH - paddingY) / bboxHeight
-        const fitZoom = Math.max(0.42, Math.min(1.0, Math.min(scaleX, scaleY)))
+        const fitZoom = Math.max(0.5, Math.min(1.0, Math.min(scaleX, scaleY)))
 
-        // Center stage around the focal bounding box center
         const targetX = viewW / 2 - centerX * fitZoom
         const targetY = viewH / 2 - centerY * fitZoom
 
@@ -938,6 +964,20 @@ export default function FamilyTreeCanvas({
             </button>
           )}
         </div>
+
+        {/* Mobile Gestures Toast Hint */}
+        <AnimatePresence>
+          {showMobileHint && (
+            <motion.div 
+              className="mobile-gesture-toast"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 15 }}
+            >
+              💡 Pinch to Zoom • Swipe to Pan • Tap for Details
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* 2D Stage Board */}
         <motion.div 
