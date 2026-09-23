@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import './FamilyTreeCanvas.css'
@@ -132,6 +133,7 @@ export default function FamilyTreeCanvas({
   const [focusedId, setFocusedId] = useState(selectedNodeId || rootId)
   const [isFocalMode, setIsFocalMode] = useState(true)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [isPhotoZoomed, setIsPhotoZoomed] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false)
   const [collapsedNodeIds, setCollapsedNodeIds] = useState(new Set())
@@ -297,11 +299,9 @@ export default function FamilyTreeCanvas({
       }
     }
 
-    const focusedContainer = coupleContainers.find(c => 
-      c.primary.id === focusedId || (c.secondary && c.secondary.id === focusedId)
-    )
-
-    if (!focusedContainer) {
+    // 1. Resolve Target Person dynamically from focusedId
+    const targetPerson = memberMap.get(focusedId)
+    if (!targetPerson) {
       return { 
         isFocalActive: false,
         visibleContainers: coupleContainers,
@@ -312,63 +312,89 @@ export default function FamilyTreeCanvas({
       }
     }
 
-    const focusedMemberIds = [focusedContainer.primary.id, focusedContainer.secondary?.id].filter(Boolean)
+    // Find the container holding targetPerson (primary or secondary)
+    const focusedContainer = coupleContainers.find(c => 
+      c.primary.id === focusedId || (c.secondary && c.secondary.id === focusedId)
+    ) || {
+      id: `single-focused-${targetPerson.id}`,
+      primary: targetPerson,
+      secondary: null,
+      isCouple: false,
+      generation: targetPerson.generation,
+      childrenIds: targetPerson.childrenIds || []
+    }
 
-    // 1 Generation Above: Parent Containers of primary or spouse
-    const directParentIds = new Set([
-      ...(focusedContainer.primary.parentIds || []),
-      ...(focusedContainer.secondary ? (focusedContainer.secondary.parentIds || []) : [])
-    ])
+    const spouseId = (targetPerson.spouseIds && targetPerson.spouseIds.length > 0) ? targetPerson.spouseIds[0] : null
 
-    const parentContainers = coupleContainers.filter(c => {
-      if (c.id === focusedContainer.id) return false
-      const cMemberIds = [c.primary.id, c.secondary?.id].filter(Boolean)
-
-      const hasDirectParentMatch = cMemberIds.some(id => directParentIds.has(id))
-      const hasReverseChildMatch = (c.childrenIds && c.childrenIds.some(childId => focusedMemberIds.includes(childId))) ||
-        (c.primary.childrenIds && c.primary.childrenIds.some(childId => focusedMemberIds.includes(childId))) ||
-        (c.secondary?.childrenIds && c.secondary.childrenIds.some(childId => focusedMemberIds.includes(childId)))
-
-      return hasDirectParentMatch || hasReverseChildMatch
-    })
-
-    // Center Tier: Focused Container + Sibling Containers (sharing parents)
-    let centerTierContainers = [focusedContainer]
-    const siblingIds = new Set()
-    parentContainers.forEach(pC => {
-      ;(pC.childrenIds || []).forEach(cId => siblingIds.add(cId))
-      ;(pC.primary.childrenIds || []).forEach(cId => siblingIds.add(cId))
-      if (pC.secondary?.childrenIds) {
-        pC.secondary.childrenIds.forEach(cId => siblingIds.add(cId))
-      }
-    })
-
-    if (siblingIds.size > 0) {
-      const siblings = coupleContainers.filter(c => {
+    // 2. Top Tier: Exact Blood Parents of Target Person
+    const targetParentIds = new Set(targetPerson.parentIds || [])
+    const parentContainers = []
+    if (targetParentIds.size > 0) {
+      coupleContainers.forEach(c => {
         const cMemberIds = [c.primary.id, c.secondary?.id].filter(Boolean)
-        return cMemberIds.some(id => siblingIds.has(id))
+        if (cMemberIds.some(id => targetParentIds.has(id))) {
+          parentContainers.push(c)
+        }
       })
-      if (siblings.length > 0) {
-        centerTierContainers = siblings
+
+      // Fallback for single parent cards not in coupleContainers
+      if (parentContainers.length === 0) {
+        targetParentIds.forEach(pId => {
+          const pMem = memberMap.get(pId)
+          if (pMem) {
+            parentContainers.push({
+              id: `single-parent-${pMem.id}`,
+              primary: pMem,
+              secondary: null,
+              isCouple: false,
+              generation: pMem.generation,
+              childrenIds: pMem.childrenIds || []
+            })
+          }
+        })
       }
     }
 
-    // 1 Generation Below: Direct Child Containers of selected couple
-    const directChildIds = new Set([
-      ...(focusedContainer.childrenIds || []),
-      ...(focusedContainer.primary.childrenIds || []),
-      ...(focusedContainer.secondary ? (focusedContainer.secondary.childrenIds || []) : [])
+    // 3. Center Tier: Focused Container + Target Person's Blood Siblings
+    const siblingMemberIds = new Set()
+    targetParentIds.forEach(pId => {
+      const pMem = memberMap.get(pId)
+      if (pMem && pMem.childrenIds) {
+        pMem.childrenIds.forEach(cId => {
+          if (cId !== targetPerson.id && cId !== spouseId) {
+            siblingMemberIds.add(cId)
+          }
+        })
+      }
+    })
+
+    const siblingContainers = []
+    siblingMemberIds.forEach(sId => {
+      const siblingMember = memberMap.get(sId)
+      if (siblingMember) {
+        siblingContainers.push({
+          id: `single-sibling-${siblingMember.id}`,
+          primary: siblingMember,
+          secondary: null,
+          isCouple: false,
+          generation: siblingMember.generation,
+          childrenIds: siblingMember.childrenIds || []
+        })
+      }
+    })
+
+    const centerTierContainers = [focusedContainer, ...siblingContainers]
+
+    // 4. Bottom Tier: Target Person's Direct Children
+    const targetChildIds = new Set([
+      ...(targetPerson.childrenIds || []),
+      ...(spouseId && memberMap.get(spouseId) ? (memberMap.get(spouseId).childrenIds || []) : [])
     ])
 
     const childContainers = coupleContainers.filter(c => {
       if (c.id === focusedContainer.id) return false
       const cMemberIds = [c.primary.id, c.secondary?.id].filter(Boolean)
-
-      const hasDirectChildMatch = cMemberIds.some(id => directChildIds.has(id))
-      const hasReverseParentMatch = (c.primary.parentIds && c.primary.parentIds.some(pId => focusedMemberIds.includes(pId))) ||
-        (c.secondary?.parentIds && c.secondary.parentIds.some(pId => focusedMemberIds.includes(pId)))
-
-      return hasDirectChildMatch || hasReverseParentMatch
+      return cMemberIds.some(id => targetChildIds.has(id))
     })
 
     const visibleMap = new Map()
@@ -382,17 +408,19 @@ export default function FamilyTreeCanvas({
       focusedContainer,
       parentContainers,
       centerTierContainers,
-      childContainers
+      childContainers,
+      targetPerson
     }
-  }, [isFocalMode, focusedId, coupleContainers])
+  }, [isFocalMode, focusedId, coupleContainers, memberMap])
 
   // 2D Layout Calculation (Boxed Card Layout Dimensions)
   const layoutPositions = useMemo(() => {
     const posMap = new Map()
 
-    const CONTAINER_WIDTH_SINGLE = 170
-    const CONTAINER_WIDTH_COUPLE = 360
-    const CONTAINER_HEIGHT = 230
+    const isMobile = window.innerWidth < 640
+    const CONTAINER_WIDTH_SINGLE = isMobile ? 145 : 165
+    const CONTAINER_WIDTH_COUPLE = isMobile ? 290 : 330
+    const CONTAINER_HEIGHT = isMobile ? 150 : 165
     const getWidth = (c) => c.isCouple ? CONTAINER_WIDTH_COUPLE : CONTAINER_WIDTH_SINGLE
 
     if (focalWindowInfo.isFocalActive) {
@@ -469,21 +497,53 @@ export default function FamilyTreeCanvas({
         })
       }
 
-      // 3. Position Child Containers in Bottom Tier (Tier 3) RIGHT BELOW CENTER_X
+      // 3. Position Child Containers in Bottom Tier (Tier 3) with Balanced Multi-Row Pyramid Layout
       if (childContainers.length > 0) {
-        const totalW = childContainers.reduce((sum, c) => sum + getWidth(c), 0) + (childContainers.length - 1) * X_GAP
-        let startX = CENTER_X - totalW / 2
-        childContainers.forEach(cC => {
-          const w = getWidth(cC)
-          posMap.set(cC.id, {
-            x: startX,
-            y: Y_CHILDREN,
-            width: w,
-            height: CONTAINER_HEIGHT,
-            tier: 'children'
+        const maxPerRow = isMobile ? 2 : 3
+        const numRows = Math.ceil(childContainers.length / maxPerRow)
+
+        if (numRows === 1) {
+          const totalW = childContainers.reduce((sum, c) => sum + getWidth(c), 0) + (childContainers.length - 1) * X_GAP
+          let startX = CENTER_X - totalW / 2
+          childContainers.forEach(cC => {
+            const w = getWidth(cC)
+            posMap.set(cC.id, {
+              x: startX,
+              y: Y_CHILDREN,
+              width: w,
+              height: CONTAINER_HEIGHT,
+              tier: 'children'
+            })
+            startX += w + X_GAP
           })
-          startX += w + X_GAP
-        })
+        } else {
+          // Multi-row balanced pyramid layout
+          const Y_ROW_GAP = CONTAINER_HEIGHT + 40 // 270px vertical spacing between child rows
+          let currentIndex = 0
+          for (let r = 0; r < numRows; r++) {
+            const remainingItems = childContainers.length - currentIndex
+            const remainingRows = numRows - r
+            const itemsInThisRow = Math.ceil(remainingItems / remainingRows)
+            const rowItems = childContainers.slice(currentIndex, currentIndex + itemsInThisRow)
+            currentIndex += itemsInThisRow
+
+            const rowY = Y_CHILDREN + r * Y_ROW_GAP
+            const totalW = rowItems.reduce((sum, c) => sum + getWidth(c), 0) + (rowItems.length - 1) * X_GAP
+            let startX = CENTER_X - totalW / 2
+
+            rowItems.forEach(cC => {
+              const w = getWidth(cC)
+              posMap.set(cC.id, {
+                x: startX,
+                y: rowY,
+                width: w,
+                height: CONTAINER_HEIGHT,
+                tier: 'children'
+              })
+              startX += w + X_GAP
+            })
+          }
+        }
       }
 
       return posMap
@@ -563,7 +623,7 @@ export default function FamilyTreeCanvas({
     return posMap
   }, [coupleContainers, collapsedNodeIds, maxDepthFilter, focalWindowInfo])
 
-  // English Autocomplete Search
+  // Strict English Autocomplete Search
   const searchResults = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
     if (!q) return []
@@ -598,28 +658,26 @@ export default function FamilyTreeCanvas({
     // Determine fit zoom level in focal mode so parents and children fit comfortably
     let targetZoom = zoomLevel
     if (isFocalMode && focalWindowInfo.isFocalActive && focalWindowInfo.visibleContainers.length > 0) {
-      let minX = Infinity, maxX = -Infinity
       let minY = Infinity, maxY = -Infinity
 
       focalWindowInfo.visibleContainers.forEach(c => {
         const pos = layoutPositions.get(c.id)
         if (pos) {
-          minX = Math.min(minX, pos.x)
-          maxX = Math.max(maxX, pos.x + pos.width)
           minY = Math.min(minY, pos.y)
           maxY = Math.max(maxY, pos.y + pos.height)
         }
       })
 
-      if (minX !== Infinity && maxX > minX) {
-        const bboxWidth = maxX - minX
+      if (minY !== Infinity && maxY > minY) {
         const bboxHeight = maxY - minY
-        const paddingX = isMobile ? 30 : 100
         const paddingY = isMobile ? 80 : 100
-
-        const scaleX = (viewW - paddingX) / bboxWidth
         const scaleY = (viewH - paddingY) / bboxHeight
-        targetZoom = Math.max(0.5, Math.min(isMobile ? 0.95 : 1.0, Math.min(scaleX, scaleY)))
+
+        // Guaranteed readable min zoom floor: 0.82 on Mobile, 0.88 on Desktop
+        const minZoomFloor = isMobile ? 0.82 : 0.88
+        const maxZoomCeiling = isMobile ? 0.95 : 1.0
+
+        targetZoom = Math.max(minZoomFloor, Math.min(maxZoomCeiling, scaleY))
       }
     }
 
@@ -640,18 +698,40 @@ export default function FamilyTreeCanvas({
     }
   }, [selectedNodeId])
 
-  // Active Neighborhood Highlight
+  // Clean Spouse Name Formatter (eliminates duplicate husband names like Smt. Chaman)
+  const getSpouseDisplayName = (p2, p1, isHi) => {
+    if (!p2) return ''
+    const rawName = isHi ? p2.name_hi : p2.name_en
+    const p1RawName = isHi ? p1.name_hi : p1.name_en
+
+    if (rawName && p1RawName && rawName.trim().toLowerCase() === p1RawName.trim().toLowerCase()) {
+      const parts = p1RawName.split(' ')
+      const surname = parts.length > 1 ? parts[parts.length - 1] : ''
+      const prefix = isHi ? 'श्रीमती' : 'Smt.'
+      return surname ? `${prefix} ${surname}` : (isHi ? 'धर्मपत्नी' : 'Spouse')
+    }
+    return rawName
+  }
+
+  // Active Neighborhood Highlight: Include all rendered focal containers to eliminate dimmed nodes
   const activeNeighborhood = useMemo(() => {
     const activeSet = new Set()
-    const current = memberMap.get(focusedId)
-    if (!current) return activeSet
-
-    activeSet.add(current.id)
-    ;(current.parentIds || []).forEach(id => activeSet.add(id))
-    ;(current.spouseIds || []).forEach(id => activeSet.add(id))
-    ;(current.childrenIds || []).forEach(id => activeSet.add(id))
+    if (focalWindowInfo.isFocalActive && focalWindowInfo.visibleContainers) {
+      focalWindowInfo.visibleContainers.forEach(c => {
+        if (c.primary) activeSet.add(c.primary.id)
+        if (c.secondary) activeSet.add(c.secondary.id)
+      })
+    } else {
+      const current = memberMap.get(focusedId)
+      if (current) {
+        activeSet.add(current.id)
+        ;(current.parentIds || []).forEach(id => activeSet.add(id))
+        ;(current.spouseIds || []).forEach(id => activeSet.add(id))
+        ;(current.childrenIds || []).forEach(id => activeSet.add(id))
+      }
+    }
     return activeSet
-  }, [focusedId, memberMap])
+  }, [focusedId, memberMap, focalWindowInfo])
 
   // Orthogonal SVG Tree Edges Generator
   const svgTreeEdges = useMemo(() => {
@@ -693,7 +773,9 @@ export default function FamilyTreeCanvas({
         if (isChild) {
           const cX = childPos.x + childPos.width / 2
           const cY = childPos.y
-          const midY = (pY + cY) / 2
+
+          // In focal mode: Place horizontal bar at midY = cY - 35px (clean gap right above child's tier row)
+          const midY = (isFocalMode && childPos.tier === 'children') ? (cY - 35) : (pY + cY) / 2
 
           const isParentActive = parentMemberIds.some(id => activeNeighborhood.has(id))
           const isChildActive = childMemberIds.some(id => activeNeighborhood.has(id))
@@ -716,7 +798,92 @@ export default function FamilyTreeCanvas({
     })
 
     return edges
-  }, [coupleContainers, layoutPositions, activeNeighborhood, collapsedNodeIds, focalWindowInfo])
+  }, [coupleContainers, layoutPositions, activeNeighborhood, collapsedNodeIds, focalWindowInfo, isFocalMode])
+
+  // Single Drop-Point Trunk Badges at Parent Line Origin
+  const trunkBadges = useMemo(() => {
+    const map = new Map()
+    svgTreeEdges.forEach(edge => {
+      const key = `${Math.round(edge.pX)}-${Math.round(edge.pY)}`
+      if (!map.has(key)) {
+        map.set(key, { pX: edge.pX, pY: edge.pY })
+      }
+    })
+    return Array.from(map.values())
+  }, [svgTreeEdges])
+
+  const pressTimerRef = useRef(null)
+  const isLongPressRef = useRef(false)
+  const [pressingCardId, setPressingCardId] = useState(null)
+
+  const handlePointerDown = (memberId, e) => {
+    e.stopPropagation()
+    const cardElem = e.currentTarget
+    if (cardElem && cardElem.setPointerCapture) {
+      try { cardElem.setPointerCapture(e.pointerId) } catch (_) {}
+    }
+    
+    isLongPressRef.current = false
+    setPressingCardId(memberId)
+
+    if (pressTimerRef.current) clearTimeout(pressTimerRef.current)
+
+    pressTimerRef.current = setTimeout(() => {
+      isLongPressRef.current = true
+      setPressingCardId(null)
+      if (navigator.vibrate) {
+        try { navigator.vibrate(40) } catch (_) {}
+      }
+      openProfileDrawer(memberId)
+    }, 450)
+  }
+
+  const handlePointerMove = (e) => {
+    if (!pressTimerRef.current) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    const isInside = (
+      e.clientX >= rect.left - 15 &&
+      e.clientX <= rect.right + 15 &&
+      e.clientY >= rect.top - 15 &&
+      e.clientY <= rect.bottom + 15
+    )
+    if (!isInside) {
+      clearTimeout(pressTimerRef.current)
+      pressTimerRef.current = null
+      setPressingCardId(null)
+    }
+  }
+
+  const handlePointerUp = (memberId, e) => {
+    e.stopPropagation()
+    const cardElem = e.currentTarget
+    if (cardElem && cardElem.releasePointerCapture) {
+      try { cardElem.releasePointerCapture(e.pointerId) } catch (_) {}
+    }
+    setPressingCardId(null)
+
+    const didLongPress = isLongPressRef.current
+
+    if (pressTimerRef.current) {
+      clearTimeout(pressTimerRef.current)
+      pressTimerRef.current = null
+    }
+
+    if (!didLongPress) {
+      focusMemberAndIsolate(memberId)
+    }
+  }
+
+  const handlePointerCancel = (e) => {
+    if (e && e.currentTarget && e.currentTarget.releasePointerCapture) {
+      try { e.currentTarget.releasePointerCapture(e.pointerId) } catch (_) {}
+    }
+    if (pressTimerRef.current) {
+      clearTimeout(pressTimerRef.current)
+      pressTimerRef.current = null
+    }
+    setPressingCardId(null)
+  }
 
   // 1-Click Instant Focal Isolation Mode Handler
   const focusMemberAndIsolate = (memberId) => {
@@ -728,9 +895,33 @@ export default function FamilyTreeCanvas({
 
   // Open Detailed Profile Side Drawer
   const openProfileDrawer = (memberId) => {
-    focusMemberAndIsolate(memberId)
+    setFocusedId(memberId)
     setIsDrawerOpen(true)
   }
+
+  const closeProfileDrawer = () => {
+    setIsDrawerOpen(false)
+    if (window.history.state && window.history.state.familyProfileModalOpen) {
+      window.history.back()
+    }
+  }
+
+  // Mobile Hardware / Gesture Back Button Event Listener
+  useEffect(() => {
+    if (isDrawerOpen) {
+      window.history.pushState({ familyProfileModalOpen: true }, '')
+
+      const handlePopState = () => {
+        setIsDrawerOpen(false)
+      }
+
+      window.addEventListener('popstate', handlePopState)
+
+      return () => {
+        window.removeEventListener('popstate', handlePopState)
+      }
+    }
+  }, [isDrawerOpen])
 
   // Level Up Button (`^`)
   const levelUp = () => {
@@ -752,10 +943,10 @@ export default function FamilyTreeCanvas({
 
   // Canvas Mouse & Touch Dragging
   const handleMouseDown = (e) => {
-    if (e.target.closest('.family-joint-card') || e.target.closest('.canvas-btn') || e.target.closest('.canvas-header-bar')) return
+    if (e.target.closest('.canvas-btn') || e.target.closest('.canvas-header-bar') || e.target.closest('.canvas-search-box') || e.target.tagName === 'INPUT') return
     setIsDragging(true)
     setDragStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y })
-    if (document.activeElement) document.activeElement.blur()
+    if (document.activeElement && document.activeElement.tagName !== 'INPUT') document.activeElement.blur()
     setIsSearchDropdownOpen(false)
     setIsActionsMenuOpen(false)
   }
@@ -776,11 +967,11 @@ export default function FamilyTreeCanvas({
       )
       setLastTouchDist(dist)
     } else if (e.touches.length === 1) {
-      if (e.target.closest('.family-joint-card') || e.target.closest('.canvas-btn') || e.target.closest('.canvas-header-bar')) return
+      if (e.target.closest('.canvas-btn') || e.target.closest('.canvas-header-bar') || e.target.closest('.canvas-search-box') || e.target.tagName === 'INPUT') return
       setIsDragging(true)
       const touch = e.touches[0]
       setDragStart({ x: touch.clientX - panOffset.x, y: touch.clientY - panOffset.y })
-      if (document.activeElement) document.activeElement.blur()
+      if (document.activeElement && document.activeElement.tagName !== 'INPUT') document.activeElement.blur()
       setIsSearchDropdownOpen(false)
       setIsActionsMenuOpen(false)
 
@@ -863,28 +1054,36 @@ export default function FamilyTreeCanvas({
       <div className="canvas-header-bar">
         {/* Left Controls: Clean Search Pill (English Only) */}
         <div className="header-left-group">
-          <div className="canvas-search-box">
+          <div 
+            className="canvas-search-box"
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+          >
             <span className="search-icon">🔍</span>
             <input 
-              type="text"
-              className="canvas-search-input"
-              placeholder="Search name (e.g. Sankalp)..."
+              type="search"
+              name="search"
+              id="family-tree-search"
+              className="canvas-search-input no-krutidev"
+              data-no-krutidev="true"
+              data-english-only="true"
+              placeholder="Search name in English (e.g. Sankalp)..."
               value={searchQuery}
               onChange={(e) => {
-                // Strict English-Only Sanitizer (Strips Devanagari/Hindi & Special non-English characters)
-                const sanitized = e.target.value.replace(/[\u0900-\u097F]/g, '').replace(/[^a-zA-Z0-9\s.,'-]/g, '')
-                setSearchQuery(sanitized)
-                setIsSearchDropdownOpen(sanitized.trim().length > 0)
+                const val = e.target.value.replace(/[\u0900-\u097F]/g, '')
+                setSearchQuery(val)
+                setIsSearchDropdownOpen(val.trim().length > 0)
               }}
+              onKeyDown={(e) => e.stopPropagation()}
+              onKeyUp={(e) => e.stopPropagation()}
               onFocus={() => {
                 if (searchQuery.trim().length > 0) {
                   setIsSearchDropdownOpen(true)
                 }
               }}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
               autoComplete="off"
-              autoCorrect="off"
-              spellCheck="false"
-              lang="en"
             />
             {searchQuery && (
               <button className="clear-search-btn" onClick={() => { setSearchQuery(''); setIsSearchDropdownOpen(false); }}>✕</button>
@@ -1079,8 +1278,19 @@ export default function FamilyTreeCanvas({
             ))}
           </svg>
 
+          {/* SVG Connection Line Drop Point Badges */}
+          {trunkBadges.map((badge, idx) => (
+            <span 
+              key={`trunk-badge-${idx}`}
+              className="svg-trunk-badge" 
+              style={{ left: `${badge.pX}px`, top: `${badge.pY + 12}px` }}
+            >
+              {isHi ? '⬇️ संतान (Children)' : '⬇️ Children'}
+            </span>
+          ))}
+
           {/* Explicitly Positioned Boxed Node Cards */}
-          {focalWindowInfo.visibleContainers.map(container => {
+          {focalWindowInfo.visibleContainers.map((container, index) => {
             const pos = layoutPositions.get(container.id)
             if (!pos) return null
 
@@ -1097,6 +1307,32 @@ export default function FamilyTreeCanvas({
             const isCollapsed = collapsedNodeIds.has(container.id)
             const descendantCount = containerDescendantCounts.get(container.id) || 0
 
+            // Blood descendant vs Spouse styling
+            const p1HasParents = Boolean(p1.parentIds && p1.parentIds.length > 0)
+            const p2HasParents = Boolean(p2 && p2.parentIds && p2.parentIds.length > 0)
+
+            const focalParentChild = focalWindowInfo.focusedContainer && focalWindowInfo.focusedContainer.childrenIds
+            const isP1FocalChild = focalParentChild ? focalParentChild.includes(p1.id) : false
+            const isP2FocalChild = (p2 && focalParentChild) ? focalParentChild.includes(p2.id) : false
+
+            const isP1Child = p1HasParents || isP1FocalChild
+            const isP2Child = p2HasParents || isP2FocalChild
+
+            let p1LineageClass = ''
+            let p2LineageClass = ''
+
+            if (isCouple && p2) {
+              if (isP1Child && !isP2Child) {
+                p1LineageClass = 'card-blood-child'
+                p2LineageClass = 'card-spouse-muted'
+              } else if (isP2Child && !isP1Child) {
+                p1LineageClass = 'card-spouse-muted'
+                p2LineageClass = 'card-blood-child'
+              }
+            }
+
+            const spouseDisplayName = p2 ? getSpouseDisplayName(p2, p1, isHi) : ''
+
             return (
               <div 
                 key={container.id}
@@ -1109,51 +1345,24 @@ export default function FamilyTreeCanvas({
                   height: `${pos.height}px`
                 }}
               >
-                {/* Tier Label Pill in Focal Mode */}
-                {isFocalMode && pos.tier && (
-                  <span className={`focal-tier-badge ${pos.tier}`}>
-                    {pos.tier === 'parents' ? (isHi ? '⬆️ माता-पिता (Parents)' : '⬆️ Parents') : null}
-                    {pos.tier === 'center' ? (isHi ? '🎯 चयनित (Selected)' : '🎯 Selected') : null}
-                    {pos.tier === 'sibling' ? (isHi ? '◀▶ भाई-बहन (Sibling)' : '◀▶ Sibling') : null}
-                    {pos.tier === 'children' ? (isHi ? '⬇️ संतान (Children)' : '⬇️ Children') : null}
-                  </span>
-                )}
-
                 {/* Primary Member Boxed Card */}
                 <div 
-                  className={`member-boxed-card ${isP1Selected ? 'card-selected' : ''}`}
-                  onClick={(e) => { e.stopPropagation(); focusMemberAndIsolate(p1.id); }}
+                  className={`member-boxed-card ${isP1Selected ? 'card-selected' : ''} ${pressingCardId === p1.id ? 'card-pressing' : ''} ${p1LineageClass}`}
+                  onPointerDown={(e) => handlePointerDown(p1.id, e)}
+                  onPointerMove={handlePointerMove}
+                  onPointerUp={(e) => handlePointerUp(p1.id, e)}
+                  onPointerCancel={handlePointerCancel}
+                  onContextMenu={(e) => e.preventDefault()}
                 >
-                  {/* Full Edge-to-Edge Boxed Photo Header */}
+                  {/* Full Edge-to-Edge Photo with Overlaid Name Pill Badge */}
                   <div className="boxed-photo-container">
                     <img src={p1.photoUrl} alt={p1.name_en} className="boxed-card-photo" />
                     {p1.isDeceased && <span className="deceased-lotus-badge" title="In Reverent Memory">🪷</span>}
-                  </div>
-
-                  {/* Person's Name */}
-                  <div className="boxed-card-meta">
-                    <h4 className="boxed-card-name" title={isHi ? p1.name_hi : p1.name_en}>
-                      {isHi ? p1.name_hi : p1.name_en}
-                    </h4>
-                  </div>
-
-                  {/* Two Side-by-Side Action Buttons: "More" and "Call" */}
-                  <div className="boxed-card-actions">
-                    <button 
-                      className="card-btn-action btn-details"
-                      onClick={(e) => { e.stopPropagation(); openProfileDrawer(p1.id); }}
-                      aria-label={`View details for ${p1.name_en}`}
-                    >
-                      {isHi ? 'अधिक' : 'More'}
-                    </button>
-                    <a 
-                      href={p1.phone ? `tel:${p1.phone}` : '#'} 
-                      className="card-btn-action btn-call"
-                      onClick={(e) => { e.stopPropagation(); if (!p1.phone) openProfileDrawer(p1.id); }}
-                      aria-label={`Call ${p1.name_en}`}
-                    >
-                      📞 {isHi ? 'कॉल' : 'Call'}
-                    </a>
+                    <div className="card-name-badge-pill">
+                      <h4 className="boxed-card-name" title={isHi ? p1.name_hi : p1.name_en}>
+                        {isHi ? p1.name_hi : p1.name_en}
+                      </h4>
+                    </div>
                   </div>
                 </div>
 
@@ -1164,39 +1373,22 @@ export default function FamilyTreeCanvas({
 
                     {/* Secondary Spouse Boxed Card */}
                     <div 
-                      className={`member-boxed-card ${isP2Selected ? 'card-selected' : ''}`}
-                      onClick={(e) => { e.stopPropagation(); focusMemberAndIsolate(p2.id); }}
+                      className={`member-boxed-card ${isP2Selected ? 'card-selected' : ''} ${pressingCardId === p2.id ? 'card-pressing' : ''} ${p2LineageClass}`}
+                      onPointerDown={(e) => handlePointerDown(p2.id, e)}
+                      onPointerMove={handlePointerMove}
+                      onPointerUp={(e) => handlePointerUp(p2.id, e)}
+                      onPointerCancel={handlePointerCancel}
+                      onContextMenu={(e) => e.preventDefault()}
                     >
-                      {/* Full Edge-to-Edge Boxed Photo Header */}
+                      {/* Full Edge-to-Edge Photo with Overlaid Name Pill Badge */}
                       <div className="boxed-photo-container">
                         <img src={p2.photoUrl} alt={p2.name_en} className="boxed-card-photo" />
                         {p2.isDeceased && <span className="deceased-lotus-badge" title="In Reverent Memory">🪷</span>}
-                      </div>
-
-                      {/* Person's Name */}
-                      <div className="boxed-card-meta">
-                        <h4 className="boxed-card-name" title={isHi ? p2.name_hi : p2.name_en}>
-                          {isHi ? p2.name_hi : p2.name_en}
-                        </h4>
-                      </div>
-
-                      {/* Two Side-by-Side Action Buttons */}
-                      <div className="boxed-card-actions">
-                        <button 
-                          className="card-btn-action btn-details"
-                          onClick={(e) => { e.stopPropagation(); openProfileDrawer(p2.id); }}
-                          aria-label={`View details for ${p2.name_en}`}
-                        >
-                          {isHi ? 'अधिक' : 'More'}
-                        </button>
-                        <a 
-                          href={p2.phone ? `tel:${p2.phone}` : '#'} 
-                          className="card-btn-action btn-call"
-                          onClick={(e) => { e.stopPropagation(); if (!p2.phone) openProfileDrawer(p2.id); }}
-                          aria-label={`Call ${p2.name_en}`}
-                        >
-                          📞 {isHi ? 'कॉल' : 'Call'}
-                        </a>
+                        <div className="card-name-badge-pill">
+                          <h4 className="boxed-card-name" title={spouseDisplayName}>
+                            {spouseDisplayName}
+                          </h4>
+                        </div>
                       </div>
                     </div>
                   </>
@@ -1219,168 +1411,226 @@ export default function FamilyTreeCanvas({
         </motion.div>
       </div>
 
-      {/* 3. Slide-Out Side Drawer / Mobile Bottom Sheet for Full Member Profile */}
-      <AnimatePresence>
-        {isDrawerOpen && selectedMember && (
-          <>
-            <motion.div 
-              className="family-drawer-overlay"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsDrawerOpen(false)}
-            />
-            <motion.div 
-              className="family-drawer-panel"
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-            >
-              {/* Mobile Bottom Sheet Drag Handle */}
-              <div className="drawer-drag-handle" />
+      {/* 3. Portaled Full-Screen Mobile Modal / Side Drawer for Member Profile */}
+      {createPortal(
+        <AnimatePresence>
+          {isDrawerOpen && selectedMember && (
+            <>
+              <motion.div 
+                className="family-drawer-overlay"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={closeProfileDrawer}
+              />
+              <motion.div 
+                className="family-drawer-panel"
+                initial={{ y: '100%', opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: '100%', opacity: 0 }}
+                transition={{ type: 'spring', damping: 26, stiffness: 240 }}
+              >
+                {/* Mobile Bottom Sheet Drag Handle */}
+                <div className="drawer-drag-handle" />
 
-              <div className="family-drawer-header">
-                <h3>{isHi ? 'सदस्य पूर्ण विवरण' : 'Member Profile'}</h3>
-                <button className="drawer-close-btn" onClick={() => setIsDrawerOpen(false)} aria-label="Close profile">✕</button>
-              </div>
+                {/* Header showing Person's Name */}
+                <div className="family-drawer-header">
+                  <h3>{isHi ? selectedMember.name_hi : selectedMember.name_en}</h3>
+                  <button className="drawer-close-btn" onClick={closeProfileDrawer} aria-label="Close profile">✕</button>
+                </div>
 
-              <div className="family-drawer-body">
-                <div className="drawer-profile-card">
-                  <div className="drawer-avatar-wrapper">
+                <div className="family-drawer-body">
+                  {/* Large Hero Photo Header (Top Half) with Tap to Zoom */}
+                  <div 
+                    className="drawer-hero-photo-container" 
+                    onClick={() => setIsPhotoZoomed(true)} 
+                    title="Tap to zoom photo"
+                  >
+                    <img 
+                      src={selectedMember.photoUrl} 
+                      alt=""
+                      className="drawer-hero-photo-bg"
+                      aria-hidden="true"
+                    />
                     <img 
                       src={selectedMember.photoUrl} 
                       alt={selectedMember.name_en}
-                      className="drawer-avatar"
+                      className="drawer-hero-photo"
+                      onError={(e) => {
+                        e.target.onerror = null
+                        e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedMember.name_en)}&background=B85C38&color=fff&size=500`
+                      }}
                     />
+                    <span className="hero-photo-zoom-hint">🔍 {isHi ? 'ज़ूम करें' : 'Tap to Zoom'}</span>
                     {selectedMember.isDeceased && (
                       <span className="drawer-deceased-badge">
                         🪷 {isHi ? 'स्वर्गीय (स्मृतिशेष)' : 'In Reverent Memory'}
                       </span>
                     )}
                   </div>
-                  <h3 className="drawer-name">{selectedMember.name_en}</h3>
-                  <h4 className="drawer-name-hi">{selectedMember.name_hi}</h4>
-                  <span className="drawer-relation-badge">{isHi ? selectedMember.relation_hi : selectedMember.relation_en}</span>
-                  <span className="drawer-gen-tag">
-                    {isHi ? `पीढ़ी ${selectedMember.generation}` : `Generation ${selectedMember.generation}`}
-                  </span>
-                </div>
 
-                {/* Direct Action Bar: Phone Call & WhatsApp */}
-                {selectedMember.phone && (
-                  <div className="drawer-quick-actions">
-                    <a href={`tel:${selectedMember.phone}`} className="drawer-action-btn btn-call">
-                      📞 {isHi ? 'कॉल करें' : 'Call Phone'}
-                    </a>
-                    <a 
-                      href={`https://wa.me/${selectedMember.phone.replace(/[^0-9]/g, '')}`} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="drawer-action-btn btn-whatsapp"
-                    >
-                      💬 WhatsApp
-                    </a>
-                  </div>
-                )}
-
-                <div className="drawer-meta-section">
-                  <div className="meta-row">
-                    <span className="meta-label">🎂 {isHi ? 'जन्म तिथि:' : 'Birth Date:'}</span>
-                    <span className="meta-value">{selectedMember.birthDate || 'N/A'}</span>
-                  </div>
-                  {selectedMember.deathDate && (
-                    <div className="meta-row">
-                      <span className="meta-label">🕊️ {isHi ? 'पुण्यतिथि:' : 'Passed Away:'}</span>
-                      <span className="meta-value">{selectedMember.deathDate}</span>
-                    </div>
-                  )}
-                  {selectedMember.marriageAnniversaryDate && (
-                    <div className="meta-row">
-                      <span className="meta-label">💍 {isHi ? 'विवाह वर्षगींठ:' : 'Anniversary:'}</span>
-                      <span className="meta-value">{selectedMember.marriageAnniversaryDate}</span>
-                    </div>
-                  )}
-                  {selectedMember.phone && (
-                    <div className="meta-row">
-                      <span className="meta-label">📞 {isHi ? 'संपर्क नंबर:' : 'Phone:'}</span>
-                      <span className="meta-value">
-                        <a href={`tel:${selectedMember.phone}`} className="phone-link">{selectedMember.phone}</a>
+                  {/* Name & Relation Meta */}
+                  <div className="drawer-member-name-block">
+                    <h2 className="drawer-main-name">{selectedMember.name_en}</h2>
+                    <h3 className="drawer-main-name-hi">{selectedMember.name_hi}</h3>
+                    <div className="drawer-badge-pills">
+                      <span className="drawer-relation-badge">{isHi ? selectedMember.relation_hi : selectedMember.relation_en}</span>
+                      <span className="drawer-gen-tag">
+                        {isHi ? `पीढ़ी ${selectedMember.generation}` : `Generation ${selectedMember.generation}`}
                       </span>
                     </div>
-                  )}
-                </div>
-
-                {selectedMember.bio && (
-                  <div className="drawer-bio-box">
-                    <strong>{isHi ? 'परिचय / भूमिका:' : 'Biography & Role:'}</strong>
-                    <p>{selectedMember.bio}</p>
                   </div>
-                )}
 
-                {/* Direct Links / Interactive Pills to Relatives */}
-                <div className="drawer-relatives-section">
-                  <h4>{isHi ? 'प्रत्यक्ष पारिवारिक संबंध (1-Click Explore):' : 'Direct Relatives (1-Click Explore):'}</h4>
-                  
-                  {/* Parents */}
-                  {selectedMember.parentIds && selectedMember.parentIds.length > 0 && (
-                    <div className="relatives-group">
-                      <span className="group-label">👨‍👩‍👦 {isHi ? 'माता-पिता (Parents):' : 'Parents:'}</span>
-                      <div className="relatives-pills">
-                        {selectedMember.parentIds.map(pId => {
-                          const p = memberMap.get(pId)
-                          if (!p) return null
-                          return (
-                            <button key={pId} className="relative-pill" onClick={() => openProfileDrawer(pId)}>
-                              {p.name_en} ({p.name_hi})
-                            </button>
-                          )
-                        })}
+                  {/* Direct Action Bar: Phone Call, WhatsApp, & Focus Tree */}
+                  <div className="drawer-quick-actions">
+                    {selectedMember.phone && (
+                      <>
+                        <a href={`tel:${selectedMember.phone}`} className="drawer-action-btn btn-call">
+                          📞 {isHi ? 'कॉल करें' : 'Call Phone'}
+                        </a>
+                        <a 
+                          href={`https://wa.me/${selectedMember.phone.replace(/[^0-9]/g, '')}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="drawer-action-btn btn-whatsapp"
+                        >
+                          💬 WhatsApp
+                        </a>
+                      </>
+                    )}
+                    <button 
+                      className="drawer-action-btn btn-focus-tree"
+                      onClick={() => {
+                        closeProfileDrawer()
+                        focusMemberAndIsolate(selectedMember.id)
+                      }}
+                    >
+                      🎯 {isHi ? 'वृक्ष में देखें' : 'View on Tree'}
+                    </button>
+                  </div>
+
+                  <div className="drawer-meta-section">
+                    <div className="meta-row">
+                      <span className="meta-label">🎂 {isHi ? 'जन्म तिथि:' : 'Birth Date:'}</span>
+                      <span className="meta-value">{selectedMember.birthDate || 'N/A'}</span>
+                    </div>
+                    {selectedMember.deathDate && (
+                      <div className="meta-row">
+                        <span className="meta-label">🕊️ {isHi ? 'पुण्यतिथि:' : 'Passed Away:'}</span>
+                        <span className="meta-value">{selectedMember.deathDate}</span>
                       </div>
+                    )}
+                    {selectedMember.marriageAnniversaryDate && (
+                      <div className="meta-row">
+                        <span className="meta-label">💍 {isHi ? 'विवाह वर्षगींठ:' : 'Anniversary:'}</span>
+                        <span className="meta-value">{selectedMember.marriageAnniversaryDate}</span>
+                      </div>
+                    )}
+                    {selectedMember.phone && (
+                      <div className="meta-row">
+                        <span className="meta-label">📞 {isHi ? 'संपर्क नंबर:' : 'Phone:'}</span>
+                        <span className="meta-value">
+                          <a href={`tel:${selectedMember.phone}`} className="phone-link">{selectedMember.phone}</a>
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {selectedMember.bio && (
+                    <div className="drawer-bio-box">
+                      <strong>{isHi ? 'परिचय / भूमिका:' : 'Biography & Role:'}</strong>
+                      <p>{selectedMember.bio}</p>
                     </div>
                   )}
 
-                  {/* Spouses */}
-                  {selectedMember.spouseIds && selectedMember.spouseIds.length > 0 && (
-                    <div className="relatives-group">
-                      <span className="group-label">💍 {isHi ? 'जीवनसाथी (Spouse):' : 'Spouse:'}</span>
-                      <div className="relatives-pills">
-                        {selectedMember.spouseIds.map(sId => {
-                          const s = memberMap.get(sId)
-                          if (!s) return null
-                          return (
-                            <button key={sId} className="relative-pill" onClick={() => openProfileDrawer(sId)}>
-                              {s.name_en} ({s.name_hi})
-                            </button>
-                          )
-                        })}
+                  {/* Direct Links / Interactive Pills to Relatives */}
+                  <div className="drawer-relatives-section">
+                    <h4>{isHi ? 'प्रत्यक्ष पारिवारिक संबंध (1-Click Explore):' : 'Direct Relatives (1-Click Explore):'}</h4>
+                    
+                    {/* Parents */}
+                    {selectedMember.parentIds && selectedMember.parentIds.length > 0 && (
+                      <div className="relatives-group">
+                        <span className="group-label">👨‍👩‍👦 {isHi ? 'माता-पिता (Parents):' : 'Parents:'}</span>
+                        <div className="relatives-pills">
+                          {selectedMember.parentIds.map(pId => {
+                            const p = memberMap.get(pId)
+                            if (!p) return null
+                            return (
+                              <button key={pId} className="relative-pill" onClick={() => openProfileDrawer(pId)}>
+                                {p.name_en} ({p.name_hi})
+                              </button>
+                            )
+                          })}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Children */}
-                  {selectedMember.childrenIds && selectedMember.childrenIds.length > 0 && (
-                    <div className="relatives-group">
-                      <span className="group-label">👶 {isHi ? 'संतान (Children):' : 'Children:'}</span>
-                      <div className="relatives-pills">
-                        {selectedMember.childrenIds.map(cId => {
-                          const c = memberMap.get(cId)
-                          if (!c) return null
-                          return (
-                            <button key={cId} className="relative-pill" onClick={() => openProfileDrawer(cId)}>
-                              {c.name_en} ({c.name_hi})
-                            </button>
-                          )
-                        })}
+                    {/* Spouses */}
+                    {selectedMember.spouseIds && selectedMember.spouseIds.length > 0 && (
+                      <div className="relatives-group">
+                        <span className="group-label">💍 {isHi ? 'जीवनसाथी (Spouse):' : 'Spouse:'}</span>
+                        <div className="relatives-pills">
+                          {selectedMember.spouseIds.map(sId => {
+                            const s = memberMap.get(sId)
+                            if (!s) return null
+                            return (
+                              <button key={sId} className="relative-pill" onClick={() => openProfileDrawer(sId)}>
+                                {s.name_en} ({s.name_hi})
+                              </button>
+                            )
+                          })}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+
+                    {/* Children */}
+                    {selectedMember.childrenIds && selectedMember.childrenIds.length > 0 && (
+                      <div className="relatives-group">
+                        <span className="group-label">👶 {isHi ? 'संतान (Children):' : 'Children:'}</span>
+                        <div className="relatives-pills">
+                          {selectedMember.childrenIds.map(cId => {
+                            const c = memberMap.get(cId)
+                            if (!c) return null
+                            return (
+                              <button key={cId} className="relative-pill" onClick={() => openProfileDrawer(cId)}>
+                                {c.name_en} ({c.name_hi})
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
+              </motion.div>
+            </>
+          )}
+
+          {/* Full Screen Photo Zoom Lightbox Overlay */}
+          {isPhotoZoomed && selectedMember && (
+            <motion.div 
+              className="photo-lightbox-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsPhotoZoomed(false)}
+            >
+              <button className="lightbox-close-btn" onClick={() => setIsPhotoZoomed(false)} aria-label="Close photo zoom">✕</button>
+              <motion.img 
+                src={selectedMember.photoUrl} 
+                alt={selectedMember.name_en}
+                className="lightbox-zoomed-img"
+                initial={{ scale: 0.7 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0.7 }}
+                onClick={(e) => e.stopPropagation()}
+              />
+              <span className="lightbox-caption">{isHi ? selectedMember.name_hi : selectedMember.name_en}</span>
             </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   )
 }

@@ -44,6 +44,12 @@ export function FontProvider({ children }) {
   // Helper to check if an element is excluded from Kruti Dev interception
   const isExcludedInput = (element) => {
     if (!element) return true;
+
+    // Check closest elements for explicit exclusion classes/attributes or search type
+    if (element.closest && element.closest('.no-krutidev, .canvas-search-box, .canvas-search-input, [data-no-krutidev="true"], [data-english-only="true"], [type="search"], [name="search"]')) {
+      return true;
+    }
+
     const tagName = element.tagName ? element.tagName.toUpperCase() : '';
     
     // Non-editable check
@@ -53,18 +59,26 @@ export function FontProvider({ children }) {
 
     if (tagName === 'INPUT') {
       const type = (element.type || '').toLowerCase();
-      if (['email', 'password', 'url', 'number', 'file', 'color', 'date', 'checkbox', 'radio', 'hidden', 'range'].includes(type)) {
+      if (['email', 'password', 'url', 'number', 'file', 'color', 'date', 'checkbox', 'radio', 'hidden', 'range', 'search'].includes(type)) {
         return true;
       }
     }
 
     // Explicit exclusions via attributes or class/id names
-    if (element.getAttribute('data-no-krutidev') === 'true' || element.classList?.contains('no-krutidev')) {
+    if (element.getAttribute && (
+        element.getAttribute('data-no-krutidev') === 'true' || 
+        element.getAttribute('data-english-only') === 'true')) {
       return true;
     }
 
-    const nameOrId = ((element.name || '') + ' ' + (element.id || '')).toLowerCase();
-    if (/email|password|slug|url|search|code|token|key/.test(nameOrId)) {
+    if (element.classList && (
+        element.classList.contains('no-krutidev') ||
+        element.classList.contains('canvas-search-input'))) {
+      return true;
+    }
+
+    const nameOrId = ((element.name || '') + ' ' + (element.id || '') + ' ' + (element.className || '')).toLowerCase();
+    if (/email|password|slug|url|search|code|token|key|english|canvas/.test(nameOrId)) {
       return true;
     }
 
