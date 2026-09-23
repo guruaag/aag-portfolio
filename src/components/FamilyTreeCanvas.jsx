@@ -814,6 +814,8 @@ export default function FamilyTreeCanvas({
 
   const pressTimerRef = useRef(null)
   const isLongPressRef = useRef(false)
+  const isDraggingCardRef = useRef(false)
+  const pressStartPosRef = useRef({ x: 0, y: 0 })
   const [pressingCardId, setPressingCardId] = useState(null)
 
   const handlePointerDown = (memberId, e) => {
@@ -824,6 +826,8 @@ export default function FamilyTreeCanvas({
     }
     
     isLongPressRef.current = false
+    isDraggingCardRef.current = false
+    pressStartPosRef.current = { x: e.clientX, y: e.clientY }
     setPressingCardId(memberId)
 
     if (pressTimerRef.current) clearTimeout(pressTimerRef.current)
@@ -839,17 +843,17 @@ export default function FamilyTreeCanvas({
   }
 
   const handlePointerMove = (e) => {
-    if (!pressTimerRef.current) return
-    const rect = e.currentTarget.getBoundingClientRect()
-    const isInside = (
-      e.clientX >= rect.left - 15 &&
-      e.clientX <= rect.right + 15 &&
-      e.clientY >= rect.top - 15 &&
-      e.clientY <= rect.bottom + 15
+    if (!pressStartPosRef.current) return
+    const dist = Math.hypot(
+      e.clientX - pressStartPosRef.current.x,
+      e.clientY - pressStartPosRef.current.y
     )
-    if (!isInside) {
-      clearTimeout(pressTimerRef.current)
-      pressTimerRef.current = null
+    if (dist > 10) {
+      isDraggingCardRef.current = true
+      if (pressTimerRef.current) {
+        clearTimeout(pressTimerRef.current)
+        pressTimerRef.current = null
+      }
       setPressingCardId(null)
     }
   }
@@ -867,7 +871,9 @@ export default function FamilyTreeCanvas({
       pressTimerRef.current = null
     }
 
-    openProfileDrawer(memberId)
+    if (!isDraggingCardRef.current && !isLongPressRef.current) {
+      openProfileDrawer(memberId)
+    }
   }
 
   const handlePointerCancel = (e) => {
@@ -878,6 +884,7 @@ export default function FamilyTreeCanvas({
       clearTimeout(pressTimerRef.current)
       pressTimerRef.current = null
     }
+    isDraggingCardRef.current = false
     setPressingCardId(null)
   }
 
