@@ -1633,7 +1633,7 @@ export default function FamilyTreeCanvas({
             </motion.div>
           )}
         </AnimatePresence>,
-        document.body
+        wrapperRef.current || document.body
       )}
     </div>
   )
