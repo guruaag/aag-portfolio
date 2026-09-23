@@ -862,16 +862,12 @@ export default function FamilyTreeCanvas({
     }
     setPressingCardId(null)
 
-    const didLongPress = isLongPressRef.current
-
     if (pressTimerRef.current) {
       clearTimeout(pressTimerRef.current)
       pressTimerRef.current = null
     }
 
-    if (!didLongPress) {
-      focusMemberAndIsolate(memberId)
-    }
+    openProfileDrawer(memberId)
   }
 
   const handlePointerCancel = (e) => {
@@ -889,14 +885,15 @@ export default function FamilyTreeCanvas({
   const focusMemberAndIsolate = (memberId) => {
     setFocusedId(memberId)
     setIsFocalMode(true) // Instantly collapse unrelated people & show 1-step up/down window
-    setIsDrawerOpen(false) // Guarantee profile drawer stays closed when focusing
     if (onNodeSelect) onNodeSelect(memberId)
   }
 
   // Open Detailed Profile Side Drawer
   const openProfileDrawer = (memberId) => {
     setFocusedId(memberId)
+    setIsFocalMode(true)
     setIsDrawerOpen(true)
+    if (onNodeSelect) onNodeSelect(memberId)
   }
 
   const closeProfileDrawer = () => {
