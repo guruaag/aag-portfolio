@@ -175,6 +175,22 @@ Whenever this skill is triggered, execute or offer the following modes:
 
 ---
 
+### Category F: Family Tree Canvas & Modal Architecture
+
+#### F1. `FamilyTreeCanvas` Member Card Drawer Hidden Behind HTML5 Fullscreen Top-Layer
+- **Symptom**: Tapping or clicking member cards in the family tree appeared to do nothing; profile drawer was not visible.
+- **Root Cause**: When launched from `FamilyTreePanel`, `FamilyTreeCanvas` invokes the HTML5 Fullscreen API (`wrapperRef.current.requestFullscreen()`), placing the canvas container into the browser's Fullscreen Top-Layer stack. React's `createPortal(..., document.body)` attached the profile drawer to `document.body`, which sits OUTSIDE the browser's Fullscreen Top-Layer stack. The drawer rendered in the DOM but was hidden behind the fullscreen canvas element.
+- **Fix Applied**: Updated `createPortal` target from `document.body` to `wrapperRef.current || document.body` and changed CSS positioning of `.family-drawer-overlay` and `.family-drawer-panel` from `position: fixed` to `position: absolute; inset: 0` relative to the canvas container (Commit `6ef4e68`).
+- **Regression Rule**: Any portaled modal or overlay rendered inside an HTML5 Fullscreen component MUST target the fullscreen container element (`wrapperRef.current`) or render within its DOM tree so it stays in the browser's Top-Layer stack.
+
+#### F2. Touch Gesture Interference & Accidental Drawer Openings on Panning
+- **Symptom**: Dragging or panning the family tree canvas over member cards triggered accidental card opening or cancelled taps.
+- **Root Cause**: Pointer handlers lacked drag distance threshold checks, calling `openProfileDrawer` indiscriminately on `pointerUp`.
+- **Fix Applied**: Introduced `pressStartPosRef` and `10px` movement threshold filter (`isDraggingCardRef`). Canvas drag gestures move the canvas smoothly without popping open drawers, while clean taps and stationary holds open the drawer (Commit `2a6aa28`).
+- **Regression Rule**: Pointer event handlers on draggable canvas elements must track pointer movement distance before triggering click actions.
+
+---
+
 ### Category E: i18n & Translation Runtime Errors
 
 #### E1. `ReferenceError: useTranslation` Missing `i18n` Destructuring
