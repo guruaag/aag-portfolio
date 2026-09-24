@@ -189,6 +189,14 @@ Whenever this skill is triggered, execute or offer the following modes:
 - **Fix Applied**: Introduced `pressStartPosRef` and `10px` movement threshold filter (`isDraggingCardRef`). Canvas drag gestures move the canvas smoothly without popping open drawers, while clean taps and stationary holds open the drawer (Commit `2a6aa28`).
 - **Regression Rule**: Pointer event handlers on draggable canvas elements must track pointer movement distance before triggering click actions.
 
+#### F3. Family Tree Canvas Enhancements (Search Auto-Zoom, Zoom Badge, Birthdays Dropdown, Touch Momentum)
+- **Feature Additions**: Implemented 4 core canvas UX features requested by user:
+  1. **Search Auto-Zoom**: Selecting a member from search dropdown auto-centers camera and opens profile drawer.
+  2. **Zoom Percentage Badge**: Added dynamic `Math.round(zoomLevel * 100)%` pill between zoom controls.
+  3. **Birthdays Dropdown & Node Highlights**: Added `🎂 Birthdays / जन्म दिवस` dropdown in header sorting members with **current month first** (`(bInfo.month - currentMonth + 12) % 12`), and added glowing `🎂` crown badges on birthday-month cards.
+  4. **Mobile Touch Kinetic Momentum**: Calculated pointer velocity vectors on drag and applied smooth friction deceleration (`0.90` decay) via `requestAnimationFrame` on touch release (Commit `58f6d2e`).
+- **Regression Rule**: Birthday sorting must evaluate `(month - currentMonth + 12) % 12` to maintain current month priority. Touch momentum animations must cancel clean up on `pointerDown` to prevent scroll collisions.
+
 ---
 
 ### Category E: i18n & Translation Runtime Errors
