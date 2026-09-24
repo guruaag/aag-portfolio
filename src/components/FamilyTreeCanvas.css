@@ -1304,3 +1304,138 @@
   font-weight: 700;
   text-align: center;
 }
+
+/* ── Zoom Percentage Badge ── */
+.canvas-zoom-badge {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #1E1B18;
+  background: #FAF8F5;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid #E2D7C5;
+  font-family: monospace;
+  user-select: none;
+}
+
+/* ── Birthdays Header Dropdown ── */
+.canvas-header-dropdown-container {
+  position: relative;
+}
+
+.canvas-birthday-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 320px;
+  max-height: 380px;
+  background: #FFFFFF;
+  border: 1.5px solid #E2D7C5;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.birthday-menu-header {
+  padding: 10px 14px;
+  background: #FAF5F0;
+  border-bottom: 1px solid #E2D7C5;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--leona-terracotta, #B85C38);
+}
+
+.birthday-menu-list {
+  overflow-y: auto;
+  max-height: 320px;
+}
+
+.birthday-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid #F5EFE6;
+  transition: background 0.15s ease;
+}
+
+.birthday-menu-item:last-child {
+  border-bottom: none;
+}
+
+.birthday-menu-item:hover {
+  background: rgba(184, 92, 56, 0.08);
+}
+
+.birthday-menu-item.current-month-item {
+  background: rgba(212, 175, 55, 0.08);
+}
+
+.birthday-item-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid #D4AF37;
+  flex-shrink: 0;
+}
+
+.birthday-item-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.birthday-item-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #1E1B18;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.birthday-item-date {
+  font-size: 0.78rem;
+  color: #666;
+}
+
+.birthday-month-pill {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #B85C38;
+  background: rgba(184, 92, 56, 0.12);
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(184, 92, 56, 0.25);
+  white-space: nowrap;
+}
+
+/* Node Birthday Crown Badge & Highlight */
+.birthday-crown-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-size: 0.95rem;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 2px 5px;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  z-index: 10;
+  animation: birthdayPulse 2s infinite ease-in-out;
+}
+
+.birthday-highlight-card {
+  border-color: #D4AF37 !important;
+  box-shadow: 0 0 16px rgba(212, 175, 55, 0.4) !important;
+}
+
+@keyframes birthdayPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.18); }
+}

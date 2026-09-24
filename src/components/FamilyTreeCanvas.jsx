@@ -109,6 +109,48 @@ export const FAMILY_DATA_35 = [
   { id: 'f-405', name_hi: 'अवनी शर्मा', name_en: 'Avani Sharma', relation_hi: 'पौत्री (सनातन जी की पुत्री)', relation_en: 'Granddaughter', generation: 4, gender: 'female', isDeceased: false, birthDate: '03 Mar 2011', phone: '+91 94141 99001', photoUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&q=80', parentIds: ['f-305', 'f-306'], spouseIds: [], childrenIds: [], bio: 'सनातन जी व सुरभि जी की सुपुत्री।' }
 ]
 
+const MONTH_MAP = {
+  jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5,
+  jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11
+}
+
+const MONTH_NAMES_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const MONTH_NAMES_HI = ['जनवरी', 'फरवरी', 'मार्च', 'अप्रैल', 'मई', 'जून', 'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर']
+
+export const parseMemberBirthInfo = (birthDateStr) => {
+  if (!birthDateStr) return null
+  const parts = birthDateStr.trim().split(/\s+/)
+  if (parts.length >= 2) {
+    const day = parseInt(parts[0], 10)
+    const monthKey = parts[1].toLowerCase().slice(0, 3)
+    if (!isNaN(day) && MONTH_MAP[monthKey] !== undefined) {
+      return { day, month: MONTH_MAP[monthKey], year: parts[2] ? parseInt(parts[2], 10) : null }
+    }
+  }
+  return null
+}
+
+export const getSortedBirthdays = (data) => {
+  const currentMonth = new Date().getMonth()
+
+  const parsedMembers = data.map(m => ({
+    member: m,
+    bInfo: parseMemberBirthInfo(m.birthDate)
+  }))
+
+  return parsedMembers.sort((a, b) => {
+    if (!a.bInfo && !b.bInfo) return 0
+    if (!a.bInfo) return 1
+    if (!b.bInfo) return -1
+
+    const distA = (a.bInfo.month - currentMonth + 12) % 12
+    const distB = (b.bInfo.month - currentMonth + 12) % 12
+
+    if (distA !== distB) return distA - distB
+    return a.bInfo.day - b.bInfo.day
+  })
+}
+
 export default function FamilyTreeCanvas({ 
   data = FAMILY_DATA_35, 
   rootId = 'f-201',
@@ -136,10 +178,33 @@ export default function FamilyTreeCanvas({
   const [isPhotoZoomed, setIsPhotoZoomed] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false)
+  const [isBirthdayDropdownOpen, setIsBirthdayDropdownOpen] = useState(false)
   const [collapsedNodeIds, setCollapsedNodeIds] = useState(new Set())
   const [maxDepthFilter, setMaxDepthFilter] = useState('all')
   const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false)
   const [showMobileHint, setShowMobileHint] = useState(false)
+
+  const sortedBirthdays = useMemo(() => getSortedBirthdays(data), [data])
+
+  const handleSelectBirthdayMember = (memberId) => {
+    setFocusedId(memberId)
+    setIsFocalMode(true)
+    openProfileDrawer(memberId)
+    setIsBirthdayDropdownOpen(false)
+  }
+
+  // Momentum Touch Kinetic Scrolling Refs
+  const lastPointerTimeRef = useRef(0)
+  const lastPointerPosRef = useRef({ x: 0, y: 0 })
+  const pointerVelRef = useRef({ vx: 0, vy: 0 })
+  const momentumAnimRef = useRef(null)
+
+  const stopMomentum = () => {
+    if (momentumAnimRef.current) {
+      cancelAnimationFrame(momentumAnimRef.current)
+      momentumAnimRef.current = null
+    }
+  }
 
   useEffect(() => {
     if (window.innerWidth < 640) {
@@ -948,21 +1013,61 @@ export default function FamilyTreeCanvas({
   // Canvas Mouse & Touch Dragging
   const handleMouseDown = (e) => {
     if (e.target.closest('.canvas-btn') || e.target.closest('.canvas-header-bar') || e.target.closest('.canvas-search-box') || e.target.tagName === 'INPUT') return
+    stopMomentum()
     setIsDragging(true)
     setDragStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y })
+    lastPointerTimeRef.current = performance.now()
+    lastPointerPosRef.current = { x: e.clientX, y: e.clientY }
+    pointerVelRef.current = { vx: 0, vy: 0 }
     if (document.activeElement && document.activeElement.tagName !== 'INPUT') document.activeElement.blur()
     setIsSearchDropdownOpen(false)
+    setIsBirthdayDropdownOpen(false)
     setIsActionsMenuOpen(false)
   }
 
   const handleMouseMove = (e) => {
     if (!isDragging) return
+    const now = performance.now()
+    const dt = (now - (lastPointerTimeRef.current || now)) / 1000
+    if (dt > 0.005) {
+      pointerVelRef.current = {
+        vx: (e.clientX - lastPointerPosRef.current.x) / dt,
+        vy: (e.clientY - lastPointerPosRef.current.y) / dt
+      }
+    }
+    lastPointerTimeRef.current = now
+    lastPointerPosRef.current = { x: e.clientX, y: e.clientY }
     setPanOffset({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y })
   }
 
-  const handleMouseUp = () => setIsDragging(false)
+  const handleMouseUp = () => {
+    setIsDragging(false)
+    triggerMomentum()
+  }
+
+  const triggerMomentum = () => {
+    const speed = Math.hypot(pointerVelRef.current.vx, pointerVelRef.current.vy)
+    if (speed > 120) {
+      let currentVx = pointerVelRef.current.vx * 0.25
+      let currentVy = pointerVelRef.current.vy * 0.25
+
+      const stepMomentum = () => {
+        currentVx *= 0.90
+        currentVy *= 0.90
+        if (Math.hypot(currentVx, currentVy) > 4) {
+          setPanOffset(prev => ({ x: prev.x + currentVx * 0.016, y: prev.y + currentVy * 0.016 }))
+          momentumAnimRef.current = requestAnimationFrame(stepMomentum)
+        } else {
+          stopMomentum()
+        }
+      }
+      stopMomentum()
+      momentumAnimRef.current = requestAnimationFrame(stepMomentum)
+    }
+  }
 
   const handleTouchStart = (e) => {
+    stopMomentum()
     if (e.touches.length === 2) {
       // Two-finger pinch-to-zoom gesture
       const dist = Math.hypot(
@@ -975,8 +1080,12 @@ export default function FamilyTreeCanvas({
       setIsDragging(true)
       const touch = e.touches[0]
       setDragStart({ x: touch.clientX - panOffset.x, y: touch.clientY - panOffset.y })
+      lastPointerTimeRef.current = performance.now()
+      lastPointerPosRef.current = { x: touch.clientX, y: touch.clientY }
+      pointerVelRef.current = { vx: 0, vy: 0 }
       if (document.activeElement && document.activeElement.tagName !== 'INPUT') document.activeElement.blur()
       setIsSearchDropdownOpen(false)
+      setIsBirthdayDropdownOpen(false)
       setIsActionsMenuOpen(false)
 
       // Double-Tap to Reset Camera Gesture
@@ -1004,6 +1113,16 @@ export default function FamilyTreeCanvas({
       }
     } else if (isDragging && e.touches.length === 1) {
       const touch = e.touches[0]
+      const now = performance.now()
+      const dt = (now - (lastPointerTimeRef.current || now)) / 1000
+      if (dt > 0.005) {
+        pointerVelRef.current = {
+          vx: (touch.clientX - lastPointerPosRef.current.x) / dt,
+          vy: (touch.clientY - lastPointerPosRef.current.y) / dt
+        }
+      }
+      lastPointerTimeRef.current = now
+      lastPointerPosRef.current = { x: touch.clientX, y: touch.clientY }
       setPanOffset({ x: touch.clientX - dragStart.x, y: touch.clientY - dragStart.y })
     }
   }
@@ -1011,6 +1130,7 @@ export default function FamilyTreeCanvas({
   const handleTouchEnd = () => {
     setIsDragging(false)
     setLastTouchDist(null)
+    triggerMomentum()
   }
 
   // Zoom Controls
@@ -1056,7 +1176,7 @@ export default function FamilyTreeCanvas({
     <div className={`family-canvas-wrapper ${isFullscreen ? 'is-fullscreen' : ''}`} ref={wrapperRef}>
       {/* 1. Top Enterprise Control Bar */}
       <div className="canvas-header-bar">
-        {/* Left Controls: Clean Search Pill (English Only) */}
+        {/* Left Controls: Clean Search Pill (English Only) + Birthdays Dropdown */}
         <div className="header-left-group">
           <div 
             className="canvas-search-box"
@@ -1100,7 +1220,7 @@ export default function FamilyTreeCanvas({
                   <div 
                     key={member.id} 
                     className="search-dropdown-item"
-                    onClick={() => { focusMemberAndIsolate(member.id); setIsSearchDropdownOpen(false); setSearchQuery(''); }}
+                    onClick={() => { openProfileDrawer(member.id); setIsSearchDropdownOpen(false); setSearchQuery(''); }}
                   >
                     <img src={member.photoUrl} alt={member.name_en} className="search-item-avatar" />
                     <div className="search-item-meta">
@@ -1110,6 +1230,47 @@ export default function FamilyTreeCanvas({
                     <span className="search-item-gen">Gen {member.generation}</span>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+
+          {/* Birthdays Dropdown (Current Month First) */}
+          <div className="canvas-header-dropdown-container">
+            <button 
+              className={`header-action-btn ${isBirthdayDropdownOpen ? 'menu-active' : ''}`}
+              onClick={() => setIsBirthdayDropdownOpen(prev => !prev)}
+              title="View Family Birthdays"
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+            >
+              🎂 {isHi ? 'जन्म दिवस' : 'Birthdays'} ▾
+            </button>
+            {isBirthdayDropdownOpen && (
+              <div className="canvas-birthday-menu">
+                <div className="birthday-menu-header">
+                  <span>🎉 {isHi ? 'जन्म दिवस सूची (वर्तमान माह प्रथम)' : 'Family Birthdays (Current Month First)'}</span>
+                </div>
+                <div className="birthday-menu-list">
+                  {sortedBirthdays.map(({ member, bInfo }) => {
+                    if (!bInfo) return null
+                    const isCurrentMonth = bInfo.month === new Date().getMonth()
+                    const monthName = isHi ? MONTH_NAMES_HI[bInfo.month] : MONTH_NAMES_EN[bInfo.month]
+                    return (
+                      <div 
+                        key={member.id} 
+                        className={`birthday-menu-item ${isCurrentMonth ? 'current-month-item' : ''}`}
+                        onClick={() => handleSelectBirthdayMember(member.id)}
+                      >
+                        <img src={member.photoUrl} alt="" className="birthday-item-avatar" />
+                        <div className="birthday-item-info">
+                          <span className="birthday-item-name">{isHi ? member.name_hi : member.name_en}</span>
+                          <span className="birthday-item-date">{bInfo.day} {monthName} {bInfo.year ? `(${bInfo.year})` : ''}</span>
+                        </div>
+                        {isCurrentMonth && <span className="birthday-month-pill">{isHi ? 'इस माह' : 'This Month'}</span>}
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
             )}
           </div>
@@ -1234,6 +1395,7 @@ export default function FamilyTreeCanvas({
         {/* Pinned Floating Zoom & Reset View Controls */}
         <div className="pinned-zoom-controls">
           <button className="pinned-zoom-btn" onClick={zoomIn} title="Zoom In" aria-label="Zoom In">+</button>
+          <span className="canvas-zoom-badge" title="Current Zoom Level">{Math.round(zoomLevel * 100)}%</span>
           <button className="pinned-zoom-btn" onClick={zoomOut} title="Zoom Out" aria-label="Zoom Out">-</button>
           <button className="pinned-zoom-btn reset-btn" onClick={resetCamera} title="Reset Focal Center" aria-label="Reset Camera Position">🎯</button>
           <button className="pinned-zoom-btn fullscreen-btn" onClick={toggleFullscreen} title={isFullscreen ? "Exit Fullscreen" : "Full Screen Mode"} aria-label="Toggle Fullscreen">
@@ -1337,6 +1499,12 @@ export default function FamilyTreeCanvas({
 
             const spouseDisplayName = p2 ? getSpouseDisplayName(p2, p1, isHi) : ''
 
+            const p1Birth = parseMemberBirthInfo(p1.birthDate)
+            const isP1BirthdayMonth = p1Birth && p1Birth.month === new Date().getMonth()
+
+            const p2Birth = p2 ? parseMemberBirthInfo(p2.birthDate) : null
+            const isP2BirthdayMonth = p2Birth && p2Birth.month === new Date().getMonth()
+
             return (
               <div 
                 key={container.id}
@@ -1351,7 +1519,7 @@ export default function FamilyTreeCanvas({
               >
                 {/* Primary Member Boxed Card */}
                 <div 
-                  className={`member-boxed-card ${isP1Selected ? 'card-selected' : ''} ${pressingCardId === p1.id ? 'card-pressing' : ''} ${p1LineageClass}`}
+                  className={`member-boxed-card ${isP1Selected ? 'card-selected' : ''} ${pressingCardId === p1.id ? 'card-pressing' : ''} ${p1LineageClass} ${isP1BirthdayMonth ? 'birthday-highlight-card' : ''}`}
                   onPointerDown={(e) => handlePointerDown(p1.id, e)}
                   onPointerMove={handlePointerMove}
                   onPointerUp={(e) => handlePointerUp(p1.id, e)}
@@ -1362,6 +1530,7 @@ export default function FamilyTreeCanvas({
                   <div className="boxed-photo-container">
                     <img src={p1.photoUrl} alt={p1.name_en} className="boxed-card-photo" />
                     {p1.isDeceased && <span className="deceased-lotus-badge" title="In Reverent Memory">🪷</span>}
+                    {isP1BirthdayMonth && !p1.isDeceased && <span className="birthday-crown-badge" title="Birthday Month! 🎂">🎂</span>}
                     <div className="card-name-badge-pill">
                       <h4 className="boxed-card-name" title={isHi ? p1.name_hi : p1.name_en}>
                         {isHi ? p1.name_hi : p1.name_en}
@@ -1377,7 +1546,7 @@ export default function FamilyTreeCanvas({
 
                     {/* Secondary Spouse Boxed Card */}
                     <div 
-                      className={`member-boxed-card ${isP2Selected ? 'card-selected' : ''} ${pressingCardId === p2.id ? 'card-pressing' : ''} ${p2LineageClass}`}
+                      className={`member-boxed-card ${isP2Selected ? 'card-selected' : ''} ${pressingCardId === p2.id ? 'card-pressing' : ''} ${p2LineageClass} ${isP2BirthdayMonth ? 'birthday-highlight-card' : ''}`}
                       onPointerDown={(e) => handlePointerDown(p2.id, e)}
                       onPointerMove={handlePointerMove}
                       onPointerUp={(e) => handlePointerUp(p2.id, e)}
@@ -1388,6 +1557,7 @@ export default function FamilyTreeCanvas({
                       <div className="boxed-photo-container">
                         <img src={p2.photoUrl} alt={p2.name_en} className="boxed-card-photo" />
                         {p2.isDeceased && <span className="deceased-lotus-badge" title="In Reverent Memory">🪷</span>}
+                        {isP2BirthdayMonth && !p2.isDeceased && <span className="birthday-crown-badge" title="Birthday Month! 🎂">🎂</span>}
                         <div className="card-name-badge-pill">
                           <h4 className="boxed-card-name" title={spouseDisplayName}>
                             {spouseDisplayName}
