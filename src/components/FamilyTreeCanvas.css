@@ -680,44 +680,8 @@
   border-bottom: 1.5px solid #E2D7C5;
   position: relative;
   z-index: 50;
+  padding-top: 14px;
   padding-bottom: 14px;
-}
-
-.family-drawer-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 20px 10px 20px;
-  background: #FAF8F5;
-  flex-shrink: 0;
-}
-
-.family-drawer-header h3 {
-  margin: 0;
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: var(--leona-terracotta, #B85C38);
-}
-
-.drawer-close-btn {
-  background: rgba(220, 53, 69, 0.12);
-  border: 1px solid rgba(220, 53, 69, 0.25);
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #DC3545;
-  cursor: pointer;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.drawer-close-btn:hover {
-  background: rgba(220, 53, 69, 0.25);
-  color: #C82333;
 }
 
 .family-drawer-body {
@@ -731,13 +695,13 @@
   min-height: 0;
 }
 
-/* Drawer Hero Photo Header (Top Half - Fixed in Pinned Area) */
+/* Drawer Hero Photo Header (Top Half - Fixed at top of Pinned Area) */
 .drawer-hero-photo-container {
   position: relative;
   width: calc(100% - 32px);
   margin: 0 16px;
-  height: 250px;
-  min-height: 250px;
+  height: 260px;
+  min-height: 260px;
   flex-shrink: 0;
   background: #141210;
   border-radius: 16px;
@@ -1125,6 +1089,18 @@
 .drawer-action-btn.btn-facebook:hover {
   background: #1464CC;
   border-color: #1464CC;
+}
+
+.drawer-action-btn.btn-close-panel {
+  background: rgba(220, 53, 69, 0.1);
+  color: #DC3545;
+  border: 1.5px solid rgba(220, 53, 69, 0.3);
+}
+
+.drawer-action-btn.btn-close-panel:hover {
+  background: #DC3545;
+  color: #FFFFFF;
+  border-color: #DC3545;
 }
 
 .drawer-action-btn.btn-focus-tree {

@@ -1604,17 +1604,11 @@ export default function FamilyTreeCanvas({
                 exit={{ y: '100%', opacity: 0 }}
                 transition={{ type: 'spring', damping: 26, stiffness: 240 }}
               >
-                {/* Top Pinned Area: Drag handle, Header, and Hero Photo stay fixed together */}
+                {/* Top Pinned Area: Drag handle & Hero Photo */}
                 <div className="family-drawer-top-pinned">
                   <div className="drawer-drag-handle" />
 
-                  {/* Header showing Person's Name */}
-                  <div className="family-drawer-header">
-                    <h3>{isHi ? selectedMember.name_hi : selectedMember.name_en}</h3>
-                    <button className="drawer-close-btn" onClick={closeProfileDrawer} aria-label="Close profile">✕</button>
-                  </div>
-
-                  {/* Hero Photo Header */}
+                  {/* Hero Photo Header (Sits directly at top) */}
                   <div 
                     className="drawer-hero-photo-container" 
                     onClick={() => setIsPhotoZoomed(true)} 
@@ -1656,7 +1650,7 @@ export default function FamilyTreeCanvas({
                     </div>
                   </div>
 
-                  {/* Quick Action Bar: Call, WhatsApp, Facebook & Focus Tree */}
+                  {/* Quick Action Bar: Call, WhatsApp, Facebook & Close */}
                   <div className="drawer-quick-actions">
                     {selectedMember.phone && (
                       <a href={`tel:${selectedMember.phone}`} className="drawer-action-btn btn-call">
@@ -1670,7 +1664,7 @@ export default function FamilyTreeCanvas({
                         rel="noopener noreferrer" 
                         className="drawer-action-btn btn-whatsapp"
                       >
-                        💬 WhatsApp
+                        💬 {isHi ? 'व्हाट्सएप' : 'WhatsApp'}
                       </a>
                     )}
                     {selectedMember.facebookUrl && (
@@ -1684,13 +1678,10 @@ export default function FamilyTreeCanvas({
                       </a>
                     )}
                     <button 
-                      className="drawer-action-btn btn-focus-tree"
-                      onClick={() => {
-                        closeProfileDrawer()
-                        focusMemberAndIsolate(selectedMember.id)
-                      }}
+                      className="drawer-action-btn btn-close-panel"
+                      onClick={closeProfileDrawer}
                     >
-                      🎯 {isHi ? 'वृक्ष में देखें' : 'View on Tree'}
+                      ❌ {isHi ? 'बंद करें' : 'Close'}
                     </button>
                   </div>
 
@@ -1713,16 +1704,9 @@ export default function FamilyTreeCanvas({
                     )}
                   </div>
 
-                  {selectedMember.bio && (
-                    <div className="drawer-bio-box">
-                      <strong>{isHi ? 'परिचय / भूमिका:' : 'Biography & Role:'}</strong>
-                      <p>{selectedMember.bio}</p>
-                    </div>
-                  )}
-
-                  {/* Direct Links / Interactive Pills to Relatives (Single Language) */}
+                  {/* Direct Links / Interactive Pills to Relatives */}
                   <div className="drawer-relatives-section">
-                    <h4>{isHi ? 'प्रत्यक्ष पारिवारिक संबंध (1-Click Explore):' : 'Direct Relatives (1-Click Explore):'}</h4>
+                    <h4>{isHi ? 'प्रत्यक्ष पारिवारिक संबंध:' : 'Direct Relatives:'}</h4>
                     
                     {/* Parents */}
                     {selectedMember.parentIds && selectedMember.parentIds.length > 0 && (
@@ -1741,6 +1725,31 @@ export default function FamilyTreeCanvas({
                         </div>
                       </div>
                     )}
+
+                    {/* Siblings */}
+                    {(() => {
+                      if (!selectedMember.parentIds || selectedMember.parentIds.length === 0) return null
+                      const parentSet = new Set(selectedMember.parentIds)
+                      const siblings = []
+                      memberMap.forEach((m) => {
+                        if (m.id !== selectedMember.id && m.parentIds && m.parentIds.some(pId => parentSet.has(pId))) {
+                          siblings.push(m)
+                        }
+                      })
+                      if (siblings.length === 0) return null
+                      return (
+                        <div className="relatives-group">
+                          <span className="group-label">👨‍👦‍👦 {isHi ? 'भाई-बहन (Siblings):' : 'Siblings:'}</span>
+                          <div className="relatives-pills">
+                            {siblings.map(sib => (
+                              <button key={sib.id} className="relative-pill" onClick={() => openProfileDrawer(sib.id)}>
+                                {isHi ? sib.name_hi : sib.name_en}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    })()}
 
                     {/* Spouses */}
                     {selectedMember.spouseIds && selectedMember.spouseIds.length > 0 && (
