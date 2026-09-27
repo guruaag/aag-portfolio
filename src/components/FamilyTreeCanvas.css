@@ -672,18 +672,24 @@
   overflow: hidden;
 }
 
+.family-drawer-top-pinned {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: #FAF8F5;
+  border-bottom: 1.5px solid #E2D7C5;
+  position: relative;
+  z-index: 50;
+  padding-bottom: 14px;
+}
+
 .family-drawer-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 20px;
-  border-bottom: 1.5px solid #E2D7C5;
+  padding: 14px 20px 10px 20px;
   background: #FAF8F5;
-  position: sticky;
-  top: 0;
-  z-index: 50;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .family-drawer-header h3 {
@@ -694,10 +700,11 @@
 }
 
 .drawer-close-btn {
-  background: rgba(0,0,0,0.06);
-  border: none;
+  background: rgba(220, 53, 69, 0.12);
+  border: 1px solid rgba(220, 53, 69, 0.25);
   font-size: 1.1rem;
-  color: #444;
+  font-weight: 700;
+  color: #DC3545;
   cursor: pointer;
   width: 32px;
   height: 32px;
@@ -705,11 +712,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .drawer-close-btn:hover {
-  background: rgba(0,0,0,0.12);
+  background: rgba(220, 53, 69, 0.25);
+  color: #C82333;
 }
 
 .family-drawer-body {
@@ -723,12 +731,13 @@
   min-height: 0;
 }
 
-/* Drawer Hero Photo Header (Top Half) */
+/* Drawer Hero Photo Header (Top Half - Fixed in Pinned Area) */
 .drawer-hero-photo-container {
   position: relative;
-  width: 100%;
-  height: 280px;
-  min-height: 280px;
+  width: calc(100% - 32px);
+  margin: 0 16px;
+  height: 250px;
+  min-height: 250px;
   flex-shrink: 0;
   background: #141210;
   border-radius: 16px;
@@ -1105,6 +1114,17 @@
 .drawer-action-btn.btn-whatsapp:hover {
   background: #1DA851;
   border-color: #1DA851;
+}
+
+.drawer-action-btn.btn-facebook {
+  background: #1877F2;
+  color: #FFFFFF;
+  border: 1.5px solid #1877F2;
+}
+
+.drawer-action-btn.btn-facebook:hover {
+  background: #1464CC;
+  border-color: #1464CC;
 }
 
 .drawer-action-btn.btn-focus-tree {

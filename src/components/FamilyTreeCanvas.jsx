@@ -1604,17 +1604,17 @@ export default function FamilyTreeCanvas({
                 exit={{ y: '100%', opacity: 0 }}
                 transition={{ type: 'spring', damping: 26, stiffness: 240 }}
               >
-                {/* Mobile Bottom Sheet Drag Handle */}
-                <div className="drawer-drag-handle" />
+                {/* Top Pinned Area: Drag handle, Header, and Hero Photo stay fixed together */}
+                <div className="family-drawer-top-pinned">
+                  <div className="drawer-drag-handle" />
 
-                {/* Header showing Person's Name */}
-                <div className="family-drawer-header">
-                  <h3>{isHi ? selectedMember.name_hi : selectedMember.name_en}</h3>
-                  <button className="drawer-close-btn" onClick={closeProfileDrawer} aria-label="Close profile">✕</button>
-                </div>
+                  {/* Header showing Person's Name */}
+                  <div className="family-drawer-header">
+                    <h3>{isHi ? selectedMember.name_hi : selectedMember.name_en}</h3>
+                    <button className="drawer-close-btn" onClick={closeProfileDrawer} aria-label="Close profile">✕</button>
+                  </div>
 
-                <div className="family-drawer-body">
-                  {/* Large Hero Photo Header (Top Half) with Tap to Zoom */}
+                  {/* Hero Photo Header */}
                   <div 
                     className="drawer-hero-photo-container" 
                     onClick={() => setIsPhotoZoomed(true)} 
@@ -1628,7 +1628,7 @@ export default function FamilyTreeCanvas({
                     />
                     <img 
                       src={selectedMember.photoUrl} 
-                      alt={selectedMember.name_en}
+                      alt={isHi ? selectedMember.name_hi : selectedMember.name_en}
                       className="drawer-hero-photo"
                       onError={(e) => {
                         e.target.onerror = null
@@ -1642,11 +1642,12 @@ export default function FamilyTreeCanvas({
                       </span>
                     )}
                   </div>
+                </div>
 
-                  {/* Name & Relation Meta */}
+                <div className="family-drawer-body">
+                  {/* Single Language Name & Relation Meta */}
                   <div className="drawer-member-name-block">
-                    <h2 className="drawer-main-name">{selectedMember.name_en}</h2>
-                    <h3 className="drawer-main-name-hi">{selectedMember.name_hi}</h3>
+                    <h2 className="drawer-main-name">{isHi ? selectedMember.name_hi : selectedMember.name_en}</h2>
                     <div className="drawer-badge-pills">
                       <span className="drawer-relation-badge">{isHi ? selectedMember.relation_hi : selectedMember.relation_en}</span>
                       <span className="drawer-gen-tag">
@@ -1655,22 +1656,32 @@ export default function FamilyTreeCanvas({
                     </div>
                   </div>
 
-                  {/* Direct Action Bar: Phone Call, WhatsApp, & Focus Tree */}
+                  {/* Quick Action Bar: Call, WhatsApp, Facebook & Focus Tree */}
                   <div className="drawer-quick-actions">
                     {selectedMember.phone && (
-                      <>
-                        <a href={`tel:${selectedMember.phone}`} className="drawer-action-btn btn-call">
-                          📞 {isHi ? 'कॉल करें' : 'Call Phone'}
-                        </a>
-                        <a 
-                          href={`https://wa.me/${selectedMember.phone.replace(/[^0-9]/g, '')}`} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="drawer-action-btn btn-whatsapp"
-                        >
-                          💬 WhatsApp
-                        </a>
-                      </>
+                      <a href={`tel:${selectedMember.phone}`} className="drawer-action-btn btn-call">
+                        📞 {isHi ? 'कॉल करें' : 'Call'}
+                      </a>
+                    )}
+                    {(selectedMember.whatsappPhone || selectedMember.phone) && (
+                      <a 
+                        href={`https://wa.me/${(selectedMember.whatsappPhone || selectedMember.phone).replace(/[^0-9]/g, '')}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="drawer-action-btn btn-whatsapp"
+                      >
+                        💬 WhatsApp
+                      </a>
+                    )}
+                    {selectedMember.facebookUrl && (
+                      <a 
+                        href={selectedMember.facebookUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="drawer-action-btn btn-facebook"
+                      >
+                        📘 Facebook
+                      </a>
                     )}
                     <button 
                       className="drawer-action-btn btn-focus-tree"
@@ -1700,14 +1711,6 @@ export default function FamilyTreeCanvas({
                         <span className="meta-value">{selectedMember.marriageAnniversaryDate}</span>
                       </div>
                     )}
-                    {selectedMember.phone && (
-                      <div className="meta-row">
-                        <span className="meta-label">📞 {isHi ? 'संपर्क नंबर:' : 'Phone:'}</span>
-                        <span className="meta-value">
-                          <a href={`tel:${selectedMember.phone}`} className="phone-link">{selectedMember.phone}</a>
-                        </span>
-                      </div>
-                    )}
                   </div>
 
                   {selectedMember.bio && (
@@ -1717,7 +1720,7 @@ export default function FamilyTreeCanvas({
                     </div>
                   )}
 
-                  {/* Direct Links / Interactive Pills to Relatives */}
+                  {/* Direct Links / Interactive Pills to Relatives (Single Language) */}
                   <div className="drawer-relatives-section">
                     <h4>{isHi ? 'प्रत्यक्ष पारिवारिक संबंध (1-Click Explore):' : 'Direct Relatives (1-Click Explore):'}</h4>
                     
@@ -1731,7 +1734,7 @@ export default function FamilyTreeCanvas({
                             if (!p) return null
                             return (
                               <button key={pId} className="relative-pill" onClick={() => openProfileDrawer(pId)}>
-                                {p.name_en} ({p.name_hi})
+                                {isHi ? p.name_hi : p.name_en}
                               </button>
                             )
                           })}
@@ -1749,7 +1752,7 @@ export default function FamilyTreeCanvas({
                             if (!s) return null
                             return (
                               <button key={sId} className="relative-pill" onClick={() => openProfileDrawer(sId)}>
-                                {s.name_en} ({s.name_hi})
+                                {isHi ? s.name_hi : s.name_en}
                               </button>
                             )
                           })}
@@ -1767,7 +1770,7 @@ export default function FamilyTreeCanvas({
                             if (!c) return null
                             return (
                               <button key={cId} className="relative-pill" onClick={() => openProfileDrawer(cId)}>
-                                {c.name_en} ({c.name_hi})
+                                {isHi ? c.name_hi : c.name_en}
                               </button>
                             )
                           })}
