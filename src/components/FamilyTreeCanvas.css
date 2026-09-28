@@ -2569,7 +2569,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
-  align-items: center;
+  align-items: center !important;
   flex: 1;
 }
 
@@ -2587,10 +2587,28 @@
   color: #B85C38;
   border: 1px solid rgba(184, 92, 56, 0.25);
   border-radius: 8px;
-  padding: 1px 7px;
-  font-size: 0.75rem;
+  padding: 2px 8px !important;
+  min-height: unset !important;
+  height: 24px !important;
+  line-height: 1.2 !important;
+  font-size: 13px !important;
   font-weight: 700;
-  line-height: 1.2;
+  box-sizing: border-box !important;
+}
+
+/* Reduced badge height override in Section 4 */
+.relationship-stacked-row .selected-badge,
+.relationship-stacked-row .chip-item,
+.relationship-stacked-row .picker-chip-tag,
+.relationship-stacked-row .selected-chip {
+  padding: 2px 8px !important;
+  min-height: unset !important;
+  height: 24px !important;
+  line-height: 1.2 !important;
+  font-size: 13px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
 }
 
 .chip-remove-btn {
@@ -2629,7 +2647,7 @@
 .relationship-stacked-row {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: center !important;
   gap: 12px;
   width: 100%;
 }
@@ -2642,6 +2660,7 @@
 
 .relationship-stacked-row .picker-trigger-box {
   flex: 1;
+  align-items: center !important;
 }
 
 .picker-popup-menu {
