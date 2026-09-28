@@ -2740,3 +2740,105 @@
   font-size: 0.68rem;
   color: #777;
 }
+
+/* Add City Modal Styles */
+.add-city-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.add-city-modal-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 440px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  border: 1px solid rgba(217, 119, 6, 0.2);
+}
+
+.add-city-modal-header {
+  padding: 1.125rem 1.5rem;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border-bottom: 1px solid #fde68a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.add-city-modal-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #92400e;
+}
+
+.add-city-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.25rem;
+  color: #92400e;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+}
+
+.add-city-close-btn:hover {
+  background: rgba(146, 64, 14, 0.1);
+}
+
+.add-city-modal-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+}
+
+.add-city-modal-footer {
+  padding: 1rem 1.5rem;
+  background: #fdfbf7;
+  border-top: 1px solid #f3ebd9;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.city-select-wrapper {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.city-select-wrapper select {
+  flex: 1;
+}
+
+.add-city-btn-inline {
+  white-space: nowrap;
+  padding: 0.6rem 0.85rem;
+  background: #fffbeb;
+  border: 1px dashed #d97706;
+  color: #b45309;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-city-btn-inline:hover {
+  background: #fef3c7;
+  border-style: solid;
+  color: #92400e;
+}
+

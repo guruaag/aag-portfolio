@@ -912,6 +912,18 @@ export default function FamilyTreeCanvas({
   const [tableSearchQuery, setTableSearchQuery] = useState('')
   const [drawerLangTab, setDrawerLangTab] = useState('en')
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false)
+  const [citiesList, setCitiesList] = useState(INITIAL_CITIES)
+  const [isAddCityModalOpen, setIsAddCityModalOpen] = useState(false)
+
+  const handleSaveNewCity = (newCityObj) => {
+    setCitiesList(prev => [...prev, newCityObj])
+    const cityLabel = `${newCityObj.name_en}, ${newCityObj.state_en}`
+    setEditingMember(prev => ({
+      ...prev,
+      city: cityLabel
+    }))
+    setIsAddCityModalOpen(false)
+  }
 
   const extractTenDigits = (val) => {
     if (!val) return ''
@@ -2949,6 +2961,20 @@ export default function FamilyTreeCanvas({
                       </div>
                     </div>
 
+                    {/* Row 3: City / Location Searchable Dropdown */}
+                    <div className="admin-field-row" style={{ gridColumn: 'span 2' }}>
+                      <label className="field-label">{isHi ? 'शहर / निवास स्थान' : 'City / Location'}</label>
+                      <div className="field-input-wrapper">
+                        <SearchableCityPicker
+                          value={editingMember.city || ''}
+                          onChange={(cityVal) => setEditingMember(prev => ({ ...prev, city: cityVal }))}
+                          citiesList={citiesList}
+                          onAddNewCity={() => setIsAddCityModalOpen(true)}
+                          isHi={isHi}
+                        />
+                      </div>
+                    </div>
+
                   </div>
                 </div>
 
@@ -3270,6 +3296,13 @@ export default function FamilyTreeCanvas({
         </AnimatePresence>,
         wrapperRef.current || document.body
       )}
+
+      <AddCityModal
+        isOpen={isAddCityModalOpen}
+        onClose={() => setIsAddCityModalOpen(false)}
+        onSave={handleSaveNewCity}
+        isHi={isHi}
+      />
     </div>
   )
 }
