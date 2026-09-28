@@ -2798,7 +2798,7 @@ export default function FamilyTreeCanvas({
                   
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                     <CompactInlineMemberPicker 
-                      label={isHi ? 'माता-पिता चुनें (अधिकतम 2)' : 'Select Parents (Max 2)'}
+                      label={isHi ? 'माता-पिता चुनें' : 'Select Parents'}
                       membersList={membersList}
                       selectedIds={editingMember.parentIds || []}
                       onChange={(ids) => {
@@ -2813,7 +2813,6 @@ export default function FamilyTreeCanvas({
                       }}
                       currentMemberId={editingMember.id}
                       excludedIds={[...(editingMember.childrenIds || []), ...(editingMember.spouseIds || [])]}
-                      maxSelect={2}
                       isHi={isHi}
                     />
 
