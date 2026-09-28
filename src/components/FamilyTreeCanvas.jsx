@@ -460,9 +460,6 @@ function CompactInlineMemberPicker({
                       <span className="item-name" style={{ fontSize: '0.82rem', fontWeight: 700, color: '#333' }}>
                         {isHi ? (m.name_hi || m.name_en) : (m.name_en || m.name_hi)}
                       </span>
-                      <span className="item-sub" style={{ fontSize: '0.72rem', color: '#777' }}>
-                        Gen {m.generation} • {isHi ? (m.relation_hi || m.relation_en) : (m.relation_en || m.relation_hi)}
-                      </span>
                     </div>
                   </div>
                 )
@@ -1706,8 +1703,6 @@ export default function FamilyTreeCanvas({
               <tr>
                 <th>{isHi ? 'फोटो' : 'Photo'}</th>
                 <th>{isHi ? 'नाम' : 'Name'}</th>
-                <th>{isHi ? 'संबंध' : 'Relation'}</th>
-                <th>{isHi ? 'पीढ़ी' : 'Gen'}</th>
                 <th>{isHi ? 'संपर्क' : 'Contact'}</th>
                 <th>{isHi ? 'कार्रवाई' : 'Actions'}</th>
               </tr>
@@ -1725,8 +1720,6 @@ export default function FamilyTreeCanvas({
                       <br />
                       <small className="sub-name">{isHi ? m.name_en : m.name_hi}</small>
                     </td>
-                    <td>{isHi ? m.relation_hi : m.relation_en}</td>
-                    <td><span className="gen-pill">Gen {m.generation}</span></td>
                     <td>{m.phone || 'N/A'}</td>
                     <td>
                       <button 
@@ -1801,9 +1794,7 @@ export default function FamilyTreeCanvas({
                     <img src={member.photoUrl} alt={member.name_en} className="search-item-avatar" />
                     <div className="search-item-meta">
                       <span className="search-item-name">{member.name_en}</span>
-                      <span className="search-item-relation">{member.relation_en}</span>
                     </div>
-                    <span className="search-item-gen">Gen {member.generation}</span>
                   </div>
                 ))}
               </div>
@@ -2244,15 +2235,9 @@ export default function FamilyTreeCanvas({
                 </div>
 
                 <div className="family-drawer-body">
-                  {/* Single Language Name & Relation Meta */}
+                  {/* Single Language Name */}
                   <div className="drawer-member-name-block">
                     <h2 className="drawer-main-name">{isHi ? selectedMember.name_hi : selectedMember.name_en}</h2>
-                    <div className="drawer-badge-pills">
-                      <span className="drawer-relation-badge">{isHi ? selectedMember.relation_hi : selectedMember.relation_en}</span>
-                      <span className="drawer-gen-tag">
-                        {isHi ? `पीढ़ी ${selectedMember.generation}` : `Generation ${selectedMember.generation}`}
-                      </span>
-                    </div>
                   </div>
 
                   {/* Quick Action Bar: Call, WhatsApp, Facebook & Close */}
@@ -2546,34 +2531,6 @@ export default function FamilyTreeCanvas({
                       </div>
                     </div>
 
-                    {/* Row 3: Relation & Generation Level */}
-                    <div className="admin-field-row">
-                      <label className="field-label">{isHi ? 'संबंध' : 'Relation'}</label>
-                      <div className="field-input-wrapper">
-                        <input 
-                          type="text" 
-                          className="admin-input" 
-                          value={editingMember.relation_hi || editingMember.relation_en || ''} 
-                          onKeyDown={(e) => handleHindiKeyDown(e, editingMember.relation_hi, (val) => setEditingMember({ ...editingMember, relation_hi: val }))}
-                          onPaste={(e) => handleKrutiDevPaste(e, editingMember.relation_hi, (val) => setEditingMember({ ...editingMember, relation_hi: val }))}
-                          onChange={(e) => setEditingMember({ ...editingMember, relation_hi: e.target.value, relation_en: e.target.value })}
-                          placeholder={isHi ? 'उदा. दादीजी' : 'e.g. Grandmother'}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="admin-field-row">
-                      <label className="field-label">{isHi ? 'पीढ़ी स्तर' : 'Generation Level'}</label>
-                      <div className="field-input-wrapper">
-                        <input 
-                          type="number" 
-                          min="1" max="10"
-                          className="admin-input" 
-                          value={editingMember.generation || 1} 
-                          onChange={(e) => setEditingMember({ ...editingMember, generation: parseInt(e.target.value, 10) || 1 })}
-                        />
-                      </div>
-                    </div>
                   </div>
                 </div>
 
