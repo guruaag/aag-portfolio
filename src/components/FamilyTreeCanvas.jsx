@@ -332,9 +332,9 @@ function CompactInlineMemberPicker({
   }, [membersList, selectedIds])
 
   const availableMembers = useMemo(() => {
-    const excludeSet = new Set([currentMemberId, ...(excludedIds || [])].filter(Boolean))
+    const excludeSet = new Set([currentMemberId, ...(selectedIds || []), ...(excludedIds || [])].filter(Boolean))
     return membersList.filter(m => !excludeSet.has(m.id))
-  }, [membersList, currentMemberId, excludedIds])
+  }, [membersList, currentMemberId, selectedIds, excludedIds])
 
   const filteredMembers = useMemo(() => {
     if (!filterText.trim()) return availableMembers
@@ -347,25 +347,11 @@ function CompactInlineMemberPicker({
     )
   }, [availableMembers, filterText])
 
-  const sortedFilteredMembers = useMemo(() => {
-    return [...filteredMembers].sort((a, b) => {
-      const aSel = selectedIds.includes(a.id)
-      const bSel = selectedIds.includes(b.id)
-      if (aSel && !bSel) return -1
-      if (!aSel && bSel) return 1
-      return 0
-    })
-  }, [filteredMembers, selectedIds])
-
-  const toggleSelect = (id) => {
-    if (selectedIds.includes(id)) {
-      onChange(selectedIds.filter(x => x !== id))
-    } else {
-      if (maxSelect && selectedIds.length >= maxSelect) {
-        return
-      }
-      onChange([...selectedIds, id])
+  const selectMember = (id) => {
+    if (maxSelect && selectedIds.length >= maxSelect) {
+      return
     }
+    onChange([...selectedIds, id])
   }
 
   const removeChip = (e, id) => {
@@ -438,19 +424,23 @@ function CompactInlineMemberPicker({
           </div>
 
           <div className="picker-popup-list" style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            {sortedFilteredMembers.length === 0 ? (
+            {filteredMembers.length === 0 ? (
               <div className="picker-no-results" style={{ padding: '12px', textAlign: 'center', color: '#888', fontSize: '0.8rem' }}>
                 {isHi ? 'कोई परिणाम नहीं मिला' : 'No results found'}
               </div>
             ) : (
-              sortedFilteredMembers.map(m => {
-                const isSelected = selectedIds.includes(m.id)
-                const isLimitReached = maxSelect && selectedIds.length >= maxSelect && !isSelected
+              filteredMembers.map(m => {
+                const isLimitReached = maxSelect && selectedIds.length >= maxSelect
                 return (
-                  <label 
+                  <div 
                     key={m.id} 
-                    className={`picker-popup-item ${isSelected ? 'selected' : ''} ${isLimitReached ? 'disabled-limit' : ''}`}
+                    className={`picker-popup-item ${isLimitReached ? 'disabled-limit' : ''}`}
                     title={isLimitReached ? (isHi ? `अधिकतम ${maxSelect} की अनुमति है` : `Maximum ${maxSelect} allowed`) : ''}
+                    onClick={() => {
+                      if (!isLimitReached) {
+                        selectMember(m.id)
+                      }
+                    }}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -458,17 +448,9 @@ function CompactInlineMemberPicker({
                       padding: '6px 8px',
                       borderRadius: '6px',
                       cursor: isLimitReached ? 'not-allowed' : 'pointer',
-                      opacity: isLimitReached ? 0.45 : 1,
-                      background: isSelected ? 'rgba(184, 92, 56, 0.08)' : 'transparent'
+                      opacity: isLimitReached ? 0.45 : 1
                     }}
                   >
-                    <input 
-                      type="checkbox"
-                      checked={isSelected}
-                      disabled={isLimitReached}
-                      onChange={() => toggleSelect(m.id)}
-                      style={{ cursor: isLimitReached ? 'not-allowed' : 'pointer' }}
-                    />
                     <img 
                       src={m.photoUrl || 'https://ui-avatars.com/api/?name=Member'} 
                       alt="" 
@@ -476,13 +458,13 @@ function CompactInlineMemberPicker({
                     />
                     <div className="picker-item-details" style={{ display: 'flex', flexDirection: 'column' }}>
                       <span className="item-name" style={{ fontSize: '0.82rem', fontWeight: 700, color: '#333' }}>
-                        {isSelected ? '✓ ' : ''}{isHi ? (m.name_hi || m.name_en) : (m.name_en || m.name_hi)}
+                        {isHi ? (m.name_hi || m.name_en) : (m.name_en || m.name_hi)}
                       </span>
                       <span className="item-sub" style={{ fontSize: '0.72rem', color: '#777' }}>
                         Gen {m.generation} • {isHi ? (m.relation_hi || m.relation_en) : (m.relation_en || m.relation_hi)}
                       </span>
                     </div>
-                  </label>
+                  </div>
                 )
               })
             )}
