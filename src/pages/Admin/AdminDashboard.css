@@ -165,6 +165,22 @@
   height: 100vh;
   padding: 0;
   margin: 0;
+  box-sizing: border-box;
+}
+
+.admin-main-canvas.is-family-mode .admin-sticky-header {
+  flex-shrink: 0;
+}
+
+.admin-main-canvas.is-family-mode .admin-dashboard-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  padding: 24px !important;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .admin-dashboard-container {

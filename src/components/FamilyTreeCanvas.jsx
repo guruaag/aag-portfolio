@@ -2273,18 +2273,11 @@ export default function FamilyTreeCanvas({
           </div>
         </div>
 
-        {/* Right Controls: Stats, Add Member, View Mode & Options */}
+        {/* Right Controls: Stats, View Mode & Options */}
         <div className="header-right-group">
           {isAdmin && (
             <>
               <span className="header-stats-pill">🌳 {isHi ? `कुल सदस्य: ${membersList.length}` : `Total Members: ${membersList.length}`}</span>
-              <button 
-                type="button"
-                className="header-btn-add-member"
-                onClick={() => handleAddNewMember()}
-              >
-                + {isHi ? 'नया सदस्य' : 'Add New Member'}
-              </button>
               <div className="view-mode-toggle">
                 <button 
                   type="button"
@@ -2630,9 +2623,17 @@ export default function FamilyTreeCanvas({
                 exit={{ y: '100%', opacity: 0 }}
                 transition={{ type: 'spring', damping: 26, stiffness: 240 }}
               >
-                {/* Top Pinned Area: Drag handle & Hero Photo */}
+                {/* Top Pinned Area: Drag handle, Pinned Close Button & Hero Photo */}
                 <div className="family-drawer-top-pinned">
                   <div className="drawer-drag-handle" />
+                  <button 
+                    className="drawer-close-btn drawer-pinned-close-btn" 
+                    type="button" 
+                    onClick={closeProfileDrawer}
+                    aria-label="Close drawer"
+                  >
+                    ✕
+                  </button>
 
                   {/* Hero Photo Header (Sits directly at top) */}
                   <div 
