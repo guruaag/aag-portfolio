@@ -21,65 +21,78 @@ function handleKrutiDevPaste(e, currentValue, onUpdate) {
   }
 }
 
+export const INITIAL_CITIES = [
+  { id: 'c-1', name_en: 'Jaipur', name_hi: 'जयपुर', state_en: 'Rajasthan', state_hi: 'राजस्थान', country_en: 'India', country_hi: 'भारत' },
+  { id: 'c-2', name_en: 'Bengaluru', name_hi: 'बेंगलुरु', state_en: 'Karnataka', state_hi: 'कर्नाटक', country_en: 'India', country_hi: 'भारत' },
+  { id: 'c-3', name_en: 'New Delhi', name_hi: 'नई दिल्ली', state_en: 'Delhi', state_hi: 'दिल्ली', country_en: 'India', country_hi: 'भारत' },
+  { id: 'c-4', name_en: 'Mumbai', name_hi: 'मुंबई', state_en: 'Maharashtra', state_hi: 'महाराष्ट्र', country_en: 'India', country_hi: 'भारत' },
+  { id: 'c-5', name_en: 'Udaipur', name_hi: 'उदयपुर', state_en: 'Rajasthan', state_hi: 'राजस्थान', country_en: 'India', country_hi: 'भारत' },
+  { id: 'c-6', name_en: 'Jodhpur', name_hi: 'जोधपुर', state_en: 'Rajasthan', state_hi: 'राजस्थान', country_en: 'India', country_hi: 'भारत' },
+  { id: 'c-7', name_en: 'Kota', name_hi: 'कोटा', state_en: 'Rajasthan', state_hi: 'राजस्थान', country_en: 'India', country_hi: 'भारत' },
+  { id: 'c-8', name_en: 'Pune', name_hi: 'पुणे', state_en: 'Maharashtra', state_hi: 'महाराष्ट्र', country_en: 'India', country_hi: 'भारत' },
+  { id: 'c-9', name_en: 'Ahmedabad', name_hi: 'अहमदाबाद', state_en: 'Gujarat', state_hi: 'गुजरात', country_en: 'India', country_hi: 'भारत' },
+  { id: 'c-10', name_en: 'Kolkata', name_hi: 'कोलकाता', state_en: 'West Bengal', state_hi: 'पश्चिम बंगाल', country_en: 'India', country_hi: 'भारत' }
+]
+
 export const FAMILY_DATA_35 = [
   // Generation 1: Paternal Grandparents (Patriarch & Matriarch)
-  { id: 'f-101', name_hi: 'श्री भद्रसेन शर्मा', name_en: 'Shri Bhadrasen Sharma', relation_hi: 'दादाजी', relation_en: 'Grandfather', generation: 1, gender: 'male', isDeceased: true, birthDate: '10 Aug 1920', deathDate: '15 May 2000', phone: '+91 98290 11001', photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-102'], childrenIds: ['f-201', 'f-203', 'f-205', 'f-207', 'f-209'], bio: 'वंश परंपरा के मूल प्रपितामह एवं परिवार के पूज्य पुरोधा।' },
-  { id: 'f-102', name_hi: 'श्रीमती कौशल्या शर्मा', name_en: 'Smt. Kaushalya Sharma', relation_hi: 'दादीजी', relation_en: 'Grandmother', generation: 1, gender: 'female', isDeceased: true, birthDate: '12 Oct 1925', deathDate: '20 Nov 2005', phone: '+91 98290 11002', photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-101'], childrenIds: ['f-201', 'f-203', 'f-205', 'f-207', 'f-209'], bio: 'परिवार की मूल संस्थापिका एवं स्नेहमयी दादीजी।' },
+  { id: 'f-101', name_hi: 'श्री भद्रसेन शर्मा', name_en: 'Shri Bhadrasen Sharma', relation_hi: 'दादाजी', relation_en: 'Grandfather', generation: 1, gender: 'male', isDeceased: true, birthDate: '10 Aug 1920', deathDate: '15 May 2000', phone: '+91 98290 11001', city: 'Jaipur', photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-102'], childrenIds: ['f-201', 'f-203', 'f-205', 'f-207', 'f-209'], bio: 'वंश परंपरा के मूल प्रपितामह एवं परिवार के पूज्य पुरोधा।' },
+  { id: 'f-102', name_hi: 'श्रीमती कौशल्या शर्मा', name_en: 'Smt. Kaushalya Sharma', relation_hi: 'दादीजी', relation_en: 'Grandmother', generation: 1, gender: 'female', isDeceased: true, birthDate: '12 Oct 1925', deathDate: '20 Nov 2005', phone: '+91 98290 11002', city: 'Jaipur', photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-101'], childrenIds: ['f-201', 'f-203', 'f-205', 'f-207', 'f-209'], bio: 'परिवार की मूल संस्थापिका एवं स्नेहमयी दादीजी।' },
 
   // Generation 1: Maternal Grandparents
-  { id: 'm-101', name_hi: 'श्री बंसीलाल शर्मा', name_en: 'Shri Bansilal Sharma', relation_hi: 'नानाजी', relation_en: 'Maternal Grandfather', generation: 1, gender: 'male', isDeceased: true, birthDate: '05 Jan 1922', deathDate: '18 Apr 1999', phone: '+91 98290 11003', photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['m-102'], childrenIds: ['m-201', 'f-202', 'm-205', 'm-207', 'm-209', 'm-211', 'm-213', 'm-215', 'm-217'], bio: 'नानक वंश के पूज्य संस्थापक एवं वरिष्ठ मार्गदर्शक।' },
-  { id: 'm-102', name_hi: 'श्रीमती कमला शर्मा', name_en: 'Smt. Kamla Sharma', relation_hi: 'नानीजी', relation_en: 'Maternal Grandmother', generation: 1, gender: 'female', isDeceased: true, birthDate: '18 Mar 1928', deathDate: '10 Dec 2008', phone: '+91 98290 11004', photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['m-101'], childrenIds: ['m-201', 'f-202', 'm-205', 'm-207', 'm-209', 'm-211', 'm-213', 'm-215', 'm-217'], bio: 'ननिहाल परिवार की स्नेहमयी नानीजी।' },
+  { id: 'm-101', name_hi: 'श्री बंसीलाल शर्मा', name_en: 'Shri Bansilal Sharma', relation_hi: 'नानाजी', relation_en: 'Maternal Grandfather', generation: 1, gender: 'male', isDeceased: true, birthDate: '05 Jan 1922', deathDate: '18 Apr 1999', phone: '+91 98290 11003', city: 'Jodhpur', photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['m-102'], childrenIds: ['m-201', 'f-202', 'm-205', 'm-207', 'm-209', 'm-211', 'm-213', 'm-215', 'm-217'], bio: 'नानक वंश के पूज्य संस्थापक एवं वरिष्ठ मार्गदर्शक।' },
+  { id: 'm-102', name_hi: 'श्रीमती कमला शर्मा', name_en: 'Smt. Kamla Sharma', relation_hi: 'नानीजी', relation_en: 'Maternal Grandmother', generation: 1, gender: 'female', isDeceased: true, birthDate: '18 Mar 1928', deathDate: '10 Dec 2008', phone: '+91 98290 11004', city: 'Jodhpur', photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['m-101'], childrenIds: ['m-201', 'f-202', 'm-205', 'm-207', 'm-209', 'm-211', 'm-213', 'm-215', 'm-217'], bio: 'ननिहाल परिवार की स्नेहमयी नानीजी।' },
 
   // Generation 2: Paternal Children (Bhadrasen + Kaushalya)
-  { id: 'f-201', name_hi: 'कवि गुरुप्रताप शर्मा "आग"', name_en: 'Kavi Gurupratap Sharma "Aag"', relation_hi: 'मुख्य साहित्यकार', relation_en: 'Poet / Father', generation: 2, gender: 'male', isDeceased: false, birthDate: '26 Jan 1945', phone: '+91 98290 55432', photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80', parentIds: ['f-101', 'f-102'], spouseIds: ['f-202'], childrenIds: ['f-301', 'f-303', 'f-305'], bio: 'हिंदी काव्य जगत के तेजस्वी हस्ताक्षर एवं वरिष्ठ साहित्यकार।' },
-  { id: 'f-202', name_hi: 'श्रीमती अनिता शर्मा', name_en: 'Smt. Anita Sharma', relation_hi: 'माताश्री', relation_en: 'Mother', generation: 2, gender: 'female', isDeceased: false, birthDate: '14 Mar 1950', phone: '+91 98290 55433', photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80', parentIds: ['m-101', 'm-102'], spouseIds: ['f-201'], childrenIds: ['f-301', 'f-303', 'f-305'], bio: 'साहित्य साधना की प्रेरणास्रोत एवं गृह स्वामिनी।' },
+  { id: 'f-201', name_hi: 'कवि गुरुप्रताप शर्मा "आग"', name_en: 'Kavi Gurupratap Sharma "Aag"', relation_hi: 'मुख्य साहित्यकार', relation_en: 'Poet / Father', generation: 2, gender: 'male', isDeceased: false, birthDate: '26 Jan 1945', phone: '+91 98290 55432', city: 'Jaipur', photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80', parentIds: ['f-101', 'f-102'], spouseIds: ['f-202'], childrenIds: ['f-301', 'f-303', 'f-305'], bio: 'हिंदी काव्य जगत के तेजस्वी हस्ताक्षर एवं वरिष्ठ साहित्यकार।' },
+  { id: 'f-202', name_hi: 'श्रीमती अनिता शर्मा', name_en: 'Smt. Anita Sharma', relation_hi: 'माताश्री', relation_en: 'Mother', generation: 2, gender: 'female', isDeceased: false, birthDate: '14 Mar 1950', phone: '+91 98290 55433', city: 'Jaipur', photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80', parentIds: ['m-101', 'm-102'], spouseIds: ['f-201'], childrenIds: ['f-301', 'f-303', 'f-305'], bio: 'साहित्य साधना की प्रेरणास्रोत एवं गृह स्वामिनी।' },
 
-  { id: 'f-203', name_hi: 'श्री चमन शर्मा', name_en: 'Shri Chaman Sharma', relation_hi: 'चाचाजी', relation_en: 'Uncle', generation: 2, gender: 'male', isDeceased: false, birthDate: '15 Aug 1948', phone: '+91 94140 12345', photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80', parentIds: ['f-101', 'f-102'], spouseIds: ['f-204'], childrenIds: ['f-307', 'f-308'], bio: 'परिवार के सम्मानित सदस्य एवं व्यवसायी।' },
-  { id: 'f-204', name_hi: 'श्रीमती चमन शर्मा', name_en: 'Smt. Chaman Sharma', relation_hi: 'चाचीजी', relation_en: 'Aunt', generation: 2, gender: 'female', isDeceased: false, birthDate: '20 Nov 1952', phone: '+91 94140 12346', photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-203'], childrenIds: ['f-307', 'f-308'], bio: 'गृहिणी।' },
+  { id: 'f-203', name_hi: 'श्री चमन शर्मा', name_en: 'Shri Chaman Sharma', relation_hi: 'चाचाजी', relation_en: 'Uncle', generation: 2, gender: 'male', isDeceased: false, birthDate: '15 Aug 1948', phone: '+91 94140 12345', city: 'Udaipur', photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80', parentIds: ['f-101', 'f-102'], spouseIds: ['f-204'], childrenIds: ['f-307', 'f-308'], bio: 'परिवार के सम्मानित सदस्य एवं व्यवसायी।' },
+  { id: 'f-204', name_hi: 'श्रीमती चमन शर्मा', name_en: 'Smt. Chaman Sharma', relation_hi: 'चाचीजी', relation_en: 'Aunt', generation: 2, gender: 'female', isDeceased: false, birthDate: '20 Nov 1952', phone: '+91 94140 12346', city: 'Udaipur', photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-203'], childrenIds: ['f-307', 'f-308'], bio: 'गृहिणी।' },
 
-  { id: 'f-205', name_hi: 'श्री सत्यप्रकाश शर्मा', name_en: 'Shri Satyaprakash Sharma', relation_hi: 'चाचाजी', relation_en: 'Uncle', generation: 2, gender: 'male', isDeceased: false, birthDate: '10 Feb 1951', phone: '+91 94140 22334', photoUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=300&q=80', parentIds: ['f-101', 'f-102'], spouseIds: ['f-206'], childrenIds: ['f-309', 'f-310'], bio: 'शिक्षाविद एवं समाजसेवी।' },
-  { id: 'f-206', name_hi: 'श्रीमती सत्यप्रकाश शर्मा', name_en: 'Smt. Satyaprakash Sharma', relation_hi: 'चाचीजी', relation_en: 'Aunt', generation: 2, gender: 'female', isDeceased: false, birthDate: '05 May 1955', phone: '+91 94140 22335', photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-205'], childrenIds: ['f-309', 'f-310'], bio: 'गृहिणी।' },
+  { id: 'f-205', name_hi: 'श्री सत्यप्रकाश शर्मा', name_en: 'Shri Satyaprakash Sharma', relation_hi: 'चाचाजी', relation_en: 'Uncle', generation: 2, gender: 'male', isDeceased: false, birthDate: '10 Feb 1951', phone: '+91 94140 22334', city: 'Kota', photoUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=300&q=80', parentIds: ['f-101', 'f-102'], spouseIds: ['f-206'], childrenIds: ['f-309', 'f-310'], bio: 'शिक्षाविद एवं समाजसेवी।' },
+  { id: 'f-206', name_hi: 'श्रीमती सत्यप्रकाश शर्मा', name_en: 'Smt. Satyaprakash Sharma', relation_hi: 'चाचीजी', relation_en: 'Aunt', generation: 2, gender: 'female', isDeceased: false, birthDate: '05 May 1955', phone: '+91 94140 22335', city: 'Kota', photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-205'], childrenIds: ['f-309', 'f-310'], bio: 'गृहिणी।' },
 
-  { id: 'f-207', name_hi: 'श्री राजेन्द्र शर्मा', name_en: 'Shri Rajendra Sharma', relation_hi: 'चाचाजी', relation_en: 'Uncle', generation: 2, gender: 'male', isDeceased: false, birthDate: '14 Dec 1954', phone: '+91 94140 33445', photoUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&q=80', parentIds: ['f-101', 'f-102'], spouseIds: ['f-208'], childrenIds: ['f-311', 'f-312'], bio: 'वरिष्ठ अधिकारी।' },
-  { id: 'f-208', name_hi: 'श्रीमती राजेन्द्र शर्मा', name_en: 'Smt. Rajendra Sharma', relation_hi: 'चाचीजी', relation_en: 'Aunt', generation: 2, gender: 'female', isDeceased: false, birthDate: '22 Aug 1958', phone: '+91 94140 33446', photoUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-207'], childrenIds: ['f-311', 'f-312'], bio: 'गृहिणी।' },
+  { id: 'f-207', name_hi: 'श्री राजेन्द्र शर्मा', name_en: 'Shri Rajendra Sharma', relation_hi: 'चाचाजी', relation_en: 'Uncle', generation: 2, gender: 'male', isDeceased: false, birthDate: '14 Dec 1954', phone: '+91 94140 33445', city: 'Jaipur', photoUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&q=80', parentIds: ['f-101', 'f-102'], spouseIds: ['f-208'], childrenIds: ['f-311', 'f-312'], bio: 'वरिष्ठ अधिकारी।' },
+  { id: 'f-208', name_hi: 'श्रीमती राजेन्द्र शर्मा', name_en: 'Smt. Rajendra Sharma', relation_hi: 'चाचीजी', relation_en: 'Aunt', generation: 2, gender: 'female', isDeceased: false, birthDate: '22 Aug 1958', phone: '+91 94140 33446', city: 'Jaipur', photoUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-207'], childrenIds: ['f-311', 'f-312'], bio: 'गृहिणी।' },
 
-  { id: 'f-209', name_hi: 'श्रीमती किरण शर्मा', name_en: 'Smt. Kiran Sharma', relation_hi: 'बुआजी (पुत्री)', relation_en: 'Paternal Aunt (Sister)', generation: 2, gender: 'female', isDeceased: false, birthDate: '08 Apr 1958', phone: '+91 98280 99887', photoUrl: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=300&q=80', parentIds: ['f-101', 'f-102'], spouseIds: ['f-210'], childrenIds: ['f-313', 'f-314'], bio: 'परिवार की प्रिय पुत्री व बुआजी।' },
-  { id: 'f-210', name_hi: 'श्री किरण पति', name_en: 'Shri Kiran Spouse', relation_hi: 'फूफाजी', relation_en: 'Uncle-in-law', generation: 2, gender: 'male', isDeceased: false, birthDate: '10 Jan 1954', phone: '+91 98280 99888', photoUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-209'], childrenIds: ['f-313', 'f-314'], bio: 'समाजसेवी।' },
+  { id: 'f-209', name_hi: 'श्रीमती किरण शर्मा', name_en: 'Smt. Kiran Sharma', relation_hi: 'बुआजी (पुत्री)', relation_en: 'Paternal Aunt (Sister)', generation: 2, gender: 'female', isDeceased: false, birthDate: '08 Apr 1958', phone: '+91 98280 99887', city: 'New Delhi', photoUrl: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=300&q=80', parentIds: ['f-101', 'f-102'], spouseIds: ['f-210'], childrenIds: ['f-313', 'f-314'], bio: 'परिवार की प्रिय पुत्री व बुआजी।' },
+  { id: 'f-210', name_hi: 'श्री किरण पति', name_en: 'Shri Kiran Spouse', relation_hi: 'फूफाजी', relation_en: 'Uncle-in-law', generation: 2, gender: 'male', isDeceased: false, birthDate: '10 Jan 1954', phone: '+91 98280 99888', city: 'New Delhi', photoUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-209'], childrenIds: ['f-313', 'f-314'], bio: 'समाजसेवी।' },
 
   // Generation 2: Maternal Children (Bansilal + Kamla)
-  { id: 'm-201', name_hi: 'श्रीमती सुनीता शर्मा', name_en: 'Smt. Sunita Sharma', relation_hi: 'मौसीजी', relation_en: 'Maternal Aunt', generation: 2, gender: 'female', isDeceased: false, birthDate: '12 May 1947', phone: '+91 98290 22001', photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80', parentIds: ['m-101', 'm-102'], spouseIds: ['m-202'], childrenIds: ['m-301', 'm-302'], bio: 'बंसीलाल जी की पुत्री।' },
-  { id: 'm-202', name_hi: 'श्री राजकमल', name_en: 'Shri Rajkamal', relation_hi: 'मौसाजी', relation_en: 'Uncle-in-law', generation: 2, gender: 'male', isDeceased: false, birthDate: '10 Aug 1944', phone: '+91 98290 22002', photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['m-201'], childrenIds: ['m-301', 'm-302'], bio: 'सुनीता जी के पति।' },
+  { id: 'm-201', name_hi: 'श्रीमती सुनीता शर्मा', name_en: 'Smt. Sunita Sharma', relation_hi: 'मौसीजी', relation_en: 'Maternal Aunt', generation: 2, gender: 'female', isDeceased: false, birthDate: '12 May 1947', phone: '+91 98290 22001', city: 'Jodhpur', photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80', parentIds: ['m-101', 'm-102'], spouseIds: ['m-202'], childrenIds: ['m-301', 'm-302'], bio: 'बंसीलाल जी की पुत्री।' },
+  { id: 'm-202', name_hi: 'श्री राजकमल', name_en: 'Shri Rajkamal', relation_hi: 'मौसाजी', relation_en: 'Uncle-in-law', generation: 2, gender: 'male', isDeceased: false, birthDate: '10 Aug 1944', phone: '+91 98290 22002', city: 'Jodhpur', photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['m-201'], childrenIds: ['m-301', 'm-302'], bio: 'सुनीता जी के पति।' },
 
-  { id: 'm-205', name_hi: 'श्रीमती सरिता शर्मा', name_en: 'Smt. Sarita Sharma', relation_hi: 'मौसीजी', relation_en: 'Maternal Aunt', generation: 2, gender: 'female', isDeceased: false, birthDate: '15 Jul 1952', phone: '+91 98290 22005', photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80', parentIds: ['m-101', 'm-102'], spouseIds: ['m-206'], childrenIds: [], bio: 'बंसीलाल जी की पुत्री।' },
-  { id: 'm-206', name_hi: 'श्री भगवती', name_en: 'Shri Bhagwati', relation_hi: 'मौसाजी', relation_en: 'Uncle-in-law', generation: 2, gender: 'male', isDeceased: false, birthDate: '02 Mar 1949', phone: '+91 98290 22006', photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['m-205'], childrenIds: [], bio: 'सरिता जी के पति।' },
+  { id: 'm-205', name_hi: 'श्रीमती सरिता शर्मा', name_en: 'Smt. Sarita Sharma', relation_hi: 'मौसीजी', relation_en: 'Maternal Aunt', generation: 2, gender: 'female', isDeceased: false, birthDate: '15 Jul 1952', phone: '+91 98290 22005', city: 'Jodhpur', photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80', parentIds: ['m-101', 'm-102'], spouseIds: ['m-206'], childrenIds: [], bio: 'बंसीलाल जी की पुत्री।' },
+  { id: 'm-206', name_hi: 'श्री भगवती', name_en: 'Shri Bhagwati', relation_hi: 'मौसाजी', relation_en: 'Uncle-in-law', generation: 2, gender: 'male', isDeceased: false, birthDate: '02 Mar 1949', phone: '+91 98290 22006', city: 'Jodhpur', photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['m-205'], childrenIds: [], bio: 'सरिता जी के पति।' },
 
-  { id: 'm-207', name_hi: 'श्रीमती आशा शर्मा', name_en: 'Smt. Asha Sharma', relation_hi: 'मौसीजी', relation_en: 'Maternal Aunt', generation: 2, gender: 'female', isDeceased: false, birthDate: '18 Nov 1955', phone: '+91 98290 22007', photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80', parentIds: ['m-101', 'm-102'], spouseIds: ['m-208'], childrenIds: ['m-303', 'm-304'], bio: 'बंसीलाल जी की पुत्री।' },
-  { id: 'm-208', name_hi: 'श्री राजेन्द्र', name_en: 'Shri Rajendra', relation_hi: 'मौसाजी', relation_en: 'Uncle-in-law', generation: 2, gender: 'male', isDeceased: false, birthDate: '25 Dec 1952', phone: '+91 98290 22008', photoUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['m-207'], childrenIds: ['m-303', 'm-304'], bio: 'आशा जी के पति।' },
+  { id: 'm-207', name_hi: 'श्रीमती आशा शर्मा', name_en: 'Smt. Asha Sharma', relation_hi: 'मौसीजी', relation_en: 'Maternal Aunt', generation: 2, gender: 'female', isDeceased: false, birthDate: '18 Nov 1955', phone: '+91 98290 22007', city: 'Jaipur', photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80', parentIds: ['m-101', 'm-102'], spouseIds: ['m-208'], childrenIds: ['m-303', 'm-304'], bio: 'बंसीलाल जी की पुत्री।' },
+  { id: 'm-208', name_hi: 'श्री राजेन्द्र', name_en: 'Shri Rajendra', relation_hi: 'मौसाजी', relation_en: 'Uncle-in-law', generation: 2, gender: 'male', isDeceased: false, birthDate: '25 Dec 1952', phone: '+91 98290 22008', city: 'Jaipur', photoUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['m-207'], childrenIds: ['m-303', 'm-304'], bio: 'आशा जी के पति।' },
 
-  { id: 'm-209', name_hi: 'श्रीमती सविता शर्मा', name_en: 'Smt. Savita Sharma', relation_hi: 'मौसीजी', relation_en: 'Maternal Aunt', generation: 2, gender: 'female', isDeceased: false, birthDate: '04 Jun 1958', phone: '+91 98290 22009', photoUrl: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=300&q=80', parentIds: ['m-101', 'm-102'], spouseIds: ['m-210'], childrenIds: ['m-305', 'm-306'], bio: 'बंसीलाल जी की पुत्री।' },
-  { id: 'm-210', name_hi: 'श्री मुकेश', name_en: 'Shri Mukesh', relation_hi: 'मौसाजी', relation_en: 'Uncle-in-law', generation: 2, gender: 'male', isDeceased: false, birthDate: '14 Sep 1955', phone: '+91 98290 22010', photoUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['m-209'], childrenIds: ['m-305', 'm-306'], bio: 'सविता जी के पति।' },
+  { id: 'm-209', name_hi: 'श्रीमती सविता शर्मा', name_en: 'Smt. Savita Sharma', relation_hi: 'मौसीजी', relation_en: 'Maternal Aunt', generation: 2, gender: 'female', isDeceased: false, birthDate: '04 Jun 1958', phone: '+91 98290 22009', city: 'Ahmedabad', photoUrl: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=300&q=80', parentIds: ['m-101', 'm-102'], spouseIds: ['m-210'], childrenIds: ['m-305', 'm-306'], bio: 'बंसीलाल जी की पुत्री।' },
+  { id: 'm-210', name_hi: 'श्री मुकेश', name_en: 'Shri Mukesh', relation_hi: 'मौसाजी', relation_en: 'Uncle-in-law', generation: 2, gender: 'male', isDeceased: false, birthDate: '14 Sep 1955', phone: '+91 98290 22010', city: 'Ahmedabad', photoUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['m-209'], childrenIds: ['m-305', 'm-306'], bio: 'सविता जी के पति।' },
 
-  { id: 'm-211', name_hi: 'श्री संदीप शर्मा', name_en: 'Shri Sandeep Sharma', relation_hi: 'मामाजी', relation_en: 'Maternal Uncle', generation: 2, gender: 'male', isDeceased: false, birthDate: '22 Feb 1960', phone: '+91 98290 22011', photoUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80', parentIds: ['m-101', 'm-102'], spouseIds: ['m-212'], childrenIds: ['m-307', 'm-308'], bio: 'बंसीलाल जी के पुत्र।' },
-  { id: 'm-212', name_hi: 'श्रीमती नमिता शर्मा', name_en: 'Smt. Namita Sharma', relation_hi: 'मामीजी', relation_en: 'Maternal Aunt (Uncle Wife)', generation: 2, gender: 'female', isDeceased: false, birthDate: '08 Oct 1963', phone: '+91 98290 22012', photoUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['m-211'], childrenIds: ['m-307', 'm-308'], bio: 'संदीप जी की धर्मपत्नी।' },
+  { id: 'm-211', name_hi: 'श्री संदीप शर्मा', name_en: 'Shri Sandeep Sharma', relation_hi: 'मामाजी', relation_en: 'Maternal Uncle', generation: 2, gender: 'male', isDeceased: false, birthDate: '22 Feb 1960', phone: '+91 98290 22011', city: 'Pune', photoUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80', parentIds: ['m-101', 'm-102'], spouseIds: ['m-212'], childrenIds: ['m-307', 'm-308'], bio: 'बंसीलाल जी के पुत्र।' },
+  { id: 'm-212', name_hi: 'श्रीमती नमिता शर्मा', name_en: 'Smt. Namita Sharma', relation_hi: 'मामीजी', relation_en: 'Maternal Aunt (Uncle Wife)', generation: 2, gender: 'female', isDeceased: false, birthDate: '08 Oct 1963', phone: '+91 98290 22012', city: 'Pune', photoUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['m-211'], childrenIds: ['m-307', 'm-308'], bio: 'संदीप जी की धर्मपत्नी।' },
 
-  { id: 'm-213', name_hi: 'श्रीमती रजनी शर्मा', name_en: 'Smt. Rajni Sharma', relation_hi: 'मौसीजी', relation_en: 'Maternal Aunt', generation: 2, gender: 'female', isDeceased: false, birthDate: '11 Jan 1963', phone: '+91 98290 22013', photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80', parentIds: ['m-101', 'm-102'], spouseIds: ['m-214'], childrenIds: ['m-309', 'm-310'], bio: 'बंसीलाल जी की पुत्री।' },
-  { id: 'm-214', name_hi: 'श्री आशिष', name_en: 'Shri Ashish', relation_hi: 'मौसाजी', relation_en: 'Uncle-in-law', generation: 2, gender: 'male', isDeceased: false, birthDate: '30 Mar 1960', phone: '+91 98290 22014', photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['m-213'], childrenIds: ['m-309', 'm-310'], bio: 'रजनी जी के पति।' },
+  { id: 'm-213', name_hi: 'श्रीमती रजनी शर्मा', name_en: 'Smt. Rajni Sharma', relation_hi: 'मौसीजी', relation_en: 'Maternal Aunt', generation: 2, gender: 'female', isDeceased: false, birthDate: '11 Jan 1963', phone: '+91 98290 22013', city: 'Mumbai', photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80', parentIds: ['m-101', 'm-102'], spouseIds: ['m-214'], childrenIds: ['m-309', 'm-310'], bio: 'बंसीलाल जी की पुत्री।' },
+  { id: 'm-214', name_hi: 'श्री आशिष', name_en: 'Shri Ashish', relation_hi: 'मौसाजी', relation_en: 'Uncle-in-law', generation: 2, gender: 'male', isDeceased: false, birthDate: '30 Mar 1960', phone: '+91 98290 22014', city: 'Mumbai', photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['m-213'], childrenIds: ['m-309', 'm-310'], bio: 'रजनी जी के पति।' },
 
-  { id: 'm-215', name_hi: 'श्री संजीव शर्मा', name_en: 'Shri Sanjeev Sharma', relation_hi: 'मामाजी', relation_en: 'Maternal Uncle', generation: 2, gender: 'male', isDeceased: false, birthDate: '19 Aug 1965', phone: '+91 98290 22015', photoUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=300&q=80', parentIds: ['m-101', 'm-102'], spouseIds: ['m-216'], childrenIds: ['m-311', 'm-312'], bio: 'बंसीलाल जी के पुत्र।' },
-  { id: 'm-216', name_hi: 'श्रीमती कविता शर्मा', name_en: 'Smt. Kavita Sharma', relation_hi: 'मामीजी', relation_en: 'Maternal Aunt (Uncle Wife)', generation: 2, gender: 'female', isDeceased: false, birthDate: '25 Nov 1968', phone: '+91 98290 22016', photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['m-215'], childrenIds: ['m-311', 'm-312'], bio: 'संजीव जी की धर्मपत्नी।' },
+  { id: 'm-215', name_hi: 'श्री संजीव शर्मा', name_en: 'Shri Sanjeev Sharma', relation_hi: 'मामाजी', relation_en: 'Maternal Uncle', generation: 2, gender: 'male', isDeceased: false, birthDate: '19 Aug 1965', phone: '+91 98290 22015', city: 'Jaipur', photoUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=300&q=80', parentIds: ['m-101', 'm-102'], spouseIds: ['m-216'], childrenIds: ['m-311', 'm-312'], bio: 'बंसीलाल जी के पुत्र।' },
+  { id: 'm-216', name_hi: 'श्रीमती कविता शर्मा', name_en: 'Smt. Kavita Sharma', relation_hi: 'मामीजी', relation_en: 'Maternal Aunt (Uncle Wife)', generation: 2, gender: 'female', isDeceased: false, birthDate: '25 Nov 1968', phone: '+91 98290 22016', city: 'Jaipur', photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['m-215'], childrenIds: ['m-311', 'm-312'], bio: 'संजीव जी की धर्मपत्नी।' },
 
-  { id: 'm-217', name_hi: 'श्री राजेश शर्मा', name_en: 'Shri Rajesh Sharma', relation_hi: 'मामाजी', relation_en: 'Maternal Uncle', generation: 2, gender: 'male', isDeceased: false, birthDate: '02 Apr 1968', phone: '+91 98290 22017', photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80', parentIds: ['m-101', 'm-102'], spouseIds: ['m-218'], childrenIds: ['m-313', 'm-314'], bio: 'बंसीलाल जी के पुत्र।' },
-  { id: 'm-218', name_hi: 'श्रीमती राजेश शर्मा', name_en: 'Smt. Rajesh Sharma', relation_hi: 'मामीजी', relation_en: 'Maternal Aunt (Uncle Wife)', generation: 2, gender: 'female', isDeceased: false, birthDate: '14 Dec 1971', phone: '+91 98290 22018', photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['m-217'], childrenIds: ['m-313', 'm-314'], bio: 'राजेश जी की धर्मपत्नी।' },
+  { id: 'm-217', name_hi: 'श्री राजेश शर्मा', name_en: 'Shri Rajesh Sharma', relation_hi: 'मामाजी', relation_en: 'Maternal Uncle', generation: 2, gender: 'male', isDeceased: false, birthDate: '02 Apr 1968', phone: '+91 98290 22017', city: 'Kota', photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80', parentIds: ['m-101', 'm-102'], spouseIds: ['m-218'], childrenIds: ['m-313', 'm-314'], bio: 'बंसीलाल जी के पुत्र।' },
+  { id: 'm-218', name_hi: 'श्रीमती राजेश शर्मा', name_en: 'Smt. Rajesh Sharma', relation_hi: 'मामीजी', relation_en: 'Maternal Aunt (Uncle Wife)', generation: 2, gender: 'female', isDeceased: false, birthDate: '14 Dec 1971', phone: '+91 98290 22018', city: 'Kota', photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['m-217'], childrenIds: ['m-313', 'm-314'], bio: 'राजेश जी की धर्मपत्नी।' },
 
   // Generation 3: Children of Kavi Gurupratap Sharma + Anita Sharma
-  { id: 'f-301', name_hi: 'श्रीमती पूजा शर्मा (जोशी)', name_en: 'Smt. Puja Sharma Joshi', relation_hi: 'पुत्री', relation_en: 'Daughter', generation: 3, gender: 'female', isDeceased: false, birthDate: '18 Sep 1972', phone: '+91 98290 77665', photoUrl: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=300&q=80', parentIds: ['f-201', 'f-202'], spouseIds: ['f-302'], childrenIds: ['f-401', 'f-402'], bio: 'कवि गुरुप्रताप शर्मा जी की ज्येष्ठ पुत्री।' },
-  { id: 'f-302', name_hi: 'श्री विकास जोशी', name_en: 'Shri Vikas Joshi', relation_hi: 'दामाद (जामातृ)', relation_en: 'Son-in-law', generation: 3, gender: 'male', isDeceased: false, birthDate: '04 Apr 1970', phone: '+91 98290 77666', photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-301'], childrenIds: ['f-401', 'f-402'], bio: 'पूजा जी के पति।' },
+  { id: 'f-301', name_hi: 'श्रीमती पूजा शर्मा (जोशी)', name_en: 'Smt. Puja Sharma Joshi', relation_hi: 'पुत्री', relation_en: 'Daughter', generation: 3, gender: 'female', isDeceased: false, birthDate: '18 Sep 1972', phone: '+91 98290 77665', city: 'Mumbai', photoUrl: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=300&q=80', parentIds: ['f-201', 'f-202'], spouseIds: ['f-302'], childrenIds: ['f-401', 'f-402'], bio: 'कवि गुरुप्रताप शर्मा जी की ज्येष्ठ पुत्री।' },
+  { id: 'f-302', name_hi: 'श्री विकास जोशी', name_en: 'Shri Vikas Joshi', relation_hi: 'दामाद (जामातृ)', relation_en: 'Son-in-law', generation: 3, gender: 'male', isDeceased: false, birthDate: '04 Apr 1970', phone: '+91 98290 77666', city: 'Mumbai', photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-301'], childrenIds: ['f-401', 'f-402'], bio: 'पूजा जी के पति।' },
 
-  { id: 'f-303', name_hi: 'श्री संकल्प शर्मा', name_en: 'Shri Sankalp Sharma', relation_hi: 'पुत्र (आर्किटेक्ट)', relation_en: 'Son', generation: 3, gender: 'male', isDeceased: false, birthDate: '11 Dec 1975', phone: '+91 98290 44332', photoUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80', parentIds: ['f-201', 'f-202'], spouseIds: ['f-304'], childrenIds: ['f-403'], bio: 'वरिष्ठ सॉफ्टवेयर इंजीनियर एवं डिजिटल आर्किटेक्ट।' },
-  { id: 'f-304', name_hi: 'श्रीमती चाँदनी शर्मा', name_en: 'Smt. Chandini Sharma', relation_hi: 'पुत्रवधू', relation_en: 'Daughter-in-law', generation: 3, gender: 'female', isDeceased: false, birthDate: '09 Aug 1979', phone: '+91 98290 44333', photoUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-303'], childrenIds: ['f-403'], bio: 'संकल्प जी की धर्मपत्नी।' },
+  { id: 'f-303', name_hi: 'श्री संकल्प शर्मा', name_en: 'Shri Sankalp Sharma', relation_hi: 'पुत्र (आर्किटेक्ट)', relation_en: 'Son', generation: 3, gender: 'male', isDeceased: false, birthDate: '11 Dec 1975', phone: '+91 98290 44332', city: 'Bengaluru', photoUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80', parentIds: ['f-201', 'f-202'], spouseIds: ['f-304'], childrenIds: ['f-403'], bio: 'वरिष्ठ सॉफ्टवेयर इंजीनियर एवं डिजिटल आर्किटेक्ट।' },
+  { id: 'f-304', name_hi: 'श्रीमती चाँदनी शर्मा', name_en: 'Smt. Chandini Sharma', relation_hi: 'पुत्रवधू', relation_en: 'Daughter-in-law', generation: 3, gender: 'female', isDeceased: false, birthDate: '09 Aug 1979', phone: '+91 98290 44333', city: 'Bengaluru', photoUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-303'], childrenIds: ['f-403'], bio: 'संकल्प जी की धर्मपत्नी।' },
 
-  { id: 'f-305', name_hi: 'श्री सनातन शर्मा', name_en: 'Shri Sanatan Sharma', relation_hi: 'पुत्र', relation_en: 'Son', generation: 3, gender: 'male', isDeceased: false, birthDate: '02 Feb 1980', phone: '+91 94141 88776', photoUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&q=80', parentIds: ['f-201', 'f-202'], spouseIds: ['f-306'], childrenIds: ['f-404', 'f-405'], bio: 'गुरुप्रताप जी के कनिष्ठ पुत्र।' },
-  { id: 'f-306', name_hi: 'श्रीमती सुरभि शर्मा', name_en: 'Smt. Surbhi Sharma', relation_hi: 'पुत्रवधू', relation_en: 'Daughter-in-law', generation: 3, gender: 'female', isDeceased: false, birthDate: '14 Jul 1983', phone: '+91 94141 88777', photoUrl: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-305'], childrenIds: ['f-404', 'f-405'], bio: 'सनातन जी की धर्मपत्नी।' },
+  { id: 'f-305', name_hi: 'श्री सनातन शर्मा', name_en: 'Shri Sanatan Sharma', relation_hi: 'पुत्र', relation_en: 'Son', generation: 3, gender: 'male', isDeceased: false, birthDate: '02 Feb 1980', phone: '+91 94141 88776', city: 'New Delhi', photoUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&q=80', parentIds: ['f-201', 'f-202'], spouseIds: ['f-306'], childrenIds: ['f-404', 'f-405'], bio: 'गुरुप्रताप जी के कनिष्ठ पुत्र।' },
+  { id: 'f-306', name_hi: 'श्रीमती सुरभि शर्मा', name_en: 'Smt. Surbhi Sharma', relation_hi: 'पुत्रवधू', relation_en: 'Daughter-in-law', generation: 3, gender: 'female', isDeceased: false, birthDate: '14 Jul 1983', phone: '+91 94141 88777', city: 'New Delhi', photoUrl: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=300&q=80', parentIds: [], spouseIds: ['f-305'], childrenIds: ['f-404', 'f-405'], bio: 'सनातन जी की धर्मपत्नी।' },
 
   // Generation 3: Paternal & Maternal Cousins
   { id: 'f-307', name_hi: 'श्री मयंक शर्मा', name_en: 'Shri Mayank Sharma', relation_hi: 'चचेरा भाई', relation_en: 'Cousin Brother', generation: 3, gender: 'male', isDeceased: false, birthDate: '1981', phone: '+91 98291 11223', photoUrl: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&w=300&q=80', parentIds: ['f-203', 'f-204'], spouseIds: [], childrenIds: [], bio: 'चमन जी के पुत्र।' },
@@ -260,6 +273,411 @@ export const getBirthYear = (dateStr) => {
   if (info && info.year) return info.year
   const match = dateStr ? dateStr.match(/\b(19\d\d|20\d\d)\b/) : null
   return match ? parseInt(match[1], 10) : 9999
+}
+
+function getMemberOptionLabel(m, isHi) {
+  if (!m) return ''
+  const name = isHi ? (m.name_hi || m.name_en) : (m.name_en || m.name_hi) || ''
+  
+  let year = ''
+  if (m.birthDate) {
+    const match = String(m.birthDate).match(/\b(18|19|20)\d{2}\b/)
+    if (match) year = match[0]
+  } else if (m.birthYear) {
+    year = String(m.birthYear)
+  }
+  
+  const city = isHi ? (m.city_hi || m.city || m.city_en || '') : (m.city_en || m.city || m.city_hi || '')
+  
+  const metaParts = []
+  if (city) metaParts.push(city)
+  if (year) metaParts.push(year)
+  
+  if (metaParts.length > 0) {
+    return `${name} (${metaParts.join(', ')})`
+  }
+  return name
+}
+
+function SearchableCityPicker({ value, onChange, citiesList = [], onAddNewCity, isHi }) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [filterText, setFilterText] = useState('')
+  const triggerRef = useRef(null)
+  const menuRef = useRef(null)
+  const [menuStyle, setMenuStyle] = useState({})
+
+  const updateMenuPosition = useCallback(() => {
+    if (!triggerRef.current) return
+    const rect = triggerRef.current.getBoundingClientRect()
+    setMenuStyle({
+      top: `${rect.bottom + window.scrollY + 4}px`,
+      left: `${rect.left + window.scrollX}px`,
+      width: `${Math.max(rect.width, 240)}px`,
+      zIndex: 999999
+    })
+  }, [])
+
+  useEffect(() => {
+    if (isOpen) {
+      updateMenuPosition()
+      const handleScroll = (e) => {
+        if (menuRef.current && menuRef.current.contains(e.target)) return
+        updateMenuPosition()
+      }
+      window.addEventListener('scroll', handleScroll, true)
+      window.addEventListener('resize', updateMenuPosition)
+      return () => {
+        window.removeEventListener('scroll', handleScroll, true)
+        window.removeEventListener('resize', updateMenuPosition)
+      }
+    }
+  }, [isOpen, updateMenuPosition])
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (
+        menuRef.current && !menuRef.current.contains(e.target) &&
+        triggerRef.current && !triggerRef.current.contains(e.target)
+      ) {
+        setIsOpen(false)
+      }
+    }
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpen])
+
+  const filteredCities = useMemo(() => {
+    if (!filterText.trim()) return citiesList
+    const q = filterText.toLowerCase()
+    return citiesList.filter(c => 
+      (c.name_en && c.name_en.toLowerCase().includes(q)) ||
+      (c.name_hi && c.name_hi.includes(q)) ||
+      (c.state_en && c.state_en.toLowerCase().includes(q)) ||
+      (c.state_hi && c.state_hi.includes(q))
+    )
+  }, [citiesList, filterText])
+
+  const selectedCityObj = useMemo(() => {
+    if (!value) return null
+    return citiesList.find(c => c.name_en === value || c.name_hi === value || c.id === value) || { name_en: value, name_hi: value }
+  }, [citiesList, value])
+
+  const displaySelectedText = selectedCityObj 
+    ? (isHi ? (selectedCityObj.name_hi || selectedCityObj.name_en) : (selectedCityObj.name_en || selectedCityObj.name_hi))
+    : ''
+
+  return (
+    <div className="city-picker-wrapper" style={{ position: 'relative', width: '100%' }}>
+      <div 
+        ref={triggerRef}
+        className="city-picker-trigger admin-input"
+        onClick={() => {
+          setIsOpen(!isOpen)
+          if (!isOpen) updateMenuPosition()
+        }}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          cursor: 'pointer',
+          padding: '8px 12px',
+          backgroundColor: '#FFF',
+          borderRadius: '6px',
+          border: '1px solid #D1D5DB'
+        }}
+      >
+        <span style={{ color: displaySelectedText ? '#111827' : '#9CA3AF', fontSize: '0.85rem' }}>
+          {displaySelectedText || (isHi ? 'शहर चुनें...' : 'Select city...')}
+        </span>
+        <span style={{ fontSize: '0.85rem', color: '#6B7280' }}>▾</span>
+      </div>
+
+      {isOpen && createPortal(
+        <div 
+          ref={menuRef}
+          className="city-portal-popup-menu"
+          style={{
+            position: 'absolute',
+            ...menuStyle,
+            backgroundColor: '#FFF',
+            borderRadius: '8px',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.18)',
+            border: '1px solid #E5E7EB',
+            maxHeight: '260px',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden'
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div style={{ padding: '8px', borderBottom: '1px solid #F3F4F6' }}>
+            <input 
+              type="text" 
+              className="city-search-input"
+              placeholder={isHi ? 'शहर खोजें...' : 'Search city...'}
+              value={filterText}
+              onChange={(e) => setFilterText(e.target.value)}
+              autoFocus
+              style={{
+                width: '100%',
+                padding: '6px 10px',
+                fontSize: '0.82rem',
+                border: '1px solid #D1D5DB',
+                borderRadius: '6px',
+                outline: 'none'
+              }}
+            />
+          </div>
+
+          <div style={{ overflowY: 'auto', flex: 1, padding: '4px' }}>
+            {filteredCities.length === 0 ? (
+              <div style={{ padding: '10px', textAlign: 'center', color: '#9CA3AF', fontSize: '0.8rem' }}>
+                {isHi ? 'कोई शहर नहीं मिला' : 'No city found'}
+              </div>
+            ) : (
+              filteredCities.map(c => {
+                const cityName = isHi ? (c.name_hi || c.name_en) : (c.name_en || c.name_hi)
+                const stateName = isHi ? (c.state_hi || c.state_en) : (c.state_en || c.state_hi)
+                const isSelected = value === c.name_en || value === c.name_hi || value === c.id
+
+                return (
+                  <div 
+                    key={c.id || c.name_en}
+                    onClick={() => {
+                      onChange(c.name_en)
+                      setIsOpen(false)
+                    }}
+                    style={{
+                      padding: '8px 10px',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '0.82rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      backgroundColor: isSelected ? '#F3F4F6' : 'transparent',
+                      fontWeight: isSelected ? 600 : 400
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = isSelected ? '#E5E7EB' : '#F9FAFB'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = isSelected ? '#F3F4F6' : 'transparent'}
+                  >
+                    <span>{cityName}</span>
+                    {stateName && <span style={{ fontSize: '0.72rem', color: '#6B7280' }}>{stateName}</span>}
+                  </div>
+                )
+              })
+            )}
+          </div>
+
+          <div 
+            onClick={() => {
+              setIsOpen(false)
+              onAddNewCity()
+            }}
+            style={{
+              padding: '10px 12px',
+              borderTop: '1px solid #E5E7EB',
+              backgroundColor: '#F9FAFB',
+              color: '#8B0000',
+              fontWeight: 600,
+              fontSize: '0.83rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              transition: 'background-color 0.15s ease'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#F3F4F6'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#F9FAFB'}
+          >
+            <span>➕</span>
+            <span>{isHi ? 'नया शहर जोड़ें' : 'Add New City'}</span>
+          </div>
+        </div>,
+        document.body
+      )}
+    </div>
+  )
+}
+
+function AddCityModal({ isOpen, onClose, onSave, isHi }) {
+  const [cityName, setCityName] = useState('')
+  const [stateName, setStateName] = useState('')
+  const [countryName, setCountryName] = useState('India')
+
+  useEffect(() => {
+    if (isOpen) {
+      setCityName('')
+      setStateName('')
+      setCountryName('India')
+    }
+  }, [isOpen])
+
+  if (!isOpen) return null
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (!cityName.trim() || !stateName.trim()) return
+    onSave({
+      id: `c-${Date.now()}`,
+      name_en: cityName.trim(),
+      name_hi: cityName.trim(),
+      state_en: stateName.trim(),
+      state_hi: stateName.trim(),
+      country_en: countryName.trim() || 'India',
+      country_hi: countryName.trim() === 'India' ? 'भारत' : countryName.trim()
+    })
+  }
+
+  return createPortal(
+    <div 
+      className="add-city-modal-overlay"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        zIndex: 9999999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '16px'
+      }}
+      onClick={onClose}
+    >
+      <div 
+        className="add-city-modal-card"
+        style={{
+          backgroundColor: '#FFF',
+          borderRadius: '12px',
+          width: '100%',
+          maxWidth: '420px',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.25)',
+          overflow: 'hidden'
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div 
+          style={{
+            padding: '14px 18px',
+            borderBottom: '1px solid #E5E7EB',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            backgroundColor: '#F9FAFB'
+          }}
+        >
+          <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#111827' }}>
+            🏙️ {isHi ? 'नया शहर जोड़ें' : 'Add New City'}
+          </h3>
+          <button 
+            type="button" 
+            onClick={onClose}
+            style={{
+              background: 'rgba(220, 53, 69, 0.12)',
+              color: '#DC3545',
+              border: 'none',
+              borderRadius: '50%',
+              width: '28px',
+              height: '28px',
+              cursor: 'pointer',
+              fontWeight: 700
+            }}
+          >
+            ✕
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} style={{ padding: '18px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <label style={{ fontSize: '0.8rem', fontWeight: 600, color: '#374151' }}>
+              {isHi ? 'शहर का नाम *' : 'City Name *'}
+            </label>
+            <input 
+              type="text" 
+              required
+              className="admin-input"
+              value={cityName}
+              onChange={(e) => setCityName(e.target.value)}
+              placeholder="e.g. Bengaluru"
+              autoFocus
+              style={{ width: '100%', padding: '8px 12px', fontSize: '0.85rem', border: '1px solid #D1D5DB', borderRadius: '6px' }}
+            />
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <label style={{ fontSize: '0.8rem', fontWeight: 600, color: '#374151' }}>
+              {isHi ? 'राज्य *' : 'State *'}
+            </label>
+            <input 
+              type="text" 
+              required
+              className="admin-input"
+              value={stateName}
+              onChange={(e) => setStateName(e.target.value)}
+              placeholder="e.g. Karnataka"
+              style={{ width: '100%', padding: '8px 12px', fontSize: '0.85rem', border: '1px solid #D1D5DB', borderRadius: '6px' }}
+            />
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <label style={{ fontSize: '0.8rem', fontWeight: 600, color: '#374151' }}>
+              {isHi ? 'देश' : 'Country'}
+            </label>
+            <input 
+              type="text" 
+              className="admin-input"
+              value={countryName}
+              onChange={(e) => setCountryName(e.target.value)}
+              placeholder="India"
+              style={{ width: '100%', padding: '8px 12px', fontSize: '0.85rem', border: '1px solid #D1D5DB', borderRadius: '6px' }}
+            />
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '10px', marginTop: '6px' }}>
+            <button 
+              type="button"
+              onClick={onClose}
+              style={{
+                padding: '8px 16px',
+                fontSize: '0.82rem',
+                borderRadius: '6px',
+                border: '1px solid #D1D5DB',
+                backgroundColor: '#FFF',
+                color: '#374151',
+                cursor: 'pointer'
+              }}
+            >
+              {isHi ? 'रद्द करें' : 'Cancel'}
+            </button>
+            <button 
+              type="submit"
+              style={{
+                padding: '8px 18px',
+                fontSize: '0.82rem',
+                fontWeight: 600,
+                borderRadius: '6px',
+                border: 'none',
+                backgroundColor: '#8B0000',
+                color: '#FFF',
+                cursor: 'pointer'
+              }}
+            >
+              💾 {isHi ? 'शहर सहेजें' : 'Save City'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>,
+    document.body
+  )
 }
 
 function CompactInlineMemberPicker({
@@ -458,7 +876,7 @@ function CompactInlineMemberPicker({
                     />
                     <div className="picker-item-details" style={{ display: 'flex', flexDirection: 'column' }}>
                       <span className="item-name" style={{ fontSize: '0.82rem', fontWeight: 700, color: '#333' }}>
-                        {isHi ? (m.name_hi || m.name_en) : (m.name_en || m.name_hi)}
+                        {getMemberOptionLabel(m, isHi)}
                       </span>
                     </div>
                   </div>
