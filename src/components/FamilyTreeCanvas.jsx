@@ -1,8 +1,25 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react'
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
+import { uploadImage } from '../lib/imageUtils'
+import { convertKrutiDevToUnicode, isKrutiDevText } from '../utils/krutiDevEngine'
+import { handleHindiKeyDown } from '../utils/hindiTypingEngine'
 import './FamilyTreeCanvas.css'
+
+function handleKrutiDevPaste(e, currentValue, onUpdate) {
+  const rawPasted = (e.clipboardData || window.clipboardData)?.getData('text') || ''
+  if (rawPasted && isKrutiDevText(rawPasted)) {
+    e.preventDefault()
+    const converted = convertKrutiDevToUnicode(rawPasted)
+    const target = e.target
+    const start = target.selectionStart || 0
+    const end = target.selectionEnd || 0
+    const current = currentValue || ''
+    const newText = current.substring(0, start) + converted + current.substring(end)
+    onUpdate(newText)
+  }
+}
 
 export const FAMILY_DATA_35 = [
   // Generation 1: Paternal Grandparents (Patriarch & Matriarch)
@@ -151,16 +168,419 @@ export const getSortedBirthdays = (data) => {
   })
 }
 
+export const autoTransliterateToHindi = (englishText) => {
+  if (!englishText) return ''
+  const commonMap = {
+    'shri': 'श्री',
+    'smt': 'श्रीमती',
+    'smt.': 'श्रीमती',
+    'kavi': 'कवि',
+    'gurupratap': 'गुरुप्रताप',
+    'sharma': 'शर्मा',
+    'aag': 'आग',
+    'anita': 'अनिता',
+    'bhadrasen': 'भद्रसेन',
+    'kaushalya': 'कौशल्या',
+    'bansilal': 'बंसीलाल',
+    'kamla': 'कमला',
+    'chaman': 'चमन',
+    'satyaprakash': 'सत्यप्रकाश',
+    'rajendra': 'राजेन्द्र',
+    'kiran': 'किरण',
+    'sankalp': 'संकल्प',
+    'sanatan': 'सनातन',
+    'chandini': 'चाँदनी',
+    'surbhi': 'सुरभि',
+    'puja': 'पूजा',
+    'pooja': 'पूजा',
+    'joshi': 'जोशी',
+    'vikas': 'विकास',
+    'mayank': 'मयंक',
+    'garima': 'गरिमा',
+    'gaurav': 'गौरव',
+    'richa': 'ऋचा',
+    'amit': 'अमित',
+    'neha': 'नेहा',
+    'siddharth': 'सिद्धार्थ',
+    'sunita': 'सुनीता',
+    'sarita': 'सरिता',
+    'asha': 'आशा',
+    'savita': 'सविता',
+    'sandeep': 'संदीप',
+    'namita': 'नमिता',
+    'rajni': 'रजनी',
+    'sanjeev': 'संजीव',
+    'kavita': 'कविता',
+    'rajesh': 'राजेश'
+  }
+  const words = englishText.trim().split(/\s+/)
+  const convertedWords = words.map(word => {
+    const cleanWord = word.replace(/[^a-zA-Z]/g, '').toLowerCase()
+    if (commonMap[cleanWord]) return commonMap[cleanWord]
+    let res = word
+      .replace(/sh/gi, 'श')
+      .replace(/ch/gi, 'च')
+      .replace(/th/gi, 'थ')
+      .replace(/ph/gi, 'फ')
+      .replace(/kh/gi, 'ख')
+      .replace(/gh/gi, 'घ')
+      .replace(/bh/gi, 'भ')
+      .replace(/dh/gi, 'ध')
+      .replace(/a/gi, 'ा')
+      .replace(/ee/gi, 'ी')
+      .replace(/i/gi, 'ि')
+      .replace(/oo/gi, 'ू')
+      .replace(/u/gi, 'ु')
+      .replace(/e/gi, 'े')
+      .replace(/ai/gi, 'ै')
+      .replace(/o/gi, 'ो')
+      .replace(/au/gi, 'ौ')
+      .replace(/k/gi, 'क')
+      .replace(/g/gi, 'ग')
+      .replace(/j/gi, 'ज')
+      .replace(/t/gi, 'त')
+      .replace(/d/gi, 'द')
+      .replace(/n/gi, 'न')
+      .replace(/p/gi, 'प')
+      .replace(/b/gi, 'ब')
+      .replace(/m/gi, 'म')
+      .replace(/r/gi, 'र')
+      .replace(/l/gi, 'ल')
+      .replace(/v/gi, 'व')
+      .replace(/w/gi, 'व')
+      .replace(/s/gi, 'स')
+      .replace(/h/gi, 'ह')
+    return res
+  })
+}
+
+export const getBirthYear = (dateStr) => {
+  if (!dateStr) return 9999
+  const info = parseMemberBirthInfo(dateStr)
+  if (info && info.year) return info.year
+  const match = dateStr ? dateStr.match(/\b(19\d\d|20\d\d)\b/) : null
+  return match ? parseInt(match[1], 10) : 9999
+}
+
+function CompactInlineMemberPicker({
+  label,
+  membersList,
+  selectedIds = [],
+  onChange,
+  currentMemberId,
+  excludedIds = [],
+  maxSelect = null,
+  isHi
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [filterText, setFilterText] = useState('')
+  const triggerRef = useRef(null)
+  const menuRef = useRef(null)
+  const [menuStyle, setMenuStyle] = useState({})
+
+  const updateMenuPosition = useCallback(() => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect()
+      const spaceBelow = window.innerHeight - rect.bottom
+      const showAbove = spaceBelow < 250 && rect.top > 250
+      
+      setMenuStyle({
+        position: 'fixed',
+        left: `${Math.max(10, Math.min(rect.left, window.innerWidth - 330))}px`,
+        top: showAbove ? 'auto' : `${rect.bottom + 4}px`,
+        bottom: showAbove ? `${window.innerHeight - rect.top + 4}px` : 'auto',
+        width: `${Math.max(rect.width, 320)}px`,
+        zIndex: 999999
+      })
+    }
+  }, [])
+
+  useEffect(() => {
+    if (isOpen) {
+      updateMenuPosition()
+      const handleScroll = (e) => {
+        if (menuRef.current && menuRef.current.contains(e.target)) return
+        updateMenuPosition()
+      }
+      window.addEventListener('scroll', handleScroll, true)
+      window.addEventListener('resize', updateMenuPosition)
+      return () => {
+        window.removeEventListener('scroll', handleScroll, true)
+        window.removeEventListener('resize', updateMenuPosition)
+      }
+    }
+  }, [isOpen, updateMenuPosition])
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        triggerRef.current && !triggerRef.current.contains(e.target) &&
+        menuRef.current && !menuRef.current.contains(e.target)
+      ) {
+        setIsOpen(false)
+      }
+    }
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpen])
+
+  const selectedMembers = useMemo(() => {
+    const set = new Set(selectedIds)
+    return membersList.filter(m => set.has(m.id))
+  }, [membersList, selectedIds])
+
+  const availableMembers = useMemo(() => {
+    const excludeSet = new Set([currentMemberId, ...(excludedIds || [])].filter(Boolean))
+    return membersList.filter(m => !excludeSet.has(m.id))
+  }, [membersList, currentMemberId, excludedIds])
+
+  const filteredMembers = useMemo(() => {
+    if (!filterText.trim()) return availableMembers
+    const q = filterText.toLowerCase()
+    return availableMembers.filter(m => 
+      (m.name_en && m.name_en.toLowerCase().includes(q)) ||
+      (m.name_hi && m.name_hi.includes(q)) ||
+      (m.relation_en && m.relation_en.toLowerCase().includes(q)) ||
+      (m.relation_hi && m.relation_hi.includes(q))
+    )
+  }, [availableMembers, filterText])
+
+  const sortedFilteredMembers = useMemo(() => {
+    return [...filteredMembers].sort((a, b) => {
+      const aSel = selectedIds.includes(a.id)
+      const bSel = selectedIds.includes(b.id)
+      if (aSel && !bSel) return -1
+      if (!aSel && bSel) return 1
+      return 0
+    })
+  }, [filteredMembers, selectedIds])
+
+  const toggleSelect = (id) => {
+    if (selectedIds.includes(id)) {
+      onChange(selectedIds.filter(x => x !== id))
+    } else {
+      if (maxSelect && selectedIds.length >= maxSelect) {
+        return
+      }
+      onChange([...selectedIds, id])
+    }
+  }
+
+  const removeChip = (e, id) => {
+    e.stopPropagation()
+    onChange(selectedIds.filter(x => x !== id))
+  }
+
+  return (
+    <div className="relationship-stacked-row">
+      <label className="field-label" style={{ fontSize: '0.82rem', fontWeight: 700, color: '#374151' }}>
+        {label}:
+      </label>
+      
+      <div 
+        ref={triggerRef}
+        className="picker-trigger-box"
+        onClick={() => {
+          setIsOpen(!isOpen)
+          if (!isOpen) updateMenuPosition()
+        }}
+      >
+        <div className="picker-chips-container">
+          {selectedMembers.length === 0 ? (
+            <span className="picker-placeholder-text">
+              {isHi ? 'सदस्य चुनें...' : 'Select members...'}
+            </span>
+          ) : (
+            selectedMembers.map(m => (
+              <span key={m.id} className="picker-chip-tag">
+                {isHi ? (m.name_hi || m.name_en) : (m.name_en || m.name_hi)}
+                <button 
+                  type="button" 
+                  className="chip-remove-btn" 
+                  onClick={(e) => removeChip(e, m.id)}
+                  title="Remove"
+                >
+                  ✕
+                </button>
+              </span>
+            ))
+          )}
+        </div>
+        <span style={{ fontSize: '0.85rem', color: '#888', marginLeft: '8px' }}>▾</span>
+      </div>
+
+      {isOpen && createPortal(
+        <div 
+          ref={menuRef}
+          className="picker-portal-popup-menu"
+          style={menuStyle}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="picker-popup-search" style={{ paddingBottom: '6px', borderBottom: '1px solid #E2D7C5', marginBottom: '6px' }}>
+            <input 
+              type="text" 
+              className="picker-search-input"
+              placeholder={isHi ? 'नाम खोजें...' : 'Search name...'}
+              value={filterText}
+              onChange={(e) => setFilterText(e.target.value)}
+              autoFocus
+              style={{
+                width: '100%',
+                padding: '6px 10px',
+                fontSize: '0.82rem',
+                border: '1px solid #E2D7C5',
+                borderRadius: '6px',
+                outline: 'none'
+              }}
+            />
+          </div>
+
+          <div className="picker-popup-list" style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {sortedFilteredMembers.length === 0 ? (
+              <div className="picker-no-results" style={{ padding: '12px', textAlign: 'center', color: '#888', fontSize: '0.8rem' }}>
+                {isHi ? 'कोई परिणाम नहीं मिला' : 'No results found'}
+              </div>
+            ) : (
+              sortedFilteredMembers.map(m => {
+                const isSelected = selectedIds.includes(m.id)
+                const isLimitReached = maxSelect && selectedIds.length >= maxSelect && !isSelected
+                return (
+                  <label 
+                    key={m.id} 
+                    className={`picker-popup-item ${isSelected ? 'selected' : ''} ${isLimitReached ? 'disabled-limit' : ''}`}
+                    title={isLimitReached ? (isHi ? `अधिकतम ${maxSelect} की अनुमति है` : `Maximum ${maxSelect} allowed`) : ''}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '6px 8px',
+                      borderRadius: '6px',
+                      cursor: isLimitReached ? 'not-allowed' : 'pointer',
+                      opacity: isLimitReached ? 0.45 : 1,
+                      background: isSelected ? 'rgba(184, 92, 56, 0.08)' : 'transparent'
+                    }}
+                  >
+                    <input 
+                      type="checkbox"
+                      checked={isSelected}
+                      disabled={isLimitReached}
+                      onChange={() => toggleSelect(m.id)}
+                      style={{ cursor: isLimitReached ? 'not-allowed' : 'pointer' }}
+                    />
+                    <img 
+                      src={m.photoUrl || 'https://ui-avatars.com/api/?name=Member'} 
+                      alt="" 
+                      style={{ width: '26px', height: '26px', borderRadius: '50%', objectFit: 'cover' }} 
+                    />
+                    <div className="picker-item-details" style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span className="item-name" style={{ fontSize: '0.82rem', fontWeight: 700, color: '#333' }}>
+                        {isSelected ? '✓ ' : ''}{isHi ? (m.name_hi || m.name_en) : (m.name_en || m.name_hi)}
+                      </span>
+                      <span className="item-sub" style={{ fontSize: '0.72rem', color: '#777' }}>
+                        Gen {m.generation} • {isHi ? (m.relation_hi || m.relation_en) : (m.relation_en || m.relation_hi)}
+                      </span>
+                    </div>
+                  </label>
+                )
+              })
+            )}
+          </div>
+        </div>,
+        document.body
+      )}
+    </div>
+  )
+}
+
 export default function FamilyTreeCanvas({ 
   data = FAMILY_DATA_35, 
   rootId = 'f-201',
   selectedNodeId,
   onNodeSelect,
   autoFullscreen = false,
-  onClose
+  onClose,
+  isAdmin = false
 }) {
   const { i18n } = useTranslation()
   const isHi = i18n.language !== 'en'
+
+  // Admin / Editable State
+  const [membersList, setMembersList] = useState(data)
+  const [viewMode, setViewMode] = useState('canvas') // 'canvas' | 'table'
+  const [isAdminEditOpen, setIsAdminEditOpen] = useState(false)
+  const [editingMember, setEditingMember] = useState(null)
+  const [whatsappSameAsPhone, setWhatsappSameAsPhone] = useState(true)
+  const [tableSearchQuery, setTableSearchQuery] = useState('')
+  const [drawerLangTab, setDrawerLangTab] = useState('en')
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false)
+
+  const extractTenDigits = (val) => {
+    if (!val) return ''
+    const digits = val.replace(/\D/g, '')
+    if (digits.length > 10 && digits.startsWith('91')) {
+      return digits.slice(2, 12)
+    }
+    return digits.slice(0, 10)
+  }
+
+  const todayDateMax = useMemo(() => {
+    return new Date().toISOString().split('T')[0]
+  }, [])
+
+  const validateDateBounds = (val) => {
+    if (!val) return ''
+    const parts = val.split('-')
+    if (parts.length < 3) return ''
+    let yearStr = parts[0]
+    if (!yearStr || yearStr.length !== 4) return ''
+    const yr = parseInt(yearStr, 10)
+    const curYr = new Date().getFullYear()
+    if (isNaN(yr) || yr < 1800 || yr > curYr) {
+      return ''
+    }
+    return val
+  }
+
+  useEffect(() => {
+    setMembersList(data)
+  }, [data])
+
+  useEffect(() => {
+    const handleAdminAddEvent = () => {
+      handleAddNewMember()
+    }
+    window.addEventListener('admin-add-family-member', handleAdminAddEvent)
+    return () => window.removeEventListener('admin-add-family-member', handleAdminAddEvent)
+  }, [membersList])
+
+  const handlePhotoFileUpload = async (e) => {
+    const file = e.target.files && e.target.files[0]
+    if (!file) return
+
+    try {
+      setIsUploadingPhoto(true)
+      const uploadedUrl = await uploadImage(file, 'family_tree_photos')
+      if (uploadedUrl) {
+        setEditingMember(prev => ({ ...prev, photoUrl: uploadedUrl }))
+      } else {
+        const reader = new FileReader()
+        reader.onload = (evt) => {
+          setEditingMember(prev => ({ ...prev, photoUrl: evt.target.result }))
+        }
+        reader.readAsDataURL(file)
+      }
+    } catch (err) {
+      const reader = new FileReader()
+      reader.onload = (evt) => {
+        setEditingMember(prev => ({ ...prev, photoUrl: evt.target.result }))
+      }
+      reader.readAsDataURL(file)
+    } finally {
+      setIsUploadingPhoto(false)
+    }
+  }
 
   // Viewport & Camera State
   const [zoomLevel, setZoomLevel] = useState(1)
@@ -184,7 +604,7 @@ export default function FamilyTreeCanvas({
   const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false)
   const [showMobileHint, setShowMobileHint] = useState(false)
 
-  const sortedBirthdays = useMemo(() => getSortedBirthdays(data), [data])
+  const sortedBirthdays = useMemo(() => getSortedBirthdays(membersList), [membersList])
 
   const handleSelectBirthdayMember = (memberId) => {
     setFocusedId(memberId)
@@ -264,21 +684,120 @@ export default function FamilyTreeCanvas({
     }
   }, [autoFullscreen])
 
+  const handleAddNewMember = (defaultParentId = null, defaultSpouseId = null) => {
+    const newId = 'f-' + Date.now().toString().slice(-6)
+    const newMember = {
+      id: newId,
+      name_en: '',
+      name_hi: '',
+      relation_en: 'Family Member',
+      relation_hi: 'पारिवारिक सदस्य',
+      generation: defaultParentId ? (memberMap.get(defaultParentId)?.generation || 1) + 1 : 1,
+      gender: 'male',
+      isDeceased: false,
+      birthDate: '',
+      deathDate: '',
+      marriageAnniversaryDate: '',
+      phone: '',
+      whatsappPhone: '',
+      facebookUrl: '',
+      photoUrl: 'https://ui-avatars.com/api/?name=New+Member&background=B85C38&color=fff&size=500',
+      parentIds: defaultParentId ? [defaultParentId] : [],
+      spouseIds: defaultSpouseId ? [defaultSpouseId] : [],
+      childrenIds: [],
+      bio: ''
+    }
+    setEditingMember(newMember)
+    setWhatsappSameAsPhone(true)
+    setDrawerLangTab(isHi ? 'hi' : 'en')
+    setIsAdminEditOpen(true)
+  }
+
+  const openProfileDrawer = (memberId) => {
+    setFocusedId(memberId)
+    setIsFocalMode(true)
+    if (onNodeSelect) onNodeSelect(memberId)
+
+    if (isAdmin) {
+      const mem = memberMap.get(memberId)
+      if (mem) {
+        const rawPhone = extractTenDigits(mem.phone)
+        const rawWa = extractTenDigits(mem.whatsappPhone || mem.phone)
+        setEditingMember({ 
+          ...mem,
+          phone: rawPhone,
+          whatsappPhone: rawWa
+        })
+        setWhatsappSameAsPhone(!mem.whatsappPhone || mem.whatsappPhone === mem.phone || rawWa === rawPhone)
+        setDrawerLangTab(isHi ? 'hi' : 'en')
+        setIsAdminEditOpen(true)
+      }
+    } else {
+      setIsDrawerOpen(true)
+    }
+  }
+
+  const handleSaveMember = (e) => {
+    if (e && e.preventDefault) e.preventDefault()
+    if (!editingMember) return
+
+    const formatPhoneWithPrefix = (val) => {
+      if (!val) return ''
+      const digits = val.replace(/\D/g, '').slice(0, 10)
+      return digits ? `+91 ${digits}` : ''
+    }
+
+    const finalPhone = formatPhoneWithPrefix(editingMember.phone)
+    const finalWa = whatsappSameAsPhone 
+      ? finalPhone 
+      : formatPhoneWithPrefix(editingMember.whatsappPhone)
+
+    const updatedMember = {
+      ...editingMember,
+      phone: finalPhone,
+      whatsappPhone: finalWa,
+      birthDate: validateDateBounds(editingMember.birthDate),
+      marriageAnniversaryDate: validateDateBounds(editingMember.marriageAnniversaryDate),
+      deathDate: validateDateBounds(editingMember.deathDate)
+    }
+
+    setMembersList(prev => {
+      const exists = prev.some(m => m.id === updatedMember.id)
+      let newList
+      if (exists) {
+        newList = prev.map(m => m.id === updatedMember.id ? updatedMember : m)
+      } else {
+        newList = [...prev, updatedMember]
+      }
+      return newList
+    })
+
+    setIsAdminEditOpen(false)
+    setEditingMember(null)
+  }
+
+  const handleDeleteMember = (memberId) => {
+    if (!window.confirm(isHi ? 'क्या आप निश्चित हैं कि इस सदस्य को हटाना चाहते हैं?' : 'Are you sure you want to delete this member?')) return
+    setMembersList(prev => prev.filter(m => m.id !== memberId))
+    setIsAdminEditOpen(false)
+    setEditingMember(null)
+  }
+
   // Fast O(1) Member Map
   const memberMap = useMemo(() => {
     const map = new Map()
-    data.forEach(m => map.set(m.id, m))
+    membersList.forEach(m => map.set(m.id, m))
     return map
-  }, [data])
+  }, [membersList])
 
-  const selectedMember = memberMap.get(focusedId) || data[0]
+  const selectedMember = memberMap.get(focusedId) || membersList[0] || data[0]
 
   // Structural Married Couple Containers
   const { coupleContainers, containerDescendantCounts } = useMemo(() => {
     const processedSpouses = new Set()
     const containers = []
 
-    data.forEach(member => {
+    membersList.forEach(member => {
       if (processedSpouses.has(member.id)) return
 
       if (member.spouseIds && member.spouseIds.length > 0) {
@@ -335,6 +854,27 @@ export default function FamilyTreeCanvas({
       descCounts.set(containerId, sum)
       return sum
     }
+
+    // Sort Containers & Children Eldest First (Earliest Birth Date)
+    containers.sort((a, b) => {
+      const yA = getBirthYear(a.primary.birthDate)
+      const yB = getBirthYear(b.primary.birthDate)
+      if (yA !== yB) return yA - yB
+      return (a.primary.name_en || '').localeCompare(b.primary.name_en || '')
+    })
+
+    containers.forEach(c => {
+      if (c.childrenIds && c.childrenIds.length > 0) {
+        c.childrenIds.sort((aId, bId) => {
+          const mA = memberMap.get(aId)
+          const mB = memberMap.get(bId)
+          const yA = getBirthYear(mA?.birthDate)
+          const yB = getBirthYear(mB?.birthDate)
+          if (yA !== yB) return yA - yB
+          return (mA?.name_en || '').localeCompare(mB?.name_en || '')
+        })
+      }
+    })
 
     containers.forEach(c => countDescendants(c.id))
 
@@ -960,14 +1500,6 @@ export default function FamilyTreeCanvas({
     if (onNodeSelect) onNodeSelect(memberId)
   }
 
-  // Open Detailed Profile Side Drawer
-  const openProfileDrawer = (memberId) => {
-    setFocusedId(memberId)
-    setIsFocalMode(true)
-    setIsDrawerOpen(true)
-    if (onNodeSelect) onNodeSelect(memberId)
-  }
-
   const closeProfileDrawer = () => {
     setIsDrawerOpen(false)
     if (window.history.state && window.history.state.familyProfileModalOpen) {
@@ -1173,7 +1705,69 @@ export default function FamilyTreeCanvas({
   }
 
   return (
-    <div className={`family-canvas-wrapper ${isFullscreen ? 'is-fullscreen' : ''}`} ref={wrapperRef}>
+    <div className={`family-canvas-wrapper ${isFullscreen ? 'is-fullscreen' : ''} ${isAdmin ? 'is-admin-mode' : ''}`} ref={wrapperRef}>
+
+      {/* Admin Table View Mode */}
+      {isAdmin && viewMode === 'table' ? (
+        <div className="admin-members-table-container">
+          <div className="table-search-header">
+            <input 
+              type="text"
+              className="admin-table-search-input"
+              placeholder={isHi ? 'सदस्य का नाम खोजें...' : 'Search members by name...'}
+              value={tableSearchQuery}
+              onChange={(e) => setTableSearchQuery(e.target.value)}
+            />
+          </div>
+          <table className="admin-members-table">
+            <thead>
+              <tr>
+                <th>{isHi ? 'फोटो' : 'Photo'}</th>
+                <th>{isHi ? 'नाम' : 'Name'}</th>
+                <th>{isHi ? 'संबंध' : 'Relation'}</th>
+                <th>{isHi ? 'पीढ़ी' : 'Gen'}</th>
+                <th>{isHi ? 'संपर्क' : 'Contact'}</th>
+                <th>{isHi ? 'कार्रवाई' : 'Actions'}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {membersList
+                .filter(m => !tableSearchQuery || m.name_en.toLowerCase().includes(tableSearchQuery.toLowerCase()) || m.name_hi.includes(tableSearchQuery))
+                .map(m => (
+                  <tr key={m.id}>
+                    <td>
+                      <img src={m.photoUrl} alt={m.name_en} className="table-member-thumb" />
+                    </td>
+                    <td>
+                      <strong>{isHi ? m.name_hi : m.name_en}</strong>
+                      <br />
+                      <small className="sub-name">{isHi ? m.name_en : m.name_hi}</small>
+                    </td>
+                    <td>{isHi ? m.relation_hi : m.relation_en}</td>
+                    <td><span className="gen-pill">Gen {m.generation}</span></td>
+                    <td>{m.phone || 'N/A'}</td>
+                    <td>
+                      <button 
+                        className="table-action-btn btn-edit"
+                        onClick={() => openProfileDrawer(m.id)}
+                      >
+                        ✏️ {isHi ? 'संपादित करें' : 'Edit'}
+                      </button>
+                      <button 
+                        className="table-action-btn btn-del"
+                        onClick={() => handleDeleteMember(m.id)}
+                      >
+                        🗑️
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+
       {/* 1. Top Enterprise Control Bar */}
       <div className="canvas-header-bar">
         {/* Left Controls: Clean Search Pill (English Only) + Birthdays Dropdown */}
@@ -1276,8 +1870,37 @@ export default function FamilyTreeCanvas({
           </div>
         </div>
 
-        {/* Right Controls: Single Consolidated Top-Right Options Dropdown Menu */}
+        {/* Right Controls: Stats, Add Member, View Mode & Options */}
         <div className="header-right-group">
+          {isAdmin && (
+            <>
+              <span className="header-stats-pill">🌳 {isHi ? `कुल सदस्य: ${membersList.length}` : `Total Members: ${membersList.length}`}</span>
+              <button 
+                type="button"
+                className="header-btn-add-member"
+                onClick={() => handleAddNewMember()}
+              >
+                + {isHi ? 'नया सदस्य' : 'Add New Member'}
+              </button>
+              <div className="view-mode-toggle">
+                <button 
+                  type="button"
+                  className={`mode-btn ${viewMode === 'canvas' ? 'active' : ''}`}
+                  onClick={() => setViewMode('canvas')}
+                >
+                  🌳 {isHi ? 'कैनवास' : 'Canvas'}
+                </button>
+                <button 
+                  type="button"
+                  className={`mode-btn ${viewMode === 'table' ? 'active' : ''}`}
+                  onClick={() => setViewMode('table')}
+                >
+                  📋 {isHi ? 'तालिका' : 'Table'}
+                </button>
+              </div>
+            </>
+          )}
+
           <div className="header-dropdown-wrapper">
             <button 
               className={`header-action-btn primary-menu-btn ${isActionsMenuOpen ? 'menu-active' : ''}`}
@@ -1814,6 +2437,480 @@ export default function FamilyTreeCanvas({
               <span className="lightbox-caption">{isHi ? selectedMember.name_hi : selectedMember.name_en}</span>
             </motion.div>
           )}
+        </AnimatePresence>,
+        wrapperRef.current || document.body
+      )}
+
+      {/* Admin Edit Member Drawer Form Modal */}
+      {isAdmin && isAdminEditOpen && editingMember && createPortal(
+        <AnimatePresence>
+          <motion.div 
+            className="family-drawer-overlay admin-edit-overlay" 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }} 
+            onClick={() => setIsAdminEditOpen(false)} 
+          />
+          <motion.div 
+            className="family-drawer-panel admin-edit-drawer-panel"
+            initial={{ y: '100%', opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: '100%', opacity: 0 }}
+            transition={{ type: 'spring', damping: 26, stiffness: 240 }}
+          >
+            {/* Drawer Header */}
+            <div className="admin-edit-drawer-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <img 
+                  src={editingMember.photoUrl || 'https://ui-avatars.com/api/?name=Member&background=B85C38&color=fff&size=500'} 
+                  alt="Thumb" 
+                  style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #B85C38' }} 
+                />
+                <h3>
+                  {editingMember.id && membersList.some(m => m.id === editingMember.id) ? (
+                    isHi ? `${(editingMember.name_hi || editingMember.name_en)} का विवरण बदलें` : `Edit ${(editingMember.name_en || editingMember.name_hi)} details`
+                  ) : (
+                    isHi ? 'नया सदस्य जोड़ें' : 'Add New Member'
+                  )}
+                </h3>
+              </div>
+              <button className="drawer-close-btn" type="button" onClick={() => setIsAdminEditOpen(false)}>✕</button>
+            </div>
+
+            <form className="admin-edit-form-body" onSubmit={handleSaveMember}>
+              <div className="admin-edit-drawer-content">
+                {/* SECTION 1: Basic Info */}
+                <div className="drawer-section-card">
+                  <h4 className="drawer-section-title">
+                    👤 {isHi ? 'व्यक्तिगत विवरण' : 'Basic Info'}
+                  </h4>
+                  <div className="drawer-form-grid-2col-toplabel">
+                    {/* Row 1: Photo & Gender */}
+                    <div className="admin-field-row photo-row">
+                      <label className="field-label">{isHi ? 'फोटो' : 'Photo'}</label>
+                      <div className="field-input-wrapper photo-upload-only-area">
+                        <label className="admin-btn-file-upload">
+                          📁 {isUploadingPhoto ? (isHi ? 'अपलोड...' : 'Uploading...') : (isHi ? 'फोटो अपलोड करें' : 'Upload Photo')}
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            style={{ display: 'none' }} 
+                            onChange={handlePhotoFileUpload}
+                            disabled={isUploadingPhoto}
+                          />
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="admin-field-row">
+                      <label className="field-label">{isHi ? 'लिंग' : 'Gender'}</label>
+                      <div className="field-input-wrapper">
+                        <select 
+                          className="admin-select"
+                          value={editingMember.gender || 'male'}
+                          onChange={(e) => setEditingMember({ ...editingMember, gender: e.target.value })}
+                        >
+                          <option value="male">{isHi ? 'पुरुष' : 'Male'}</option>
+                          <option value="female">{isHi ? 'महिला' : 'Female'}</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Row 2: English Name & Hindi Name with Inline Auto Button */}
+                    <div className="admin-field-row">
+                      <label className="field-label">{isHi ? 'नाम (अंग्रेजी) *' : 'Name (English) *'}</label>
+                      <div className="field-input-wrapper">
+                        <input 
+                          type="text" 
+                          required
+                          className="admin-input" 
+                          value={editingMember.name_en || ''} 
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/[^a-zA-Z\s.-]/g, '')
+                            setEditingMember({ ...editingMember, name_en: val })
+                          }}
+                          placeholder="e.g. Smt. Kaushalya Sharma"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="admin-field-row">
+                      <label className="field-label">{isHi ? 'नाम (हिंदी) *' : 'Name (Hindi) *'}</label>
+                      <div className="field-input-wrapper input-with-inline-action hindi-input-wrapper">
+                        <input 
+                          type="text" 
+                          required
+                          className="admin-input" 
+                          value={editingMember.name_hi || ''} 
+                          onKeyDown={(e) => handleHindiKeyDown(e, editingMember.name_hi, (val) => setEditingMember({ ...editingMember, name_hi: val }))}
+                          onPaste={(e) => handleKrutiDevPaste(e, editingMember.name_hi, (val) => setEditingMember({ ...editingMember, name_hi: val }))}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/[^\u0900-\u097F\s.-]/g, '')
+                            setEditingMember({ ...editingMember, name_hi: val })
+                          }}
+                          placeholder="उदा. श्रीमती कौशल्या शर्मा"
+                        />
+                        <button 
+                          type="button" 
+                          className="btn-inline-auto-hindi inline-auto-hindi-btn"
+                          onClick={() => {
+                            const autoHi = autoTransliterateToHindi(editingMember.name_en)
+                            if (autoHi) setEditingMember({ ...editingMember, name_hi: autoHi })
+                          }}
+                          title="Auto convert English name to Hindi Devanagari"
+                        >
+                          ✨ Auto
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Row 3: Relation & Generation Level */}
+                    <div className="admin-field-row">
+                      <label className="field-label">{isHi ? 'संबंध' : 'Relation'}</label>
+                      <div className="field-input-wrapper">
+                        <input 
+                          type="text" 
+                          className="admin-input" 
+                          value={editingMember.relation_hi || editingMember.relation_en || ''} 
+                          onKeyDown={(e) => handleHindiKeyDown(e, editingMember.relation_hi, (val) => setEditingMember({ ...editingMember, relation_hi: val }))}
+                          onPaste={(e) => handleKrutiDevPaste(e, editingMember.relation_hi, (val) => setEditingMember({ ...editingMember, relation_hi: val }))}
+                          onChange={(e) => setEditingMember({ ...editingMember, relation_hi: e.target.value, relation_en: e.target.value })}
+                          placeholder={isHi ? 'उदा. दादीजी' : 'e.g. Grandmother'}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="admin-field-row">
+                      <label className="field-label">{isHi ? 'पीढ़ी स्तर' : 'Generation Level'}</label>
+                      <div className="field-input-wrapper">
+                        <input 
+                          type="number" 
+                          min="1" max="10"
+                          className="admin-input" 
+                          value={editingMember.generation || 1} 
+                          onChange={(e) => setEditingMember({ ...editingMember, generation: parseInt(e.target.value, 10) || 1 })}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* SECTION 2: Important Dates & Status */}
+                <div className="drawer-section-card">
+                  <h4 className="drawer-section-title">
+                    📅 {isHi ? 'महत्वपूर्ण तिथियां' : 'Important Dates & Status'}
+                  </h4>
+                  <div className="drawer-form-grid-2col-toplabel">
+                    {/* Row 1: Birth Date & Anniversary */}
+                    <div className="admin-field-row">
+                      <label className="field-label">{isHi ? 'जन्म तिथि' : 'Birth Date'}</label>
+                      <div className="field-input-wrapper">
+                        <input 
+                          type="date" 
+                          min="1800-01-01"
+                          max={todayDateMax}
+                          className="admin-input date-picker-input" 
+                          value={editingMember.birthDate || ''} 
+                          onChange={(e) => {
+                            const val = e.target.value
+                            setEditingMember(prev => ({ ...prev, birthDate: val }))
+                          }}
+                          onBlur={(e) => {
+                            const validVal = validateDateBounds(e.target.value)
+                            setEditingMember(prev => ({ ...prev, birthDate: validVal }))
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="admin-field-row">
+                      <label className="field-label">{isHi ? 'विवाह वर्षगांठ' : 'Marriage Anniversary'}</label>
+                      <div className="field-input-wrapper">
+                        <input 
+                          type="date" 
+                          min="1800-01-01"
+                          max={todayDateMax}
+                          className="admin-input date-picker-input" 
+                          value={editingMember.marriageAnniversaryDate || ''} 
+                          onChange={(e) => {
+                            const val = e.target.value
+                            setEditingMember(prev => ({ ...prev, marriageAnniversaryDate: val }))
+                          }}
+                          onBlur={(e) => {
+                            const validVal = validateDateBounds(e.target.value)
+                            setEditingMember(prev => ({ ...prev, marriageAnniversaryDate: validVal }))
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Row 2: Deceased Status & Date adjacent on single line */}
+                    <div className="admin-field-row" style={{ gridColumn: 'span 2' }}>
+                      <label className="field-label">{isHi ? 'स्मृतिशेष' : 'Deceased Status'}</label>
+                      <div className="field-input-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '16px', minHeight: '38px' }}>
+                        <label className="checkbox-label" style={{ whiteSpace: 'nowrap' }}>
+                          <input 
+                            type="checkbox" 
+                            checked={!!editingMember.isDeceased}
+                            onChange={(e) => setEditingMember({ ...editingMember, isDeceased: e.target.checked })}
+                          />
+                          <span>{isHi ? 'स्वर्गीय' : 'Deceased'}</span>
+                        </label>
+                        {editingMember.isDeceased && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
+                            <span style={{ fontSize: '0.8rem', color: '#666', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                              {isHi ? 'पुण्यतिथि:' : 'Passing Date:'}
+                            </span>
+                            <input 
+                              type="date" 
+                              min="1800-01-01"
+                              max={todayDateMax}
+                              className="admin-input date-picker-input" 
+                              value={editingMember.deathDate || ''} 
+                              onChange={(e) => {
+                                const val = e.target.value
+                                setEditingMember(prev => ({ ...prev, deathDate: val }))
+                              }}
+                              onBlur={(e) => {
+                                const validVal = validateDateBounds(e.target.value)
+                                setEditingMember(prev => ({ ...prev, deathDate: validVal }))
+                              }}
+                              style={{ flex: 1 }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* SECTION 3: Contact & Social */}
+                <div className="drawer-section-card">
+                  <h4 className="drawer-section-title">
+                    📞 {isHi ? 'संपर्क एवं सोशल' : 'Contact & Social'}
+                  </h4>
+                  <div className="drawer-form-grid-2col-toplabel">
+                    {/* Row 1: Phone & WhatsApp */}
+                    <div className="admin-field-row">
+                      <label className="field-label">{isHi ? 'फ़ोन नंबर' : 'Phone Number'}</label>
+                      <div className="field-input-wrapper phone-input-group">
+                        <span className="phone-prefix-addon">+</span>
+                        <input 
+                          type="text" 
+                          inputMode="numeric"
+                          maxLength={4}
+                          className="country-code-input" 
+                          value={editingMember.countryCode || '91'} 
+                          onChange={(e) => {
+                            const rawDigits = e.target.value.replace(/\D/g, '')
+                            setEditingMember(prev => ({
+                              ...prev,
+                              countryCode: rawDigits,
+                              whatsappCountryCode: whatsappSameAsPhone ? rawDigits : prev.whatsappCountryCode
+                            }))
+                          }}
+                        />
+                        <input 
+                          type="text" 
+                          inputMode="numeric"
+                          maxLength={10}
+                          className="admin-input phone-number-input" 
+                          value={editingMember.phone || ''} 
+                          onChange={(e) => {
+                            const rawDigits = e.target.value.replace(/\D/g, '').slice(0, 10)
+                            setEditingMember(prev => ({
+                              ...prev,
+                              phone: rawDigits,
+                              whatsappPhone: whatsappSameAsPhone ? rawDigits : prev.whatsappPhone
+                            }))
+                          }}
+                          placeholder="98290 12345"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="admin-field-row">
+                      <div className="field-label-wrapper" style={{ display: 'flex', flexDirection: 'column', minWidth: '150px', flexShrink: 0 }}>
+                        <label className="field-label" style={{ minWidth: 'auto', marginBottom: '2px' }}>WhatsApp:</label>
+                        <label className="checkbox-label" style={{ fontSize: '0.72rem', fontWeight: 500, color: '#4B5563', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <input 
+                            type="checkbox" 
+                            checked={whatsappSameAsPhone}
+                            onChange={(e) => {
+                              const checked = e.target.checked
+                              setWhatsappSameAsPhone(checked)
+                              if (checked) {
+                                setEditingMember(prev => ({
+                                  ...prev,
+                                  whatsappPhone: prev.phone || '',
+                                  whatsappCountryCode: prev.countryCode || '91'
+                                }))
+                              }
+                            }}
+                          />
+                          <span>{isHi ? 'फ़ोन के समान' : 'Same as Phone'}</span>
+                        </label>
+                      </div>
+                      <div className="field-input-wrapper phone-input-group">
+                        <span className="phone-prefix-addon">+</span>
+                        <input 
+                          type="text" 
+                          inputMode="numeric"
+                          maxLength={4}
+                          disabled={whatsappSameAsPhone}
+                          className="country-code-input" 
+                          value={whatsappSameAsPhone ? (editingMember.countryCode || '91') : (editingMember.whatsappCountryCode || '91')} 
+                          onChange={(e) => {
+                            if (whatsappSameAsPhone) return
+                            const rawDigits = e.target.value.replace(/\D/g, '')
+                            setEditingMember(prev => ({ ...prev, whatsappCountryCode: rawDigits }))
+                          }}
+                          style={whatsappSameAsPhone ? { opacity: 0.6, cursor: 'not-allowed', backgroundColor: '#F3F4F6' } : {}}
+                        />
+                        <input 
+                          type="text" 
+                          inputMode="numeric"
+                          maxLength={10}
+                          disabled={whatsappSameAsPhone}
+                          className="admin-input phone-number-input" 
+                          value={whatsappSameAsPhone ? (editingMember.phone || '') : (editingMember.whatsappPhone || '')} 
+                          onChange={(e) => {
+                            if (whatsappSameAsPhone) return
+                            const rawDigits = e.target.value.replace(/\D/g, '').slice(0, 10)
+                            setEditingMember(prev => ({ ...prev, whatsappPhone: rawDigits }))
+                          }}
+                          placeholder="98290 99999"
+                          style={whatsappSameAsPhone ? { opacity: 0.6, cursor: 'not-allowed', backgroundColor: '#F3F4F6' } : {}}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Row 2: Facebook URL */}
+                    <div className="admin-field-row" style={{ gridColumn: 'span 2' }}>
+                      <label className="field-label">{isHi ? 'फेसबुक लिंक' : 'Facebook Link'}</label>
+                      <div className="field-input-wrapper">
+                        <input 
+                          type="url" 
+                          className="admin-input" 
+                          value={editingMember.facebookUrl || ''} 
+                          onChange={(e) => setEditingMember({ ...editingMember, facebookUrl: e.target.value })}
+                          onBlur={(e) => {
+                            let val = e.target.value.trim()
+                            if (val && !val.startsWith('http://') && !val.startsWith('https://')) {
+                              val = `https://${val}`
+                              setEditingMember(prev => ({ ...prev, facebookUrl: val }))
+                            }
+                          }}
+                          placeholder="https://facebook.com/username"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* SECTION 4: Family Relationships */}
+                <div className="drawer-section-card">
+                  <h4 className="drawer-section-title">
+                    🌳 {isHi ? 'पारिवारिक रिश्ते' : 'Family Relationships'}
+                  </h4>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <CompactInlineMemberPicker 
+                      label={isHi ? 'माता-पिता चुनें (अधिकतम 2)' : 'Select Parents (Max 2)'}
+                      membersList={membersList}
+                      selectedIds={editingMember.parentIds || []}
+                      onChange={(ids) => {
+                        const newChildren = (editingMember.childrenIds || []).filter(id => !ids.includes(id))
+                        const newSpouse = (editingMember.spouseIds || []).filter(id => !ids.includes(id))
+                        setEditingMember(prev => ({
+                          ...prev,
+                          parentIds: ids,
+                          childrenIds: newChildren,
+                          spouseIds: newSpouse
+                        }))
+                      }}
+                      currentMemberId={editingMember.id}
+                      excludedIds={[...(editingMember.childrenIds || []), ...(editingMember.spouseIds || [])]}
+                      maxSelect={2}
+                      isHi={isHi}
+                    />
+
+                    <CompactInlineMemberPicker 
+                      label={isHi ? 'जीवनसाथी चुनें' : 'Select Spouse'}
+                      membersList={membersList}
+                      selectedIds={editingMember.spouseIds || []}
+                      onChange={(ids) => {
+                        const newParents = (editingMember.parentIds || []).filter(id => !ids.includes(id))
+                        const newChildren = (editingMember.childrenIds || []).filter(id => !ids.includes(id))
+                        setEditingMember(prev => ({
+                          ...prev,
+                          spouseIds: ids,
+                          parentIds: newParents,
+                          childrenIds: newChildren
+                        }))
+                      }}
+                      currentMemberId={editingMember.id}
+                      excludedIds={[...(editingMember.parentIds || []), ...(editingMember.childrenIds || [])]}
+                      isHi={isHi}
+                    />
+
+                    <CompactInlineMemberPicker 
+                      label={isHi ? 'संतान चुनें' : 'Select Children'}
+                      membersList={membersList}
+                      selectedIds={editingMember.childrenIds || []}
+                      onChange={(ids) => {
+                        const newParents = (editingMember.parentIds || []).filter(id => !ids.includes(id))
+                        const newSpouse = (editingMember.spouseIds || []).filter(id => !ids.includes(id))
+                        setEditingMember(prev => ({
+                          ...prev,
+                          childrenIds: ids,
+                          parentIds: newParents,
+                          spouseIds: newSpouse
+                        }))
+                      }}
+                      currentMemberId={editingMember.id}
+                      excludedIds={[...(editingMember.parentIds || []), ...(editingMember.spouseIds || [])]}
+                      isHi={isHi}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Pinned Sticky Action Footer Bar */}
+              <div className="admin-edit-drawer-footer">
+                <div>
+                  {editingMember.id && membersList.some(m => m.id === editingMember.id) && (
+                    <button 
+                      type="button" 
+                      className="admin-btn-delete-footer"
+                      onClick={() => {
+                        const name = editingMember.name_en || editingMember.name_hi || 'this member'
+                        if (window.confirm(isHi ? `क्या आप वाकई ${name} को हटाना चाहते हैं?` : `Are you sure you want to delete ${name}?`)) {
+                          handleDeleteMember(editingMember.id)
+                        }
+                      }}
+                    >
+                      🗑️ {isHi ? 'सदस्य हटाएं' : 'Delete Member'}
+                    </button>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <button 
+                    type="button" 
+                    className="admin-btn-cancel-footer"
+                    onClick={() => setIsAdminEditOpen(false)}
+                  >
+                    {isHi ? 'रद्द करें' : 'Cancel'}
+                  </button>
+
+                  <button type="submit" className="admin-btn-save-footer">
+                    💾 {isHi ? 'सुरक्षित करें' : 'Save Member'}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </motion.div>
         </AnimatePresence>,
         wrapperRef.current || document.body
       )}

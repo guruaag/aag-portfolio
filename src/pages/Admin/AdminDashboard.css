@@ -158,6 +158,15 @@
   box-sizing: border-box;
 }
 
+.admin-main-canvas.is-family-mode {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+}
+
 .admin-dashboard-container {
   min-height: 100%;
   padding-bottom: 40px;

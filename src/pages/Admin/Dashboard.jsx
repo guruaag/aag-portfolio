@@ -11,6 +11,7 @@ import { convertKrutiDevToUnicode, isKrutiDevText } from '../../utils/krutiDevEn
 import TypingToolbar from '../../components/admin/TypingToolbar'
 import RemingtonKeymapDrawer from '../../components/admin/RemingtonKeymapDrawer'
 import PM5BatchPasteModal from '../../components/admin/PM5BatchPasteModal'
+import FamilyTreeCanvas from '../../components/FamilyTreeCanvas'
 import { handleHindiKeyDown } from '../../utils/hindiTypingEngine'
 import i18n from '../../i18n/config'
 import { handleFormattingShortcut } from '../../utils/textFormatter'
@@ -457,7 +458,7 @@ function AdminDashboard({ tab, initialSubTab }) {
 
  {/* About Bio Section */}
  <button
- className={`admin-tab-btn ${activeTab === 'about' || activeTab === 'timeline' || activeTab === 'awards' ? 'active' : ''}`}
+ className={`admin-tab-btn ${activeTab === 'about' || activeTab === 'timeline' || activeTab === 'awards' || activeTab === 'familytree' ? 'active' : ''}`}
  onClick={() => switchTab('about', '/admin/parichay')}
  >
  {tLabel('परिचय', 'About')}
@@ -482,6 +483,12 @@ function AdminDashboard({ tab, initialSubTab }) {
  onClick={() => switchTab('awards', '/admin/awards')}
  >
  3. {tLabel('पुरस्कार व सम्मान', 'Awards & Honors')}
+ </button>
+ <button
+ className={`admin-sub-tab-btn ${activeTab === 'familytree' ? 'active' : ''}`}
+ onClick={() => switchTab('familytree', '/admin/family-tree')}
+ >
+ 4. {tLabel('वंशवृक्ष (फैमिली ट्री)', 'Family Tree')}
  </button>
  </div>
 
@@ -544,7 +551,7 @@ function AdminDashboard({ tab, initialSubTab }) {
  </aside>
 
  {/* Flexible Main Canvas Area */}
- <main className="admin-main-canvas">
+ <main className={`admin-main-canvas ${(activeTab === 'family' || activeTab === 'familytree') ? 'is-family-mode' : ''}`}>
  
  {/* Persistent Sticky Top Action Header */}
  <header className="admin-sticky-header">
@@ -559,6 +566,7 @@ function AdminDashboard({ tab, initialSubTab }) {
  {activeTab === 'about' && tLabel('परिचय', 'Intro')}
  {activeTab === 'timeline' && tLabel('समयरेखा', 'Timeline')}
  {activeTab === 'awards' && tLabel('पुरस्कार व सम्मान', 'Awards & Honors')}
+ {activeTab === 'familytree' && tLabel('वंशवृक्ष (फैमिली ट्री)', 'Family Tree')}
  {activeTab === 'poems' && (
  !paramId ? tLabel('कविताएं', 'Poetry') :
  paramId === 'new' ? tLabel('कविताएं > नई कविता जोड़ें', 'Poetry > Add New Poem') :
@@ -598,6 +606,28 @@ function AdminDashboard({ tab, initialSubTab }) {
  }}
  >
  + {tLabel('जोड़ें', 'Add')}
+ </button>
+ ) : (activeTab === 'family' || activeTab === 'familytree') ? (
+ <button
+ type="button"
+ className="admin-btn-primary"
+ onClick={() => {
+ window.dispatchEvent(new Event('admin-add-family-member'))
+ }}
+ style={{
+ backgroundColor: '#B85C38',
+ color: '#FFFFFF',
+ padding: '8px 20px',
+ borderRadius: '20px',
+ fontWeight: 700,
+ border: 'none',
+ cursor: 'pointer',
+ display: 'flex',
+ alignItems: 'center',
+ gap: '6px'
+ }}
+ >
+ + {tLabel('सदस्य जोड़ें', 'Add Member')}
  </button>
  ) : (
  <>
@@ -687,6 +717,9 @@ function AdminDashboard({ tab, initialSubTab }) {
  onUpdate={loadData}
  setIsDirty={setIsDirty}
  />
+ )}
+ {activeTab === 'familytree' && (
+ <FamilyTreeCanvas isAdmin={true} />
  )}
  {(activeTab === 'categories' || activeTab === 'poems') && (
  <PoemsManager poems={data.poems} onUpdate={loadData} setIsDirty={setIsDirty} />
