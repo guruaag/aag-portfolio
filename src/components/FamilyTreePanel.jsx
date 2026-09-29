@@ -1,8 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, lazy, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import FamilyTreeCanvas, { FAMILY_DATA_35 } from './FamilyTreeCanvas'
+import { FAMILY_DATA_35 } from './FamilyTreeCanvas'
 import './FamilyTreePanel.css'
+
+const FamilyTreeCanvas = lazy(() => import('./FamilyTreeCanvas'))
 
 export const MOCK_FAMILY_DATA = FAMILY_DATA_35
 
@@ -56,12 +58,18 @@ export default function FamilyTreePanel() {
             >
               {/* Canvas Component Auto-Triggering Fullscreen & Focus Mode */}
               <div className="family-modal-body">
-                <FamilyTreeCanvas 
-                  rootId="f-201" 
-                  selectedNodeId="f-201" 
-                  autoFullscreen={true} 
-                  onClose={handleClose} 
-                />
+                <Suspense fallback={
+                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', color: '#E2D7C5', fontSize: '1.1rem' }}>
+                    {isHi ? 'वंश-वृक्ष लोड हो रहा है...' : 'Loading Family Tree...'}
+                  </div>
+                }>
+                  <FamilyTreeCanvas 
+                    rootId="f-201" 
+                    selectedNodeId="f-201" 
+                    autoFullscreen={true} 
+                    onClose={handleClose} 
+                  />
+                </Suspense>
               </div>
             </motion.div>
           </motion.div>

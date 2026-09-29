@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, Suspense, lazy } from 'react'
 import { HelmetProvider } from 'react-helmet-async'
 import { I18nextProvider } from 'react-i18next'
 import i18n from './i18n/config'
@@ -10,9 +10,10 @@ import PoemPage from './pages/PoemPage'
 import PublicationPage from './pages/PublicationPage'
 import Contact from './pages/Contact'
 import Settings from './pages/Settings'
-import AdminLogin from './pages/Admin/Login'
-import AdminDashboard from './pages/Admin/Dashboard'
-import KrutiDevConverterStudio from './pages/Admin/KrutiDevConverterStudio'
+
+const AdminLogin = lazy(() => import('./pages/Admin/Login'))
+const AdminDashboard = lazy(() => import('./pages/Admin/Dashboard'))
+const KrutiDevConverterStudio = lazy(() => import('./pages/Admin/KrutiDevConverterStudio'))
 
 import { initTheme } from './lib/themeSystem'
 import './styles/phoenix-design-system.css'

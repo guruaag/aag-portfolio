@@ -12,7 +12,21 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: false
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('framer-motion')) return 'vendor-framer'
+            if (id.includes('@supabase')) return 'vendor-supabase'
+            if (id.includes('lucide-react')) return 'vendor-icons'
+            if (id.includes('marked')) return 'vendor-marked'
+            if (id.includes('i18next')) return 'vendor-i18n'
+            if (id.includes('react-router') || id.includes('react-dom') || id.includes('react-helmet')) return 'vendor-react'
+          }
+        }
+      }
+    }
   },
   resolve: {
     alias: {
