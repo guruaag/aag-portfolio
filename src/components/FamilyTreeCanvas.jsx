@@ -1187,7 +1187,7 @@ export default function FamilyTreeCanvas({
     }
   }
 
-  const handleSaveMember = (e) => {
+  const handleSaveMember = async (e) => {
     if (e && e.preventDefault) e.preventDefault()
     if (!editingMember) return
 
@@ -1211,6 +1211,18 @@ export default function FamilyTreeCanvas({
       deathDate: validateDateBounds(editingMember.deathDate)
     }
 
+    setIsUploadingPhoto(true)
+    const res = await saveFamilyMember(updatedMember)
+    setIsUploadingPhoto(false)
+
+    if (!res.success) {
+      const errMsg = res.error?.message || res.error?.details || JSON.stringify(res.error) || 'Database write error'
+      const errCode = res.error?.code || '42501'
+      alert(`❌ Supabase Database Write Failed!\n\nReason: ${errMsg}\nCode: ${errCode}\n\nNote: If code is 42501 (RLS violation) or PGRST205 (table not found), please run migration 014_add_family_tree_tables.sql in Supabase SQL Editor.`)
+      return
+    }
+
+    // Database write confirmed 200/201! Update state and close modal
     setMembersList(prev => {
       const exists = prev.some(m => m.id === updatedMember.id)
       let newList
@@ -1222,20 +1234,24 @@ export default function FamilyTreeCanvas({
       return newList
     })
 
-    saveFamilyMember(updatedMember).then(res => {
-      if (!res.success) {
-        console.warn('Error persisting family member to database:', res.error)
-      }
-    }).catch(err => console.error('Save error:', err))
-
     setIsAdminEditOpen(false)
     setEditingMember(null)
   }
 
-  const handleDeleteMember = (memberId) => {
+  const handleDeleteMember = async (memberId) => {
     if (!window.confirm(isHi ? 'क्या आप निश्चित हैं कि इस सदस्य को हटाना चाहते हैं?' : 'Are you sure you want to delete this member?')) return
+    
+    setIsUploadingPhoto(true)
+    const res = await deleteFamilyMember(memberId)
+    setIsUploadingPhoto(false)
+
+    if (!res.success) {
+      const errMsg = res.error?.message || res.error?.details || JSON.stringify(res.error) || 'Database delete error'
+      alert(`❌ Supabase Soft-Delete Failed!\n\nReason: ${errMsg}`)
+      return
+    }
+
     setMembersList(prev => prev.filter(m => m.id !== memberId))
-    deleteFamilyMember(memberId).catch(err => console.error('Delete error:', err))
     setIsAdminEditOpen(false)
     setEditingMember(null)
   }
