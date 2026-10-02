@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { uploadImage } from '../lib/imageUtils'
 import { convertKrutiDevToUnicode, isKrutiDevText } from '../utils/krutiDevEngine'
 import { handleHindiKeyDown } from '../utils/hindiTypingEngine'
+import { getFamilyTree, saveFamilyMember, deleteFamilyMember } from '../lib/supabaseClient'
 import './FamilyTreeCanvas.css'
 
 function handleKrutiDevPaste(e, currentValue, onUpdate) {
@@ -905,6 +906,16 @@ export default function FamilyTreeCanvas({
 
   // Admin / Editable State
   const [membersList, setMembersList] = useState(data)
+
+  useEffect(() => {
+    let isMounted = true
+    getFamilyTree().then(remoteData => {
+      if (isMounted && Array.isArray(remoteData) && remoteData.length > 0) {
+        setMembersList(remoteData)
+      }
+    }).catch(err => console.warn('Family tree fetch fallback:', err))
+    return () => { isMounted = false }
+  }, [])
   const [viewMode, setViewMode] = useState('canvas') // 'canvas' | 'table'
   const [isAdminEditOpen, setIsAdminEditOpen] = useState(false)
   const [editingMember, setEditingMember] = useState(null)
@@ -1181,6 +1192,12 @@ export default function FamilyTreeCanvas({
       return newList
     })
 
+    saveFamilyMember(updatedMember).then(res => {
+      if (!res.success) {
+        console.warn('Error persisting family member to database:', res.error)
+      }
+    }).catch(err => console.error('Save error:', err))
+
     setIsAdminEditOpen(false)
     setEditingMember(null)
   }
@@ -1188,6 +1205,7 @@ export default function FamilyTreeCanvas({
   const handleDeleteMember = (memberId) => {
     if (!window.confirm(isHi ? 'क्या आप निश्चित हैं कि इस सदस्य को हटाना चाहते हैं?' : 'Are you sure you want to delete this member?')) return
     setMembersList(prev => prev.filter(m => m.id !== memberId))
+    deleteFamilyMember(memberId).catch(err => console.error('Delete error:', err))
     setIsAdminEditOpen(false)
     setEditingMember(null)
   }

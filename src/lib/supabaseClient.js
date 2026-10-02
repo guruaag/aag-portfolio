@@ -197,3 +197,151 @@ export async function getAwards() {
 
   return []
 }
+
+export async function getFamilyTree() {
+  try {
+    const [membersRes, relsRes] = await Promise.all([
+      supabase.from('family_members').select('*').order('sort_order', { ascending: true }),
+      supabase.from('family_relationships').select('*')
+    ])
+
+    if (!membersRes.error && membersRes.data && membersRes.data.length > 0) {
+      const activeMembers = membersRes.data.filter(m => m.is_deleted !== true && m.is_active !== false)
+      const relationships = relsRes.data || []
+
+      const formattedMembers = activeMembers.map(m => {
+        const key = m.member_key || m.id
+        const parentIds = relationships
+          .filter(r => r.person_key === key && r.relationship_type === 'parent')
+          .map(r => r.related_key)
+        const spouseIds = relationships
+          .filter(r => r.person_key === key && r.relationship_type === 'spouse')
+          .map(r => r.related_key)
+        const childrenIds = relationships
+          .filter(r => r.person_key === key && r.relationship_type === 'child')
+          .map(r => r.related_key)
+
+        return {
+          id: key,
+          db_id: m.id,
+          name_hi: m.name_hi,
+          name_en: m.name_en,
+          relation_hi: m.relation_hi || '',
+          relation_en: m.relation_en || '',
+          generation: m.generation || 1,
+          gender: m.gender || 'male',
+          isDeceased: m.is_deceased || false,
+          birthDate: m.birth_date || '',
+          deathDate: m.death_date || '',
+          phone: m.phone || '',
+          city: m.city || 'Jaipur',
+          photoUrl: m.photo_url || '',
+          bio: m.bio || '',
+          parentIds,
+          spouseIds,
+          childrenIds
+        }
+      })
+
+      try { localStorage.setItem('cache_family_tree', JSON.stringify(formattedMembers)) } catch (e) {}
+      return formattedMembers
+    }
+  } catch (e) {
+    console.warn('Error fetching family tree:', e)
+  }
+
+  try {
+    const cached = localStorage.getItem('cache_family_tree')
+    if (cached) return JSON.parse(cached)
+  } catch (e) {}
+
+  return null
+}
+
+export async function saveFamilyMember(member) {
+  try {
+    const memberKey = member.id || `f-${Date.now()}`
+    const payload = {
+      member_key: memberKey,
+      name_hi: member.name_hi,
+      name_en: member.name_en,
+      relation_hi: member.relation_hi || '',
+      relation_en: member.relation_en || '',
+      gender: member.gender || 'male',
+      is_deceased: Boolean(member.isDeceased),
+      birth_date: member.birthDate || '',
+      death_date: member.deathDate || '',
+      generation: member.generation || 1,
+      city: member.city || 'Jaipur',
+      phone: member.phone || '',
+      photo_url: member.photoUrl || '',
+      bio: member.bio || '',
+      updated_at: new Date().toISOString()
+    }
+
+    let memberRes
+    if (member.db_id) {
+      memberRes = await supabase
+        .from('family_members')
+        .update(payload)
+        .eq('id', member.db_id)
+        .select()
+        .single()
+    } else {
+      memberRes = await supabase
+        .from('family_members')
+        .upsert(payload, { onConflict: 'member_key' })
+        .select()
+        .single()
+    }
+
+    if (memberRes.error) {
+      console.error('Error saving family member:', memberRes.error)
+      return { success: false, error: memberRes.error }
+    }
+
+    // Update relationships in family_relationships
+    if (Array.isArray(member.spouseIds) || Array.isArray(member.parentIds)) {
+      // Clear old relationships for this member_key
+      await supabase
+        .from('family_relationships')
+        .delete()
+        .eq('person_key', memberKey)
+
+      const relsToInsert = []
+      if (Array.isArray(member.spouseIds)) {
+        member.spouseIds.forEach(spKey => {
+          relsToInsert.push({ person_key: memberKey, related_key: spKey, relationship_type: 'spouse' })
+        })
+      }
+      if (Array.isArray(member.parentIds)) {
+        member.parentIds.forEach(pKey => {
+          relsToInsert.push({ person_key: memberKey, related_key: pKey, relationship_type: 'parent' })
+        })
+      }
+
+      if (relsToInsert.length > 0) {
+        await supabase.from('family_relationships').insert(relsToInsert)
+      }
+    }
+
+    return { success: true, data: memberRes.data }
+  } catch (err) {
+    console.error('Exception saving family member:', err)
+    return { success: false, error: err }
+  }
+}
+
+export async function deleteFamilyMember(memberKey) {
+  try {
+    const { error } = await supabase
+      .from('family_members')
+      .update({ is_deleted: true, is_active: false })
+      .eq('member_key', memberKey)
+    
+    if (error) return { success: false, error }
+    return { success: true }
+  } catch (err) {
+    return { success: false, error: err }
+  }
+}
