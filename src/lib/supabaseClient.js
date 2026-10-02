@@ -198,6 +198,22 @@ export async function getAwards() {
   return []
 }
 
+function normalizeGenderForDb(g) {
+  if (!g) return 'M'
+  const str = String(g).trim().toLowerCase()
+  if (str === 'female' || str === 'f') return 'F'
+  if (str === 'other' || str === 'o') return 'O'
+  return 'M'
+}
+
+function normalizeGenderForUi(g) {
+  if (!g) return 'male'
+  const str = String(g).trim().toUpperCase()
+  if (str === 'F' || str === 'FEMALE') return 'female'
+  if (str === 'O' || str === 'OTHER') return 'other'
+  return 'male'
+}
+
 export async function getFamilyTree() {
   try {
     const [membersRes, relsRes] = await Promise.all([
@@ -229,7 +245,7 @@ export async function getFamilyTree() {
           relation_hi: m.relation_hi || '',
           relation_en: m.relation_en || '',
           generation: m.generation || 1,
-          gender: m.gender || 'male',
+          gender: normalizeGenderForUi(m.gender),
           isDeceased: m.is_deceased || false,
           birthDate: m.birth_date || '',
           deathDate: m.death_date || '',
@@ -267,7 +283,7 @@ export async function saveFamilyMember(member) {
       name_en: member.name_en,
       relation_hi: member.relation_hi || '',
       relation_en: member.relation_en || '',
-      gender: member.gender || 'male',
+      gender: normalizeGenderForDb(member.gender),
       is_deceased: Boolean(member.isDeceased),
       birth_date: member.birthDate || '',
       death_date: member.deathDate || '',
@@ -298,16 +314,16 @@ export async function saveFamilyMember(member) {
         .single()
     }
 
-    // PGRST204 Fallback: If remote schema cache is missing optional columns (e.g. bio), retry with core payload
-    if (memberRes.error && memberRes.error.code === 'PGRST204') {
-      console.warn('PGRST204 Schema mismatch detected. Retrying upsert with core payload:', memberRes.error.message)
+    // Fallback: If 23514 or PGRST204 happens, retry with core payload & normalized gender
+    if (memberRes.error && (memberRes.error.code === 'PGRST204' || memberRes.error.code === '23514')) {
+      console.warn(`Error ${memberRes.error.code} detected. Retrying upsert with core payload:`, memberRes.error.message)
       const corePayload = {
         member_key: memberKey,
         name_hi: member.name_hi,
         name_en: member.name_en,
         relation_hi: member.relation_hi || '',
         relation_en: member.relation_en || '',
-        gender: member.gender || 'male',
+        gender: normalizeGenderForDb(member.gender),
         is_deceased: Boolean(member.isDeceased),
         birth_date: member.birthDate || '',
         death_date: member.deathDate || '',
