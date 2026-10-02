@@ -298,6 +298,44 @@ export async function saveFamilyMember(member) {
         .single()
     }
 
+    // PGRST204 Fallback: If remote schema cache is missing optional columns (e.g. bio), retry with core payload
+    if (memberRes.error && memberRes.error.code === 'PGRST204') {
+      console.warn('PGRST204 Schema mismatch detected. Retrying upsert with core payload:', memberRes.error.message)
+      const corePayload = {
+        member_key: memberKey,
+        name_hi: member.name_hi,
+        name_en: member.name_en,
+        relation_hi: member.relation_hi || '',
+        relation_en: member.relation_en || '',
+        gender: member.gender || 'male',
+        is_deceased: Boolean(member.isDeceased),
+        birth_date: member.birthDate || '',
+        death_date: member.deathDate || '',
+        generation: member.generation || 1,
+        city: member.city || 'Jaipur',
+        phone: member.phone || '',
+        photo_url: member.photoUrl || '',
+        is_deleted: false,
+        is_active: true,
+        updated_at: new Date().toISOString()
+      }
+
+      if (member.db_id) {
+        memberRes = await supabase
+          .from('family_members')
+          .update(corePayload)
+          .eq('id', member.db_id)
+          .select()
+          .single()
+      } else {
+        memberRes = await supabase
+          .from('family_members')
+          .upsert(corePayload, { onConflict: 'member_key' })
+          .select()
+          .single()
+      }
+    }
+
     if (memberRes.error) {
       console.error('Error saving family member to Supabase:', memberRes.error)
       return { success: false, error: memberRes.error }

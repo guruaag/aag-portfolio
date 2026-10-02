@@ -27,10 +27,25 @@ CREATE TABLE IF NOT EXISTS public.family_members (
   updated_at timestamptz DEFAULT now()
 );
 
--- Ensure deleted_at column exists if table was created previously
-ALTER TABLE public.family_members ADD COLUMN IF NOT EXISTS deleted_at timestamptz;
-ALTER TABLE public.family_members ADD COLUMN IF NOT EXISTS is_deleted boolean DEFAULT false;
+-- Ensure all optional columns exist if table was created previously
+ALTER TABLE public.family_members ADD COLUMN IF NOT EXISTS bio text;
+ALTER TABLE public.family_members ADD COLUMN IF NOT EXISTS notes text;
+ALTER TABLE public.family_members ADD COLUMN IF NOT EXISTS whatsapp_phone text;
+ALTER TABLE public.family_members ADD COLUMN IF NOT EXISTS marriage_anniversary_date text;
+ALTER TABLE public.family_members ADD COLUMN IF NOT EXISTS relation_hi text;
+ALTER TABLE public.family_members ADD COLUMN IF NOT EXISTS relation_en text;
+ALTER TABLE public.family_members ADD COLUMN IF NOT EXISTS gender text;
+ALTER TABLE public.family_members ADD COLUMN IF NOT EXISTS is_deceased boolean DEFAULT false;
+ALTER TABLE public.family_members ADD COLUMN IF NOT EXISTS birth_date text;
+ALTER TABLE public.family_members ADD COLUMN IF NOT EXISTS death_date text;
+ALTER TABLE public.family_members ADD COLUMN IF NOT EXISTS generation integer DEFAULT 1;
+ALTER TABLE public.family_members ADD COLUMN IF NOT EXISTS city text;
+ALTER TABLE public.family_members ADD COLUMN IF NOT EXISTS phone text;
+ALTER TABLE public.family_members ADD COLUMN IF NOT EXISTS photo_url text;
+ALTER TABLE public.family_members ADD COLUMN IF NOT EXISTS sort_order integer DEFAULT 0;
 ALTER TABLE public.family_members ADD COLUMN IF NOT EXISTS is_active boolean DEFAULT true;
+ALTER TABLE public.family_members ADD COLUMN IF NOT EXISTS is_deleted boolean DEFAULT false;
+ALTER TABLE public.family_members ADD COLUMN IF NOT EXISTS deleted_at timestamptz;
 
 -- 2. Family Relationships Table
 CREATE TABLE IF NOT EXISTS public.family_relationships (
