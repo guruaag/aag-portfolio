@@ -22,9 +22,15 @@ CREATE TABLE IF NOT EXISTS public.family_members (
   sort_order integer DEFAULT 0,
   is_active boolean DEFAULT true,
   is_deleted boolean DEFAULT false,
+  deleted_at timestamptz,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
 );
+
+-- Ensure deleted_at column exists if table was created previously
+ALTER TABLE public.family_members ADD COLUMN IF NOT EXISTS deleted_at timestamptz;
+ALTER TABLE public.family_members ADD COLUMN IF NOT EXISTS is_deleted boolean DEFAULT false;
+ALTER TABLE public.family_members ADD COLUMN IF NOT EXISTS is_active boolean DEFAULT true;
 
 -- 2. Family Relationships Table
 CREATE TABLE IF NOT EXISTS public.family_relationships (
@@ -40,24 +46,19 @@ CREATE TABLE IF NOT EXISTS public.family_relationships (
 ALTER TABLE public.family_members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.family_relationships ENABLE ROW LEVEL SECURITY;
 
--- 3. RLS Access Control Policies
+-- 3. RLS Access Control Policies (Permissive Public & Admin Write Access)
 DROP POLICY IF EXISTS "Public Read Family Members" ON public.family_members;
-CREATE POLICY "Public Read Family Members" ON public.family_members
-  FOR SELECT TO anon, authenticated
-  USING (coalesce(is_deleted, false) = false AND coalesce(is_active, true) = true);
-
 DROP POLICY IF EXISTS "Public Read Family Relationships" ON public.family_relationships;
-CREATE POLICY "Public Read Family Relationships" ON public.family_relationships
-  FOR SELECT TO anon, authenticated
-  USING (true);
-
 DROP POLICY IF EXISTS "Admin Full Access Family Members" ON public.family_members;
-CREATE POLICY "Admin Full Access Family Members" ON public.family_members
-  FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
 DROP POLICY IF EXISTS "Admin Full Access Family Relationships" ON public.family_relationships;
-CREATE POLICY "Admin Full Access Family Relationships" ON public.family_relationships
-  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "Public Manage Family Members" ON public.family_members;
+DROP POLICY IF EXISTS "Public Manage Family Relationships" ON public.family_relationships;
+
+CREATE POLICY "Public Manage Family Members" ON public.family_members
+  FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "Public Manage Family Relationships" ON public.family_relationships
+  FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 
 -- 4. Soft-delete Trigger
 DROP TRIGGER IF EXISTS trg_prevent_delete_family_members ON public.family_members;

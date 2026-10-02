@@ -186,8 +186,16 @@ export const autoTransliterateToHindi = (englishText) => {
   if (!englishText) return ''
   const commonMap = {
     'shri': 'श्री',
+    'mr': 'श्री',
+    'mr.': 'श्री',
     'smt': 'श्रीमती',
     'smt.': 'श्रीमती',
+    'mrs': 'श्रीमती',
+    'mrs.': 'श्रीमती',
+    'ms': 'कुमारी',
+    'ms.': 'कुमारी',
+    'dr': 'डॉ.',
+    'dr.': 'डॉ.',
     'kavi': 'कवि',
     'gurupratap': 'गुरुप्रताप',
     'sharma': 'शर्मा',
@@ -225,12 +233,17 @@ export const autoTransliterateToHindi = (englishText) => {
     'rajni': 'रजनी',
     'sanjeev': 'संजीव',
     'kavita': 'कविता',
-    'rajesh': 'राजेश'
+    'rajesh': 'राजेश',
+    'test': 'टेस्ट',
+    'node': 'नोड',
+    'user': 'उपयोगकर्ता',
+    'admin': 'प्रशासक'
   }
   const words = englishText.trim().split(/\s+/)
   const convertedWords = words.map(word => {
     const cleanWord = word.replace(/[^a-zA-Z]/g, '').toLowerCase()
     if (commonMap[cleanWord]) return commonMap[cleanWord]
+    
     let res = word
       .replace(/sh/gi, 'श')
       .replace(/ch/gi, 'च')
@@ -240,15 +253,15 @@ export const autoTransliterateToHindi = (englishText) => {
       .replace(/gh/gi, 'घ')
       .replace(/bh/gi, 'भ')
       .replace(/dh/gi, 'ध')
-      .replace(/a/gi, 'ा')
       .replace(/ee/gi, 'ी')
-      .replace(/i/gi, 'ि')
       .replace(/oo/gi, 'ू')
+      .replace(/ai/gi, 'ै')
+      .replace(/au/gi, 'ौ')
+      .replace(/a/gi, 'ा')
+      .replace(/i/gi, 'ि')
       .replace(/u/gi, 'ु')
       .replace(/e/gi, 'े')
-      .replace(/ai/gi, 'ै')
       .replace(/o/gi, 'ो')
-      .replace(/au/gi, 'ौ')
       .replace(/k/gi, 'क')
       .replace(/g/gi, 'ग')
       .replace(/j/gi, 'ज')
@@ -264,8 +277,15 @@ export const autoTransliterateToHindi = (englishText) => {
       .replace(/w/gi, 'व')
       .replace(/s/gi, 'स')
       .replace(/h/gi, 'ह')
+      .replace(/y/gi, 'य')
+      .replace(/z/gi, 'ज़')
+      .replace(/f/gi, 'फ़')
+      .replace(/x/gi, 'क्स')
+      .replace(/c/gi, 'क')
+      .replace(/q/gi, 'क')
     return res
   })
+  return convertedWords.join(' ')
 }
 
 export const getBirthYear = (dateStr) => {
@@ -909,12 +929,22 @@ export default function FamilyTreeCanvas({
 
   useEffect(() => {
     let isMounted = true
-    getFamilyTree().then(remoteData => {
-      if (isMounted && Array.isArray(remoteData) && remoteData.length > 0) {
-        setMembersList(remoteData)
-      }
-    }).catch(err => console.warn('Family tree fetch fallback:', err))
-    return () => { isMounted = false }
+
+    const fetchTreeData = () => {
+      getFamilyTree().then(remoteData => {
+        if (isMounted && Array.isArray(remoteData) && remoteData.length > 0) {
+          setMembersList(remoteData)
+        }
+      }).catch(err => console.warn('Family tree fetch fallback:', err))
+    }
+
+    fetchTreeData()
+
+    window.addEventListener('familyTreeDataChanged', fetchTreeData)
+    return () => {
+      isMounted = false
+      window.removeEventListener('familyTreeDataChanged', fetchTreeData)
+    }
   }, [])
   const [viewMode, setViewMode] = useState('canvas') // 'canvas' | 'table'
   const [isAdminEditOpen, setIsAdminEditOpen] = useState(false)

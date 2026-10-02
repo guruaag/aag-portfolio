@@ -206,7 +206,7 @@ export async function getFamilyTree() {
     ])
 
     if (!membersRes.error && membersRes.data && membersRes.data.length > 0) {
-      const activeMembers = membersRes.data.filter(m => m.is_deleted !== true && m.is_active !== false)
+      const activeMembers = membersRes.data.filter(m => m.is_deleted !== true && m.is_active !== false && !m.deleted_at)
       const relationships = relsRes.data || []
 
       const formattedMembers = activeMembers.map(m => {
@@ -276,6 +276,9 @@ export async function saveFamilyMember(member) {
       phone: member.phone || '',
       photo_url: member.photoUrl || '',
       bio: member.bio || '',
+      is_deleted: false,
+      is_active: true,
+      deleted_at: null,
       updated_at: new Date().toISOString()
     }
 
@@ -296,12 +299,15 @@ export async function saveFamilyMember(member) {
     }
 
     if (memberRes.error) {
-      console.error('Error saving family member:', memberRes.error)
+      console.error('Error saving family member to Supabase:', memberRes.error)
       return { success: false, error: memberRes.error }
     }
 
-    // Invalidate local cache immediately on save
+    // Invalidate local cache & notify all components via event
     try { localStorage.removeItem('cache_family_tree') } catch (e) {}
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('familyTreeDataChanged'))
+    }
 
     // Update relationships in family_relationships
     if (Array.isArray(member.spouseIds) || Array.isArray(member.parentIds)) {
@@ -311,7 +317,7 @@ export async function saveFamilyMember(member) {
         .delete()
         .eq('person_key', memberKey)
 
-      // Also clear stale spouse links pointing TO this member_key to prevent orphaned spouse rows
+      // Clear stale spouse links pointing TO this member_key to prevent orphaned spouse rows
       await supabase
         .from('family_relationships')
         .delete()
@@ -347,15 +353,27 @@ export async function saveFamilyMember(member) {
 
 export async function deleteFamilyMember(memberKey) {
   try {
+    const nowIso = new Date().toISOString()
     const { error } = await supabase
       .from('family_members')
-      .update({ is_deleted: true, is_active: false })
-      .eq('member_key', memberKey)
+      .update({
+        is_deleted: true,
+        is_active: false,
+        deleted_at: nowIso,
+        updated_at: nowIso
+      })
+      .or(`member_key.eq.${memberKey},id.eq.${memberKey}`)
     
-    if (error) return { success: false, error }
+    if (error) {
+      console.error('Error soft-deleting family member in Supabase:', error)
+      return { success: false, error }
+    }
 
-    // Invalidate local cache immediately on delete
+    // Invalidate local cache & notify all components via event
     try { localStorage.removeItem('cache_family_tree') } catch (e) {}
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('familyTreeDataChanged'))
+    }
 
     // Clean up relationship edges associated with deleted member
     await Promise.all([
@@ -365,6 +383,7 @@ export async function deleteFamilyMember(memberKey) {
 
     return { success: true }
   } catch (err) {
+    console.error('Exception soft-deleting family member:', err)
     return { success: false, error: err }
   }
 }
