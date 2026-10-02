@@ -300,18 +300,31 @@ export async function saveFamilyMember(member) {
       return { success: false, error: memberRes.error }
     }
 
+    // Invalidate local cache immediately on save
+    try { localStorage.removeItem('cache_family_tree') } catch (e) {}
+
     // Update relationships in family_relationships
     if (Array.isArray(member.spouseIds) || Array.isArray(member.parentIds)) {
-      // Clear old relationships for this member_key
+      // Clear outbound relationships for this member_key
       await supabase
         .from('family_relationships')
         .delete()
         .eq('person_key', memberKey)
 
+      // Also clear stale spouse links pointing TO this member_key to prevent orphaned spouse rows
+      await supabase
+        .from('family_relationships')
+        .delete()
+        .eq('related_key', memberKey)
+        .eq('relationship_type', 'spouse')
+
       const relsToInsert = []
       if (Array.isArray(member.spouseIds)) {
         member.spouseIds.forEach(spKey => {
+          // Outbound spouse link (A -> B)
           relsToInsert.push({ person_key: memberKey, related_key: spKey, relationship_type: 'spouse' })
+          // Reciprocal spouse link (B -> A) for bidirectional graph symmetry
+          relsToInsert.push({ person_key: spKey, related_key: memberKey, relationship_type: 'spouse' })
         })
       }
       if (Array.isArray(member.parentIds)) {
@@ -321,7 +334,7 @@ export async function saveFamilyMember(member) {
       }
 
       if (relsToInsert.length > 0) {
-        await supabase.from('family_relationships').insert(relsToInsert)
+        await supabase.from('family_relationships').upsert(relsToInsert, { onConflict: 'person_key,related_key,relationship_type' })
       }
     }
 
@@ -340,6 +353,16 @@ export async function deleteFamilyMember(memberKey) {
       .eq('member_key', memberKey)
     
     if (error) return { success: false, error }
+
+    // Invalidate local cache immediately on delete
+    try { localStorage.removeItem('cache_family_tree') } catch (e) {}
+
+    // Clean up relationship edges associated with deleted member
+    await Promise.all([
+      supabase.from('family_relationships').delete().eq('person_key', memberKey),
+      supabase.from('family_relationships').delete().eq('related_key', memberKey)
+    ]).catch(() => {})
+
     return { success: true }
   } catch (err) {
     return { success: false, error: err }
